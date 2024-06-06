@@ -1,0 +1,7 @@
+{
+  "./*.(ts|js|json)": "pnpm eslint --fix",
+  "./src/**/*.(ts|tsx|js|jsx)": ["pnpm eslint --fix"],
+  "./__tests__/**/*.(spec|test).(ts|tsx)": [
+    "pnpm vitest -c ./vitest.config.mts --changed --fileParallelism=false --silent --run"
+  ]
+}
