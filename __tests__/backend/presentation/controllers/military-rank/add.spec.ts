@@ -1,6 +1,7 @@
 import { MilitaryRankInMemoryRepository } from "@/../__mocks__";
 import { MilitaryRankRepository } from "@/backend/data/repositories";
 import { AddMilitaryRankService } from "@/backend/data/services";
+import { MilitaryRankValidator } from "@/backend/data/validators";
 import { AddMilitaryRankController } from "@/backend/presentation/controllers";
 import { HttpRequest, HttpResponse } from "@/backend/presentation/protocols";
 import { describe, expect, test } from "vitest";
@@ -13,7 +14,11 @@ interface SutResponse {
 const makeSut = (): SutResponse => {
   const repository: MilitaryRankRepository =
     new MilitaryRankInMemoryRepository();
-  const addMilitaryRankService = new AddMilitaryRankService(repository);
+  const validator: MilitaryRankValidator = new MilitaryRankValidator();
+  const addMilitaryRankService = new AddMilitaryRankService({
+    repository,
+    validator,
+  });
 
   const sut = new AddMilitaryRankController(addMilitaryRankService);
 
