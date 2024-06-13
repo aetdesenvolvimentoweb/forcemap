@@ -32,4 +32,12 @@ describe("AddMilitaryRankService", () => {
       missingParamError("ordem")
     );
   });
+  test("should be throws if no abbreviated name is provided", async () => {
+    const { sut } = makeSut();
+
+    // @ts-expect-error
+    await expect(sut.add({ order: 1 })).rejects.toThrow(
+      missingParamError("nome abreviado")
+    );
+  });
 });
