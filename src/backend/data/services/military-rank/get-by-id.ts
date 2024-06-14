@@ -20,6 +20,8 @@ export class GetMilitaryRankByIdService implements GetMilitaryRankByIdUsecase {
   public readonly getById = async (
     id: string
   ): Promise<MilitaryRank | null> => {
+    await this.validator.validateId(id);
+
     return await this.repository.getById(id);
   };
 }

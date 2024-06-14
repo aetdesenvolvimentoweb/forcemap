@@ -3,13 +3,19 @@ import { duplicatedKeyError, missingParamError } from "../helpers";
 import { MilitaryRankRepository } from "../repositories";
 
 export class MilitaryRankValidator {
+  private id: string;
   private order: number;
   private abbreviatedName: string;
 
   constructor(private readonly repository: MilitaryRankRepository) {
+    this.id = "";
     this.order = 0;
     this.abbreviatedName = "";
   }
+
+  private setId = (id: string): void => {
+    this.id = id;
+  };
 
   private setOrder = (order: number): void => {
     this.order = order;
@@ -37,6 +43,12 @@ export class MilitaryRankValidator {
     }
   };
 
+  private readonly checkId = async (): Promise<void> => {
+    if (!this.id) {
+      throw missingParamError("ID");
+    }
+  };
+
   public readonly validateAddProps = async (
     props: MilitaryRankProps
   ): Promise<void> => {
@@ -44,5 +56,11 @@ export class MilitaryRankValidator {
     this.setAbbreviatedName(props.abbreviatedName);
 
     await this.validateProps();
+  };
+
+  public readonly validateId = async (id: string): Promise<void> => {
+    this.setId(id);
+
+    await this.checkId();
   };
 }
