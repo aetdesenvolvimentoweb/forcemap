@@ -1,6 +1,6 @@
 import { AddMilitaryRankService } from "@/backend/data/services";
 import { MilitaryRank, MilitaryRankProps } from "@/backend/domain/entities";
-import { created, serverError } from "../../helpers";
+import { created, httpError } from "../../helpers";
 import { Controller, HttpRequest, HttpResponse } from "../../protocols";
 
 export class AddMilitaryRankController implements Controller {
@@ -13,7 +13,7 @@ export class AddMilitaryRankController implements Controller {
       await this.addMilitaryRankService.add(request.body);
       return created();
     } catch (error: any) {
-      return serverError();
+      return httpError(error);
     }
   };
 }
