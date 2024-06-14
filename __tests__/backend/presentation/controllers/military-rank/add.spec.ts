@@ -5,8 +5,9 @@ import { AddMilitaryRankService } from "@/backend/data/services";
 import { MilitaryRankValidator } from "@/backend/data/validators";
 import { MilitaryRankProps } from "@/backend/domain";
 import { AddMilitaryRankController } from "@/backend/presentation/controllers";
+import { serverError } from "@/backend/presentation/helpers";
 import { HttpRequest, HttpResponse } from "@/backend/presentation/protocols";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 interface SutResponse {
   repository: MilitaryRankRepository;
@@ -75,5 +76,26 @@ describe("AddMilitaryRankController", () => {
     expect(httpResponse.body.errorMessage).toBe(
       missingParamError("nome abreviado").message
     );
+  });
+  test("should be return 500 on server error", async () => {
+    const { repository, sut } = makeSut();
+    const mockServerError = vi.spyOn(repository, "add");
+    mockServerError.mockRejectedValueOnce(new Error());
+
+    const httpRequest: HttpRequest = {
+      body: {
+        order: 2,
+        abbreviatedName: "Cel",
+      },
+    };
+
+    const httpResponse: HttpResponse = await sut.handle(httpRequest);
+
+    expect(httpResponse.statusCode).toBe(500);
+    expect(httpResponse.body.errorMessage).toBe(
+      serverError().body.errorMessage
+    );
+
+    mockServerError.mockRestore();
   });
 });
