@@ -54,11 +54,26 @@ describe("AddMilitaryRankController", () => {
 
     const httpResponse: HttpResponse = await sut.handle(httpRequest);
 
-    console.log("httpResponse", httpResponse);
-
     expect(httpResponse.statusCode).toBe(400);
     expect(httpResponse.body.errorMessage).toBe(
       missingParamError("ordem").message
+    );
+  });
+  test("should be return 400 on missing param abbreviated name", async () => {
+    const { sut } = makeSut();
+
+    const httpRequest: HttpRequest<MilitaryRankProps> = {
+      // @ts-expect-error
+      body: {
+        order: 1,
+      },
+    };
+
+    const httpResponse: HttpResponse = await sut.handle(httpRequest);
+
+    expect(httpResponse.statusCode).toBe(400);
+    expect(httpResponse.body.errorMessage).toBe(
+      missingParamError("nome abreviado").message
     );
   });
 });
