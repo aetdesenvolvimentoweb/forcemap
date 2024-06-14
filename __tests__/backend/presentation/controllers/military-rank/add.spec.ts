@@ -1,5 +1,5 @@
 import { MilitaryRankInMemoryRepository } from "@/../__mocks__";
-import { missingParamError } from "@/backend/data/helpers";
+import { duplicatedKeyError, missingParamError } from "@/backend/data/helpers";
 import { MilitaryRankRepository } from "@/backend/data/repositories";
 import { AddMilitaryRankService } from "@/backend/data/services";
 import { MilitaryRankValidator } from "@/backend/data/validators";
@@ -45,6 +45,7 @@ describe("AddMilitaryRankController", () => {
 
     expect(httpResponse.statusCode).toBe(201);
   });
+
   test("should be return 400 on missing param order", async () => {
     const { sut } = makeSut();
 
@@ -62,6 +63,7 @@ describe("AddMilitaryRankController", () => {
       missingParamError("ordem").message
     );
   });
+
   test("should be return 400 on missing param abbreviated name", async () => {
     const { sut } = makeSut();
 
@@ -79,6 +81,30 @@ describe("AddMilitaryRankController", () => {
       missingParamError("nome abreviado").message
     );
   });
+
+  test("should be return 400 on duplicated key", async () => {
+    const { sut } = makeSut();
+
+    await sut.handle({
+      body: {
+        order: 1,
+        abbreviatedName: "Cel",
+      },
+    });
+
+    const httpResponse: HttpResponse = await sut.handle({
+      body: {
+        order: 2,
+        abbreviatedName: "Cel",
+      },
+    });
+
+    expect(httpResponse.statusCode).toBe(400);
+    expect(httpResponse.body.errorMessage).toBe(
+      duplicatedKeyError("nome abreviado").message
+    );
+  });
+
   test("should be return 500 on server error", async () => {
     const { repository, sut } = makeSut();
     const mockServerError = vi.spyOn(repository, "add");
