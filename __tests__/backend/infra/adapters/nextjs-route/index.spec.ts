@@ -10,7 +10,7 @@ import { describe, expect, test } from "vitest";
 describe("nextjsRouteAdapter", () => {
   test("should be return false to success on missing param order", async () => {
     const repository = new MilitaryRankInMemoryRepository();
-    const validator = new MilitaryRankValidator();
+    const validator = new MilitaryRankValidator(repository);
     const addMilitaryRankService = new AddMilitaryRankService({
       repository,
       validator,

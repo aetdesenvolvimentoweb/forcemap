@@ -17,7 +17,9 @@ interface SutResponse {
 const makeSut = (): SutResponse => {
   const repository: MilitaryRankRepository =
     new MilitaryRankInMemoryRepository();
-  const validator: MilitaryRankValidator = new MilitaryRankValidator();
+  const validator: MilitaryRankValidator = new MilitaryRankValidator(
+    repository
+  );
   const addMilitaryRankService = new AddMilitaryRankService({
     repository,
     validator,
