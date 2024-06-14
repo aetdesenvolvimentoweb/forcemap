@@ -1,5 +1,5 @@
 import { MilitaryRankRepository } from "@/backend/data/repositories";
-import { MilitaryRankProps } from "@/backend/domain/entities";
+import { MilitaryRank, MilitaryRankProps } from "@/backend/domain/entities";
 import { prismaClient } from "../../prisma-client";
 
 export class MilitaryRankPrismaRespository implements MilitaryRankRepository {
@@ -8,6 +8,16 @@ export class MilitaryRankPrismaRespository implements MilitaryRankRepository {
       data: {
         order: props.order,
         abbreviatedName: props.abbreviatedName,
+      },
+    });
+  };
+
+  public readonly getByAbbreviatedName = async (
+    abbreviatedName: string
+  ): Promise<MilitaryRank | null> => {
+    return await prismaClient.militaryRank.findUnique({
+      where: {
+        abbreviatedName,
       },
     });
   };

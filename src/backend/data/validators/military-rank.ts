@@ -1,11 +1,12 @@
 import { MilitaryRankProps } from "@/backend/domain/entities";
-import { missingParamError } from "../helpers";
+import { duplicatedKeyError, missingParamError } from "../helpers";
+import { MilitaryRankRepository } from "../repositories";
 
 export class MilitaryRankValidator {
   private order: number;
   private abbreviatedName: string;
 
-  constructor() {
+  constructor(private readonly repository: MilitaryRankRepository) {
     this.order = 0;
     this.abbreviatedName = "";
   }
@@ -25,6 +26,14 @@ export class MilitaryRankValidator {
 
     if (!this.abbreviatedName) {
       throw missingParamError("nome abreviado");
+    }
+
+    const alreadyExist = await this.repository.getByAbbreviatedName(
+      this.abbreviatedName
+    );
+
+    if (alreadyExist) {
+      throw duplicatedKeyError("nome abreviado");
     }
   };
 
