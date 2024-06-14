@@ -17,4 +17,12 @@ export class MilitaryRankInMemoryRepository implements MilitaryRankRepository {
       ) || null
     );
   };
+
+  public readonly getById = async (
+    id: string
+  ): Promise<MilitaryRank | null> => {
+    return (
+      this.militaryRanks.find((militaryRank) => militaryRank.id === id) || null
+    );
+  };
 }
