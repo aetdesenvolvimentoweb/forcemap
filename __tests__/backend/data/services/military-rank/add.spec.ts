@@ -24,6 +24,7 @@ describe("AddMilitaryRankService", () => {
       sut.add({ order: 1, abbreviatedName: "Cel" })
     ).resolves.not.toThrow();
   });
+
   test("should be throws if no order is provided", async () => {
     const { sut } = makeSut();
 
@@ -32,6 +33,7 @@ describe("AddMilitaryRankService", () => {
       missingParamError("ordem")
     );
   });
+
   test("should be throws if no abbreviated name is provided", async () => {
     const { sut } = makeSut();
 
@@ -40,6 +42,7 @@ describe("AddMilitaryRankService", () => {
       missingParamError("nome abreviado")
     );
   });
+
   test("should be throws if duplicated abbreviated name is provided", async () => {
     const { sut } = makeSut();
 

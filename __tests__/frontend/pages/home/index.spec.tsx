@@ -8,11 +8,13 @@ describe("HomePage", () => {
 
     expect(screen.getAllByText("ForceMap")).toBeDefined();
   });
+
   test("should be able to render a main", () => {
     render(<HomePage />);
 
     expect(screen.getAllByText("Em desenvolvimento...")).toBeDefined();
   });
+
   test("should be able to render a footer", () => {
     render(<HomePage />);
 
