@@ -12,6 +12,7 @@ const clearDatabase = async (): Promise<void> => {
 
 describe("Military Rank API route", () => {
   beforeAll(async () => {
+    console.log("vai começar");
     await clearDatabase();
   });
 

@@ -3,7 +3,7 @@ import { missingParamError } from "@/backend/data/helpers";
 import { MilitaryRankRepository } from "@/backend/data/repositories";
 import { AddMilitaryRankService } from "@/backend/data/services";
 import { MilitaryRankValidator } from "@/backend/data/validators";
-import { MilitaryRankProps } from "@/backend/domain";
+import { MilitaryRankProps } from "@/backend/domain/entities";
 import { AddMilitaryRankController } from "@/backend/presentation/controllers";
 import { serverError } from "@/backend/presentation/helpers";
 import { HttpRequest, HttpResponse } from "@/backend/presentation/protocols";

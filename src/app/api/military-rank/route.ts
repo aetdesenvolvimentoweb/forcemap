@@ -1,7 +1,5 @@
-import {
-  makeAddMilitaryRankController,
-  nextjsRouteAdapter,
-} from "@/backend/infra";
+import { nextjsRouteAdapter } from "@/backend/infra/adapters";
+import { makeAddMilitaryRankController } from "@/backend/infra/factories";
 import { HttpResponse } from "@/backend/presentation/protocols";
 import { NextRequest, NextResponse } from "next/server";
 

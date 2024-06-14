@@ -1,5 +1,5 @@
-import { MilitaryRankRepository } from "@/backend/data";
-import { MilitaryRankProps } from "@/backend/domain";
+import { MilitaryRankRepository } from "@/backend/data/repositories";
+import { MilitaryRankProps } from "@/backend/domain/entities";
 import { prismaClient } from "../../prisma-client";
 
 export class MilitaryRankPrismaRespository implements MilitaryRankRepository {
