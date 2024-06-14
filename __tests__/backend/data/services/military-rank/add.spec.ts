@@ -1,5 +1,5 @@
 import { MilitaryRankInMemoryRepository } from "@/../__mocks__";
-import { missingParamError } from "@/backend/data/helpers";
+import { duplicatedKeyError, missingParamError } from "@/backend/data/helpers";
 import { AddMilitaryRankService } from "@/backend/data/services";
 import { MilitaryRankValidator } from "@/backend/data/validators";
 import { describe, expect, test } from "vitest";
@@ -10,7 +10,7 @@ interface SutResponse {
 
 const makeSut = (): SutResponse => {
   const repository = new MilitaryRankInMemoryRepository();
-  const validator = new MilitaryRankValidator();
+  const validator = new MilitaryRankValidator(repository);
   const sut = new AddMilitaryRankService({ repository, validator });
 
   return { sut };
@@ -38,6 +38,15 @@ describe("AddMilitaryRankService", () => {
     // @ts-expect-error
     await expect(sut.add({ order: 1 })).rejects.toThrow(
       missingParamError("nome abreviado")
+    );
+  });
+  test("should be throws if duplicated abbreviated name is provided", async () => {
+    const { sut } = makeSut();
+
+    await sut.add({ order: 1, abbreviatedName: "Cel" });
+
+    await expect(sut.add({ order: 1, abbreviatedName: "Cel" })).rejects.toThrow(
+      duplicatedKeyError("nome abreviado")
     );
   });
 });
