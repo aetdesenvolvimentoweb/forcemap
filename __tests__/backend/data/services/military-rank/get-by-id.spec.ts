@@ -1,4 +1,5 @@
 import { MilitaryRankInMemoryRepository } from "@/../__mocks__";
+import { missingParamError } from "@/backend/data/helpers";
 import { MilitaryRankRepository } from "@/backend/data/repositories";
 import { GetMilitaryRankByIdService } from "@/backend/data/services";
 import { MilitaryRankValidator } from "@/backend/data/validators";
@@ -27,5 +28,11 @@ describe("GetMilitaryRankByIdService", () => {
     const id = militaryRank?.id || "";
 
     await expect(sut.getById(id)).resolves.toEqual(militaryRank);
+  });
+
+  test("should be throws if no id is provided", async () => {
+    const { sut } = makeSut();
+
+    await expect(sut.getById("")).rejects.toThrow(missingParamError("ID"));
   });
 });
