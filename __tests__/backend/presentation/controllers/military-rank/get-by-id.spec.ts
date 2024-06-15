@@ -8,6 +8,7 @@ import { GetMilitaryRankByIdService } from "@/backend/data/services";
 import { MilitaryRankValidator } from "@/backend/data/validators";
 import { IdValidator } from "@/backend/domain/usecases";
 import { GetMilitaryRankByIdController } from "@/backend/presentation/controllers";
+import { serverError } from "@/backend/presentation/helpers";
 import { HttpRequest } from "@/backend/presentation/protocols";
 import { describe, expect, test, vi } from "vitest";
 
@@ -75,7 +76,7 @@ describe("GetMilitaryRankByIdController", () => {
     );
   });
 
-  test("should be return 400 if invalid id", async () => {
+  test("should be return 400 on invalid id", async () => {
     const { idValidator, sut } = makeSut();
     const mockInvalidId = vi.spyOn(idValidator, "isValid");
     mockInvalidId.mockImplementationOnce(() => false);
@@ -93,5 +94,26 @@ describe("GetMilitaryRankByIdController", () => {
     );
 
     mockInvalidId.mockRestore();
+  });
+
+  test("should be return 500 on server error", async () => {
+    const { repository, sut } = makeSut();
+
+    const mockServerError = vi.spyOn(repository, "getById");
+    mockServerError.mockRejectedValueOnce(new Error());
+
+    const httpRequest: HttpRequest = {
+      body: {},
+      params: { id: "valid-id" },
+    };
+
+    const httpResponse = await sut.handle(httpRequest);
+
+    expect(httpResponse.statusCode).toBe(500);
+    expect(httpResponse.body.errorMessage).toEqual(
+      serverError().body.errorMessage
+    );
+
+    mockServerError.mockRestore();
   });
 });
