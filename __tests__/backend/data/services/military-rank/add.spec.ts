@@ -1,4 +1,7 @@
-import { MilitaryRankInMemoryRepository } from "@/../__mocks__";
+import {
+  IdValidatorStub,
+  MilitaryRankInMemoryRepository,
+} from "@/../__mocks__";
 import { duplicatedKeyError, missingParamError } from "@/backend/data/helpers";
 import { AddMilitaryRankService } from "@/backend/data/services";
 import { MilitaryRankValidator } from "@/backend/data/validators";
@@ -10,7 +13,8 @@ interface SutResponse {
 
 const makeSut = (): SutResponse => {
   const repository = new MilitaryRankInMemoryRepository();
-  const validator = new MilitaryRankValidator(repository);
+  const idValidator = new IdValidatorStub();
+  const validator = new MilitaryRankValidator({ idValidator, repository });
   const sut = new AddMilitaryRankService({ repository, validator });
 
   return { sut };

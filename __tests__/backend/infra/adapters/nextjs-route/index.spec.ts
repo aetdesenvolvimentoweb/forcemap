@@ -6,11 +6,13 @@ import { AddMilitaryRankController } from "@/backend/presentation/controllers";
 import { HttpResponse } from "@/backend/presentation/protocols";
 import { NextRequest } from "next/server";
 import { describe, expect, test } from "vitest";
+import { IdValidatorStub } from "../../../../../__mocks__";
 
 describe("nextjsRouteAdapter", () => {
   test("should be return false to success on missing param order", async () => {
     const repository = new MilitaryRankInMemoryRepository();
-    const validator = new MilitaryRankValidator(repository);
+    const idValidator = new IdValidatorStub();
+    const validator = new MilitaryRankValidator({ idValidator, repository });
     const addMilitaryRankService = new AddMilitaryRankService({
       repository,
       validator,
