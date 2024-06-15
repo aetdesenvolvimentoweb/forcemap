@@ -1,16 +1,32 @@
 import { MilitaryRankProps } from "@/backend/domain/entities";
-import { duplicatedKeyError, missingParamError } from "../helpers";
+import { IdValidator } from "@/backend/domain/usecases";
+import {
+  duplicatedKeyError,
+  invalidParamError,
+  missingParamError,
+} from "../helpers";
 import { MilitaryRankRepository } from "../repositories";
+
+type Dependencies = {
+  repository: MilitaryRankRepository;
+  idValidator: IdValidator;
+};
 
 export class MilitaryRankValidator {
   private id: string;
   private order: number;
   private abbreviatedName: string;
 
-  constructor(private readonly repository: MilitaryRankRepository) {
+  private repository: MilitaryRankRepository;
+  private idValidator: IdValidator;
+
+  constructor(dependencies: Dependencies) {
     this.id = "";
     this.order = 0;
     this.abbreviatedName = "";
+
+    this.repository = dependencies.repository;
+    this.idValidator = dependencies.idValidator;
   }
 
   private setId = (id: string): void => {
@@ -46,6 +62,11 @@ export class MilitaryRankValidator {
   private readonly checkId = async (): Promise<void> => {
     if (!this.id) {
       throw missingParamError("ID");
+    }
+
+    const isValid = this.idValidator.isValid(this.id);
+    if (!isValid) {
+      throw invalidParamError("ID");
     }
   };
 

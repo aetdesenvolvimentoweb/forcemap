@@ -10,3 +10,7 @@ export const duplicatedKeyError = (key: string): AppError => {
     400
   );
 };
+
+export const invalidParamError = (param: string): AppError => {
+  return new AppError(`Valor inválido para o campo: ${param}`, 400);
+};

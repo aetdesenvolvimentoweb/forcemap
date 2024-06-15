@@ -21,4 +21,14 @@ export class MilitaryRankPrismaRespository implements MilitaryRankRepository {
       },
     });
   };
+
+  public readonly getById = async (
+    id: string
+  ): Promise<MilitaryRank | null> => {
+    return await prismaClient.militaryRank.findFirst({
+      where: {
+        id,
+      },
+    });
+  };
 }

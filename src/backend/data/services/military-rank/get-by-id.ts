@@ -3,7 +3,7 @@ import { GetMilitaryRankByIdUsecase } from "@/backend/domain/usecases";
 import { MilitaryRankRepository } from "../../repositories";
 import { MilitaryRankValidator } from "../../validators";
 
-export type Dependencies = {
+type Dependencies = {
   repository: MilitaryRankRepository;
   validator: MilitaryRankValidator;
 };
