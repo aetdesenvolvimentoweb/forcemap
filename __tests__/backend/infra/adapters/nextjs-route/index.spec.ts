@@ -1,8 +1,14 @@
 import { MilitaryRankInMemoryRepository } from "@/../__mocks__/repositories";
-import { AddMilitaryRankService } from "@/backend/data/services";
+import {
+  AddMilitaryRankService,
+  GetMilitaryRankByIdService,
+} from "@/backend/data/services";
 import { MilitaryRankValidator } from "@/backend/data/validators";
 import { nextjsRouteAdapter } from "@/backend/infra/adapters/nextjs-route";
-import { AddMilitaryRankController } from "@/backend/presentation/controllers";
+import {
+  AddMilitaryRankController,
+  GetMilitaryRankByIdController,
+} from "@/backend/presentation/controllers";
 import { HttpResponse } from "@/backend/presentation/protocols";
 import { NextRequest } from "next/server";
 import { describe, expect, test } from "vitest";
@@ -35,5 +41,39 @@ describe("nextjsRouteAdapter", () => {
     });
 
     expect(sutResponse.body.success).toBeFalsy();
+  });
+
+  test("should be return a military rank by id", async () => {
+    const repository = new MilitaryRankInMemoryRepository();
+    const idValidator = new IdValidatorStub();
+    const validator = new MilitaryRankValidator({ idValidator, repository });
+    const getMilitaryRankByIdService = new GetMilitaryRankByIdService({
+      repository,
+      validator,
+    });
+    const controller = new GetMilitaryRankByIdController(
+      getMilitaryRankByIdService
+    );
+
+    await repository.add({ order: 1, abbreviatedName: "Cel" });
+    const militaryRank = await repository.getByAbbreviatedName("Cel");
+    const id = militaryRank?.id || "";
+
+    const request = new NextRequest("http://localhost:3000/military-rank", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    const sutResponse: HttpResponse = await nextjsRouteAdapter({
+      controller,
+      request,
+      dynamicParams: { id },
+    }).then(async (data) => {
+      return await data.json();
+    });
+
+    expect(sutResponse.body.data).toEqual(militaryRank);
   });
 });
