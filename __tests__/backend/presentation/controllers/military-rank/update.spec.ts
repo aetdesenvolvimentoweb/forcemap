@@ -14,6 +14,7 @@ import { MilitaryRankValidator } from "@/backend/data/validators";
 import { MilitaryRankProps } from "@/backend/domain/entities";
 import { IdValidator } from "@/backend/domain/usecases";
 import { UpdateMilitaryRankController } from "@/backend/presentation/controllers";
+import { serverError } from "@/backend/presentation/helpers";
 import { HttpRequest, HttpResponse } from "@/backend/presentation/protocols";
 import { describe, expect, test, vi } from "vitest";
 
@@ -212,5 +213,37 @@ describe("UpdateMilitaryRankController", () => {
     expect(httpResponse.body.errorMessage).toBe(
       duplicatedKeyError("nome abreviado").message
     );
+  });
+
+  test("should be return 500 on server error", async () => {
+    const { repository, sut } = makeSut();
+
+    const mockServerError = vi.spyOn(repository, "update");
+    mockServerError.mockRejectedValueOnce(new Error());
+
+    await repository.add({
+      order: 1,
+      abbreviatedName: "Cel",
+    });
+
+    const militaryRank = await repository.getByAbbreviatedName("Cel");
+    const id = militaryRank?.id || "";
+
+    const httpRequest: HttpRequest<MilitaryRankProps> = {
+      body: {
+        order: 2,
+        abbreviatedName: "TC",
+      },
+      params: { id },
+    };
+
+    const httpResponse: HttpResponse = await sut.handle(httpRequest);
+
+    expect(httpResponse.statusCode).toBe(500);
+    expect(httpResponse.body.errorMessage).toEqual(
+      serverError().body.errorMessage
+    );
+
+    mockServerError.mockRestore();
   });
 });
