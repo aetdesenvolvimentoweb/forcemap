@@ -49,11 +49,14 @@ export class MilitaryRankPrismaRespository implements MilitaryRankRepository {
   ): Promise<MilitaryRank | null> => {
     await this.connectDB();
 
-    return await prismaClient.militaryRank.findFirst({
-      where: {
-        id,
-      },
-    });
+    return await prismaClient.militaryRank
+      .findFirst({ where: { id } })
+      .catch(async () => {
+        throw operationError("consultar");
+      })
+      .finally(async () => {
+        await prismaClient.$disconnect();
+      });
   };
 
   public readonly update = async (props: UpdateProps): Promise<void> => {
