@@ -3,12 +3,14 @@ export type MilitaryRankProps = {
   abbreviatedName: string;
 };
 
-export type UpdateMilitaryRankProps = MilitaryRankProps & {
-  id: string;
-};
-
 export type MilitaryRank = MilitaryRankProps & {
   id: string;
   createdAt: Date;
   updatedAt: Date;
+};
+
+export type UpdateProps = {
+  id: string;
+  order: number;
+  abbreviatedName: string;
 };
