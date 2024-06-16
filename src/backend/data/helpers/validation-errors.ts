@@ -14,3 +14,7 @@ export const duplicatedKeyError = (key: string): AppError => {
 export const invalidParamError = (param: string): AppError => {
   return new AppError(`Valor inválido para o campo: ${param}`, 400);
 };
+
+export const unregisteredFieldIdError = (field: string): AppError => {
+  return new AppError(`Nenhum registro encontrado para esse ${field}.`, 404);
+};

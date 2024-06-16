@@ -4,6 +4,7 @@ import {
   duplicatedKeyError,
   invalidParamError,
   missingParamError,
+  unregisteredFieldIdError,
 } from "../helpers";
 import { MilitaryRankRepository } from "../repositories";
 
@@ -67,6 +68,11 @@ export class MilitaryRankValidator {
     const isValid = this.idValidator.isValid(this.id);
     if (!isValid) {
       throw invalidParamError("ID");
+    }
+
+    const isRegistered = await this.repository.getById(this.id);
+    if (!isRegistered) {
+      throw unregisteredFieldIdError("posto/graduação");
     }
   };
 
