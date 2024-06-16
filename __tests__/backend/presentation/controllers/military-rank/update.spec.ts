@@ -1,7 +1,12 @@
-import { MilitaryRankInMemoryRepository } from "@/../__mocks__";
+import {
+  IdValidatorStub,
+  MilitaryRankInMemoryRepository,
+} from "@/../__mocks__";
 import { MilitaryRankRepository } from "@/backend/data/repositories";
 import { UpdateMilitaryRankService } from "@/backend/data/services";
+import { MilitaryRankValidator } from "@/backend/data/validators";
 import { MilitaryRankProps } from "@/backend/domain/entities";
+import { IdValidator } from "@/backend/domain/usecases";
 import { UpdateMilitaryRankController } from "@/backend/presentation/controllers";
 import { HttpRequest, HttpResponse } from "@/backend/presentation/protocols";
 import { describe, expect, test } from "vitest";
@@ -14,7 +19,15 @@ interface SutResponse {
 const makeSut = (): SutResponse => {
   const repository: MilitaryRankRepository =
     new MilitaryRankInMemoryRepository();
-  const updateMilitaryRankService = new UpdateMilitaryRankService(repository);
+  const idValidator: IdValidator = new IdValidatorStub();
+  const validator: MilitaryRankValidator = new MilitaryRankValidator({
+    repository,
+    idValidator,
+  });
+  const updateMilitaryRankService = new UpdateMilitaryRankService({
+    repository,
+    validator,
+  });
 
   const sut = new UpdateMilitaryRankController(updateMilitaryRankService);
 
