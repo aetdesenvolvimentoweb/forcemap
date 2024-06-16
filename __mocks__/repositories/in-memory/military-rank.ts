@@ -1,11 +1,22 @@
 import { MilitaryRankRepository } from "@/backend/data/repositories";
-import { MilitaryRank, MilitaryRankProps } from "@/backend/domain/entities";
+import {
+  MilitaryRank,
+  MilitaryRankProps,
+  UpdateProps,
+} from "@/backend/domain/entities";
 
 export class MilitaryRankInMemoryRepository implements MilitaryRankRepository {
-  militaryRanks: any[] = [];
+  militaryRanks: MilitaryRank[] = [];
 
   public readonly add = async (props: MilitaryRankProps): Promise<void> => {
-    this.militaryRanks.push({ id: crypto.randomUUID(), ...props });
+    const date = new Date();
+
+    this.militaryRanks.push({
+      id: crypto.randomUUID(),
+      ...props,
+      createdAt: date,
+      updatedAt: date,
+    });
   };
 
   public readonly getByAbbreviatedName = async (
@@ -24,5 +35,17 @@ export class MilitaryRankInMemoryRepository implements MilitaryRankRepository {
     return (
       this.militaryRanks.find((militaryRank) => militaryRank.id === id) || null
     );
+  };
+
+  public readonly update = async (props: UpdateProps): Promise<void> => {
+    const index = this.militaryRanks.findIndex(
+      (militaryRank) => militaryRank.id === props.id
+    );
+
+    this.militaryRanks[index] = {
+      ...this.militaryRanks[index],
+      ...props,
+      updatedAt: new Date(),
+    };
   };
 }
