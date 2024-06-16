@@ -2,7 +2,7 @@ import {
   IdValidatorStub,
   MilitaryRankInMemoryRepository,
 } from "@/../__mocks__";
-import { missingParamError } from "@/backend/data/helpers";
+import { invalidParamError, missingParamError } from "@/backend/data/helpers";
 import { MilitaryRankRepository } from "@/backend/data/repositories";
 import { UpdateMilitaryRankService } from "@/backend/data/services";
 import { MilitaryRankValidator } from "@/backend/data/validators";
@@ -10,10 +10,11 @@ import { MilitaryRankProps } from "@/backend/domain/entities";
 import { IdValidator } from "@/backend/domain/usecases";
 import { UpdateMilitaryRankController } from "@/backend/presentation/controllers";
 import { HttpRequest, HttpResponse } from "@/backend/presentation/protocols";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 interface SutResponse {
   repository: MilitaryRankRepository;
+  idValidator: IdValidator;
   sut: UpdateMilitaryRankController;
 }
 
@@ -32,7 +33,7 @@ const makeSut = (): SutResponse => {
 
   const sut = new UpdateMilitaryRankController(updateMilitaryRankService);
 
-  return { repository, sut };
+  return { repository, idValidator, sut };
 };
 
 describe("UpdateMilitaryRankController", () => {
@@ -78,5 +79,28 @@ describe("UpdateMilitaryRankController", () => {
     expect(httpResponse.body.errorMessage).toEqual(
       missingParamError("ID").message
     );
+  });
+
+  test("should be return 400 on invalid id", async () => {
+    const { idValidator, sut } = makeSut();
+    const mockInvalidId = vi.spyOn(idValidator, "isValid");
+    mockInvalidId.mockImplementationOnce(() => false);
+
+    const httpRequest: HttpRequest<MilitaryRankProps> = {
+      body: {
+        order: 2,
+        abbreviatedName: "TC",
+      },
+      params: { id: "invalid-id" },
+    };
+
+    const httpResponse: HttpResponse = await sut.handle(httpRequest);
+
+    expect(httpResponse.statusCode).toBe(400);
+    expect(httpResponse.body.errorMessage).toEqual(
+      invalidParamError("ID").message
+    );
+
+    mockInvalidId.mockRestore();
   });
 });
