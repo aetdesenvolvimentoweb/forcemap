@@ -3,6 +3,7 @@ import {
   MilitaryRankInMemoryRepository,
 } from "@/../__mocks__";
 import {
+  duplicatedKeyError,
   invalidParamError,
   missingParamError,
   unregisteredFieldIdError,
@@ -105,5 +106,19 @@ describe("UpdateMilitaryRankService", () => {
       // @ts-expect-error
       sut.update({ id, order: 2 })
     ).rejects.toThrow(missingParamError("nome abreviado"));
+  });
+
+  test("should be throws if duplicated abbreviated name is provided", async () => {
+    const { repository, sut } = makeSut();
+
+    await repository.add({ order: 1, abbreviatedName: "Cel" });
+    await repository.add({ order: 2, abbreviatedName: "TC" });
+
+    const militaryRank = await repository.getByAbbreviatedName("Cel");
+    const id = militaryRank?.id || "";
+
+    await expect(
+      sut.update({ id, order: 3, abbreviatedName: "TC" })
+    ).rejects.toThrow(duplicatedKeyError("nome abreviado"));
   });
 });
