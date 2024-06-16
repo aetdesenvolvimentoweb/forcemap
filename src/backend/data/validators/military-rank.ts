@@ -1,4 +1,4 @@
-import { MilitaryRankProps } from "@/backend/domain/entities";
+import { MilitaryRankProps, UpdateProps } from "@/backend/domain/entities";
 import { IdValidator } from "@/backend/domain/usecases";
 import {
   duplicatedKeyError,
@@ -87,6 +87,16 @@ export class MilitaryRankValidator {
 
   public readonly validateId = async (id: string): Promise<void> => {
     this.setId(id);
+
+    await this.checkId();
+  };
+
+  public readonly validateUpdateProps = async (
+    props: UpdateProps
+  ): Promise<void> => {
+    this.setId(props.id);
+    this.setOrder(props.order);
+    this.setAbbreviatedName(props.abbreviatedName);
 
     await this.checkId();
   };
