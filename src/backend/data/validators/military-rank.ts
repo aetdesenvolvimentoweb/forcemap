@@ -99,5 +99,6 @@ export class MilitaryRankValidator {
     this.setAbbreviatedName(props.abbreviatedName);
 
     await this.checkId();
+    await this.validateProps();
   };
 }
