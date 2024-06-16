@@ -4,7 +4,7 @@ import {
   MilitaryRankProps,
   UpdateProps,
 } from "@/backend/domain/entities";
-import { connectionError } from "@/backend/infra/helpers";
+import { connectionError, operationError } from "@/backend/infra/helpers";
 import { prismaClient } from "../../prisma-client";
 
 export class MilitaryRankPrismaRespository implements MilitaryRankRepository {
@@ -17,12 +17,19 @@ export class MilitaryRankPrismaRespository implements MilitaryRankRepository {
   public readonly add = async (props: MilitaryRankProps): Promise<void> => {
     await this.connectDB();
 
-    await prismaClient.militaryRank.create({
-      data: {
-        order: props.order,
-        abbreviatedName: props.abbreviatedName,
-      },
-    });
+    await prismaClient.militaryRank
+      .create({
+        data: {
+          order: props.order,
+          abbreviatedName: props.abbreviatedName,
+        },
+      })
+      .catch(async () => {
+        throw operationError("criar");
+      })
+      .finally(async () => {
+        await prismaClient.$disconnect();
+      });
   };
 
   public readonly getByAbbreviatedName = async (

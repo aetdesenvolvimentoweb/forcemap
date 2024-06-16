@@ -6,3 +6,10 @@ export const connectionError = (): AppError => {
     500
   );
 };
+
+export const operationError = (operation: string): AppError => {
+  return new AppError(
+    `Erro ao ${operation} registro(s) no banco de dados.`,
+    500
+  );
+};
