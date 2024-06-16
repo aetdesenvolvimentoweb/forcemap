@@ -1,5 +1,5 @@
 import { POST } from "@/app/api/military-rank/route";
-import { prismaClient } from "@/backend/infra/adapters/prisma-client";
+import { prismaClient } from "@/backend/infra/adapters";
 import { HttpResponse } from "@/backend/presentation/protocols";
 import { NextRequest } from "next/server";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
