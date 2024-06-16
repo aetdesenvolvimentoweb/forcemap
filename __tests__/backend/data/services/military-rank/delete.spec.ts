@@ -2,12 +2,12 @@ import {
   IdValidatorStub,
   MilitaryRankInMemoryRepository,
 } from "@/../__mocks__";
-import { missingParamError } from "@/backend/data/helpers";
+import { invalidParamError, missingParamError } from "@/backend/data/helpers";
 import { MilitaryRankRepository } from "@/backend/data/repositories";
 import { DeleteMilitaryRankService } from "@/backend/data/services";
 import { MilitaryRankValidator } from "@/backend/data/validators";
 import { IdValidator } from "@/backend/domain/usecases";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 interface SutResponse {
   repository: MilitaryRankRepository;
@@ -39,5 +39,17 @@ describe("DeleteMilitaryRankService", () => {
     const { sut } = makeSut();
 
     await expect(sut.delete("")).rejects.toThrow(missingParamError("ID"));
+  });
+
+  test("should be throws if invalid id is provided", async () => {
+    const { idValidator, sut } = makeSut();
+    const mockInvalidId = vi.spyOn(idValidator, "isValid");
+    mockInvalidId.mockReturnValueOnce(false);
+
+    await expect(sut.delete("invalid-id")).rejects.toThrow(
+      invalidParamError("ID")
+    );
+
+    mockInvalidId.mockRestore();
   });
 });
