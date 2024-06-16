@@ -2,6 +2,7 @@ import {
   IdValidatorStub,
   MilitaryRankInMemoryRepository,
 } from "@/../__mocks__";
+import { missingParamError } from "@/backend/data/helpers";
 import { MilitaryRankRepository } from "@/backend/data/repositories";
 import { DeleteMilitaryRankService } from "@/backend/data/services";
 import { MilitaryRankValidator } from "@/backend/data/validators";
@@ -32,5 +33,11 @@ describe("DeleteMilitaryRankService", () => {
     const id = militaryRank?.id || "";
 
     await expect(sut.delete(id)).resolves.not.toThrow();
+  });
+
+  test("should be throws if no id is provided", async () => {
+    const { sut } = makeSut();
+
+    await expect(sut.delete("")).rejects.toThrow(missingParamError("ID"));
   });
 });
