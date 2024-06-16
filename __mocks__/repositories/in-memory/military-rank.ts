@@ -19,6 +19,12 @@ export class MilitaryRankInMemoryRepository implements MilitaryRankRepository {
     });
   };
 
+  public readonly delete = async (id: string): Promise<void> => {
+    this.militaryRanks = this.militaryRanks.filter(
+      (militaryRank) => militaryRank.id !== id
+    );
+  };
+
   public readonly getByAbbreviatedName = async (
     abbreviatedName: string
   ): Promise<MilitaryRank | null> => {
