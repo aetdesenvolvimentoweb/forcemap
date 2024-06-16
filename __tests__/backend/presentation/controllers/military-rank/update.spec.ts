@@ -131,4 +131,30 @@ describe("UpdateMilitaryRankController", () => {
 
     mockUnregisteredId.mockRestore();
   });
+
+  test("should be return 400 on missing order", async () => {
+    const { repository, sut } = makeSut();
+
+    await repository.add({
+      order: 1,
+      abbreviatedName: "Cel",
+    });
+    const militaryRank = await repository.getByAbbreviatedName("Cel");
+    const id = militaryRank?.id || "";
+
+    const httpRequest: HttpRequest<MilitaryRankProps> = {
+      // @ts-expect-error
+      body: {
+        abbreviatedName: "TC",
+      },
+      params: { id },
+    };
+
+    const httpResponse: HttpResponse = await sut.handle(httpRequest);
+
+    expect(httpResponse.statusCode).toBe(400);
+    expect(httpResponse.body.errorMessage).toEqual(
+      missingParamError("ordem").message
+    );
+  });
 });
