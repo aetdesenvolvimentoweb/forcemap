@@ -92,4 +92,18 @@ describe("UpdateMilitaryRankService", () => {
       sut.update({ id, abbreviatedName: "Cel" })
     ).rejects.toThrow(missingParamError("ordem"));
   });
+
+  test("should be throws if no abbreviated name is provided", async () => {
+    const { repository, sut } = makeSut();
+
+    await repository.add({ order: 1, abbreviatedName: "Cel" });
+
+    const militaryRank = await repository.getByAbbreviatedName("Cel");
+    const id = militaryRank?.id || "";
+
+    await expect(
+      // @ts-expect-error
+      sut.update({ id, order: 2 })
+    ).rejects.toThrow(missingParamError("nome abreviado"));
+  });
 });
