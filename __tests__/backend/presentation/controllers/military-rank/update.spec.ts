@@ -2,7 +2,11 @@ import {
   IdValidatorStub,
   MilitaryRankInMemoryRepository,
 } from "@/../__mocks__";
-import { invalidParamError, missingParamError } from "@/backend/data/helpers";
+import {
+  invalidParamError,
+  missingParamError,
+  unregisteredFieldIdError,
+} from "@/backend/data/helpers";
 import { MilitaryRankRepository } from "@/backend/data/repositories";
 import { UpdateMilitaryRankService } from "@/backend/data/services";
 import { MilitaryRankValidator } from "@/backend/data/validators";
@@ -102,5 +106,29 @@ describe("UpdateMilitaryRankController", () => {
     );
 
     mockInvalidId.mockRestore();
+  });
+
+  test("should be return 404 on unregistered id", async () => {
+    const { repository, sut } = makeSut();
+
+    const mockUnregisteredId = vi.spyOn(repository, "getById");
+    mockUnregisteredId.mockResolvedValueOnce(null);
+
+    const httpRequest: HttpRequest<MilitaryRankProps> = {
+      body: {
+        order: 2,
+        abbreviatedName: "TC",
+      },
+      params: { id: "valid-id" },
+    };
+
+    const httpResponse: HttpResponse = await sut.handle(httpRequest);
+
+    expect(httpResponse.statusCode).toBe(404);
+    expect(httpResponse.body.errorMessage).toEqual(
+      unregisteredFieldIdError("posto/graduação").message
+    );
+
+    mockUnregisteredId.mockRestore();
   });
 });
