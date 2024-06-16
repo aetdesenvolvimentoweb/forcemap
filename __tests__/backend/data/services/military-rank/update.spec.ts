@@ -78,4 +78,18 @@ describe("UpdateMilitaryRankService", () => {
 
     mockUnregisteredId.mockRestore();
   });
+
+  test("should be throws if no order is provided", async () => {
+    const { repository, sut } = makeSut();
+
+    await repository.add({ order: 1, abbreviatedName: "Cel" });
+
+    const militaryRank = await repository.getByAbbreviatedName("Cel");
+    const id = militaryRank?.id || "";
+
+    await expect(
+      // @ts-expect-error
+      sut.update({ id, abbreviatedName: "Cel" })
+    ).rejects.toThrow(missingParamError("ordem"));
+  });
 });
