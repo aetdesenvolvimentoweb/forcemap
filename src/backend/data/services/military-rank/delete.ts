@@ -17,6 +17,8 @@ export class DeleteMilitaryRankService implements DeleteMilitaryRankUsecase {
   }
 
   public readonly delete = async (id: string): Promise<void> => {
+    await this.validator.validateId(id);
+
     await this.repository.delete(id);
   };
 }
