@@ -55,7 +55,10 @@ export class MilitaryRankValidator {
       this.abbreviatedName
     );
 
-    if (alreadyExist) {
+    if (
+      alreadyExist &&
+      (!this.id || (this.id && alreadyExist.id !== this.id))
+    ) {
       throw duplicatedKeyError("nome abreviado");
     }
   };
