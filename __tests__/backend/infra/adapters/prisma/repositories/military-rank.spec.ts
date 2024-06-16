@@ -81,7 +81,19 @@ describe("MilitaryRankPrismaRepository", () => {
     mockRecordError.mockRestore();
   });
 
-  test("should be throws by error when getting data by id in the database", async () => {
+  test("should be throws by error when getting data by abbr in DB", async () => {
+    const { sut } = makeSut();
+    const mockQueryError = vi.spyOn(prismaClient.militaryRank, "findUnique");
+    mockQueryError.mockRejectedValueOnce(new Error());
+
+    await expect(sut.getByAbbreviatedName("Cel")).rejects.toThrow(
+      operationError("consultar")
+    );
+
+    mockQueryError.mockRestore();
+  });
+
+  test("should be throws by error when getting data by id in DB", async () => {
     const { sut } = makeSut();
     const mockQueryError = vi.spyOn(prismaClient.militaryRank, "findFirst");
     mockQueryError.mockRejectedValueOnce(new Error());
