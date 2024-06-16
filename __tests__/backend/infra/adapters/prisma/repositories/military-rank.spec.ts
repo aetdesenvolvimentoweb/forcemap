@@ -44,4 +44,15 @@ describe("MilitaryRankPrismaRepository", () => {
 
     await expect(sut.getById(id)).resolves.not.toThrow();
   });
+
+  test("should be able to update a military rank in the database", async () => {
+    const { sut } = makeSut();
+
+    const militaryRank = await sut.getByAbbreviatedName("Cel");
+    const id = militaryRank?.id || "";
+
+    await expect(
+      sut.update({ id, order: 2, abbreviatedName: "TC" })
+    ).resolves.not.toThrow();
+  });
 });
