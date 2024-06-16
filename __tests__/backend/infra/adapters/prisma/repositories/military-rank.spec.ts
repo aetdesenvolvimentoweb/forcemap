@@ -80,4 +80,16 @@ describe("MilitaryRankPrismaRepository", () => {
 
     mockRecordError.mockRestore();
   });
+
+  test("should be throws by error when getting data by id in the database", async () => {
+    const { sut } = makeSut();
+    const mockQueryError = vi.spyOn(prismaClient.militaryRank, "findFirst");
+    mockQueryError.mockRejectedValueOnce(new Error());
+
+    await expect(sut.getById("valid-id")).rejects.toThrow(
+      operationError("consultar")
+    );
+
+    mockQueryError.mockRestore();
+  });
 });
