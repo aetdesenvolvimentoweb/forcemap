@@ -1,5 +1,9 @@
 import { MilitaryRankRepository } from "@/backend/data/repositories";
-import { MilitaryRank, MilitaryRankProps } from "@/backend/domain/entities";
+import {
+  MilitaryRank,
+  MilitaryRankProps,
+  UpdateProps,
+} from "@/backend/domain/entities";
 import { prismaClient } from "../../prisma-client";
 
 export class MilitaryRankPrismaRespository implements MilitaryRankRepository {
@@ -28,6 +32,18 @@ export class MilitaryRankPrismaRespository implements MilitaryRankRepository {
     return await prismaClient.militaryRank.findFirst({
       where: {
         id,
+      },
+    });
+  };
+
+  public readonly update = async (props: UpdateProps): Promise<void> => {
+    await prismaClient.militaryRank.update({
+      where: {
+        id: props.id,
+      },
+      data: {
+        order: props.order,
+        abbreviatedName: props.abbreviatedName,
       },
     });
   };
