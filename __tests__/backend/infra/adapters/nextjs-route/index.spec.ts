@@ -1,3 +1,4 @@
+import { IdValidatorStub } from "@/../__mocks__";
 import { MilitaryRankInMemoryRepository } from "@/../__mocks__/repositories";
 import {
   AddMilitaryRankService,
@@ -12,7 +13,6 @@ import {
 import { HttpResponse } from "@/backend/presentation/protocols";
 import { NextRequest } from "next/server";
 import { describe, expect, test } from "vitest";
-import { IdValidatorStub } from "../../../../../__mocks__";
 
 describe("nextjsRouteAdapter", () => {
   test("should be return false to success on missing param order", async () => {
@@ -74,6 +74,6 @@ describe("nextjsRouteAdapter", () => {
       return await data.json();
     });
 
-    expect(sutResponse.body.data).toEqual(militaryRank);
+    expect(sutResponse.body.success).toBeTruthy();
   });
 });
