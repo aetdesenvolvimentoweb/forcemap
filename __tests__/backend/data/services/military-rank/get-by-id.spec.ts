@@ -2,7 +2,11 @@ import {
   IdValidatorStub,
   MilitaryRankInMemoryRepository,
 } from "@/../__mocks__";
-import { invalidParamError, missingParamError } from "@/backend/data/helpers";
+import {
+  invalidParamError,
+  missingParamError,
+  unregisteredFieldIdError,
+} from "@/backend/data/helpers";
 import { MilitaryRankRepository } from "@/backend/data/repositories";
 import { GetMilitaryRankByIdService } from "@/backend/data/services";
 import { MilitaryRankValidator } from "@/backend/data/validators";
@@ -52,5 +56,17 @@ describe("GetMilitaryRankByIdService", () => {
     );
 
     mockInvalidId.mockRestore();
+  });
+
+  test("should be throws if unregistered id is provided", async () => {
+    const { repository, sut } = makeSut();
+    const mockUnregisteredId = vi.spyOn(repository, "getById");
+    mockUnregisteredId.mockResolvedValueOnce(null);
+
+    await expect(sut.getById("valid-id")).rejects.toThrow(
+      unregisteredFieldIdError("posto/graduação")
+    );
+
+    mockUnregisteredId.mockRestore();
   });
 });
