@@ -1,5 +1,9 @@
-import { nextjsRouteAdapter } from "@/backend/infra/adapters/nextjs-route";
-import { makeGetMilitaryRankByIdController } from "@/backend/infra/factories/controllers/military-rank";
+import { nextjsRouteAdapter } from "@/backend/infra/adapters";
+import {
+  makeGetMilitaryRankByIdController,
+  makeUpdateMilitaryRankController,
+} from "@/backend/infra/factories";
+
 import { HttpResponse } from "@/backend/presentation/protocols";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -15,6 +19,13 @@ const handler = async (
         dynamicParams: { id: params.id },
       });
 
+    case "PUT":
+      return await nextjsRouteAdapter({
+        controller: makeUpdateMilitaryRankController(),
+        request,
+        dynamicParams: { id: params.id },
+      });
+
     default:
       return NextResponse.json<HttpResponse>({
         body: { success: false, errorMessage: "Método não suportado." },
@@ -23,4 +34,4 @@ const handler = async (
   }
 };
 
-export { handler as GET };
+export { handler as GET, handler as PUT };
