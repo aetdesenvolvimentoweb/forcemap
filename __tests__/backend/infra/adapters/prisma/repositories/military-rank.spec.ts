@@ -104,4 +104,16 @@ describe("MilitaryRankPrismaRepository", () => {
 
     mockQueryError.mockRestore();
   });
+
+  test("should be throws by error when updating a military rank in DB", async () => {
+    const { sut } = makeSut();
+    const mockUpdateError = vi.spyOn(prismaClient.militaryRank, "update");
+    mockUpdateError.mockRejectedValueOnce(new Error());
+
+    await expect(
+      sut.update({ id: "valid-id", order: 2, abbreviatedName: "TC" })
+    ).rejects.toThrow(operationError("atualizar"));
+
+    mockUpdateError.mockRestore();
+  });
 });
