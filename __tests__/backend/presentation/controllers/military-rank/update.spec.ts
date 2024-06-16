@@ -3,6 +3,7 @@ import {
   MilitaryRankInMemoryRepository,
 } from "@/../__mocks__";
 import {
+  duplicatedKeyError,
   invalidParamError,
   missingParamError,
   unregisteredFieldIdError,
@@ -181,6 +182,35 @@ describe("UpdateMilitaryRankController", () => {
     expect(httpResponse.statusCode).toBe(400);
     expect(httpResponse.body.errorMessage).toEqual(
       missingParamError("nome abreviado").message
+    );
+  });
+
+  test("should be return 400 on duplicated abbreviated name", async () => {
+    const { repository, sut } = makeSut();
+
+    await repository.add({
+      order: 1,
+      abbreviatedName: "Cel",
+    });
+    const militaryRank = await repository.getByAbbreviatedName("Cel");
+    const id = militaryRank?.id || "";
+
+    await repository.add({
+      order: 2,
+      abbreviatedName: "TC",
+    });
+
+    const httpResponse: HttpResponse = await sut.handle({
+      body: {
+        order: 3,
+        abbreviatedName: "TC",
+      },
+      params: { id },
+    });
+
+    expect(httpResponse.statusCode).toBe(400);
+    expect(httpResponse.body.errorMessage).toBe(
+      duplicatedKeyError("nome abreviado").message
     );
   });
 });
