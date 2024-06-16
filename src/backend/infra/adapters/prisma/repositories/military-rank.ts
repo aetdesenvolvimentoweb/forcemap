@@ -67,14 +67,21 @@ export class MilitaryRankPrismaRespository implements MilitaryRankRepository {
   };
 
   public readonly update = async (props: UpdateProps): Promise<void> => {
-    await prismaClient.militaryRank.update({
-      where: {
-        id: props.id,
-      },
-      data: {
-        order: props.order,
-        abbreviatedName: props.abbreviatedName,
-      },
-    });
+    await this.connectDB();
+
+    await prismaClient.militaryRank
+      .update({
+        where: { id: props.id },
+        data: {
+          order: props.order,
+          abbreviatedName: props.abbreviatedName,
+        },
+      })
+      .catch(async () => {
+        throw operationError("atualizar");
+      })
+      .finally(async () => {
+        await prismaClient.$disconnect();
+      });
   };
 }
