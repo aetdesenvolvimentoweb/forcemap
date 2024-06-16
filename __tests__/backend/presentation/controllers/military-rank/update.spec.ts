@@ -2,6 +2,7 @@ import {
   IdValidatorStub,
   MilitaryRankInMemoryRepository,
 } from "@/../__mocks__";
+import { missingParamError } from "@/backend/data/helpers";
 import { MilitaryRankRepository } from "@/backend/data/repositories";
 import { UpdateMilitaryRankService } from "@/backend/data/services";
 import { MilitaryRankValidator } from "@/backend/data/validators";
@@ -58,5 +59,24 @@ describe("UpdateMilitaryRankController", () => {
     const httpResponse: HttpResponse = await sut.handle(httpRequest);
 
     expect(httpResponse.statusCode).toBe(200);
+  });
+
+  test("should be return 400 on missing id", async () => {
+    const { sut } = makeSut();
+
+    const httpRequest: HttpRequest<MilitaryRankProps> = {
+      body: {
+        order: 2,
+        abbreviatedName: "TC",
+      },
+      params: { id: "" },
+    };
+
+    const httpResponse: HttpResponse = await sut.handle(httpRequest);
+
+    expect(httpResponse.statusCode).toBe(400);
+    expect(httpResponse.body.errorMessage).toEqual(
+      missingParamError("ID").message
+    );
   });
 });
