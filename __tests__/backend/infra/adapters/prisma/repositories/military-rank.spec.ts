@@ -124,4 +124,16 @@ describe("MilitaryRankPrismaRepository", () => {
 
     mockUpdateError.mockRestore();
   });
+
+  test("should be throws by error when deleting a military rank in DB", async () => {
+    const { sut } = makeSut();
+    const mockDeleteError = vi.spyOn(prismaClient.militaryRank, "delete");
+    mockDeleteError.mockRejectedValueOnce(new Error());
+
+    await expect(sut.delete("valid-id")).rejects.toThrow(
+      operationError("deletar")
+    );
+
+    mockDeleteError.mockRestore();
+  });
 });
