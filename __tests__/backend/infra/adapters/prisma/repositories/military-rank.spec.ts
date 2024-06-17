@@ -57,6 +57,14 @@ describe("MilitaryRankPrismaRepository", () => {
     ).resolves.not.toThrow();
   });
 
+  test("should be able to delete a military rank in the database by id", async () => {
+    const { sut } = makeSut();
+    const militaryRank = await sut.getByAbbreviatedName("TC");
+    const id = militaryRank?.id || "";
+
+    await expect(sut.delete(id)).resolves.not.toThrow();
+  });
+
   test("should be throws on connection error", async () => {
     const { sut } = makeSut();
     const mockBrokenConnection = vi.spyOn(prismaClient, "$connect");
