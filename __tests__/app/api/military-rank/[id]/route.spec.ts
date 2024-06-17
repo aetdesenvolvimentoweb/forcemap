@@ -1,4 +1,4 @@
-import { GET, PUT } from "@/app/api/military-rank/[id]/route";
+import { DELETE, GET, PUT } from "@/app/api/military-rank/[id]/route";
 import { MilitaryRank } from "@/backend/domain/entities";
 import { prismaClient } from "@/backend/infra/adapters";
 import { HttpResponse } from "@/backend/presentation/protocols";
@@ -66,6 +66,26 @@ describe("Military Rank API route", () => {
     const id = militaryRank?.id || "";
 
     const httpResponse: HttpResponse = await PUT(request, {
+      params: { id },
+    }).then(async (data) => await data.json());
+
+    expect(httpResponse.statusCode).toBe(200);
+  });
+
+  test("DELETE", async () => {
+    const request: NextRequest = new NextRequest("http://localhost:3000", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    const militaryRank = await prismaClient.militaryRank.findUnique({
+      where: { abbreviatedName: "TC" },
+    });
+    const id = militaryRank?.id || "";
+
+    const httpResponse: HttpResponse = await DELETE(request, {
       params: { id },
     }).then(async (data) => await data.json());
 
