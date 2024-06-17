@@ -12,6 +12,7 @@ import { DeleteMilitaryRankService } from "@/backend/data/services/military-rank
 import { MilitaryRankValidator } from "@/backend/data/validators";
 import { IdValidator } from "@/backend/domain/usecases";
 import { DeleteMilitaryRankController } from "@/backend/presentation/controllers";
+import { serverError } from "@/backend/presentation/helpers";
 import { HttpRequest } from "@/backend/presentation/protocols";
 import { describe, expect, test, vi } from "vitest";
 
@@ -117,5 +118,26 @@ describe("DeleteMilitaryRankByIdController", () => {
     );
 
     mockUnregisteredId.mockRestore();
+  });
+
+  test("should be return 500 on server error", async () => {
+    const { repository, sut } = makeSut();
+
+    const mockServerError = vi.spyOn(repository, "getById");
+    mockServerError.mockRejectedValueOnce(new Error());
+
+    const httpRequest: HttpRequest = {
+      body: {},
+      params: { id: "valid-id" },
+    };
+
+    const httpResponse = await sut.handle(httpRequest);
+
+    expect(httpResponse.statusCode).toBe(500);
+    expect(httpResponse.body.errorMessage).toEqual(
+      serverError().body.errorMessage
+    );
+
+    mockServerError.mockRestore();
   });
 });
