@@ -32,6 +32,19 @@ export class MilitaryRankPrismaRespository implements MilitaryRankRepository {
       });
   };
 
+  public readonly delete = async (id: string): Promise<void> => {
+    await this.connectDB();
+
+    await prismaClient.militaryRank
+      .delete({ where: { id } })
+      .catch(async () => {
+        throw operationError("deletar");
+      })
+      .finally(async () => {
+        await prismaClient.$disconnect();
+      });
+  };
+
   public readonly getByAbbreviatedName = async (
     abbreviatedName: string
   ): Promise<MilitaryRank | null> => {
