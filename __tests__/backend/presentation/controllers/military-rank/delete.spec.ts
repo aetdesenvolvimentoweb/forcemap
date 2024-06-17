@@ -2,14 +2,14 @@ import {
   IdValidatorStub,
   MilitaryRankInMemoryRepository,
 } from "@/../__mocks__";
-import { missingParamError } from "@/backend/data/helpers";
+import { invalidParamError, missingParamError } from "@/backend/data/helpers";
 import { MilitaryRankRepository } from "@/backend/data/repositories";
 import { DeleteMilitaryRankService } from "@/backend/data/services/military-rank/delete";
 import { MilitaryRankValidator } from "@/backend/data/validators";
 import { IdValidator } from "@/backend/domain/usecases";
 import { DeleteMilitaryRankController } from "@/backend/presentation/controllers";
 import { HttpRequest } from "@/backend/presentation/protocols";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 interface SutResponse {
   repository: MilitaryRankRepository;
@@ -72,5 +72,25 @@ describe("DeleteMilitaryRankByIdController", () => {
     expect(httpResponse.body.errorMessage).toEqual(
       missingParamError("ID").message
     );
+  });
+
+  test("should be return 400 on invalid id", async () => {
+    const { idValidator, sut } = makeSut();
+    const mockInvalidId = vi.spyOn(idValidator, "isValid");
+    mockInvalidId.mockImplementationOnce(() => false);
+
+    const httpRequest: HttpRequest = {
+      body: {},
+      params: { id: "invalid-id" },
+    };
+
+    const httpResponse = await sut.handle(httpRequest);
+
+    expect(httpResponse.statusCode).toBe(400);
+    expect(httpResponse.body.errorMessage).toEqual(
+      invalidParamError("ID").message
+    );
+
+    mockInvalidId.mockRestore();
   });
 });
