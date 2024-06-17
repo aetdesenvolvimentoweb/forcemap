@@ -1,5 +1,6 @@
 import { nextjsRouteAdapter } from "@/backend/infra/adapters";
 import {
+  makeDeleteMilitaryRankController,
   makeGetMilitaryRankByIdController,
   makeUpdateMilitaryRankController,
 } from "@/backend/infra/factories";
@@ -26,6 +27,13 @@ const handler = async (
         dynamicParams: { id: params.id },
       });
 
+    case "DELETE":
+      return await nextjsRouteAdapter({
+        controller: makeDeleteMilitaryRankController(),
+        request,
+        dynamicParams: { id: params.id },
+      });
+
     default:
       return NextResponse.json<HttpResponse>({
         body: { success: false, errorMessage: "Método não suportado." },
@@ -34,4 +42,4 @@ const handler = async (
   }
 };
 
-export { handler as GET, handler as PUT };
+export { handler as DELETE, handler as GET, handler as PUT };
