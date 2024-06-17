@@ -25,6 +25,10 @@ export class MilitaryRankInMemoryRepository implements MilitaryRankRepository {
     );
   };
 
+  public readonly getAll = async (): Promise<MilitaryRank[]> => {
+    return this.militaryRanks;
+  };
+
   public readonly getByAbbreviatedName = async (
     abbreviatedName: string
   ): Promise<MilitaryRank | null> => {
