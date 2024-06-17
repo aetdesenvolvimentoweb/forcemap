@@ -2,6 +2,7 @@ import {
   IdValidatorStub,
   MilitaryRankInMemoryRepository,
 } from "@/../__mocks__";
+import { missingParamError } from "@/backend/data/helpers";
 import { MilitaryRankRepository } from "@/backend/data/repositories";
 import { DeleteMilitaryRankService } from "@/backend/data/services/military-rank/delete";
 import { MilitaryRankValidator } from "@/backend/data/validators";
@@ -55,5 +56,21 @@ describe("DeleteMilitaryRankByIdController", () => {
     const httpResponse = await sut.handle(httpRequest);
 
     expect(httpResponse.statusCode).toBe(200);
+  });
+
+  test("should be return 400 on missing id", async () => {
+    const { sut } = makeSut();
+
+    const httpRequest: HttpRequest = {
+      body: {},
+      params: { id: "" },
+    };
+
+    const httpResponse = await sut.handle(httpRequest);
+
+    expect(httpResponse.statusCode).toBe(400);
+    expect(httpResponse.body.errorMessage).toEqual(
+      missingParamError("ID").message
+    );
   });
 });
