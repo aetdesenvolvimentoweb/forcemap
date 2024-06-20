@@ -65,6 +65,13 @@ describe("MilitaryRankPrismaRepository", () => {
     await expect(sut.delete(id)).resolves.not.toThrow();
   });
 
+  test("should be able to get all military ranks in the database", async () => {
+    const { sut } = makeSut();
+    await sut.add({ order: 1, abbreviatedName: "Cel" });
+
+    await expect(sut.getAll()).resolves.not.toThrow();
+  });
+
   test("should be throws on connection error", async () => {
     const { sut } = makeSut();
     const mockBrokenConnection = vi.spyOn(prismaClient, "$connect");
