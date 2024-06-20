@@ -143,4 +143,14 @@ describe("MilitaryRankPrismaRepository", () => {
 
     mockDeleteError.mockRestore();
   });
+
+  test("should be throws by error when getting all military ranks in DB", async () => {
+    const { sut } = makeSut();
+    const mockQueryError = vi.spyOn(prismaClient.militaryRank, "findMany");
+    mockQueryError.mockRejectedValueOnce(new Error());
+
+    await expect(sut.getAll()).rejects.toThrow(operationError("consultar"));
+
+    mockQueryError.mockRestore();
+  });
 });
