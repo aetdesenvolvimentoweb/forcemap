@@ -45,6 +45,19 @@ export class MilitaryRankPrismaRespository implements MilitaryRankRepository {
       });
   };
 
+  public readonly getAll = async (): Promise<MilitaryRank[]> => {
+    await this.connectDB();
+
+    return await prismaClient.militaryRank
+      .findMany()
+      .catch(async () => {
+        throw operationError("consultar");
+      })
+      .finally(async () => {
+        await prismaClient.$disconnect();
+      });
+  };
+
   public readonly getByAbbreviatedName = async (
     abbreviatedName: string
   ): Promise<MilitaryRank | null> => {
