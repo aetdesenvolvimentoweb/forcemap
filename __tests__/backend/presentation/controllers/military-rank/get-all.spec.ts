@@ -2,8 +2,9 @@ import { MilitaryRankInMemoryRepository } from "@/../__mocks__";
 import { MilitaryRankRepository } from "@/backend/data/repositories";
 import { GetAllMilitaryRanksService } from "@/backend/data/services";
 import { GetAllMilitaryRanksController } from "@/backend/presentation/controllers";
+import { serverError } from "@/backend/presentation/helpers";
 import { HttpRequest } from "@/backend/presentation/protocols";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 interface SutResponse {
   repository: MilitaryRankRepository;
@@ -37,5 +38,24 @@ describe("GetAllMilitaryRanksController", () => {
 
     expect(httpResponse.statusCode).toBe(200);
     expect(Array.isArray(httpResponse.body.data)).toBeTruthy();
+  });
+  test("should be return 500 on server error", async () => {
+    const { repository, sut } = makeSut();
+
+    const mockServerError = vi.spyOn(repository, "getAll");
+    mockServerError.mockRejectedValueOnce(new Error());
+
+    const httpRequest: HttpRequest = {
+      body: {},
+    };
+
+    const httpResponse = await sut.handle(httpRequest);
+
+    expect(httpResponse.statusCode).toBe(500);
+    expect(httpResponse.body.errorMessage).toEqual(
+      serverError().body.errorMessage
+    );
+
+    mockServerError.mockRestore();
   });
 });
