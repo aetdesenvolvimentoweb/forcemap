@@ -1,4 +1,4 @@
-import { POST } from "@/app/api/military-rank/route";
+import { GET, POST } from "@/app/api/military-rank/route";
 import { prismaClient } from "@/backend/infra/adapters";
 import { HttpResponse } from "@/backend/presentation/protocols";
 import { NextRequest } from "next/server";
@@ -19,7 +19,7 @@ describe("Military Rank API route", () => {
     await clearDatabase();
   });
 
-  test("POST", async () => {
+  test("POST a new military rank", async () => {
     const request: NextRequest = new NextRequest("http://localhost:3000", {
       method: "POST",
       headers: {
@@ -36,5 +36,20 @@ describe("Military Rank API route", () => {
     );
 
     expect(httpResponse.statusCode).toBe(201);
+  });
+
+  test("GET all military ranks", async () => {
+    const request: NextRequest = new NextRequest("http://localhost:3000", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    const httpResponse: HttpResponse = await GET(request).then((res) =>
+      res.json()
+    );
+
+    expect(httpResponse.statusCode).toBe(200);
   });
 });
