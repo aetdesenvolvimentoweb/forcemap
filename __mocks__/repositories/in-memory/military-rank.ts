@@ -4,6 +4,7 @@ import {
   MilitaryRankProps,
   UpdateProps,
 } from "@/backend/domain/entities";
+import { ObjectId } from "mongodb";
 
 export class MilitaryRankInMemoryRepository implements MilitaryRankRepository {
   militaryRanks: MilitaryRank[] = [];
@@ -12,7 +13,7 @@ export class MilitaryRankInMemoryRepository implements MilitaryRankRepository {
     const date = new Date();
 
     this.militaryRanks.push({
-      id: crypto.randomUUID(),
+      id: new ObjectId().toString(),
       ...props,
       createdAt: date,
       updatedAt: date,
