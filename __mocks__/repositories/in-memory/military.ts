@@ -12,22 +12,23 @@ export class MilitaryInMemoryRepository implements MilitaryRepository {
   }
 
   public readonly add = async (props: MilitaryProps): Promise<void> => {
+    const date = new Date();
     const militaryRank = (await this.militaryRankRepository.getById(
       props.militaryRankId
     )) || {
       id: props.militaryRankId,
       order: 1,
       abbreviatedName: "Cel",
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: date,
+      updatedAt: date,
     };
 
     this.military.push({
       id: new ObjectId().toString(),
       ...props,
       militaryRank,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: date,
+      updatedAt: date,
     });
   };
 }
