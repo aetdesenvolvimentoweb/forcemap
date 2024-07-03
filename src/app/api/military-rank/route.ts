@@ -1,5 +1,8 @@
 import { nextjsRouteAdapter } from "@/backend/infra/adapters";
-import { makeAddMilitaryRankController } from "@/backend/infra/factories";
+import {
+  makeAddMilitaryRankController,
+  makeGetAllMilitaryRanksController,
+} from "@/backend/infra/factories";
 import { HttpResponse } from "@/backend/presentation/protocols";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -8,6 +11,12 @@ const handler = async (request: NextRequest): Promise<NextResponse> => {
     case "POST":
       return await nextjsRouteAdapter({
         controller: makeAddMilitaryRankController(),
+        request,
+      });
+
+    case "GET":
+      return await nextjsRouteAdapter({
+        controller: makeGetAllMilitaryRanksController(),
         request,
       });
 
