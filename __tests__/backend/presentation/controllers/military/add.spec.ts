@@ -2,6 +2,7 @@ import {
   MilitaryInMemoryRepository,
   MilitaryRankInMemoryRepository,
 } from "@/../__mocks__";
+import { missingParamError } from "@/backend/data/helpers";
 import {
   MilitaryRankRepository,
   MilitaryRepository,
@@ -61,5 +62,26 @@ describe("AddMilitaryController", () => {
     const httpResponse: HttpResponse = await sut.handle(httpRequest);
 
     expect(httpResponse.statusCode).toBe(201);
+  });
+
+  test("should be return 400 on missing military rank id", async () => {
+    const { sut } = makeSut();
+
+    const httpRequest: HttpRequest<MilitaryProps> = {
+      // @ts-expect-error
+      body: {
+        rg: 1,
+        name: "Cel",
+        role: "Usuário",
+        password: "any-password",
+      },
+    };
+
+    const httpResponse: HttpResponse = await sut.handle(httpRequest);
+
+    expect(httpResponse.statusCode).toBe(400);
+    expect(httpResponse.body.errorMessage).toBe(
+      missingParamError("posto/graduação").message
+    );
   });
 });
