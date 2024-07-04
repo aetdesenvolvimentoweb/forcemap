@@ -7,6 +7,7 @@ import {
   MilitaryRepository,
 } from "@/backend/data/repositories";
 import { AddMilitaryService } from "@/backend/data/services";
+import { MilitaryValidator } from "@/backend/data/validators";
 import { MilitaryProps } from "@/backend/domain/entities";
 import { AddMilitaryController } from "@/backend/presentation/controllers";
 import { HttpRequest, HttpResponse } from "@/backend/presentation/protocols";
@@ -24,7 +25,9 @@ const makeSut = (): SutResponse => {
   const militaryRepository: MilitaryRepository = new MilitaryInMemoryRepository(
     militaryRankRepository
   );
+  const validator = new MilitaryValidator({});
   const addMilitaryService = new AddMilitaryService({
+    validator,
     repository: militaryRepository,
   });
 
