@@ -4,7 +4,7 @@ import {
   MilitaryPrismaRespository,
   MilitaryRankPrismaRespository,
 } from "@/backend/infra/adapters/prisma/repositories";
-import { connectionError } from "@/backend/infra/helpers";
+import { connectionError, operationError } from "@/backend/infra/helpers";
 import { afterAll, beforeAll, describe, expect, test, vi } from "vitest";
 
 interface SutResponse {
@@ -82,5 +82,23 @@ describe("MilitaryPrismaRepository", () => {
     ).rejects.toThrow(connectionError());
 
     mockBrokenConnection.mockRestore();
+  });
+
+  test("should be throws by error when saving to database", async () => {
+    const { sut } = makeSut();
+    const mockRecordError = vi.spyOn(prismaClient.military, "create");
+    mockRecordError.mockRejectedValueOnce(new Error());
+
+    await expect(
+      sut.add({
+        militaryRankId,
+        rg: 1,
+        name: "any-name",
+        password: "any-password",
+        role: "Usuário",
+      })
+    ).rejects.toThrow(operationError("criar"));
+
+    mockRecordError.mockRestore();
   });
 });
