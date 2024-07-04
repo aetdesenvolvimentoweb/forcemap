@@ -4,7 +4,8 @@ import {
   MilitaryPrismaRespository,
   MilitaryRankPrismaRespository,
 } from "@/backend/infra/adapters/prisma/repositories";
-import { afterAll, beforeAll, describe, expect, test } from "vitest";
+import { connectionError } from "@/backend/infra/helpers";
+import { afterAll, beforeAll, describe, expect, test, vi } from "vitest";
 
 interface SutResponse {
   militaryRankRepository: MilitaryRankPrismaRespository;
@@ -63,5 +64,23 @@ describe("MilitaryPrismaRepository", () => {
         role: "Usuário",
       })
     ).resolves.not.toThrow();
+  });
+
+  test("should be throws on connection error", async () => {
+    const { sut } = makeSut();
+    const mockBrokenConnection = vi.spyOn(prismaClient, "$connect");
+    mockBrokenConnection.mockRejectedValueOnce(new Error());
+
+    await expect(
+      sut.add({
+        militaryRankId,
+        rg: 1,
+        name: "any-name",
+        password: "any-password",
+        role: "Usuário",
+      })
+    ).rejects.toThrow(connectionError());
+
+    mockBrokenConnection.mockRestore();
   });
 });
