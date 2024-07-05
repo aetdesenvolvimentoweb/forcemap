@@ -1,15 +1,18 @@
 import {
+  IdValidatorStub,
   MilitaryInMemoryRepository,
   MilitaryRankInMemoryRepository,
 } from "@/../__mocks__";
-import { missingParamError } from "@/backend/data/helpers";
+import { invalidParamError, missingParamError } from "@/backend/data/helpers";
 import { MilitaryRankRepository } from "@/backend/data/repositories";
 import { AddMilitaryService } from "@/backend/data/services";
 import { MilitaryValidator } from "@/backend/data/validators";
-import { describe, expect, test } from "vitest";
+import { IdValidator } from "@/backend/domain/usecases";
+import { describe, expect, test, vi } from "vitest";
 
 interface SutResponse {
   militaryRankRepository: MilitaryRankRepository;
+  idValidator: IdValidator;
   sut: AddMilitaryService;
 }
 
@@ -18,14 +21,15 @@ const makeSut = (): SutResponse => {
   const militaryRepository = new MilitaryInMemoryRepository(
     militaryRankRepository
   );
-  const validator = new MilitaryValidator({});
+  const idValidator = new IdValidatorStub();
+  const validator = new MilitaryValidator({ idValidator });
 
   const sut = new AddMilitaryService({
     validator,
     repository: militaryRepository,
   });
 
-  return { militaryRankRepository, sut };
+  return { militaryRankRepository, idValidator, sut };
 };
 
 describe("AddMilitaryService", () => {
@@ -60,5 +64,23 @@ describe("AddMilitaryService", () => {
         password: "any-password",
       })
     ).rejects.toThrow(missingParamError("posto/graduação"));
+  });
+
+  test("should be throws if invalid military rank id is provided", async () => {
+    const { idValidator, sut } = makeSut();
+    const mockInvalidId = vi.spyOn(idValidator, "isValid");
+    mockInvalidId.mockReturnValue(false);
+
+    await expect(
+      sut.add({
+        militaryRankId: "invalid-id",
+        rg: 1,
+        name: "any-name",
+        role: "Usuário",
+        password: "any-password",
+      })
+    ).rejects.toThrow(invalidParamError("posto/graduação"));
+
+    mockInvalidId.mockRestore();
   });
 });
