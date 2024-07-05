@@ -66,6 +66,15 @@ describe("MilitaryPrismaRepository", () => {
     ).resolves.not.toThrow();
   });
 
+  test("should be able to get a military in the database by id", async () => {
+    const { sut } = makeSut();
+
+    const military = await sut.getByRg(1);
+    const id = military?.id || "";
+
+    await expect(sut.getById(id)).resolves.not.toThrow();
+  });
+
   test("should be able to get a military in the database by RG", async () => {
     const { sut } = makeSut();
 
