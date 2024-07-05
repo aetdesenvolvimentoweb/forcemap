@@ -2,7 +2,11 @@ import {
   MilitaryRankRepository,
   MilitaryRepository,
 } from "@/backend/data/repositories";
-import { Military, MilitaryProps } from "@/backend/domain/entities";
+import {
+  Military,
+  MilitaryProps,
+  MilitaryPublic,
+} from "@/backend/domain/entities";
 import { ObjectId } from "mongodb";
 
 export class MilitaryInMemoryRepository implements MilitaryRepository {
@@ -30,5 +34,22 @@ export class MilitaryInMemoryRepository implements MilitaryRepository {
       createdAt: date,
       updatedAt: date,
     });
+  };
+
+  public readonly getById = async (
+    id: string
+  ): Promise<MilitaryPublic | null> => {
+    const military = this.military.find((m) => m.id === id);
+
+    if (!military) return null;
+
+    const militaryRankId = military.militaryRankId;
+    const militaryRank =
+      await this.militaryRankRepository.getById(militaryRankId);
+
+    return {
+      ...military,
+      militaryRank: militaryRank || undefined,
+    };
   };
 }

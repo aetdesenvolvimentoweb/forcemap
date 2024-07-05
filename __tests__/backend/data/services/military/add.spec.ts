@@ -3,7 +3,11 @@ import {
   MilitaryInMemoryRepository,
   MilitaryRankInMemoryRepository,
 } from "@/../__mocks__";
-import { invalidParamError, missingParamError } from "@/backend/data/helpers";
+import {
+  invalidParamError,
+  missingParamError,
+  unregisteredFieldIdError,
+} from "@/backend/data/helpers";
 import { MilitaryRankRepository } from "@/backend/data/repositories";
 import { AddMilitaryService } from "@/backend/data/services";
 import { MilitaryValidator } from "@/backend/data/validators";
@@ -12,6 +16,7 @@ import { describe, expect, test, vi } from "vitest";
 
 interface SutResponse {
   militaryRankRepository: MilitaryRankRepository;
+  militaryRepository: MilitaryInMemoryRepository;
   idValidator: IdValidator;
   sut: AddMilitaryService;
 }
@@ -22,14 +27,17 @@ const makeSut = (): SutResponse => {
     militaryRankRepository
   );
   const idValidator = new IdValidatorStub();
-  const validator = new MilitaryValidator({ idValidator });
+  const validator = new MilitaryValidator({
+    idValidator,
+    militaryRankRepository,
+  });
 
   const sut = new AddMilitaryService({
     validator,
     repository: militaryRepository,
   });
 
-  return { militaryRankRepository, idValidator, sut };
+  return { militaryRankRepository, militaryRepository, idValidator, sut };
 };
 
 describe("AddMilitaryService", () => {
@@ -82,5 +90,24 @@ describe("AddMilitaryService", () => {
     ).rejects.toThrow(invalidParamError("posto/graduação"));
 
     mockInvalidId.mockRestore();
+  });
+
+  test("should be throws if unregistered military rank id is provided", async () => {
+    const { militaryRepository, sut } = makeSut();
+
+    const mockUnregisteredId = vi.spyOn(militaryRepository, "getById");
+    mockUnregisteredId.mockResolvedValueOnce(null);
+
+    await expect(
+      sut.add({
+        militaryRankId: "unregistered-id",
+        rg: 1,
+        name: "any-name",
+        role: "Usuário",
+        password: "any-password",
+      })
+    ).rejects.toThrow(unregisteredFieldIdError("posto/graduação"));
+
+    mockUnregisteredId.mockRestore();
   });
 });
