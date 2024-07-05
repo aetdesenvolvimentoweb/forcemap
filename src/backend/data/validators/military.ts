@@ -18,12 +18,14 @@ export class MilitaryValidator {
 
   private militaryRankId: string;
   private rg: number;
+  private name: string;
 
   constructor(dependencies: Dependencies) {
     this.idValidator = dependencies.idValidator;
     this.militaryRankRepository = dependencies.militaryRankRepository;
     this.militaryRankId = "";
     this.rg = 0;
+    this.name = "";
   }
 
   private setMilitaryRankId = (militaryRankId: string): void => {
@@ -32,6 +34,10 @@ export class MilitaryValidator {
 
   private setRg = (rg: number): void => {
     this.rg = rg;
+  };
+
+  private setName = (name: string): void => {
+    this.name = name;
   };
 
   private readonly checkMilitaryRankId = async (): Promise<void> => {
@@ -58,6 +64,10 @@ export class MilitaryValidator {
     if (!this.rg) {
       throw missingParamError("RG");
     }
+
+    if (!this.name) {
+      throw missingParamError("nome");
+    }
   };
 
   public readonly validateAddProps = async (
@@ -65,6 +75,7 @@ export class MilitaryValidator {
   ): Promise<void> => {
     this.setMilitaryRankId(props.militaryRankId);
     this.setRg(props.rg);
+    this.setName(props.name);
 
     await this.validateProps();
   };
