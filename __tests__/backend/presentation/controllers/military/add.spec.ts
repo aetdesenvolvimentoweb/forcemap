@@ -3,7 +3,11 @@ import {
   MilitaryInMemoryRepository,
   MilitaryRankInMemoryRepository,
 } from "@/../__mocks__";
-import { invalidParamError, missingParamError } from "@/backend/data/helpers";
+import {
+  invalidParamError,
+  missingParamError,
+  unregisteredFieldIdError,
+} from "@/backend/data/helpers";
 import {
   MilitaryRankRepository,
   MilitaryRepository,
@@ -115,5 +119,26 @@ describe("AddMilitaryController", () => {
     );
 
     mockInvalidId.mockRestore();
+  });
+
+  test("should be return 400 on unregistered military rank id", async () => {
+    const { sut } = makeSut();
+
+    const httpRequest: HttpRequest<MilitaryProps> = {
+      body: {
+        militaryRankId: "invalid-id",
+        rg: 1,
+        name: "Cel",
+        role: "Usuário",
+        password: "any-password",
+      },
+    };
+
+    const httpResponse: HttpResponse = await sut.handle(httpRequest);
+
+    expect(httpResponse.statusCode).toBe(404);
+    expect(httpResponse.body.errorMessage).toBe(
+      unregisteredFieldIdError("posto/graduação").message
+    );
   });
 });
