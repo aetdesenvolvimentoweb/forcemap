@@ -96,6 +96,10 @@ export class MilitaryValidator {
     if (!this.password) {
       throw missingParamError("senha");
     }
+
+    if (this.password.length < 8) {
+      throw invalidParamError("senha");
+    }
   };
 
   public readonly validateAddProps = async (
