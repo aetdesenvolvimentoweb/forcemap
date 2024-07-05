@@ -66,6 +66,12 @@ describe("MilitaryPrismaRepository", () => {
     ).resolves.not.toThrow();
   });
 
+  test("should be able to get a military in the database by RG", async () => {
+    const { sut } = makeSut();
+
+    await expect(sut.getByRg(1)).resolves.not.toThrow();
+  });
+
   test("should be throws on connection error", async () => {
     const { sut } = makeSut();
     const mockBrokenConnection = vi.spyOn(prismaClient, "$connect");
