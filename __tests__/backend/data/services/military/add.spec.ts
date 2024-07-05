@@ -167,4 +167,24 @@ describe("AddMilitaryService", () => {
       })
     ).rejects.toThrow(missingParamError("função"));
   });
+
+  test("should be throws if invalid role is provided", async () => {
+    const { militaryRankRepository, sut } = makeSut();
+
+    await militaryRankRepository.add({ order: 1, abbreviatedName: "Cel" });
+    const militaryRank =
+      await militaryRankRepository.getByAbbreviatedName("Cel");
+    const militaryRankId = militaryRank?.id || "";
+
+    await expect(
+      sut.add({
+        militaryRankId,
+        rg: 1,
+        name: "any-name",
+        // @ts-expect-error
+        role: "invalid-role",
+        password: "any-password",
+      })
+    ).rejects.toThrow(invalidParamError("função"));
+  });
 });
