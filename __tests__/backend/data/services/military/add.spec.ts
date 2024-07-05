@@ -148,4 +148,23 @@ describe("AddMilitaryService", () => {
       })
     ).rejects.toThrow(missingParamError("nome"));
   });
+
+  test("should be throws if no role is provided", async () => {
+    const { militaryRankRepository, sut } = makeSut();
+
+    await militaryRankRepository.add({ order: 1, abbreviatedName: "Cel" });
+    const militaryRank =
+      await militaryRankRepository.getByAbbreviatedName("Cel");
+    const militaryRankId = militaryRank?.id || "";
+
+    await expect(
+      // @ts-expect-error
+      sut.add({
+        militaryRankId,
+        rg: 1,
+        name: "any-name",
+        password: "any-password",
+      })
+    ).rejects.toThrow(missingParamError("função"));
+  });
 });
