@@ -141,4 +141,33 @@ describe("AddMilitaryController", () => {
       unregisteredFieldIdError("posto/graduação").message
     );
   });
+
+  test("should be return 400 on missing RG", async () => {
+    const { militaryRankRepository, sut } = makeSut();
+
+    await militaryRankRepository.add({
+      order: 1,
+      abbreviatedName: "Cel",
+    });
+    const militaryRank =
+      await militaryRankRepository.getByAbbreviatedName("Cel");
+    const militaryRankId = militaryRank?.id || "";
+
+    const httpRequest: HttpRequest<MilitaryProps> = {
+      // @ts-expect-error
+      body: {
+        militaryRankId,
+        name: "Cel",
+        role: "Usuário",
+        password: "any-password",
+      },
+    };
+
+    const httpResponse: HttpResponse = await sut.handle(httpRequest);
+
+    expect(httpResponse.statusCode).toBe(400);
+    expect(httpResponse.body.errorMessage).toBe(
+      missingParamError("RG").message
+    );
+  });
 });
