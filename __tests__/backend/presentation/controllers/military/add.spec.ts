@@ -3,7 +3,7 @@ import {
   MilitaryInMemoryRepository,
   MilitaryRankInMemoryRepository,
 } from "@/../__mocks__";
-import { missingParamError } from "@/backend/data/helpers";
+import { invalidParamError, missingParamError } from "@/backend/data/helpers";
 import {
   MilitaryRankRepository,
   MilitaryRepository,
@@ -11,13 +11,15 @@ import {
 import { AddMilitaryService } from "@/backend/data/services";
 import { MilitaryValidator } from "@/backend/data/validators";
 import { MilitaryProps } from "@/backend/domain/entities";
+import { IdValidator } from "@/backend/domain/usecases";
 import { AddMilitaryController } from "@/backend/presentation/controllers";
 import { HttpRequest, HttpResponse } from "@/backend/presentation/protocols";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 interface SutResponse {
   militaryRepository: MilitaryRepository;
   militaryRankRepository: MilitaryRankRepository;
+  idValidator: IdValidator;
   sut: AddMilitaryController;
 }
 
@@ -36,7 +38,7 @@ const makeSut = (): SutResponse => {
 
   const sut = new AddMilitaryController(addMilitaryService);
 
-  return { militaryRepository, militaryRankRepository, sut };
+  return { militaryRepository, militaryRankRepository, idValidator, sut };
 };
 
 describe("AddMilitaryController", () => {
@@ -85,5 +87,30 @@ describe("AddMilitaryController", () => {
     expect(httpResponse.body.errorMessage).toBe(
       missingParamError("posto/graduação").message
     );
+  });
+
+  test("should be return 400 on invalid military rank id", async () => {
+    const { idValidator, sut } = makeSut();
+    const mockInvalidId = vi.spyOn(idValidator, "isValid");
+    mockInvalidId.mockImplementationOnce(() => false);
+
+    const httpRequest: HttpRequest<MilitaryProps> = {
+      body: {
+        militaryRankId: "invalid-id",
+        rg: 1,
+        name: "Cel",
+        role: "Usuário",
+        password: "any-password",
+      },
+    };
+
+    const httpResponse: HttpResponse = await sut.handle(httpRequest);
+
+    expect(httpResponse.statusCode).toBe(400);
+    expect(httpResponse.body.errorMessage).toBe(
+      invalidParamError("posto/graduação").message
+    );
+
+    mockInvalidId.mockRestore();
   });
 });
