@@ -1,4 +1,5 @@
 import {
+  IdValidatorStub,
   MilitaryInMemoryRepository,
   MilitaryRankInMemoryRepository,
 } from "@/../__mocks__";
@@ -26,7 +27,8 @@ const makeSut = (): SutResponse => {
   const militaryRepository: MilitaryRepository = new MilitaryInMemoryRepository(
     militaryRankRepository
   );
-  const validator = new MilitaryValidator({});
+  const idValidator = new IdValidatorStub();
+  const validator = new MilitaryValidator({ idValidator });
   const addMilitaryService = new AddMilitaryService({
     validator,
     repository: militaryRepository,

@@ -1,12 +1,18 @@
 import { MilitaryProps } from "@/backend/domain/entities";
-import { missingParamError } from "../helpers";
+import { IdValidator } from "@/backend/domain/usecases";
+import { invalidParamError, missingParamError } from "../helpers";
 
-type Dependencies = {};
+type Dependencies = {
+  idValidator: IdValidator;
+};
 
 export class MilitaryValidator {
+  private idValidator: IdValidator;
+
   private militaryRankId: string;
 
   constructor(dependencies: Dependencies) {
+    this.idValidator = dependencies.idValidator;
     this.militaryRankId = "";
   }
 
@@ -17,6 +23,11 @@ export class MilitaryValidator {
   private readonly checkMilitaryRankId = async (): Promise<void> => {
     if (!this.militaryRankId) {
       throw missingParamError("posto/graduação");
+    }
+
+    const isValid = this.idValidator.isValid(this.militaryRankId);
+    if (!isValid) {
+      throw invalidParamError("posto/graduação");
     }
   };
 
