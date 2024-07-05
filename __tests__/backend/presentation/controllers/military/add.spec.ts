@@ -199,4 +199,34 @@ describe("AddMilitaryController", () => {
       missingParamError("função").message
     );
   });
+
+  test("should be return 400 on invalid role", async () => {
+    const { militaryRankRepository, sut } = makeSut();
+
+    await militaryRankRepository.add({
+      order: 1,
+      abbreviatedName: "Cel",
+    });
+    const militaryRank =
+      await militaryRankRepository.getByAbbreviatedName("Cel");
+    const militaryRankId = militaryRank?.id || "";
+
+    const httpRequest: HttpRequest<MilitaryProps> = {
+      body: {
+        militaryRankId,
+        rg: 1,
+        name: "Cel",
+        // @ts-expect-error
+        role: "invalid-role",
+        password: "any-password",
+      },
+    };
+
+    const httpResponse: HttpResponse = await sut.handle(httpRequest);
+
+    expect(httpResponse.statusCode).toBe(400);
+    expect(httpResponse.body.errorMessage).toBe(
+      invalidParamError("função").message
+    );
+  });
 });
