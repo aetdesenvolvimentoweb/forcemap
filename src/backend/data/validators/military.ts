@@ -1,4 +1,4 @@
-import { MilitaryProps } from "@/backend/domain/entities";
+import { MilitaryProps, MilitaryRole } from "@/backend/domain/entities";
 import { IdValidator } from "@/backend/domain/usecases";
 import {
   invalidParamError,
@@ -19,6 +19,7 @@ export class MilitaryValidator {
   private militaryRankId: string;
   private rg: number;
   private name: string;
+  private role: MilitaryRole;
 
   constructor(dependencies: Dependencies) {
     this.idValidator = dependencies.idValidator;
@@ -26,6 +27,7 @@ export class MilitaryValidator {
     this.militaryRankId = "";
     this.rg = 0;
     this.name = "";
+    this.role = "Usuário";
   }
 
   private setMilitaryRankId = (militaryRankId: string): void => {
@@ -38,6 +40,10 @@ export class MilitaryValidator {
 
   private setName = (name: string): void => {
     this.name = name;
+  };
+
+  private setRole = (role: MilitaryRole): void => {
+    this.role = role;
   };
 
   private readonly checkMilitaryRankId = async (): Promise<void> => {
@@ -68,6 +74,10 @@ export class MilitaryValidator {
     if (!this.name) {
       throw missingParamError("nome");
     }
+
+    if (!this.role) {
+      throw missingParamError("função");
+    }
   };
 
   public readonly validateAddProps = async (
@@ -76,6 +86,7 @@ export class MilitaryValidator {
     this.setMilitaryRankId(props.militaryRankId);
     this.setRg(props.rg);
     this.setName(props.name);
+    this.setRole(props.role);
 
     await this.validateProps();
   };
