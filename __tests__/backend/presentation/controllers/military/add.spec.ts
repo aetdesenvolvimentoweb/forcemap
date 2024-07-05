@@ -258,4 +258,33 @@ describe("AddMilitaryController", () => {
       missingParamError("senha").message
     );
   });
+
+  test("should be return 400 on invalid password", async () => {
+    const { militaryRankRepository, sut } = makeSut();
+
+    await militaryRankRepository.add({
+      order: 1,
+      abbreviatedName: "Cel",
+    });
+    const militaryRank =
+      await militaryRankRepository.getByAbbreviatedName("Cel");
+    const militaryRankId = militaryRank?.id || "";
+
+    const httpRequest: HttpRequest<MilitaryProps> = {
+      body: {
+        militaryRankId,
+        rg: 1,
+        name: "Cel",
+        role: "Usuário",
+        password: "invalid", // less then 8 characters
+      },
+    };
+
+    const httpResponse: HttpResponse = await sut.handle(httpRequest);
+
+    expect(httpResponse.statusCode).toBe(400);
+    expect(httpResponse.body.errorMessage).toBe(
+      invalidParamError("senha").message
+    );
+  });
 });
