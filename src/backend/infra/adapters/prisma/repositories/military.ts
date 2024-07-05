@@ -1,5 +1,9 @@
 import { MilitaryRepository } from "@/backend/data/repositories";
-import { MilitaryProps } from "@/backend/domain/entities";
+import {
+  MilitaryProps,
+  MilitaryPublic,
+  MilitaryRole,
+} from "@/backend/domain/entities";
 import {
   connectionError,
   operationError,
@@ -31,5 +35,41 @@ export class MilitaryPrismaRespository implements MilitaryRepository {
       .finally(async () => {
         await prismaClient.$disconnect();
       });
+  };
+
+  public readonly getById = async (
+    id: string
+  ): Promise<MilitaryPublic | null> => {
+    await this.connectDB();
+
+    const military = await prismaClient.military
+      .findFirst({
+        where: { id },
+        select: {
+          id: true,
+          militaryRankId: true,
+          militaryRank: true,
+          rg: true,
+          name: true,
+          role: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      })
+      .catch(async () => {
+        throw operationError("consultar");
+      })
+      .finally(async () => {
+        await prismaClient.$disconnect();
+      });
+
+    if (military) {
+      return {
+        ...military,
+        role: military.role as MilitaryRole,
+      };
+    } else {
+      return null;
+    }
   };
 }

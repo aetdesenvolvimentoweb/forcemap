@@ -1,3 +1,8 @@
-import { AddMilitaryUsecase } from "@/backend/domain/usecases";
+import {
+  AddMilitaryUsecase,
+  GetMilitaryByIdUsecase,
+} from "@/backend/domain/usecases";
 
-export interface MilitaryRepository extends AddMilitaryUsecase {}
+export interface MilitaryRepository
+  extends AddMilitaryUsecase,
+    GetMilitaryByIdUsecase {}
