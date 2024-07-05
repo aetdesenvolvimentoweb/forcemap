@@ -4,6 +4,7 @@ import {
   MilitaryRankInMemoryRepository,
 } from "@/../__mocks__";
 import {
+  duplicatedKeyError,
   invalidParamError,
   missingParamError,
   unregisteredFieldIdError,
@@ -30,6 +31,7 @@ const makeSut = (): SutResponse => {
   const validator = new MilitaryValidator({
     idValidator,
     militaryRankRepository,
+    militaryRepository,
   });
 
   const sut = new AddMilitaryService({
@@ -128,6 +130,33 @@ describe("AddMilitaryService", () => {
         password: "any-password",
       })
     ).rejects.toThrow(missingParamError("RG"));
+  });
+
+  test("should be throws if already registered RG is provided", async () => {
+    const { militaryRankRepository, sut } = makeSut();
+
+    await militaryRankRepository.add({ order: 1, abbreviatedName: "Cel" });
+    const militaryRank =
+      await militaryRankRepository.getByAbbreviatedName("Cel");
+    const militaryRankId = militaryRank?.id || "";
+
+    await sut.add({
+      militaryRankId,
+      rg: 1,
+      name: "any-name",
+      role: "Usuário",
+      password: "any-password",
+    });
+
+    await expect(
+      sut.add({
+        militaryRankId,
+        rg: 1,
+        name: "any-name",
+        role: "Usuário",
+        password: "any-password",
+      })
+    ).rejects.toThrow(duplicatedKeyError("RG"));
   });
 
   test("should be throws if no name is provided", async () => {
