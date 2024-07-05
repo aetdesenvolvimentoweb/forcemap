@@ -107,4 +107,14 @@ describe("MilitaryPrismaRepository", () => {
 
     mockRecordError.mockRestore();
   });
+
+  test("should be throws by error when getting from database by RG", async () => {
+    const { sut } = makeSut();
+    const mockQueryError = vi.spyOn(prismaClient.military, "findUnique");
+    mockQueryError.mockRejectedValueOnce(new Error());
+
+    await expect(sut.getByRg(1)).rejects.toThrow(operationError("consultar"));
+
+    mockQueryError.mockRestore();
+  });
 });
