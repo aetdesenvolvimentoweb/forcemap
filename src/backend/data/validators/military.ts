@@ -20,6 +20,7 @@ export class MilitaryValidator {
   private rg: number;
   private name: string;
   private role: MilitaryRole;
+  private password: string;
 
   constructor(dependencies: Dependencies) {
     this.idValidator = dependencies.idValidator;
@@ -28,6 +29,7 @@ export class MilitaryValidator {
     this.rg = 0;
     this.name = "";
     this.role = "Usuário";
+    this.password = "";
   }
 
   private setMilitaryRankId = (militaryRankId: string): void => {
@@ -44,6 +46,10 @@ export class MilitaryValidator {
 
   private setRole = (role: MilitaryRole): void => {
     this.role = role;
+  };
+
+  private setPassword = (password: string): void => {
+    this.password = password;
   };
 
   private readonly checkMilitaryRankId = async (): Promise<void> => {
@@ -86,6 +92,10 @@ export class MilitaryValidator {
     ) {
       throw invalidParamError("função");
     }
+
+    if (!this.password) {
+      throw missingParamError("senha");
+    }
   };
 
   public readonly validateAddProps = async (
@@ -95,6 +105,7 @@ export class MilitaryValidator {
     this.setRg(props.rg);
     this.setName(props.name);
     this.setRole(props.role);
+    this.setPassword(props.password);
 
     await this.validateProps();
   };
