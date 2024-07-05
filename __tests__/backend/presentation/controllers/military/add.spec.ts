@@ -37,6 +37,7 @@ const makeSut = (): SutResponse => {
   const validator = new MilitaryValidator({
     idValidator,
     militaryRankRepository,
+    militaryRepository,
   });
   const addMilitaryService = new AddMilitaryService({
     validator,

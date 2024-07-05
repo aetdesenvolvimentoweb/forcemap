@@ -13,6 +13,7 @@ export const makeAddMilitaryService = (): AddMilitaryService => {
   const validator = new MilitaryValidator({
     idValidator,
     militaryRankRepository,
+    militaryRepository,
   });
 
   return new AddMilitaryService({ validator, repository: militaryRepository });

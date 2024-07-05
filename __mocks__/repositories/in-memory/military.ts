@@ -52,4 +52,21 @@ export class MilitaryInMemoryRepository implements MilitaryRepository {
       militaryRank: militaryRank || undefined,
     };
   };
+
+  public readonly getByRg = async (
+    rg: number
+  ): Promise<MilitaryPublic | null> => {
+    const military = this.military.find((m) => m.rg === rg);
+
+    if (!military) return null;
+
+    const militaryRankId = military?.militaryRankId || "";
+    const militaryRank =
+      await this.militaryRankRepository.getById(militaryRankId);
+
+    return {
+      ...military,
+      militaryRank: militaryRank || undefined,
+    };
+  };
 }

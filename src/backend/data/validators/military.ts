@@ -1,20 +1,23 @@
 import { MilitaryProps, MilitaryRole } from "@/backend/domain/entities";
 import { IdValidator } from "@/backend/domain/usecases";
 import {
+  duplicatedKeyError,
   invalidParamError,
   missingParamError,
   unregisteredFieldIdError,
 } from "../helpers";
-import { MilitaryRankRepository } from "../repositories";
+import { MilitaryRankRepository, MilitaryRepository } from "../repositories";
 
 type Dependencies = {
   idValidator: IdValidator;
   militaryRankRepository: MilitaryRankRepository;
+  militaryRepository: MilitaryRepository;
 };
 
 export class MilitaryValidator {
   private readonly idValidator: IdValidator;
   private readonly militaryRankRepository: MilitaryRankRepository;
+  private readonly militaryRepository: MilitaryRepository;
 
   private militaryRankId: string;
   private rg: number;
@@ -25,6 +28,8 @@ export class MilitaryValidator {
   constructor(dependencies: Dependencies) {
     this.idValidator = dependencies.idValidator;
     this.militaryRankRepository = dependencies.militaryRankRepository;
+    this.militaryRepository = dependencies.militaryRepository;
+
     this.militaryRankId = "";
     this.rg = 0;
     this.name = "";
@@ -75,6 +80,11 @@ export class MilitaryValidator {
 
     if (!this.rg) {
       throw missingParamError("RG");
+    }
+
+    const alreadyRegistered = await this.militaryRepository.getByRg(this.rg);
+    if (alreadyRegistered) {
+      throw duplicatedKeyError("RG");
     }
 
     if (!this.name) {

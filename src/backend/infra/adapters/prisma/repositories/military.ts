@@ -72,4 +72,41 @@ export class MilitaryPrismaRespository implements MilitaryRepository {
       return null;
     }
   };
+
+  public readonly getByRg = async (
+    rg: number
+  ): Promise<MilitaryPublic | null> => {
+    await this.connectDB();
+    const military = await prismaClient.military
+      .findUnique({
+        where: {
+          rg,
+        },
+        select: {
+          id: true,
+          militaryRankId: true,
+          militaryRank: true,
+          rg: true,
+          name: true,
+          role: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      })
+      .catch(async () => {
+        throw operationError("consultar");
+      })
+      .finally(async () => {
+        await prismaClient.$disconnect();
+      });
+
+    if (military) {
+      return {
+        ...military,
+        role: military.role as MilitaryRole,
+      };
+    } else {
+      return null;
+    }
+  };
 }

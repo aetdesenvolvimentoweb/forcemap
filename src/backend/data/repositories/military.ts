@@ -1,3 +1,4 @@
+import { MilitaryPublic } from "@/backend/domain/entities";
 import {
   AddMilitaryUsecase,
   GetMilitaryByIdUsecase,
@@ -5,4 +6,6 @@ import {
 
 export interface MilitaryRepository
   extends AddMilitaryUsecase,
-    GetMilitaryByIdUsecase {}
+    GetMilitaryByIdUsecase {
+  getByRg: (rg: number) => Promise<MilitaryPublic | null>;
+}
