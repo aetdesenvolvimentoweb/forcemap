@@ -78,6 +78,14 @@ export class MilitaryValidator {
     if (!this.role) {
       throw missingParamError("função");
     }
+
+    if (
+      this.role !== "Usuário" &&
+      this.role !== "Administrador" &&
+      this.role !== "ACA"
+    ) {
+      throw invalidParamError("função");
+    }
   };
 
   public readonly validateAddProps = async (
