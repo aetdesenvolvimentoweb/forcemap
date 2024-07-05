@@ -201,4 +201,23 @@ describe("AddMilitaryService", () => {
       sut.add({ militaryRankId, rg: 1, name: "any-name", role: "Usuário" })
     ).rejects.toThrow(missingParamError("senha"));
   });
+
+  test("should be throws if invalid password is provided", async () => {
+    const { militaryRankRepository, sut } = makeSut();
+
+    await militaryRankRepository.add({ order: 1, abbreviatedName: "Cel" });
+    const militaryRank =
+      await militaryRankRepository.getByAbbreviatedName("Cel");
+    const militaryRankId = militaryRank?.id || "";
+
+    await expect(
+      sut.add({
+        militaryRankId,
+        rg: 1,
+        name: "any-name",
+        role: "Usuário",
+        password: "invalid", //less than 8 characters
+      })
+    ).rejects.toThrow(invalidParamError("senha"));
+  });
 });
