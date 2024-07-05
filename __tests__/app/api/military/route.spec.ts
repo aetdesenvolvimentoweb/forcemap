@@ -36,7 +36,7 @@ describe("Military API route", () => {
     await clearDatabase();
   });
 
-  test("POST", async () => {
+  test("POST a new military", async () => {
     const request: NextRequest = new NextRequest("http://localhost:3000", {
       method: "POST",
       headers: {

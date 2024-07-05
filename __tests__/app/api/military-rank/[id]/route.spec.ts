@@ -20,7 +20,7 @@ describe("Military Rank API route", () => {
     await clearDatabase();
   });
 
-  test("GET by id", async () => {
+  test("GET military rank by id", async () => {
     const request: NextRequest = new NextRequest("http://localhost:3000", {
       method: "GET",
       headers: {
@@ -48,7 +48,7 @@ describe("Military Rank API route", () => {
     expect(httpResponse.statusCode).toBe(200);
   });
 
-  test("PUT", async () => {
+  test("PUT a military rank", async () => {
     const request: NextRequest = new NextRequest("http://localhost:3000", {
       method: "PUT",
       headers: {
@@ -72,7 +72,7 @@ describe("Military Rank API route", () => {
     expect(httpResponse.statusCode).toBe(200);
   });
 
-  test("DELETE", async () => {
+  test("DELETE a military rank", async () => {
     const request: NextRequest = new NextRequest("http://localhost:3000", {
       method: "DELETE",
       headers: {
