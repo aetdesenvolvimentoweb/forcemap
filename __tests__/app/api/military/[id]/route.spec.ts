@@ -1,4 +1,4 @@
-import { GET } from "@/app/api/military/[id]/route";
+import { DELETE, GET } from "@/app/api/military/[id]/route";
 import { prismaClient } from "@/backend/infra/adapters/prisma-client";
 import { HttpResponse } from "@/backend/presentation/protocols";
 import { NextRequest } from "next/server";
@@ -37,7 +37,7 @@ describe("Military API route", () => {
     await clearDatabase();
   });
 
-  test("GET a military by id", async () => {
+  test("GET a military by ID", async () => {
     const request: NextRequest = new NextRequest("http://localhost:3000", {
       method: "GET",
       headers: {
@@ -60,6 +60,26 @@ describe("Military API route", () => {
     const id = military?.id || "";
 
     const httpResponse: HttpResponse = await GET(request, {
+      params: { id },
+    }).then(async (data) => await data.json());
+
+    expect(httpResponse.statusCode).toBe(200);
+  });
+
+  test("DELETE a military by ID", async () => {
+    const request: NextRequest = new NextRequest("http://localhost:3000", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    const military = await prismaClient.military.findUnique({
+      where: { rg: 1 },
+    });
+    const id = military?.id || "";
+
+    const httpResponse: HttpResponse = await DELETE(request, {
       params: { id },
     }).then(async (data) => await data.json());
 
