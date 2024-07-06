@@ -1,12 +1,15 @@
 import {
+  IdValidatorStub,
   MilitaryInMemoryRepository,
   MilitaryRankInMemoryRepository,
 } from "@/../__mocks__";
+import { missingParamError } from "@/backend/data/helpers";
 import {
   MilitaryRankRepository,
   MilitaryRepository,
 } from "@/backend/data/repositories";
 import { DeleteMilitaryService } from "@/backend/data/services";
+import { MilitaryValidator } from "@/backend/data/validators";
 import { describe, expect, test } from "vitest";
 
 interface SutResponse {
@@ -20,8 +23,15 @@ const makeSut = (): SutResponse => {
   const militaryRepository = new MilitaryInMemoryRepository(
     militaryRankRepository
   );
+  const idValidator = new IdValidatorStub();
+  const validator = new MilitaryValidator({
+    idValidator,
+    militaryRankRepository,
+    militaryRepository,
+  });
   const sut = new DeleteMilitaryService({
     repository: militaryRepository,
+    validator,
   });
 
   return { militaryRepository, militaryRankRepository, sut };
@@ -47,5 +57,11 @@ describe("DeleteMilitaryService", () => {
     const id = military?.id || "";
 
     await expect(sut.delete(id)).resolves.not.toThrow();
+  });
+
+  test("should be throws if no id is provided", async () => {
+    const { sut } = makeSut();
+
+    await expect(sut.delete("")).rejects.toThrow(missingParamError("ID"));
   });
 });
