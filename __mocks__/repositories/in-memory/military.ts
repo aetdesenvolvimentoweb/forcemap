@@ -69,4 +69,8 @@ export class MilitaryInMemoryRepository implements MilitaryRepository {
       militaryRank: militaryRank || undefined,
     };
   };
+
+  public readonly delete = async (id: string): Promise<void> => {
+    this.military = this.military.filter((m) => m.id !== id);
+  };
 }
