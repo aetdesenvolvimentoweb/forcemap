@@ -90,6 +90,14 @@ describe("MilitaryPrismaRepository", () => {
     await expect(sut.getByRg(1)).resolves.not.toThrow();
   });
 
+  test("should be able to delete a military in the database by id", async () => {
+    const { sut } = makeSut();
+    const military = await sut.getByRg(1);
+    const id = military?.id || "";
+
+    await expect(sut.delete(id)).resolves.not.toThrow();
+  });
+
   test("should be throws on connection error", async () => {
     const { sut } = makeSut();
     const mockBrokenConnection = vi.spyOn(prismaClient, "$connect");
