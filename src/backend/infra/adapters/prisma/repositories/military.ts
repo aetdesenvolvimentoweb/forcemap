@@ -109,4 +109,16 @@ export class MilitaryPrismaRespository implements MilitaryRepository {
       return null;
     }
   };
+
+  public readonly delete = async (id: string): Promise<void> => {
+    await this.connectDB();
+    await prismaClient.military
+      .delete({ where: { id } })
+      .catch(async () => {
+        throw operationError("deletar");
+      })
+      .finally(async () => {
+        await prismaClient.$disconnect();
+      });
+  };
 }
