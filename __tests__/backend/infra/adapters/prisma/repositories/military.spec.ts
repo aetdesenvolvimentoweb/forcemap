@@ -5,6 +5,7 @@ import {
   MilitaryRankPrismaRespository,
 } from "@/backend/infra/adapters/prisma/repositories";
 import { connectionError, operationError } from "@/backend/infra/helpers";
+import { ObjectId } from "mongodb";
 import { afterAll, beforeAll, describe, expect, test, vi } from "vitest";
 
 interface SutResponse {
@@ -73,6 +74,14 @@ describe("MilitaryPrismaRepository", () => {
     const id = military?.id || "";
 
     await expect(sut.getById(id)).resolves.not.toThrow();
+  });
+
+  test("should be able to return null if military not found", async () => {
+    const { sut } = makeSut();
+
+    const id = new ObjectId().toString();
+
+    expect(await sut.getById(id)).toEqual(null);
   });
 
   test("should be able to get a military in the database by RG", async () => {
