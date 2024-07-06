@@ -3,6 +3,7 @@ import {
   MilitaryInMemoryRepository,
   MilitaryRankInMemoryRepository,
 } from "@/../__mocks__";
+import { missingParamError } from "@/backend/data/helpers";
 import {
   MilitaryRankRepository,
   MilitaryRepository,
@@ -73,5 +74,21 @@ describe("DeleteMilitaryByIdController", () => {
     const httpResponse = await sut.handle(httpRequest);
 
     expect(httpResponse.statusCode).toBe(200);
+  });
+
+  test("should be return 400 on missing ID", async () => {
+    const { sut } = makeSut();
+
+    const httpRequest: HttpRequest = {
+      body: {},
+      params: { id: "" },
+    };
+
+    const httpResponse = await sut.handle(httpRequest);
+
+    expect(httpResponse.statusCode).toBe(400);
+    expect(httpResponse.body.errorMessage).toEqual(
+      missingParamError("ID").message
+    );
   });
 });
