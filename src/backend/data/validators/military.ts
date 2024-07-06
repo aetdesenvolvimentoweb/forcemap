@@ -127,6 +127,11 @@ export class MilitaryValidator {
     if (!isValid) {
       throw invalidParamError("ID");
     }
+
+    const alreadyRegistered = await this.militaryRepository.getById(this.id);
+    if (!alreadyRegistered) {
+      throw unregisteredFieldIdError("militar");
+    }
   };
 
   public readonly validateAddProps = async (
