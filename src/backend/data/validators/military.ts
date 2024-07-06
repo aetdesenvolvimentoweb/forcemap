@@ -19,6 +19,7 @@ export class MilitaryValidator {
   private readonly militaryRankRepository: MilitaryRankRepository;
   private readonly militaryRepository: MilitaryRepository;
 
+  private id: string;
   private militaryRankId: string;
   private rg: number;
   private name: string;
@@ -30,12 +31,17 @@ export class MilitaryValidator {
     this.militaryRankRepository = dependencies.militaryRankRepository;
     this.militaryRepository = dependencies.militaryRepository;
 
+    this.id = "";
     this.militaryRankId = "";
     this.rg = 0;
     this.name = "";
     this.role = "Usuário";
     this.password = "";
   }
+
+  private setId = (id: string): void => {
+    this.id = id;
+  };
 
   private setMilitaryRankId = (militaryRankId: string): void => {
     this.militaryRankId = militaryRankId;
@@ -112,6 +118,12 @@ export class MilitaryValidator {
     }
   };
 
+  private readonly checkId = async (): Promise<void> => {
+    if (!this.id) {
+      throw missingParamError("ID");
+    }
+  };
+
   public readonly validateAddProps = async (
     props: MilitaryProps
   ): Promise<void> => {
@@ -122,5 +134,11 @@ export class MilitaryValidator {
     this.setPassword(props.password);
 
     await this.validateProps();
+  };
+
+  public readonly validateId = async (id: string): Promise<void> => {
+    this.setId(id);
+
+    await this.checkId();
   };
 }
