@@ -1,4 +1,5 @@
 import {
+  IdValidatorStub,
   MilitaryInMemoryRepository,
   MilitaryRankInMemoryRepository,
 } from "@/../__mocks__";
@@ -7,6 +8,7 @@ import {
   MilitaryRepository,
 } from "@/backend/data/repositories";
 import { DeleteMilitaryService } from "@/backend/data/services";
+import { MilitaryValidator } from "@/backend/data/validators";
 import { DeleteMilitaryController } from "@/backend/presentation/controllers";
 import { HttpRequest } from "@/backend/presentation/protocols";
 import { describe, expect, test } from "vitest";
@@ -23,8 +25,15 @@ const makeSut = (): SutResponse => {
   const militaryRepository: MilitaryRepository = new MilitaryInMemoryRepository(
     militaryRankRepository
   );
+  const idValidator = new IdValidatorStub();
+  const validator = new MilitaryValidator({
+    militaryRankRepository,
+    militaryRepository,
+    idValidator,
+  });
   const deleteMilitaryService = new DeleteMilitaryService({
     repository: militaryRepository,
+    validator,
   });
 
   const sut = new DeleteMilitaryController(deleteMilitaryService);
