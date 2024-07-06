@@ -122,6 +122,11 @@ export class MilitaryValidator {
     if (!this.id) {
       throw missingParamError("ID");
     }
+
+    const isValid = this.idValidator.isValid(this.id);
+    if (!isValid) {
+      throw invalidParamError("ID");
+    }
   };
 
   public readonly validateAddProps = async (
