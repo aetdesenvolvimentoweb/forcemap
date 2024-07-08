@@ -48,8 +48,14 @@ export class MilitaryInMemoryRepository implements MilitaryRepository {
       await this.militaryRankRepository.getById(militaryRankId);
 
     return {
-      ...military,
+      id: military.id,
+      militaryRankId: military.militaryRankId,
       militaryRank: militaryRank || undefined,
+      rg: military.rg,
+      name: military.name,
+      role: military.role,
+      createdAt: military.createdAt,
+      updatedAt: military.updatedAt,
     };
   };
 
@@ -65,12 +71,40 @@ export class MilitaryInMemoryRepository implements MilitaryRepository {
       await this.militaryRankRepository.getById(militaryRankId);
 
     return {
-      ...military,
+      id: military.id,
+      militaryRankId: military.militaryRankId,
       militaryRank: militaryRank || undefined,
+      rg: military.rg,
+      name: military.name,
+      role: military.role,
+      createdAt: military.createdAt,
+      updatedAt: military.updatedAt,
     };
   };
 
   public readonly delete = async (id: string): Promise<void> => {
     this.military = this.military.filter((m) => m.id !== id);
+  };
+
+  public readonly getAll = async (): Promise<MilitaryPublic[]> => {
+    let militaryPublic: MilitaryPublic[] = [];
+
+    this.military.forEach(async (military) => {
+      const militaryRank = await this.militaryRankRepository.getById(
+        military.militaryRankId
+      );
+
+      militaryPublic.push({
+        id: military.id,
+        militaryRankId: military.militaryRankId,
+        militaryRank: militaryRank || undefined,
+        rg: military.rg,
+        name: military.name,
+        role: military.role,
+        createdAt: military.createdAt,
+        updatedAt: military.updatedAt,
+      });
+    });
+    return militaryPublic;
   };
 }
