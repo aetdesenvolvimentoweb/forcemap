@@ -1,4 +1,4 @@
-import { POST } from "@/app/api/military/route";
+import { GET, POST } from "@/app/api/military/route";
 import { prismaClient } from "@/backend/infra/adapters/prisma-client";
 import { HttpResponse } from "@/backend/presentation/protocols";
 import { NextRequest } from "next/server";
@@ -56,5 +56,20 @@ describe("Military API route", () => {
     );
 
     expect(httpResponse.statusCode).toBe(201);
+  });
+
+  test("GET all military", async () => {
+    const request: NextRequest = new NextRequest("http://localhost:3000", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    const httpResponse: HttpResponse = await GET(request).then((res) =>
+      res.json()
+    );
+
+    expect(httpResponse.statusCode).toBe(200);
   });
 });
