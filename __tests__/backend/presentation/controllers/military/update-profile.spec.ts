@@ -238,4 +238,47 @@ describe("UpdateMilitaryProfileController", () => {
 
     mockInvalidId.mockRestore();
   });
+
+  test("should be return 404 on unregistered military rank ID", async () => {
+    const { militaryRankRepository, militaryRepository, sut } = makeSut();
+
+    const mockUnregisteredId = vi.spyOn(militaryRankRepository, "getById");
+    mockUnregisteredId.mockResolvedValueOnce(null);
+
+    await militaryRankRepository.add({
+      order: 1,
+      abbreviatedName: "Cel",
+    });
+    const militaryRank =
+      await militaryRankRepository.getByAbbreviatedName("Cel");
+    const militaryRankId = militaryRank?.id || "";
+
+    await militaryRepository.add({
+      militaryRankId,
+      rg: 1,
+      name: "any-name",
+      role: "Usuário",
+      password: "any-password",
+    });
+    const military = await militaryRepository.getByRg(1);
+    const id = military?.id || "";
+
+    const httpRequest: HttpRequest<Omit<UpdateMilitaryProfileProps, "id">> = {
+      body: {
+        militaryRankId: new ObjectId().toString(),
+        rg: 2,
+        name: "any-name",
+      },
+      params: { id },
+    };
+
+    const httpResponse: HttpResponse = await sut.handle(httpRequest);
+
+    expect(httpResponse.statusCode).toBe(404);
+    expect(httpResponse.body.errorMessage).toEqual(
+      unregisteredFieldIdError("posto/graduação").message
+    );
+
+    mockUnregisteredId.mockRestore();
+  });
 });
