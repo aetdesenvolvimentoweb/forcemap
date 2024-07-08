@@ -1,12 +1,15 @@
 import {
+  IdValidatorStub,
   MilitaryInMemoryRepository,
   MilitaryRankInMemoryRepository,
 } from "@/../__mocks__";
+import { missingParamError } from "@/backend/data/helpers";
 import {
   MilitaryRankRepository,
   MilitaryRepository,
 } from "@/backend/data/repositories";
 import { UpdateMilitaryRoleService } from "@/backend/data/services";
+import { MilitaryValidator } from "@/backend/data/validators";
 import { describe, expect, test } from "vitest";
 
 interface SutResponse {
@@ -20,8 +23,15 @@ const makeSut = (): SutResponse => {
   const militaryRepository = new MilitaryInMemoryRepository(
     militaryRankRepository
   );
+  const idValidator = new IdValidatorStub();
+  const validator = new MilitaryValidator({
+    idValidator,
+    militaryRankRepository,
+    militaryRepository,
+  });
   const sut = new UpdateMilitaryRoleService({
     repository: militaryRepository,
+    validator,
   });
 
   return { militaryRepository, militaryRankRepository, sut };
@@ -52,5 +62,14 @@ describe("UpdateMilitaryRoleService", () => {
         newRole: "ACA",
       })
     ).resolves.not.toThrow();
+  });
+
+  test("should be throws if no id is provided", async () => {
+    const { sut } = makeSut();
+
+    await expect(
+      //@ts-expect-error
+      sut.updateRole({ newRole: "ACA" })
+    ).rejects.toThrow(missingParamError("ID"));
   });
 });
