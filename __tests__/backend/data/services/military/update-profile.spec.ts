@@ -4,6 +4,7 @@ import {
   MilitaryRankInMemoryRepository,
 } from "@/../__mocks__";
 import {
+  duplicatedKeyError,
   invalidParamError,
   missingParamError,
   unregisteredFieldIdError,
@@ -248,5 +249,41 @@ describe("UpdateMilitaryProfileService", () => {
       // @ts-expect-error
       sut.updateProfile({ id, militaryRankId, name: "another-name" })
     ).rejects.toThrow(missingParamError("RG"));
+  });
+
+  test("should be throws if already registered RG is provided", async () => {
+    const { militaryRepository, militaryRankRepository, sut } = makeSut();
+
+    await militaryRankRepository.add({ order: 1, abbreviatedName: "Cel" });
+    const militaryRank =
+      await militaryRankRepository.getByAbbreviatedName("Cel");
+    const militaryRankId = militaryRank?.id || "";
+
+    await militaryRepository.add({
+      militaryRankId,
+      rg: 1,
+      name: "any-name",
+      password: "any-password",
+      role: "Usuário",
+    });
+    await militaryRepository.add({
+      militaryRankId,
+      rg: 2,
+      name: "another-name",
+      password: "any-password",
+      role: "Usuário",
+    });
+
+    const military = await militaryRepository.getByRg(1);
+    const id = military?.id || "";
+
+    await expect(
+      sut.updateProfile({
+        id,
+        militaryRankId,
+        rg: 2,
+        name: "another-name",
+      })
+    ).rejects.toThrow(duplicatedKeyError("RG"));
   });
 });
