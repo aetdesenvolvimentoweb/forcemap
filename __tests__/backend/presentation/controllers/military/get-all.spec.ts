@@ -8,8 +8,9 @@ import {
 } from "@/backend/data/repositories";
 import { GetAllMilitaryService } from "@/backend/data/services";
 import { GetAllMilitaryController } from "@/backend/presentation/controllers";
+import { serverError } from "@/backend/presentation/helpers";
 import { HttpRequest } from "@/backend/presentation/protocols";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 interface SutResponse {
   militaryRankRepository: MilitaryRankRepository;
@@ -58,5 +59,25 @@ describe("GetAllMilitaryController", () => {
 
     expect(httpResponse.statusCode).toBe(200);
     expect(Array.isArray(httpResponse.body.data)).toBeTruthy();
+  });
+
+  test("should be return 500 on server error", async () => {
+    const { militaryRepository, sut } = makeSut();
+
+    const mockServerError = vi.spyOn(militaryRepository, "getAll");
+    mockServerError.mockRejectedValueOnce(new Error());
+
+    const httpRequest: HttpRequest = {
+      body: {},
+    };
+
+    const httpResponse = await sut.handle(httpRequest);
+
+    expect(httpResponse.statusCode).toBe(500);
+    expect(httpResponse.body.errorMessage).toEqual(
+      serverError().body.errorMessage
+    );
+
+    mockServerError.mockRestore();
   });
 });
