@@ -3,6 +3,7 @@ import {
   MilitaryInMemoryRepository,
   MilitaryRankInMemoryRepository,
 } from "@/../__mocks__";
+import { missingParamError } from "@/backend/data/helpers";
 import {
   MilitaryRankRepository,
   MilitaryRepository,
@@ -76,5 +77,23 @@ describe("UpdateMilitaryRoleController", () => {
     const httpResponse: HttpResponse = await sut.handle(httpRequest);
 
     expect(httpResponse.statusCode).toBe(200);
+  });
+
+  test("should be return 400 on missing ID", async () => {
+    const { sut } = makeSut();
+
+    const httpRequest: HttpRequest<Omit<UpdateMilitaryRoleProps, "id">> = {
+      body: {
+        newRole: "Administrador",
+      },
+      params: { id: "" },
+    };
+
+    const httpResponse: HttpResponse = await sut.handle(httpRequest);
+
+    expect(httpResponse.statusCode).toBe(400);
+    expect(httpResponse.body.errorMessage).toEqual(
+      missingParamError("ID").message
+    );
   });
 });
