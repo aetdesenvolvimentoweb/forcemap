@@ -194,4 +194,48 @@ describe("UpdateMilitaryProfileController", () => {
       missingParamError("posto/graduação").message
     );
   });
+
+  test("should be return 400 on invalid military rank ID", async () => {
+    const { militaryRankRepository, militaryRepository, idValidator, sut } =
+      makeSut();
+    const mockInvalidId = vi.spyOn(idValidator, "isValid");
+    mockInvalidId.mockImplementationOnce(() => true);
+    mockInvalidId.mockImplementationOnce(() => false);
+
+    await militaryRankRepository.add({
+      order: 1,
+      abbreviatedName: "Cel",
+    });
+    const militaryRank =
+      await militaryRankRepository.getByAbbreviatedName("Cel");
+    const militaryRankId = militaryRank?.id || "";
+
+    await militaryRepository.add({
+      militaryRankId,
+      rg: 1,
+      name: "any-name",
+      role: "Usuário",
+      password: "any-password",
+    });
+    const military = await militaryRepository.getByRg(1);
+    const id = military?.id || "";
+
+    const httpRequest: HttpRequest<Omit<UpdateMilitaryProfileProps, "id">> = {
+      body: {
+        militaryRankId: "invalid-id",
+        rg: 2,
+        name: "any-name",
+      },
+      params: { id },
+    };
+
+    const httpResponse: HttpResponse = await sut.handle(httpRequest);
+
+    expect(httpResponse.statusCode).toBe(400);
+    expect(httpResponse.body.errorMessage).toEqual(
+      invalidParamError("posto/graduação").message
+    );
+
+    mockInvalidId.mockRestore();
+  });
 });
