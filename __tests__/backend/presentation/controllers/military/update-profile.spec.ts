@@ -2,7 +2,11 @@ import {
   MilitaryInMemoryRepository,
   MilitaryRankInMemoryRepository,
 } from "@/../__mocks__";
-import { invalidParamError, missingParamError } from "@/backend/data/helpers";
+import {
+  invalidParamError,
+  missingParamError,
+  unregisteredFieldIdError,
+} from "@/backend/data/helpers";
 import {
   MilitaryRankRepository,
   MilitaryRepository,
@@ -14,6 +18,7 @@ import { IdValidator } from "@/backend/domain/usecases";
 import { MongoIdValidator } from "@/backend/infra/adapters";
 import { UpdateMilitaryProfileController } from "@/backend/presentation/controllers";
 import { HttpRequest, HttpResponse } from "@/backend/presentation/protocols";
+import { ObjectId } from "mongodb";
 import { describe, expect, test, vi } from "vitest";
 
 interface SutResponse {
@@ -125,5 +130,30 @@ describe("UpdateMilitaryProfileController", () => {
     );
 
     mockInvalidId.mockRestore();
+  });
+
+  test("should be return 404 on unregistered ID", async () => {
+    const { militaryRepository, sut } = makeSut();
+
+    const mockUnregisteredId = vi.spyOn(militaryRepository, "getById");
+    mockUnregisteredId.mockResolvedValueOnce(null);
+
+    const httpRequest: HttpRequest<Omit<UpdateMilitaryProfileProps, "id">> = {
+      body: {
+        militaryRankId: "valid-id",
+        rg: 2,
+        name: "any-name",
+      },
+      params: { id: new ObjectId().toString() },
+    };
+
+    const httpResponse: HttpResponse = await sut.handle(httpRequest);
+
+    expect(httpResponse.statusCode).toBe(404);
+    expect(httpResponse.body.errorMessage).toEqual(
+      unregisteredFieldIdError("militar").message
+    );
+
+    mockUnregisteredId.mockRestore();
   });
 });
