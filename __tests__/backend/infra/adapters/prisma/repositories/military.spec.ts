@@ -112,6 +112,20 @@ describe("MilitaryPrismaRepository", () => {
     ).resolves.not.toThrow();
   });
 
+  test("should be able to update a military role in the database", async () => {
+    const { sut } = makeSut();
+
+    const military = await sut.getByRg(2);
+    const id = military?.id || "";
+
+    await expect(
+      sut.updateRole({
+        id,
+        newRole: "Administrador",
+      })
+    ).resolves.not.toThrow();
+  });
+
   test("should be able to delete a military in the database by id", async () => {
     const { sut } = makeSut();
     const military = await sut.getByRg(2);
