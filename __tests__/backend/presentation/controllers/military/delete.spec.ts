@@ -3,20 +3,22 @@ import {
   MilitaryInMemoryRepository,
   MilitaryRankInMemoryRepository,
 } from "@/../__mocks__";
-import { missingParamError } from "@/backend/data/helpers";
+import { invalidParamError, missingParamError } from "@/backend/data/helpers";
 import {
   MilitaryRankRepository,
   MilitaryRepository,
 } from "@/backend/data/repositories";
 import { DeleteMilitaryService } from "@/backend/data/services";
 import { MilitaryValidator } from "@/backend/data/validators";
+import { IdValidator } from "@/backend/domain/usecases";
 import { DeleteMilitaryController } from "@/backend/presentation/controllers";
 import { HttpRequest } from "@/backend/presentation/protocols";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 interface SutResponse {
   militaryRankRepository: MilitaryRankRepository;
   militaryRepository: MilitaryRepository;
+  idValidator: IdValidator;
   sut: DeleteMilitaryController;
 }
 
@@ -39,7 +41,7 @@ const makeSut = (): SutResponse => {
 
   const sut = new DeleteMilitaryController(deleteMilitaryService);
 
-  return { militaryRankRepository, militaryRepository, sut };
+  return { militaryRankRepository, militaryRepository, idValidator, sut };
 };
 
 describe("DeleteMilitaryByIdController", () => {
@@ -90,5 +92,25 @@ describe("DeleteMilitaryByIdController", () => {
     expect(httpResponse.body.errorMessage).toEqual(
       missingParamError("ID").message
     );
+  });
+
+  test("should be return 400 if invalid ID", async () => {
+    const { idValidator, sut } = makeSut();
+    const mockInvalidId = vi.spyOn(idValidator, "isValid");
+    mockInvalidId.mockImplementationOnce(() => false);
+
+    const httpRequest: HttpRequest = {
+      body: {},
+      params: { id: "invalid-id" },
+    };
+
+    const httpResponse = await sut.handle(httpRequest);
+
+    expect(httpResponse.statusCode).toBe(400);
+    expect(httpResponse.body.errorMessage).toEqual(
+      invalidParamError("ID").message
+    );
+
+    mockInvalidId.mockRestore();
   });
 });
