@@ -135,4 +135,29 @@ describe("UpdateMilitaryRoleService", () => {
       sut.updateRole({ id })
     ).rejects.toThrow(missingParamError("função"));
   });
+
+  test("should be throws if invalid new role is provided", async () => {
+    const { militaryRepository, militaryRankRepository, sut } = makeSut();
+
+    await militaryRankRepository.add({ order: 1, abbreviatedName: "Cel" });
+    const militaryRank =
+      await militaryRankRepository.getByAbbreviatedName("Cel");
+    const militaryRankId = militaryRank?.id || "";
+
+    await militaryRepository.add({
+      militaryRankId,
+      rg: 1,
+      name: "any-name",
+      password: "any-password",
+      role: "Usuário",
+    });
+
+    const military = await militaryRepository.getByRg(1);
+    const id = military?.id || "";
+
+    await expect(
+      // @ts-expect-error
+      sut.updateRole({ id, newRole: "invalid-role" })
+    ).rejects.toThrow(invalidParamError("função"));
+  });
 });
