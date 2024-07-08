@@ -64,7 +64,7 @@ describe("UpdateMilitaryRoleService", () => {
     ).resolves.not.toThrow();
   });
 
-  test("should be throws if no id is provided", async () => {
+  test("should be throws if no ID is provided", async () => {
     const { sut } = makeSut();
 
     await expect(
