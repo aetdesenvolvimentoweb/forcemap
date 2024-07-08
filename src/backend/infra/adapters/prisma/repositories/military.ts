@@ -3,6 +3,7 @@ import {
   MilitaryProps,
   MilitaryPublic,
   MilitaryRole,
+  UpdateMilitaryProfileProps,
 } from "@/backend/domain/entities";
 import {
   connectionError,
@@ -151,5 +152,27 @@ export class MilitaryPrismaRespository implements MilitaryRepository {
     });
 
     return militaryPublic;
+  };
+
+  public readonly updateProfile = async (
+    props: UpdateMilitaryProfileProps
+  ): Promise<void> => {
+    await this.connectDB();
+
+    await prismaClient.military
+      .update({
+        where: { id: props.id },
+        data: {
+          militaryRankId: props.militaryRankId,
+          rg: props.rg,
+          name: props.name,
+        },
+      })
+      .catch(async () => {
+        throw operationError("atualizar");
+      })
+      .finally(async () => {
+        await prismaClient.$disconnect();
+      });
   };
 }
