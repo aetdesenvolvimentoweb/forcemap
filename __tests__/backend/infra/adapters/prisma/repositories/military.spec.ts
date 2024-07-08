@@ -67,6 +67,12 @@ describe("MilitaryPrismaRepository", () => {
     ).resolves.not.toThrow();
   });
 
+  test("should be able to get all registereds military in the database", async () => {
+    const { sut } = makeSut();
+
+    await expect(sut.getAll()).resolves.not.toThrow();
+  });
+
   test("should be able to get a military in the database by id", async () => {
     const { sut } = makeSut();
 
