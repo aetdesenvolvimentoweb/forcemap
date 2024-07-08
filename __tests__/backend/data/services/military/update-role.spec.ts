@@ -3,18 +3,20 @@ import {
   MilitaryInMemoryRepository,
   MilitaryRankInMemoryRepository,
 } from "@/../__mocks__";
-import { missingParamError } from "@/backend/data/helpers";
+import { invalidParamError, missingParamError } from "@/backend/data/helpers";
 import {
   MilitaryRankRepository,
   MilitaryRepository,
 } from "@/backend/data/repositories";
 import { UpdateMilitaryRoleService } from "@/backend/data/services";
 import { MilitaryValidator } from "@/backend/data/validators";
-import { describe, expect, test } from "vitest";
+import { IdValidator } from "@/backend/domain/usecases";
+import { describe, expect, test, vi } from "vitest";
 
 interface SutResponse {
   militaryRepository: MilitaryRepository;
   militaryRankRepository: MilitaryRankRepository;
+  idValidator: IdValidator;
   sut: UpdateMilitaryRoleService;
 }
 
@@ -34,7 +36,7 @@ const makeSut = (): SutResponse => {
     validator,
   });
 
-  return { militaryRepository, militaryRankRepository, sut };
+  return { militaryRepository, militaryRankRepository, idValidator, sut };
 };
 
 describe("UpdateMilitaryRoleService", () => {
@@ -71,5 +73,21 @@ describe("UpdateMilitaryRoleService", () => {
       //@ts-expect-error
       sut.updateRole({ newRole: "ACA" })
     ).rejects.toThrow(missingParamError("ID"));
+  });
+
+  test("should be throws if invalid id is provided", async () => {
+    const { idValidator, sut } = makeSut();
+
+    const mockInvalidId = vi.spyOn(idValidator, "isValid");
+    mockInvalidId.mockReturnValueOnce(false);
+
+    await expect(
+      sut.updateRole({
+        id: "invalid-id",
+        newRole: "ACA",
+      })
+    ).rejects.toThrow(invalidParamError("ID"));
+
+    mockInvalidId.mockRestore();
   });
 });
