@@ -5,6 +5,7 @@ import {
   GetAllMilitaryUsecase,
   GetMilitaryByIdUsecase,
   UpdateMilitaryProfileUsecase,
+  UpdateMilitaryRoleUsecase,
 } from "@/backend/domain/usecases";
 
 export interface MilitaryRepository
@@ -12,6 +13,7 @@ export interface MilitaryRepository
     GetMilitaryByIdUsecase,
     DeleteMilitaryUsecase,
     GetAllMilitaryUsecase,
-    UpdateMilitaryProfileUsecase {
+    UpdateMilitaryProfileUsecase,
+    UpdateMilitaryRoleUsecase {
   getByRg: (rg: number) => Promise<MilitaryPublic | null>;
 }
