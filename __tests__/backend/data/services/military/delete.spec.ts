@@ -3,7 +3,11 @@ import {
   MilitaryInMemoryRepository,
   MilitaryRankInMemoryRepository,
 } from "@/../__mocks__";
-import { invalidParamError, missingParamError } from "@/backend/data/helpers";
+import {
+  invalidParamError,
+  missingParamError,
+  unregisteredFieldIdError,
+} from "@/backend/data/helpers";
 import {
   MilitaryRankRepository,
   MilitaryRepository,
@@ -61,13 +65,13 @@ describe("DeleteMilitaryService", () => {
     await expect(sut.delete(id)).resolves.not.toThrow();
   });
 
-  test("should be throws if no id is provided", async () => {
+  test("should be throws if no ID is provided", async () => {
     const { sut } = makeSut();
 
     await expect(sut.delete("")).rejects.toThrow(missingParamError("ID"));
   });
 
-  test("should be throws if invalid id is provided", async () => {
+  test("should be throws if invalid ID is provided", async () => {
     const { idValidator, sut } = makeSut();
     const mockInvalidId = vi.spyOn(idValidator, "isValid");
     mockInvalidId.mockReturnValueOnce(false);
@@ -77,5 +81,17 @@ describe("DeleteMilitaryService", () => {
     );
 
     mockInvalidId.mockRestore();
+  });
+
+  test("should be throws if unregistered ID is provided", async () => {
+    const { militaryRepository, sut } = makeSut();
+    const mockUnregisteredId = vi.spyOn(militaryRepository, "getById");
+    mockUnregisteredId.mockResolvedValueOnce(null);
+
+    await expect(sut.delete("valid-id")).rejects.toThrow(
+      unregisteredFieldIdError("militar")
+    );
+
+    mockUnregisteredId.mockRestore();
   });
 });
