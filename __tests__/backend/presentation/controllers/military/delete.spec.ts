@@ -16,6 +16,7 @@ import { DeleteMilitaryService } from "@/backend/data/services";
 import { MilitaryValidator } from "@/backend/data/validators";
 import { IdValidator } from "@/backend/domain/usecases";
 import { DeleteMilitaryController } from "@/backend/presentation/controllers";
+import { serverError } from "@/backend/presentation/helpers";
 import { HttpRequest } from "@/backend/presentation/protocols";
 import { describe, expect, test, vi } from "vitest";
 
@@ -98,7 +99,7 @@ describe("DeleteMilitaryByIdController", () => {
     );
   });
 
-  test("should be return 400 if invalid ID", async () => {
+  test("should be return 400 on invalid ID", async () => {
     const { idValidator, sut } = makeSut();
     const mockInvalidId = vi.spyOn(idValidator, "isValid");
     mockInvalidId.mockImplementationOnce(() => false);
@@ -118,7 +119,7 @@ describe("DeleteMilitaryByIdController", () => {
     mockInvalidId.mockRestore();
   });
 
-  test("should be return 404 if unregistered ID", async () => {
+  test("should be return 404 on unregistered ID", async () => {
     const { militaryRepository, sut } = makeSut();
 
     const mockUnregisteredId = vi.spyOn(militaryRepository, "getById");
@@ -137,5 +138,26 @@ describe("DeleteMilitaryByIdController", () => {
     );
 
     mockUnregisteredId.mockRestore();
+  });
+
+  test("should be return 500 on server error", async () => {
+    const { militaryRepository, sut } = makeSut();
+
+    const mockServerError = vi.spyOn(militaryRepository, "getById");
+    mockServerError.mockRejectedValueOnce(new Error());
+
+    const httpRequest: HttpRequest = {
+      body: {},
+      params: { id: "valid-id" },
+    };
+
+    const httpResponse = await sut.handle(httpRequest);
+
+    expect(httpResponse.statusCode).toBe(500);
+    expect(httpResponse.body.errorMessage).toEqual(
+      serverError().body.errorMessage
+    );
+
+    mockServerError.mockRestore();
   });
 });
