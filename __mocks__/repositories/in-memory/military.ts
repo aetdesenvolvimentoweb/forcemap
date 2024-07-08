@@ -6,6 +6,7 @@ import {
   Military,
   MilitaryProps,
   MilitaryPublic,
+  UpdateMilitaryProfileProps,
 } from "@/backend/domain/entities";
 import { ObjectId } from "mongodb";
 
@@ -106,5 +107,20 @@ export class MilitaryInMemoryRepository implements MilitaryRepository {
       });
     });
     return militaryPublic;
+  };
+
+  public readonly updateProfile = async (
+    props: UpdateMilitaryProfileProps
+  ): Promise<void> => {
+    const index = this.military.findIndex(
+      (military) => military.id === props.id
+    );
+    this.military[index] = {
+      ...this.military[index],
+      militaryRankId: props.militaryRankId,
+      rg: props.rg,
+      name: props.name,
+      updatedAt: new Date(),
+    };
   };
 }
