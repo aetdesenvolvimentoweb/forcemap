@@ -3,7 +3,11 @@ import {
   MilitaryInMemoryRepository,
   MilitaryRankInMemoryRepository,
 } from "@/../__mocks__";
-import { invalidParamError, missingParamError } from "@/backend/data/helpers";
+import {
+  invalidParamError,
+  missingParamError,
+  unregisteredFieldIdError,
+} from "@/backend/data/helpers";
 import {
   MilitaryRankRepository,
   MilitaryRepository,
@@ -103,5 +107,28 @@ describe("UpdateMilitaryProfileService", () => {
     ).rejects.toThrow(invalidParamError("ID"));
 
     mockInvalidId.mockRestore();
+  });
+
+  test("should be throws if unregistered ID is provided", async () => {
+    const { militaryRepository, militaryRankRepository, sut } = makeSut();
+
+    await militaryRankRepository.add({ order: 1, abbreviatedName: "Cel" });
+    const militaryRank =
+      await militaryRankRepository.getByAbbreviatedName("Cel");
+    const militaryRankId = militaryRank?.id || "";
+
+    const mockUnregisteredId = vi.spyOn(militaryRepository, "getById");
+    mockUnregisteredId.mockResolvedValueOnce(null);
+
+    await expect(
+      sut.updateProfile({
+        id: "valid-id",
+        militaryRankId,
+        rg: 2,
+        name: "another-name",
+      })
+    ).rejects.toThrow(unregisteredFieldIdError("militar"));
+
+    mockUnregisteredId.mockRestore();
   });
 });
