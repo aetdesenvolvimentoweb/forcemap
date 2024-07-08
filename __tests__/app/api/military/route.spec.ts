@@ -58,7 +58,7 @@ describe("Military API route", () => {
     expect(httpResponse.statusCode).toBe(201);
   });
 
-  test("GET should be able to getall military", async () => {
+  test("GET should be able to get all military", async () => {
     const request: NextRequest = new NextRequest("http://localhost:3000", {
       method: "GET",
       headers: {
