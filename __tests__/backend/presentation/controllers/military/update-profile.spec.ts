@@ -18,6 +18,7 @@ import { UpdateMilitaryProfileProps } from "@/backend/domain/entities";
 import { IdValidator } from "@/backend/domain/usecases";
 import { MongoIdValidator } from "@/backend/infra/adapters";
 import { UpdateMilitaryProfileController } from "@/backend/presentation/controllers";
+import { serverError } from "@/backend/presentation/helpers";
 import { HttpRequest, HttpResponse } from "@/backend/presentation/protocols";
 import { ObjectId } from "mongodb";
 import { describe, expect, test, vi } from "vitest";
@@ -403,5 +404,48 @@ describe("UpdateMilitaryProfileController", () => {
     expect(httpResponse.body.errorMessage).toEqual(
       missingParamError("nome").message
     );
+  });
+
+  test("should be return 500 on server error", async () => {
+    const { militaryRankRepository, militaryRepository, sut } = makeSut();
+
+    const mockServerError = vi.spyOn(militaryRepository, "updateProfile");
+    mockServerError.mockRejectedValueOnce(new Error());
+
+    await militaryRankRepository.add({
+      order: 1,
+      abbreviatedName: "Cel",
+    });
+    const militaryRank =
+      await militaryRankRepository.getByAbbreviatedName("Cel");
+    const militaryRankId = militaryRank?.id || "";
+
+    await militaryRepository.add({
+      militaryRankId,
+      rg: 1,
+      name: "any-name",
+      role: "Usuário",
+      password: "any-password",
+    });
+    const military = await militaryRepository.getByRg(1);
+    const id = military?.id || "";
+
+    const httpRequest: HttpRequest<Omit<UpdateMilitaryProfileProps, "id">> = {
+      body: {
+        militaryRankId,
+        rg: 2,
+        name: "another-name",
+      },
+      params: { id },
+    };
+
+    const httpResponse: HttpResponse = await sut.handle(httpRequest);
+
+    expect(httpResponse.statusCode).toBe(500);
+    expect(httpResponse.body.errorMessage).toEqual(
+      serverError().body.errorMessage
+    );
+
+    mockServerError.mockRestore();
   });
 });
