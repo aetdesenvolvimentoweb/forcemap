@@ -121,4 +121,35 @@ export class MilitaryPrismaRespository implements MilitaryRepository {
         await prismaClient.$disconnect();
       });
   };
+
+  public readonly getAll = async (): Promise<MilitaryPublic[]> => {
+    await this.connectDB();
+
+    const military = await prismaClient.military
+      .findMany({
+        select: {
+          id: true,
+          militaryRankId: true,
+          militaryRank: true,
+          rg: true,
+          name: true,
+          role: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      })
+      .catch(async () => {
+        throw operationError("consultar");
+      })
+      .finally(async () => {
+        await prismaClient.$disconnect();
+      });
+
+    let militaryPublic: MilitaryPublic[] = [];
+    military.forEach((m) => {
+      militaryPublic.push({ ...m, role: m.role as MilitaryRole });
+    });
+
+    return militaryPublic;
+  };
 }
