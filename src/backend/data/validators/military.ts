@@ -184,7 +184,9 @@ export class MilitaryValidator {
 
   public readonly validateNewRole = async (props: UpdateMilitaryRoleProps) => {
     this.setId(props.id);
+    this.setRole(props.newRole);
 
     await this.checkId();
+    this.checkRole();
   };
 }
