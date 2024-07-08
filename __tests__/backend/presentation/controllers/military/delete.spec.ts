@@ -3,7 +3,11 @@ import {
   MilitaryInMemoryRepository,
   MilitaryRankInMemoryRepository,
 } from "@/../__mocks__";
-import { invalidParamError, missingParamError } from "@/backend/data/helpers";
+import {
+  invalidParamError,
+  missingParamError,
+  unregisteredFieldIdError,
+} from "@/backend/data/helpers";
 import {
   MilitaryRankRepository,
   MilitaryRepository,
@@ -112,5 +116,26 @@ describe("DeleteMilitaryByIdController", () => {
     );
 
     mockInvalidId.mockRestore();
+  });
+
+  test("should be return 404 if unregistered ID", async () => {
+    const { militaryRepository, sut } = makeSut();
+
+    const mockUnregisteredId = vi.spyOn(militaryRepository, "getById");
+    mockUnregisteredId.mockResolvedValueOnce(null);
+
+    const httpRequest: HttpRequest = {
+      body: {},
+      params: { id: "valid-id" },
+    };
+
+    const httpResponse = await sut.handle(httpRequest);
+
+    expect(httpResponse.statusCode).toBe(404);
+    expect(httpResponse.body.errorMessage).toEqual(
+      unregisteredFieldIdError("militar").message
+    );
+
+    mockUnregisteredId.mockRestore();
   });
 });
