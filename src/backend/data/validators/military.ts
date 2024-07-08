@@ -178,5 +178,6 @@ export class MilitaryValidator {
     await this.checkId();
     await this.checkMilitaryRankId();
     await this.checkRg();
+    this.checkName();
   };
 }
