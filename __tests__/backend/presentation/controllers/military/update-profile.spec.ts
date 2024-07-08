@@ -156,4 +156,42 @@ describe("UpdateMilitaryProfileController", () => {
 
     mockUnregisteredId.mockRestore();
   });
+
+  test("should be return 400 on missing military rank ID", async () => {
+    const { sut, militaryRankRepository, militaryRepository } = makeSut();
+
+    await militaryRankRepository.add({
+      order: 1,
+      abbreviatedName: "Cel",
+    });
+    const militaryRank =
+      await militaryRankRepository.getByAbbreviatedName("Cel");
+    const militaryRankId = militaryRank?.id || "";
+
+    await militaryRepository.add({
+      militaryRankId,
+      rg: 1,
+      name: "any-name",
+      role: "Usuário",
+      password: "any-password",
+    });
+    const military = await militaryRepository.getByRg(1);
+    const id = military?.id || "";
+
+    const httpRequest: HttpRequest<Omit<UpdateMilitaryProfileProps, "id">> = {
+      body: {
+        militaryRankId: "",
+        rg: 1,
+        name: "any-name",
+      },
+      params: { id },
+    };
+
+    const httpResponse: HttpResponse = await sut.handle(httpRequest);
+
+    expect(httpResponse.statusCode).toBe(400);
+    expect(httpResponse.body.errorMessage).toEqual(
+      missingParamError("posto/graduação").message
+    );
+  });
 });
