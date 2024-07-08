@@ -173,5 +173,6 @@ export class MilitaryValidator {
     this.setName(props.name);
 
     await this.checkId();
+    await this.checkMilitaryRankId();
   };
 }
