@@ -230,4 +230,19 @@ describe("MilitaryPrismaRepository", () => {
 
     mockUpdateError.mockRestore();
   });
+
+  test("should be throws by error when updating a military role in the database", async () => {
+    const { sut } = makeSut();
+    const mockUpdateError = vi.spyOn(prismaClient.military, "update");
+    mockUpdateError.mockRejectedValueOnce(new Error());
+
+    await expect(
+      sut.updateRole({
+        id: "valid-id",
+        newRole: "Administrador",
+      })
+    ).rejects.toThrow(operationError("atualizar"));
+
+    mockUpdateError.mockRestore();
+  });
 });
