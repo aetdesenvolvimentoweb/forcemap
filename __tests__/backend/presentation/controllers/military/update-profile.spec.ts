@@ -7,7 +7,9 @@ import {
   MilitaryRepository,
 } from "@/backend/data/repositories";
 import { UpdateMilitaryProfileService } from "@/backend/data/services";
+import { MilitaryValidator } from "@/backend/data/validators";
 import { UpdateMilitaryProfileProps } from "@/backend/domain/entities";
+import { MongoIdValidator } from "@/backend/infra/adapters";
 import { UpdateMilitaryProfileController } from "@/backend/presentation/controllers";
 import { HttpRequest, HttpResponse } from "@/backend/presentation/protocols";
 import { describe, expect, test } from "vitest";
@@ -24,8 +26,15 @@ const makeSut = (): SutResponse => {
   const militaryRepository: MilitaryRepository = new MilitaryInMemoryRepository(
     militaryRankRepository
   );
+  const idValidator = new MongoIdValidator();
+  const validator = new MilitaryValidator({
+    idValidator,
+    militaryRankRepository,
+    militaryRepository,
+  });
   const updateMilitaryProfileService = new UpdateMilitaryProfileService({
     repository: militaryRepository,
+    validator,
   });
 
   const sut = new UpdateMilitaryProfileController(updateMilitaryProfileService);

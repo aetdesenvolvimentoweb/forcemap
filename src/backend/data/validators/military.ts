@@ -1,4 +1,8 @@
-import { MilitaryProps, MilitaryRole } from "@/backend/domain/entities";
+import {
+  MilitaryProps,
+  MilitaryRole,
+  UpdateMilitaryProfileProps,
+} from "@/backend/domain/entities";
 import { IdValidator } from "@/backend/domain/usecases";
 import {
   duplicatedKeyError,
@@ -81,9 +85,7 @@ export class MilitaryValidator {
     }
   };
 
-  private validateProps = async (): Promise<void> => {
-    await this.checkMilitaryRankId();
-
+  private checkRg = async (): Promise<void> => {
     if (!this.rg) {
       throw missingParamError("RG");
     }
@@ -92,11 +94,15 @@ export class MilitaryValidator {
     if (alreadyRegistered) {
       throw duplicatedKeyError("RG");
     }
+  };
 
+  private checkName = (): void => {
     if (!this.name) {
       throw missingParamError("nome");
     }
+  };
 
+  private checkRole = (): void => {
     if (!this.role) {
       throw missingParamError("função");
     }
@@ -108,7 +114,9 @@ export class MilitaryValidator {
     ) {
       throw invalidParamError("função");
     }
+  };
 
+  private checkPassword = (): void => {
     if (!this.password) {
       throw missingParamError("senha");
     }
@@ -143,11 +151,26 @@ export class MilitaryValidator {
     this.setRole(props.role);
     this.setPassword(props.password);
 
-    await this.validateProps();
+    await this.checkMilitaryRankId();
+    await this.checkRg();
+    this.checkName();
+    this.checkRole();
+    this.checkPassword();
   };
 
   public readonly validateId = async (id: string): Promise<void> => {
     this.setId(id);
+
+    await this.checkId();
+  };
+
+  public readonly validateNewProfile = async (
+    props: UpdateMilitaryProfileProps
+  ) => {
+    this.setId(props.id);
+    this.setMilitaryRankId(props.militaryRankId);
+    this.setRg(props.rg);
+    this.setName(props.name);
 
     await this.checkId();
   };
