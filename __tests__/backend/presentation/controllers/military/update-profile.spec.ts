@@ -2,7 +2,7 @@ import {
   MilitaryInMemoryRepository,
   MilitaryRankInMemoryRepository,
 } from "@/../__mocks__";
-import { missingParamError } from "@/backend/data/helpers";
+import { invalidParamError, missingParamError } from "@/backend/data/helpers";
 import {
   MilitaryRankRepository,
   MilitaryRepository,
@@ -10,14 +10,16 @@ import {
 import { UpdateMilitaryProfileService } from "@/backend/data/services";
 import { MilitaryValidator } from "@/backend/data/validators";
 import { UpdateMilitaryProfileProps } from "@/backend/domain/entities";
+import { IdValidator } from "@/backend/domain/usecases";
 import { MongoIdValidator } from "@/backend/infra/adapters";
 import { UpdateMilitaryProfileController } from "@/backend/presentation/controllers";
 import { HttpRequest, HttpResponse } from "@/backend/presentation/protocols";
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 
 interface SutResponse {
   militaryRankRepository: MilitaryRankRepository;
   militaryRepository: MilitaryRepository;
+  idValidator: IdValidator;
   sut: UpdateMilitaryProfileController;
 }
 
@@ -40,7 +42,7 @@ const makeSut = (): SutResponse => {
 
   const sut = new UpdateMilitaryProfileController(updateMilitaryProfileService);
 
-  return { militaryRankRepository, militaryRepository, sut };
+  return { militaryRankRepository, militaryRepository, idValidator, sut };
 };
 
 describe("UpdateMilitaryProfileController", () => {
@@ -80,6 +82,7 @@ describe("UpdateMilitaryProfileController", () => {
 
     expect(httpResponse.statusCode).toBe(200);
   });
+
   test("should be return 400 on missing ID", async () => {
     const { sut } = makeSut();
 
@@ -98,5 +101,29 @@ describe("UpdateMilitaryProfileController", () => {
     expect(httpResponse.body.errorMessage).toEqual(
       missingParamError("ID").message
     );
+  });
+
+  test("should be return 400 on invalid ID", async () => {
+    const { idValidator, sut } = makeSut();
+    const mockInvalidId = vi.spyOn(idValidator, "isValid");
+    mockInvalidId.mockImplementationOnce(() => false);
+
+    const httpRequest: HttpRequest<Omit<UpdateMilitaryProfileProps, "id">> = {
+      body: {
+        militaryRankId: "valid-id",
+        rg: 2,
+        name: "any-name",
+      },
+      params: { id: "invalid-id" },
+    };
+
+    const httpResponse: HttpResponse = await sut.handle(httpRequest);
+
+    expect(httpResponse.statusCode).toBe(400);
+    expect(httpResponse.body.errorMessage).toEqual(
+      invalidParamError("ID").message
+    );
+
+    mockInvalidId.mockRestore();
   });
 });
