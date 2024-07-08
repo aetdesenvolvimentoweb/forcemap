@@ -91,7 +91,10 @@ export class MilitaryValidator {
     }
 
     const alreadyRegistered = await this.militaryRepository.getByRg(this.rg);
-    if (alreadyRegistered) {
+    if (
+      alreadyRegistered &&
+      (!this.id || (this.id && alreadyRegistered.id !== this.id))
+    ) {
       throw duplicatedKeyError("RG");
     }
   };
