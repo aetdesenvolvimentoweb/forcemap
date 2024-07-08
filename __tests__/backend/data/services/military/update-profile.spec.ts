@@ -3,18 +3,20 @@ import {
   MilitaryInMemoryRepository,
   MilitaryRankInMemoryRepository,
 } from "@/../__mocks__";
-import { missingParamError } from "@/backend/data/helpers";
+import { invalidParamError, missingParamError } from "@/backend/data/helpers";
 import {
   MilitaryRankRepository,
   MilitaryRepository,
 } from "@/backend/data/repositories";
 import { UpdateMilitaryProfileService } from "@/backend/data/services";
 import { MilitaryValidator } from "@/backend/data/validators";
-import { describe, expect, test } from "vitest";
+import { IdValidator } from "@/backend/domain/usecases";
+import { describe, expect, test, vi } from "vitest";
 
 interface SutResponse {
   militaryRepository: MilitaryRepository;
   militaryRankRepository: MilitaryRankRepository;
+  idValidator: IdValidator;
   sut: UpdateMilitaryProfileService;
 }
 
@@ -34,7 +36,7 @@ const makeSut = (): SutResponse => {
     validator,
   });
 
-  return { militaryRepository, militaryRankRepository, sut };
+  return { militaryRepository, militaryRankRepository, idValidator, sut };
 };
 
 describe("UpdateMilitaryProfileService", () => {
@@ -66,7 +68,7 @@ describe("UpdateMilitaryProfileService", () => {
     ).resolves.not.toThrow();
   });
 
-  test("should be throws if no id is provided", async () => {
+  test("should be throws if no ID is provided", async () => {
     const { militaryRankRepository, sut } = makeSut();
 
     await militaryRankRepository.add({ order: 1, abbreviatedName: "Cel" });
@@ -78,5 +80,28 @@ describe("UpdateMilitaryProfileService", () => {
       //@ts-expect-error
       sut.updateProfile({ militaryRankId, rg: 2, name: "another-name" })
     ).rejects.toThrow(missingParamError("ID"));
+  });
+
+  test("should be throws if invalid ID is provided", async () => {
+    const { militaryRankRepository, idValidator, sut } = makeSut();
+
+    await militaryRankRepository.add({ order: 1, abbreviatedName: "Cel" });
+    const militaryRank =
+      await militaryRankRepository.getByAbbreviatedName("Cel");
+    const militaryRankId = militaryRank?.id || "";
+
+    const mockInvalidId = vi.spyOn(idValidator, "isValid");
+    mockInvalidId.mockReturnValueOnce(false);
+
+    await expect(
+      sut.updateProfile({
+        id: "invalid-id",
+        militaryRankId,
+        rg: 2,
+        name: "another-name",
+      })
+    ).rejects.toThrow(invalidParamError("ID"));
+
+    mockInvalidId.mockRestore();
   });
 });
