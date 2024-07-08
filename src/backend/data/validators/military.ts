@@ -2,6 +2,7 @@ import {
   MilitaryProps,
   MilitaryRole,
   UpdateMilitaryProfileProps,
+  UpdateMilitaryRoleProps,
 } from "@/backend/domain/entities";
 import { IdValidator } from "@/backend/domain/usecases";
 import {
@@ -179,5 +180,11 @@ export class MilitaryValidator {
     await this.checkMilitaryRankId();
     await this.checkRg();
     this.checkName();
+  };
+
+  public readonly validateNewRole = async (props: UpdateMilitaryRoleProps) => {
+    this.setId(props.id);
+
+    await this.checkId();
   };
 }
