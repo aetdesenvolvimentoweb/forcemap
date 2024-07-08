@@ -366,4 +366,42 @@ describe("UpdateMilitaryProfileController", () => {
       duplicatedKeyError("RG").message
     );
   });
+
+  test("should be return 400 on missing name", async () => {
+    const { sut, militaryRankRepository, militaryRepository } = makeSut();
+
+    await militaryRankRepository.add({
+      order: 1,
+      abbreviatedName: "Cel",
+    });
+    const militaryRank =
+      await militaryRankRepository.getByAbbreviatedName("Cel");
+    const militaryRankId = militaryRank?.id || "";
+
+    await militaryRepository.add({
+      militaryRankId,
+      rg: 1,
+      name: "any-name",
+      role: "Usuário",
+      password: "any-password",
+    });
+    const military = await militaryRepository.getByRg(1);
+    const id = military?.id || "";
+
+    const httpRequest: HttpRequest<Omit<UpdateMilitaryProfileProps, "id">> = {
+      // @ts-expect-error
+      body: {
+        militaryRankId,
+        rg: 2,
+      },
+      params: { id },
+    };
+
+    const httpResponse: HttpResponse = await sut.handle(httpRequest);
+
+    expect(httpResponse.statusCode).toBe(400);
+    expect(httpResponse.body.errorMessage).toEqual(
+      missingParamError("nome").message
+    );
+  });
 });
