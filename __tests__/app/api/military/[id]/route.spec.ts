@@ -1,4 +1,4 @@
-import { DELETE, GET } from "@/app/api/military/[id]/route";
+import { DELETE, GET, PUT } from "@/app/api/military/[id]/route";
 import { prismaClient } from "@/backend/infra/adapters/prisma-client";
 import { HttpResponse } from "@/backend/presentation/protocols";
 import { NextRequest } from "next/server";
@@ -66,6 +66,31 @@ describe("Military API route", () => {
     expect(httpResponse.statusCode).toBe(200);
   });
 
+  test("PUT a military profile", async () => {
+    const request: NextRequest = new NextRequest("http://localhost:3000", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        militaryRankId,
+        rg: 2,
+        name: "another-name",
+      }),
+    });
+
+    const military = await prismaClient.military.findUnique({
+      where: { rg: 1 },
+    });
+    const id = military?.id || "";
+
+    const httpResponse: HttpResponse = await PUT(request, {
+      params: { id },
+    }).then(async (data) => await data.json());
+
+    expect(httpResponse.statusCode).toBe(200);
+  });
+
   test("DELETE a military by ID", async () => {
     const request: NextRequest = new NextRequest("http://localhost:3000", {
       method: "DELETE",
@@ -75,7 +100,7 @@ describe("Military API route", () => {
     });
 
     const military = await prismaClient.military.findUnique({
-      where: { rg: 1 },
+      where: { rg: 2 },
     });
     const id = military?.id || "";
 
