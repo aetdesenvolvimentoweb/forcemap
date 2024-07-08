@@ -173,4 +173,14 @@ describe("MilitaryPrismaRepository", () => {
 
     mockDeleteError.mockRestore();
   });
+
+  test("should be throws by error when getting all registers from database", async () => {
+    const { sut } = makeSut();
+    const mockQueryError = vi.spyOn(prismaClient.military, "findMany");
+    mockQueryError.mockRejectedValueOnce(new Error());
+
+    await expect(sut.getAll()).rejects.toThrow(operationError("consultar"));
+
+    mockQueryError.mockRestore();
+  });
 });
