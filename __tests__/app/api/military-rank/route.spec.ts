@@ -19,7 +19,7 @@ describe("Military Rank API route", () => {
     await clearDatabase();
   });
 
-  test("POST a new military rank", async () => {
+  test("POST should be able to create a new military rank", async () => {
     const request: NextRequest = new NextRequest("http://localhost:3000", {
       method: "POST",
       headers: {
@@ -38,7 +38,7 @@ describe("Military Rank API route", () => {
     expect(httpResponse.statusCode).toBe(201);
   });
 
-  test("GET all military ranks", async () => {
+  test("GET should be able to get all military ranks", async () => {
     const request: NextRequest = new NextRequest("http://localhost:3000", {
       method: "GET",
       headers: {

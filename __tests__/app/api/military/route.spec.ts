@@ -36,7 +36,7 @@ describe("Military API route", () => {
     await clearDatabase();
   });
 
-  test("POST a new military", async () => {
+  test("POST should be able to create a new military", async () => {
     const request: NextRequest = new NextRequest("http://localhost:3000", {
       method: "POST",
       headers: {
@@ -58,7 +58,7 @@ describe("Military API route", () => {
     expect(httpResponse.statusCode).toBe(201);
   });
 
-  test("GET all military", async () => {
+  test("GET should be able to getall military", async () => {
     const request: NextRequest = new NextRequest("http://localhost:3000", {
       method: "GET",
       headers: {
