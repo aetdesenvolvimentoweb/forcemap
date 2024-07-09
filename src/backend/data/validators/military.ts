@@ -31,6 +31,7 @@ export class MilitaryValidator {
   private name: string;
   private role: MilitaryRole;
   private password: string;
+  private newPassword: string;
 
   constructor(dependencies: Dependencies) {
     this.idValidator = dependencies.idValidator;
@@ -43,6 +44,7 @@ export class MilitaryValidator {
     this.name = "";
     this.role = "Usuário";
     this.password = "";
+    this.newPassword = "";
   }
 
   private setId = (id: string): void => {
@@ -67,6 +69,10 @@ export class MilitaryValidator {
 
   private setPassword = (password: string): void => {
     this.password = password;
+  };
+
+  private setNewPassword = (newPassword: string): void => {
+    this.newPassword = newPassword;
   };
 
   private readonly checkMilitaryRankId = async (): Promise<void> => {
@@ -140,6 +146,10 @@ export class MilitaryValidator {
       if (hashedPassword !== this.password) {
         throw invalidParamError("senha atual");
       }
+
+      if (!this.newPassword) {
+        throw missingParamError("nova senha");
+      }
     }
   };
 
@@ -208,6 +218,7 @@ export class MilitaryValidator {
   ) => {
     this.setId(props.id);
     this.setPassword(props.currentPassword);
+    this.setNewPassword(props.newPassword);
 
     await this.checkId();
     await this.checkPassword("update");
