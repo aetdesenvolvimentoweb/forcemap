@@ -121,13 +121,15 @@ export class MilitaryValidator {
     }
   };
 
-  private checkPassword = (): void => {
+  private checkPassword = async (
+    operation: "add" | "update"
+  ): Promise<void> => {
     if (!this.password) {
-      throw missingParamError("senha");
+      throw missingParamError(operation === "add" ? "senha" : "senha atual");
     }
 
     if (this.password.length < 8) {
-      throw invalidParamError("senha");
+      throw invalidParamError(operation === "add" ? "senha" : "senha atual");
     }
   };
 
@@ -160,7 +162,7 @@ export class MilitaryValidator {
     await this.checkRg();
     this.checkName();
     this.checkRole();
-    this.checkPassword();
+    await this.checkPassword("add");
   };
 
   public readonly validateId = async (id: string): Promise<void> => {
@@ -195,7 +197,9 @@ export class MilitaryValidator {
     props: UpdateMilitaryPasswordProps
   ) => {
     this.setId(props.id);
+    this.setPassword(props.currentPassword);
 
     await this.checkId();
+    await this.checkPassword("update");
   };
 }
