@@ -96,6 +96,15 @@ describe("MilitaryPrismaRepository", () => {
     await expect(sut.getByRg(1)).resolves.not.toThrow();
   });
 
+  test("should be able to get a military password in the database by id", async () => {
+    const { sut } = makeSut();
+
+    const military = await sut.getByRg(1);
+    const id = military?.id || "";
+
+    await expect(sut.getHashedPassword(id)).resolves.not.toThrow();
+  });
+
   test("should be able to update a military profile in the database", async () => {
     const { sut } = makeSut();
 
