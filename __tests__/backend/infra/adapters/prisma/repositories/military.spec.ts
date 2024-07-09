@@ -96,7 +96,7 @@ describe("MilitaryPrismaRepository", () => {
     await expect(sut.getByRg(1)).resolves.not.toThrow();
   });
 
-  test("should be able to get a military password in the database by id", async () => {
+  test("should be able to get a military hashed password in the database by ID", async () => {
     const { sut } = makeSut();
 
     const military = await sut.getByRg(1);
@@ -284,5 +284,17 @@ describe("MilitaryPrismaRepository", () => {
     ).rejects.toThrow(operationError("atualizar"));
 
     mockUpdateError.mockRestore();
+  });
+
+  test("should be throws if to get hashed password by ID in the database", async () => {
+    const { sut } = makeSut();
+    const mockQueryError = vi.spyOn(prismaClient.military, "findFirst");
+    mockQueryError.mockRejectedValueOnce(new Error());
+
+    await expect(sut.getHashedPassword("valid-id")).rejects.toThrow(
+      operationError("consultar")
+    );
+
+    mockQueryError.mockRestore();
   });
 });
