@@ -6,6 +6,7 @@ import {
   Military,
   MilitaryProps,
   MilitaryPublic,
+  UpdateMilitaryPasswordProps,
   UpdateMilitaryProfileProps,
   UpdateMilitaryRoleProps,
 } from "@/backend/domain/entities";
@@ -134,6 +135,19 @@ export class MilitaryInMemoryRepository implements MilitaryRepository {
     this.military[index] = {
       ...this.military[index],
       role: props.newRole,
+      updatedAt: new Date(),
+    };
+  };
+
+  public readonly updatePassword = async (
+    props: UpdateMilitaryPasswordProps
+  ): Promise<void> => {
+    const index = this.military.findIndex(
+      (military) => military.id === props.id
+    );
+    this.military[index] = {
+      ...this.military[index],
+      password: props.newPassword,
       updatedAt: new Date(),
     };
   };
