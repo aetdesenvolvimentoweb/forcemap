@@ -1,9 +1,10 @@
-import { MilitaryPublic } from "@/backend/domain/entities";
 import {
   AddMilitaryUsecase,
   DeleteMilitaryUsecase,
   GetAllMilitaryUsecase,
   GetMilitaryByIdUsecase,
+  GetMilitaryByRgUsecase,
+  GetMilitaryHashedPasswordUsecase,
   UpdateMilitaryPasswordUsecase,
   UpdateMilitaryProfileUsecase,
   UpdateMilitaryRoleUsecase,
@@ -12,10 +13,10 @@ import {
 export interface MilitaryRepository
   extends AddMilitaryUsecase,
     GetMilitaryByIdUsecase,
+    GetMilitaryByRgUsecase,
     DeleteMilitaryUsecase,
     GetAllMilitaryUsecase,
     UpdateMilitaryProfileUsecase,
     UpdateMilitaryRoleUsecase,
-    UpdateMilitaryPasswordUsecase {
-  getByRg: (rg: number) => Promise<MilitaryPublic | null>;
-}
+    UpdateMilitaryPasswordUsecase,
+    GetMilitaryHashedPasswordUsecase {}

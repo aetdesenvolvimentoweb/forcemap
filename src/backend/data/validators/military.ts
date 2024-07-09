@@ -131,6 +131,16 @@ export class MilitaryValidator {
     if (this.password.length < 8) {
       throw invalidParamError(operation === "add" ? "senha" : "senha atual");
     }
+
+    if (operation === "update") {
+      const hashedPassword = await this.militaryRepository.getHashedPassword(
+        this.id
+      );
+
+      if (hashedPassword !== this.password) {
+        throw invalidParamError("senha atual");
+      }
+    }
   };
 
   private readonly checkId = async (): Promise<void> => {
