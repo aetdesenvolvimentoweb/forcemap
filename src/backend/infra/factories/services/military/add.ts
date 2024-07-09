@@ -1,6 +1,7 @@
 import { AddMilitaryService } from "@/backend/data/services";
 import { MilitaryValidator } from "@/backend/data/validators";
 import { MongoIdValidator } from "@/backend/infra/adapters";
+import { BcryptEncrypterAdapter } from "@/backend/infra/adapters/bcrypt/encrypter";
 import {
   MilitaryPrismaRespository,
   MilitaryRankPrismaRespository,
@@ -15,6 +16,11 @@ export const makeAddMilitaryService = (): AddMilitaryService => {
     militaryRankRepository,
     militaryRepository,
   });
+  const encrypter = new BcryptEncrypterAdapter();
 
-  return new AddMilitaryService({ validator, repository: militaryRepository });
+  return new AddMilitaryService({
+    validator,
+    repository: militaryRepository,
+    encrypter,
+  });
 };

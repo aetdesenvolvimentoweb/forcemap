@@ -1,24 +1,30 @@
 import { MilitaryProps } from "@/backend/domain/entities";
-import { AddMilitaryUsecase } from "@/backend/domain/usecases";
+import { AddMilitaryUsecase, Encrypter } from "@/backend/domain/usecases";
 import { MilitaryRepository } from "../../repositories";
 import { MilitaryValidator } from "../../validators";
 
 type Dependencies = {
   validator: MilitaryValidator;
   repository: MilitaryRepository;
+  encrypter: Encrypter;
 };
 
 export class AddMilitaryService implements AddMilitaryUsecase {
   private readonly validator: MilitaryValidator;
   private readonly repository: MilitaryRepository;
+  private readonly encrypter: Encrypter;
 
   constructor(dependencies: Dependencies) {
     this.validator = dependencies.validator;
     this.repository = dependencies.repository;
+    this.encrypter = dependencies.encrypter;
   }
 
   public readonly add = async (props: MilitaryProps): Promise<void> => {
     await this.validator.validateAddProps(props);
-    await this.repository.add(props);
+
+    const hash = await this.encrypter.encrypt(props.password);
+
+    await this.repository.add({ ...props, password: hash });
   };
 }
