@@ -150,6 +150,10 @@ export class MilitaryValidator {
       if (!this.newPassword) {
         throw missingParamError("nova senha");
       }
+
+      if (this.newPassword.length < 8) {
+        throw invalidParamError("nova senha");
+      }
     }
   };
 
