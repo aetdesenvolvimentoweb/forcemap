@@ -151,4 +151,12 @@ export class MilitaryInMemoryRepository implements MilitaryRepository {
       updatedAt: new Date(),
     };
   };
+
+  public readonly getHashedPassword = async (
+    id: string
+  ): Promise<string | null> => {
+    const military = this.military.find((military) => military.id === id);
+
+    return military?.password || null;
+  };
 }
