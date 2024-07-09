@@ -126,6 +126,21 @@ describe("MilitaryPrismaRepository", () => {
     ).resolves.not.toThrow();
   });
 
+  test("should be able to update a military password in the database", async () => {
+    const { sut } = makeSut();
+
+    const military = await sut.getByRg(2);
+    const id = military?.id || "";
+
+    await expect(
+      sut.updatePassword({
+        id,
+        currentPassword: "any-password",
+        newPassword: "another-password",
+      })
+    ).resolves.not.toThrow();
+  });
+
   test("should be able to delete a military in the database by id", async () => {
     const { sut } = makeSut();
     const military = await sut.getByRg(2);
