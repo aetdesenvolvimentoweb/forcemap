@@ -3,6 +3,7 @@ import {
   MilitaryProps,
   MilitaryPublic,
   MilitaryRole,
+  UpdateMilitaryPasswordProps,
   UpdateMilitaryProfileProps,
   UpdateMilitaryRoleProps,
 } from "@/backend/domain/entities";
@@ -187,6 +188,26 @@ export class MilitaryPrismaRespository implements MilitaryRepository {
         where: { id: props.id },
         data: {
           role: props.newRole,
+        },
+      })
+      .catch(async () => {
+        throw operationError("atualizar");
+      })
+      .finally(async () => {
+        await prismaClient.$disconnect();
+      });
+  };
+
+  public readonly updatePassword = async (
+    props: UpdateMilitaryPasswordProps
+  ): Promise<void> => {
+    await this.connectDB();
+
+    await prismaClient.military
+      .update({
+        where: { id: props.id },
+        data: {
+          password: props.newPassword,
         },
       })
       .catch(async () => {
