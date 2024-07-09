@@ -286,7 +286,7 @@ describe("MilitaryPrismaRepository", () => {
     mockUpdateError.mockRestore();
   });
 
-  test("should be throws if to get hashed password by ID in the database", async () => {
+  test("should be throws by error when getting hashed password by ID in the database", async () => {
     const { sut } = makeSut();
     const mockQueryError = vi.spyOn(prismaClient.military, "findFirst");
     mockQueryError.mockRejectedValueOnce(new Error());
