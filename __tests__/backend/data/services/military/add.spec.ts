@@ -1,4 +1,5 @@
 import {
+  EncrypterStub,
   IdValidatorStub,
   MilitaryInMemoryRepository,
   MilitaryRankInMemoryRepository,
@@ -33,10 +34,12 @@ const makeSut = (): SutResponse => {
     militaryRankRepository,
     militaryRepository,
   });
+  const encrypter = new EncrypterStub();
 
   const sut = new AddMilitaryService({
     validator,
     repository: militaryRepository,
+    encrypter,
   });
 
   return { militaryRankRepository, militaryRepository, idValidator, sut };
