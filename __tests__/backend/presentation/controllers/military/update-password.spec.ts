@@ -303,4 +303,42 @@ describe("UpdateMilitaryPasswordController", () => {
       missingParamError("nova senha").message
     );
   });
+
+  test("should be return 400 on invalid new password", async () => {
+    const { militaryRankRepository, militaryRepository, idValidator, sut } =
+      makeSut();
+
+    await militaryRankRepository.add({
+      order: 1,
+      abbreviatedName: "Cel",
+    });
+    const militaryRank =
+      await militaryRankRepository.getByAbbreviatedName("Cel");
+    const militaryRankId = militaryRank?.id || "";
+
+    await militaryRepository.add({
+      militaryRankId,
+      rg: 1,
+      name: "any-name",
+      role: "Usuário",
+      password: "current-password",
+    });
+    const military = await militaryRepository.getByRg(1);
+    const id = military?.id || "";
+
+    const httpRequest: HttpRequest<Omit<UpdateMilitaryPasswordProps, "id">> = {
+      body: {
+        currentPassword: "current-password",
+        newPassword: "invalid", //less than 8 characters
+      },
+      params: { id },
+    };
+
+    const httpResponse: HttpResponse = await sut.handle(httpRequest);
+
+    expect(httpResponse.statusCode).toBe(400);
+    expect(httpResponse.body.errorMessage).toEqual(
+      invalidParamError("nova senha").message
+    );
+  });
 });
