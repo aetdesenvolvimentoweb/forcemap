@@ -222,4 +222,32 @@ describe("UpdateMilitaryPasswordService", () => {
       sut.updatePassword({ id, currentPassword: "any-password" })
     ).rejects.toThrow(missingParamError("nova senha"));
   });
+
+  test("should be throws if invalid new password is provided", async () => {
+    const { militaryRepository, militaryRankRepository, sut } = makeSut();
+
+    await militaryRankRepository.add({ order: 1, abbreviatedName: "Cel" });
+    const militaryRank =
+      await militaryRankRepository.getByAbbreviatedName("Cel");
+    const militaryRankId = militaryRank?.id || "";
+
+    await militaryRepository.add({
+      militaryRankId,
+      rg: 1,
+      name: "any-name",
+      password: "any-password",
+      role: "Usuário",
+    });
+
+    const military = await militaryRepository.getByRg(1);
+    const id = military?.id || "";
+
+    await expect(
+      sut.updatePassword({
+        id,
+        currentPassword: "any-password",
+        newPassword: "invalid",
+      })
+    ).rejects.toThrow(invalidParamError("nova senha"));
+  });
 });
