@@ -1,6 +1,7 @@
 import {
   MilitaryProps,
   MilitaryRole,
+  UpdateMilitaryPasswordProps,
   UpdateMilitaryProfileProps,
   UpdateMilitaryRoleProps,
 } from "@/backend/domain/entities";
@@ -188,5 +189,13 @@ export class MilitaryValidator {
 
     await this.checkId();
     this.checkRole();
+  };
+
+  public readonly validateNewPassword = async (
+    props: UpdateMilitaryPasswordProps
+  ) => {
+    this.setId(props.id);
+
+    await this.checkId();
   };
 }
