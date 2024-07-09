@@ -217,4 +217,26 @@ export class MilitaryPrismaRespository implements MilitaryRepository {
         await prismaClient.$disconnect();
       });
   };
+
+  public readonly getHashedPassword = async (
+    id: string
+  ): Promise<string | null> => {
+    await this.connectDB();
+
+    const military = await prismaClient.military
+      .findFirst({
+        where: { id },
+        select: {
+          password: true,
+        },
+      })
+      .catch(async () => {
+        throw operationError("consultar");
+      })
+      .finally(async () => {
+        await prismaClient.$disconnect();
+      });
+
+    return military?.password || null;
+  };
 }
