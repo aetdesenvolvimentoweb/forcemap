@@ -73,7 +73,7 @@ describe("MilitaryPrismaRepository", () => {
     await expect(sut.getAll()).resolves.not.toThrow();
   });
 
-  test("should be able to get a military in the database by id", async () => {
+  test("should be able to get a military in the database by ID", async () => {
     const { sut } = makeSut();
 
     const military = await sut.getByRg(1);
@@ -141,7 +141,7 @@ describe("MilitaryPrismaRepository", () => {
     ).resolves.not.toThrow();
   });
 
-  test("should be able to delete a military in the database by id", async () => {
+  test("should be able to delete a military in the database by ID", async () => {
     const { sut } = makeSut();
     const military = await sut.getByRg(2);
     const id = military?.id || "";
@@ -255,6 +255,22 @@ describe("MilitaryPrismaRepository", () => {
       sut.updateRole({
         id: "valid-id",
         newRole: "Administrador",
+      })
+    ).rejects.toThrow(operationError("atualizar"));
+
+    mockUpdateError.mockRestore();
+  });
+
+  test("should be throws by error when updating a military password in the database", async () => {
+    const { sut } = makeSut();
+    const mockUpdateError = vi.spyOn(prismaClient.military, "update");
+    mockUpdateError.mockRejectedValueOnce(new Error());
+
+    await expect(
+      sut.updatePassword({
+        id: "valid-id",
+        currentPassword: "any-old-password",
+        newPassword: "any-new-password",
       })
     ).rejects.toThrow(operationError("atualizar"));
 
