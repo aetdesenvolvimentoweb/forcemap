@@ -13,13 +13,15 @@ import {
 import { MilitaryRankRepository } from "@/backend/data/repositories";
 import { AddMilitaryService } from "@/backend/data/services";
 import { MilitaryValidator } from "@/backend/data/validators";
-import { IdValidator } from "@/backend/domain/usecases";
+import { MilitaryRole } from "@/backend/domain/entities";
+import { Encrypter, IdValidator } from "@/backend/domain/usecases";
 import { describe, expect, test, vi } from "vitest";
 
 interface SutResponse {
   militaryRankRepository: MilitaryRankRepository;
   militaryRepository: MilitaryInMemoryRepository;
   idValidator: IdValidator;
+  encrypter: Encrypter;
   sut: AddMilitaryService;
 }
 
@@ -42,27 +44,40 @@ const makeSut = (): SutResponse => {
     encrypter,
   });
 
-  return { militaryRankRepository, militaryRepository, idValidator, sut };
+  return {
+    militaryRankRepository,
+    militaryRepository,
+    idValidator,
+    encrypter,
+    sut,
+  };
 };
 
 describe("AddMilitaryService", () => {
-  test("should be able to create a new military", async () => {
-    const { militaryRankRepository, sut } = makeSut();
+  test("should be able to create a new military with a hashed password", async () => {
+    const { militaryRankRepository, militaryRepository, encrypter, sut } =
+      makeSut();
+    const addSpy = vi.spyOn(militaryRepository, "add");
 
     await militaryRankRepository.add({ order: 1, abbreviatedName: "Cel" });
     const militaryRank =
       await militaryRankRepository.getByAbbreviatedName("Cel");
     const militaryRankId = militaryRank?.id || "";
 
-    await expect(
-      sut.add({
-        militaryRankId,
-        rg: 1,
-        name: "any-name",
-        role: "Usuário",
-        password: "any-password",
-      })
-    ).resolves.not.toThrow();
+    const militaryProps = {
+      militaryRankId,
+      rg: 1,
+      name: "any-name",
+      role: "Usuário" as MilitaryRole,
+      password: "any-password",
+    };
+
+    await sut.add(militaryProps);
+
+    expect(addSpy).toHaveBeenCalledWith({
+      ...militaryProps,
+      password: await encrypter.encrypt(militaryProps.password),
+    });
   });
 
   test("should be throws if no military rank id is provided", async () => {

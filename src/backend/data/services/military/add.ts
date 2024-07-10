@@ -23,8 +23,10 @@ export class AddMilitaryService implements AddMilitaryUsecase {
   public readonly add = async (props: MilitaryProps): Promise<void> => {
     await this.validator.validateAddProps(props);
 
-    const hash = await this.encrypter.encrypt(props.password);
+    const hashedPassword = await this.encrypter.encrypt(props.password);
 
-    await this.repository.add({ ...props, password: hash });
+    await this.repository.add(
+      Object.assign({}, props, { password: hashedPassword })
+    );
   };
 }
