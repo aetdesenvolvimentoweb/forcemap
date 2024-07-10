@@ -16,7 +16,7 @@ import {
 import { AddMilitaryService } from "@/backend/data/services";
 import { MilitaryValidator } from "@/backend/data/validators";
 import { MilitaryProps } from "@/backend/domain/entities";
-import { IdValidator } from "@/backend/domain/usecases";
+import { Encrypter, IdValidator } from "@/backend/domain/usecases";
 import { AddMilitaryController } from "@/backend/presentation/controllers";
 import { HttpRequest, HttpResponse } from "@/backend/presentation/protocols";
 import { describe, expect, test, vi } from "vitest";
@@ -25,6 +25,7 @@ interface SutResponse {
   militaryRepository: MilitaryRepository;
   militaryRankRepository: MilitaryRankRepository;
   idValidator: IdValidator;
+  encrypter: Encrypter;
   sut: AddMilitaryController;
 }
 
@@ -49,12 +50,20 @@ const makeSut = (): SutResponse => {
 
   const sut = new AddMilitaryController(addMilitaryService);
 
-  return { militaryRepository, militaryRankRepository, idValidator, sut };
+  return {
+    militaryRepository,
+    militaryRankRepository,
+    idValidator,
+    encrypter,
+    sut,
+  };
 };
 
 describe("AddMilitaryController", () => {
   test("should be return 201 on success", async () => {
-    const { militaryRankRepository, sut } = makeSut();
+    const { militaryRankRepository, militaryRepository, encrypter, sut } =
+      makeSut();
+    const addSpy = vi.spyOn(militaryRepository, "add");
 
     await militaryRankRepository.add({
       order: 1,
@@ -77,6 +86,11 @@ describe("AddMilitaryController", () => {
     const httpResponse: HttpResponse = await sut.handle(httpRequest);
 
     expect(httpResponse.statusCode).toBe(201);
+    expect(addSpy).toHaveBeenCalledWith(
+      Object.assign({}, httpRequest.body, {
+        password: await encrypter.encrypt(httpRequest.body.password),
+      })
+    );
   });
 
   test("should be return 400 on missing military rank id", async () => {
