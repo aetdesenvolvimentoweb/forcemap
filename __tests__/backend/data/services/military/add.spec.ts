@@ -72,8 +72,7 @@ describe("AddMilitaryService", () => {
       password: "any-password",
     };
 
-    await sut.add(militaryProps);
-
+    await expect(sut.add(militaryProps)).resolves.not.toThrow();
     expect(addSpy).toHaveBeenCalledWith({
       ...militaryProps,
       password: await encrypter.encrypt(militaryProps.password),
