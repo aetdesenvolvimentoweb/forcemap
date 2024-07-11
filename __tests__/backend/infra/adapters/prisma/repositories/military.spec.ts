@@ -105,6 +105,14 @@ describe("MilitaryPrismaRepository", () => {
     await expect(sut.getHashedPassword(id)).resolves.not.toThrow();
   });
 
+  test("should be able to return null if password hashed is not found by ID", async () => {
+    const { sut } = makeSut();
+
+    await expect(
+      sut.getHashedPassword(new ObjectId().toString())
+    ).resolves.not.toThrow();
+  });
+
   test("should be able to update a military profile in the database", async () => {
     const { sut } = makeSut();
 

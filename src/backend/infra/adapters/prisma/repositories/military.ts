@@ -218,9 +218,7 @@ export class MilitaryPrismaRespository implements MilitaryRepository {
       });
   };
 
-  public readonly getHashedPassword = async (
-    id: string
-  ): Promise<string | null> => {
+  public readonly getHashedPassword = async (id: string): Promise<string> => {
     await this.connectDB();
 
     const military = await prismaClient.military
@@ -237,6 +235,6 @@ export class MilitaryPrismaRespository implements MilitaryRepository {
         await prismaClient.$disconnect();
       });
 
-    return military?.password || null;
+    return military?.password || "";
   };
 }

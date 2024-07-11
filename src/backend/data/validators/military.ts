@@ -142,15 +142,13 @@ export class MilitaryValidator {
     }
 
     if (operation === "update") {
-      const hashedPassword =
-        (await this.militaryRepository.getHashedPassword(this.id)) || "";
+      const hashedPassword: string =
+        await this.militaryRepository.getHashedPassword(this.id);
 
-      console.log("hash compare", this.password, hashedPassword);
       const match = await this.hashCompare.compare(
         this.password,
         hashedPassword
       );
-      console.log("match result", match);
 
       if (!match) {
         throw invalidParamError("senha atual");

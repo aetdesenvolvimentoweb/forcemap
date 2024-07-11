@@ -1,3 +1,3 @@
 export interface GetMilitaryHashedPasswordUsecase {
-  getHashedPassword: (id: string) => Promise<string | null>;
+  getHashedPassword: (id: string) => Promise<string>;
 }
