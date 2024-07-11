@@ -5,7 +5,7 @@ import {
   UpdateMilitaryProfileProps,
   UpdateMilitaryRoleProps,
 } from "@/backend/domain/entities";
-import { IdValidator } from "@/backend/domain/usecases";
+import { HashCompare, IdValidator } from "@/backend/domain/usecases";
 import {
   duplicatedKeyError,
   invalidParamError,
@@ -15,15 +15,17 @@ import {
 import { MilitaryRankRepository, MilitaryRepository } from "../repositories";
 
 type Dependencies = {
-  idValidator: IdValidator;
   militaryRankRepository: MilitaryRankRepository;
   militaryRepository: MilitaryRepository;
+  idValidator: IdValidator;
+  hashCompare: HashCompare;
 };
 
 export class MilitaryValidator {
-  private readonly idValidator: IdValidator;
   private readonly militaryRankRepository: MilitaryRankRepository;
   private readonly militaryRepository: MilitaryRepository;
+  private readonly idValidator: IdValidator;
+  private readonly hashCompare: HashCompare;
 
   private id: string;
   private militaryRankId: string;
@@ -34,9 +36,10 @@ export class MilitaryValidator {
   private newPassword: string;
 
   constructor(dependencies: Dependencies) {
-    this.idValidator = dependencies.idValidator;
     this.militaryRankRepository = dependencies.militaryRankRepository;
     this.militaryRepository = dependencies.militaryRepository;
+    this.idValidator = dependencies.idValidator;
+    this.hashCompare = dependencies.hashCompare;
 
     this.id = "";
     this.militaryRankId = "";
@@ -139,11 +142,17 @@ export class MilitaryValidator {
     }
 
     if (operation === "update") {
-      const hashedPassword = await this.militaryRepository.getHashedPassword(
-        this.id
-      );
+      const hashedPassword =
+        (await this.militaryRepository.getHashedPassword(this.id)) || "";
 
-      if (hashedPassword !== this.password) {
+      console.log("hash compare", this.password, hashedPassword);
+      const match = await this.hashCompare.compare(
+        this.password,
+        hashedPassword
+      );
+      console.log("match result", match);
+
+      if (!match) {
         throw invalidParamError("senha atual");
       }
 
@@ -220,6 +229,8 @@ export class MilitaryValidator {
   public readonly validateNewPassword = async (
     props: UpdateMilitaryPasswordProps
   ) => {
+    console.log("validator props", props);
+
     this.setId(props.id);
     this.setPassword(props.currentPassword);
     this.setNewPassword(props.newPassword);

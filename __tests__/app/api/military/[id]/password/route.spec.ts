@@ -1,5 +1,6 @@
 import { PATCH } from "@/app/api/military/[id]/password/route";
 import { prismaClient } from "@/backend/infra/adapters";
+import { BcryptEncrypterAdapter } from "@/backend/infra/adapters/bcrypt/encrypter";
 import { HttpResponse } from "@/backend/presentation/protocols";
 import { NextRequest } from "next/server";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
@@ -13,7 +14,7 @@ const clearDatabase = async (): Promise<void> => {
   });
 };
 
-describe("Military recovery password API route", () => {
+describe("Military update password API route", () => {
   let militaryRankId: string = "";
 
   beforeAll(async () => {
@@ -38,13 +39,14 @@ describe("Military recovery password API route", () => {
   });
 
   test("PATCH should be able to update a military password", async () => {
+    const encrypter = new BcryptEncrypterAdapter();
     const military = await prismaClient.military.create({
       data: {
         militaryRankId,
         rg: 1,
         name: "any-name",
         role: "Usuário",
-        password: "any-password",
+        password: await encrypter.encrypt("any-password"),
       },
     });
     const id = military?.id || "";

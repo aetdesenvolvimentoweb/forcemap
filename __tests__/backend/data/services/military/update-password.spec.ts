@@ -1,4 +1,6 @@
 import {
+  EncrypterStub,
+  HashCompareStub,
   IdValidatorStub,
   MilitaryInMemoryRepository,
   MilitaryRankInMemoryRepository,
@@ -14,13 +16,14 @@ import {
 } from "@/backend/data/repositories";
 import { UpdateMilitaryPasswordService } from "@/backend/data/services";
 import { MilitaryValidator } from "@/backend/data/validators";
-import { IdValidator } from "@/backend/domain/usecases";
+import { HashCompare, IdValidator } from "@/backend/domain/usecases";
 import { describe, expect, test, vi } from "vitest";
 
 interface SutResponse {
   militaryRepository: MilitaryRepository;
   militaryRankRepository: MilitaryRankRepository;
   idValidator: IdValidator;
+  hashCompare: HashCompare;
   sut: UpdateMilitaryPasswordService;
 }
 
@@ -30,17 +33,25 @@ const makeSut = (): SutResponse => {
     militaryRankRepository
   );
   const idValidator = new IdValidatorStub();
+  const hashCompare = new HashCompareStub();
   const validator = new MilitaryValidator({
-    idValidator,
     militaryRankRepository,
     militaryRepository,
+    idValidator,
+    hashCompare,
   });
   const sut = new UpdateMilitaryPasswordService({
     repository: militaryRepository,
     validator,
   });
 
-  return { militaryRepository, militaryRankRepository, idValidator, sut };
+  return {
+    militaryRepository,
+    militaryRankRepository,
+    idValidator,
+    hashCompare,
+    sut,
+  };
 };
 
 describe("UpdateMilitaryPasswordService", () => {
@@ -171,18 +182,26 @@ describe("UpdateMilitaryPasswordService", () => {
   });
 
   test("should be throws if current password no matches", async () => {
-    const { militaryRepository, militaryRankRepository, sut } = makeSut();
+    const { militaryRepository, militaryRankRepository, hashCompare, sut } =
+      makeSut();
+
+    const mockInvalidHash = vi.spyOn(hashCompare, "compare");
+    mockInvalidHash.mockReturnValueOnce(
+      new Promise((resolve) => resolve(false))
+    );
 
     await militaryRankRepository.add({ order: 1, abbreviatedName: "Cel" });
     const militaryRank =
       await militaryRankRepository.getByAbbreviatedName("Cel");
     const militaryRankId = militaryRank?.id || "";
 
+    const encrypter = new EncrypterStub();
+
     await militaryRepository.add({
       militaryRankId,
       rg: 1,
       name: "any-name",
-      password: "any-password",
+      password: await encrypter.encrypt("any-password"),
       role: "Usuário",
     });
 
@@ -196,6 +215,8 @@ describe("UpdateMilitaryPasswordService", () => {
         newPassword: "another-password",
       })
     ).rejects.toThrow(invalidParamError("senha atual"));
+
+    mockInvalidHash.mockRestore();
   });
 
   test("should be throws if no new password is provided", async () => {

@@ -1,4 +1,5 @@
 import {
+  HashCompareStub,
   IdValidatorStub,
   MilitaryInMemoryRepository,
   MilitaryRankInMemoryRepository,
@@ -15,7 +16,7 @@ import {
 import { UpdateMilitaryPasswordService } from "@/backend/data/services";
 import { MilitaryValidator } from "@/backend/data/validators";
 import { UpdateMilitaryPasswordProps } from "@/backend/domain/entities";
-import { IdValidator } from "@/backend/domain/usecases";
+import { HashCompare, IdValidator } from "@/backend/domain/usecases";
 import { UpdateMilitaryPasswordController } from "@/backend/presentation/controllers";
 import { serverError } from "@/backend/presentation/helpers";
 import { HttpRequest, HttpResponse } from "@/backend/presentation/protocols";
@@ -25,6 +26,7 @@ interface SutResponse {
   militaryRankRepository: MilitaryRankRepository;
   militaryRepository: MilitaryRepository;
   idValidator: IdValidator;
+  hashCompare: HashCompare;
   sut: UpdateMilitaryPasswordController;
 }
 
@@ -35,10 +37,12 @@ const makeSut = (): SutResponse => {
     militaryRankRepository
   );
   const idValidator = new IdValidatorStub();
+  const hashCompare = new HashCompareStub();
   const validator = new MilitaryValidator({
-    idValidator,
     militaryRankRepository,
     militaryRepository,
+    idValidator,
+    hashCompare,
   });
   const updateMilitaryPasswordService = new UpdateMilitaryPasswordService({
     repository: militaryRepository,
@@ -49,7 +53,13 @@ const makeSut = (): SutResponse => {
     updateMilitaryPasswordService
   );
 
-  return { militaryRankRepository, militaryRepository, idValidator, sut };
+  return {
+    militaryRankRepository,
+    militaryRepository,
+    idValidator,
+    hashCompare,
+    sut,
+  };
 };
 
 describe("UpdateMilitaryPasswordController", () => {
@@ -231,8 +241,13 @@ describe("UpdateMilitaryPasswordController", () => {
   });
 
   test("should be return 400 on current password no matches", async () => {
-    const { militaryRankRepository, militaryRepository, idValidator, sut } =
+    const { militaryRankRepository, militaryRepository, hashCompare, sut } =
       makeSut();
+
+    const mockInvalidHash = vi.spyOn(hashCompare, "compare");
+    mockInvalidHash.mockReturnValueOnce(
+      new Promise((resolve) => resolve(false))
+    );
 
     await militaryRankRepository.add({
       order: 1,
@@ -266,6 +281,8 @@ describe("UpdateMilitaryPasswordController", () => {
     expect(httpResponse.body.errorMessage).toEqual(
       invalidParamError("senha atual").message
     );
+
+    mockInvalidHash.mockRestore();
   });
 
   test("should be return 400 on missing new password", async () => {

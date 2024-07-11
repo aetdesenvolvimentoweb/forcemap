@@ -1,7 +1,7 @@
 import { Encrypter } from "@/backend/domain/usecases";
 
 export class EncrypterStub implements Encrypter {
-  async encrypt(password: string): Promise<string> {
-    return password + "-hashed";
-  }
+  public readonly encrypt = async (password: string): Promise<string> => {
+    return new Promise((resolve) => resolve(password + "-hashed"));
+  };
 }
