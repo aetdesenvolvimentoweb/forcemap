@@ -33,6 +33,11 @@ const handler = NextAuth({
       },
     }),
   ],
+  callbacks: {
+    redirect: () => {
+      return "/";
+    },
+  },
 });
 
 export { handler as GET, handler as POST };

@@ -15,6 +15,7 @@ export default defineConfig({
         "src/backend/domain/**/*.{ts,tsx}",
         "src/backend/data/repositories/index.ts",
         "src/backend/presentation/protocols/index.ts",
+        "src/frontend/**/*.{ts,tsx}",
       ],
     },
     fileParallelism: false,

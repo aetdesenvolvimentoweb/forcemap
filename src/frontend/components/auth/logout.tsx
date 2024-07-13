@@ -9,7 +9,6 @@ export const LogOut = () => {
       onClick={async () =>
         await signOut({
           redirect: true,
-          callbackUrl: "/api/auth/signin",
         })
       }
     >
