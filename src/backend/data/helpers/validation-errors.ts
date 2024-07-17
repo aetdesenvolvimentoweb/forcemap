@@ -18,3 +18,7 @@ export const invalidParamError = (param: string): AppError => {
 export const unregisteredFieldIdError = (field: string): AppError => {
   return new AppError(`Nenhum registro encontrado para esse ${field}.`, 404);
 };
+
+export const credentialsError = (): AppError => {
+  return new AppError("Login ou Senha incorreto(s)", 401);
+};

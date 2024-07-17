@@ -227,8 +227,6 @@ export class MilitaryValidator {
   public readonly validateNewPassword = async (
     props: UpdateMilitaryPasswordProps
   ) => {
-    console.log("validator props", props);
-
     this.setId(props.id);
     this.setPassword(props.currentPassword);
     this.setNewPassword(props.newPassword);

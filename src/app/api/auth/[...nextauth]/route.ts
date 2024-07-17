@@ -1,4 +1,6 @@
-import { prismaClient } from "@/backend/infra/adapters";
+import { LoginService } from "@/backend/data/services";
+import { AuthValidator } from "@/backend/data/validators";
+import { MilitaryPrismaRespository } from "@/backend/infra/adapters";
 import { BcryptHashCompareAdapter } from "@/backend/infra/adapters/bcrypt/hash-compare";
 import NextAuth from "next-auth";
 import CredentialProvider from "next-auth/providers/credentials";
@@ -19,30 +21,27 @@ const handler = NextAuth({
           return null;
         }
 
-        const military = await prismaClient.military.findUnique({
-          where: {
-            rg: Number(credentials.rg),
-          },
+        const militaryRepository = new MilitaryPrismaRespository();
+        const hashCompare = new BcryptHashCompareAdapter();
+
+        const loginService = new LoginService({
+          repository: militaryRepository,
+          validator: new AuthValidator({
+            repository: militaryRepository,
+            hashCompare,
+          }),
         });
 
-        if (!military) {
+        const user = await loginService.login({
+          rg: Number(credentials.rg),
+          password: credentials.password,
+        });
+
+        if (!user) {
           return null;
         }
 
-        const hashCompare = new BcryptHashCompareAdapter();
-        const match = await hashCompare.compare(
-          credentials.password,
-          military.password
-        );
-
-        if (!match) {
-          return null;
-        }
-
-        return {
-          id: military.id,
-          name: military.name,
-        };
+        return user;
       },
     }),
   ],
