@@ -1,3 +1,5 @@
+import { prismaClient } from "@/backend/infra/adapters";
+import { BcryptHashCompareAdapter } from "@/backend/infra/adapters/bcrypt/hash-compare";
 import NextAuth from "next-auth";
 import CredentialProvider from "next-auth/providers/credentials";
 
@@ -6,10 +8,9 @@ const handler = NextAuth({
     CredentialProvider({
       name: "credentials",
       credentials: {
-        email: {
-          label: "Email",
-          type: "email",
-          placeholder: "Email: exemplo@exemplo.com",
+        rg: {
+          label: "RG",
+          type: "number",
         },
         password: { label: "Senha", type: "password" },
       },
@@ -18,18 +19,30 @@ const handler = NextAuth({
           return null;
         }
 
-        if (
-          credentials.email === "andredavid1@yahoo.com.br" &&
-          credentials.password === "12345678"
-        ) {
-          return {
-            id: "valid-id",
-            email: credentials.email,
-            name: "André David",
-          };
+        const military = await prismaClient.military.findUnique({
+          where: {
+            rg: Number(credentials.rg),
+          },
+        });
+
+        if (!military) {
+          return null;
         }
 
-        return null;
+        const hashCompare = new BcryptHashCompareAdapter();
+        const match = await hashCompare.compare(
+          credentials.password,
+          military.password
+        );
+
+        if (!match) {
+          return null;
+        }
+
+        return {
+          id: military.id,
+          name: military.name,
+        };
       },
     }),
   ],
