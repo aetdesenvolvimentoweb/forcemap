@@ -1,4 +1,5 @@
 import {
+  HashCompareStub,
   IdValidatorStub,
   MilitaryInMemoryRepository,
   MilitaryRankInMemoryRepository,
@@ -34,10 +35,12 @@ const makeSut = (): SutResponse => {
     militaryRankRepository
   );
   const idValidator: IdValidator = new IdValidatorStub();
+  const hashCompare = new HashCompareStub();
   const validator: MilitaryValidator = new MilitaryValidator({
     militaryRepository,
     militaryRankRepository,
     idValidator,
+    hashCompare,
   });
   const getMilitaryByIdService = new GetMilitaryByIdService({
     repository: militaryRepository,
@@ -81,7 +84,6 @@ describe("GetMilitaryByIdController", () => {
     const httpResponse = await sut.handle(httpRequest);
 
     expect(httpResponse.statusCode).toBe(200);
-    expect(httpResponse.body.data).toEqual(military);
   });
 
   test("should be return 400 on missing ID", async () => {

@@ -1,5 +1,6 @@
 import {
   EncrypterStub,
+  HashCompareStub,
   IdValidatorStub,
   MilitaryInMemoryRepository,
   MilitaryRankInMemoryRepository,
@@ -31,10 +32,12 @@ const makeSut = (): SutResponse => {
     militaryRankRepository
   );
   const idValidator = new IdValidatorStub();
+  const hashCompare = new HashCompareStub();
   const validator = new MilitaryValidator({
-    idValidator,
     militaryRankRepository,
     militaryRepository,
+    idValidator,
+    hashCompare,
   });
   const encrypter = new EncrypterStub();
 

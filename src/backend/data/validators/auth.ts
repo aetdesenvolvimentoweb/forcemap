@@ -39,15 +39,19 @@ export class AuthValidator {
       throw missingParamError("senha");
     }
 
+    console.log("credentials", this.rg, this.password);
+
     const userExist = await this.repository.getByRg(this.rg);
+    console.log("senhas", this.password, userExist?.password);
 
     if (!userExist) {
       throw credentialsError();
     }
 
-    const hash = await this.repository.getHashedPassword(userExist.id);
-
-    const match = await this.hashCompare.compare(this.password, hash);
+    const match = await this.hashCompare.compare(
+      this.password,
+      userExist.password
+    );
 
     if (!match) {
       throw credentialsError();

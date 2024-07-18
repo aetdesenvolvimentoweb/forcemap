@@ -1,5 +1,5 @@
-import { MilitaryPublic } from "../../entities";
+import { Military } from "../../entities";
 
 export interface GetMilitaryByRgUsecase {
-  getByRg: (rg: number) => Promise<MilitaryPublic | null>;
+  getByRg: (rg: number) => Promise<Military | null>;
 }

@@ -62,9 +62,7 @@ export class MilitaryInMemoryRepository implements MilitaryRepository {
     };
   };
 
-  public readonly getByRg = async (
-    rg: number
-  ): Promise<MilitaryPublic | null> => {
+  public readonly getByRg = async (rg: number): Promise<Military | null> => {
     const military = this.military.find((m) => m.rg === rg);
 
     if (!military) return null;
@@ -74,14 +72,8 @@ export class MilitaryInMemoryRepository implements MilitaryRepository {
       await this.militaryRankRepository.getById(militaryRankId);
 
     return {
-      id: military.id,
-      militaryRankId: military.militaryRankId,
+      ...military,
       militaryRank: militaryRank || undefined,
-      rg: military.rg,
-      name: military.name,
-      role: military.role,
-      createdAt: military.createdAt,
-      updatedAt: military.updatedAt,
     };
   };
 

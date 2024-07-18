@@ -1,4 +1,5 @@
 import {
+  HashCompareStub,
   IdValidatorStub,
   MilitaryInMemoryRepository,
   MilitaryRankInMemoryRepository,
@@ -34,10 +35,12 @@ const makeSut = (): SutResponse => {
     militaryRankRepository
   );
   const idValidator = new IdValidatorStub();
+  const hashCompare = new HashCompareStub();
   const validator = new MilitaryValidator({
     militaryRankRepository,
     militaryRepository,
     idValidator,
+    hashCompare,
   });
   const deleteMilitaryService = new DeleteMilitaryService({
     repository: militaryRepository,

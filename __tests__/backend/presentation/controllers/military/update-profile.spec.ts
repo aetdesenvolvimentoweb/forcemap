@@ -1,4 +1,5 @@
 import {
+  HashCompareStub,
   MilitaryInMemoryRepository,
   MilitaryRankInMemoryRepository,
 } from "@/../__mocks__";
@@ -37,10 +38,12 @@ const makeSut = (): SutResponse => {
     militaryRankRepository
   );
   const idValidator = new MongoIdValidator();
+  const hashCompare = new HashCompareStub();
   const validator = new MilitaryValidator({
-    idValidator,
     militaryRankRepository,
     militaryRepository,
+    idValidator,
+    hashCompare,
   });
   const updateMilitaryProfileService = new UpdateMilitaryProfileService({
     repository: militaryRepository,
