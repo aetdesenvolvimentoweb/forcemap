@@ -25,8 +25,8 @@ export class CreateMilitaryRankSanitizer {
       return Math.floor(Math.abs(numericOrder));
     }
 
-    // Sanitização: valor padrão para dados inválidos
-    return 0;
+    // Sanitização: preserva valor original para o validador decidir
+    return order;
   };
 
   public readonly sanitize = (
