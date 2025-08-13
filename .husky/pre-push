@@ -1,0 +1,2 @@
+echo "Verificando cobertura de testes..."
+pnpm test:coverage --silent=true

@@ -3,4 +3,4 @@ pnpm run format
 echo "verificando a padronização do código..."
 pnpm run lint
 echo "testando o código..."
-pnpm run test --only-changed
+pnpm run test:staged

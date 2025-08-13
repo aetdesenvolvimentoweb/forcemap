@@ -13,6 +13,8 @@
     "format": "prettier . --write",
     "lint": "eslint . --fix",
     "test": "jest",
+    "test:coverage": "pnpm test -- --coverage",
+    "test:staged": "pnpm test -- --only-changed",
     "prepare": "husky"
   },
   "devDependencies": {
