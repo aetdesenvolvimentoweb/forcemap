@@ -1,4 +1,8 @@
-import { InvalidParamError, MissingParamError } from "@application/errors";
+import {
+  DuplicatedKeyError,
+  InvalidParamError,
+  MissingParamError,
+} from "@application/errors";
 import type { CreateMilitaryRankDTO } from "@domain/dtos";
 import type { MilitaryRankRepository } from "@domain/index";
 
@@ -61,7 +65,7 @@ export class CreateMilitaryRankValidator {
     const exists =
       await this.props.militaryRankRepository.findByAbbreviation(abbreviation);
     if (exists) {
-      throw new InvalidParamError("Abreviatura", "já está em uso");
+      throw new DuplicatedKeyError("Abreviatura");
     }
   };
 
@@ -70,7 +74,7 @@ export class CreateMilitaryRankValidator {
   ): Promise<void> => {
     const exists = await this.props.militaryRankRepository.findByOrder(order);
     if (exists) {
-      throw new InvalidParamError("Ordem", "já está em uso");
+      throw new DuplicatedKeyError("Ordem");
     }
   };
 
