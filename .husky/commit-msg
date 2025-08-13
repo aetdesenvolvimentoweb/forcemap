@@ -1,0 +1,2 @@
+echo "verificando o padrão do commit"
+pnpm exec commitlint --edit ${1}
