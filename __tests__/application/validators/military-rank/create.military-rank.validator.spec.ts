@@ -1,10 +1,15 @@
-import { InvalidParamError, MissingParamError } from "@application/errors";
+import {
+  DuplicatedKeyError,
+  InvalidParamError,
+  MissingParamError,
+} from "@application/errors";
 import { CreateMilitaryRankValidator } from "@application/validators";
 import type { CreateMilitaryRankDTO } from "@domain/dtos";
 import type { MilitaryRankRepository } from "@domain/index";
 
 interface SutTypes {
   sut: CreateMilitaryRankValidator;
+  militaryRankRepository: jest.Mocked<MilitaryRankRepository>;
 }
 
 const makeSut = (): SutTypes => {
@@ -19,6 +24,7 @@ const makeSut = (): SutTypes => {
 
   return {
     sut,
+    militaryRankRepository,
   };
 };
 
@@ -375,6 +381,123 @@ describe("CreateMilitaryRankValidator", () => {
       await expect(sut.validate(inputDto)).rejects.toThrow(
         new MissingParamError("Abreviatura"),
       );
+    });
+  });
+
+  describe("Uniqueness validation", () => {
+    it("should throw DuplicatedKeyError when abbreviation already exists", async () => {
+      // ARRANGE
+      const { sut, militaryRankRepository } = sutInstance;
+      const inputDto: CreateMilitaryRankDTO = {
+        abbreviation: "CABO",
+        order: 1,
+      };
+
+      militaryRankRepository.findByAbbreviation.mockResolvedValueOnce({
+        id: "existing-id",
+        abbreviation: "CABO",
+        order: 2,
+      });
+
+      // ACT & ASSERT
+      await expect(sut.validate(inputDto)).rejects.toThrow(
+        new DuplicatedKeyError("Abreviatura"),
+      );
+    });
+
+    it("should throw DuplicatedKeyError when order already exists", async () => {
+      // ARRANGE
+      const { sut, militaryRankRepository } = sutInstance;
+      const inputDto: CreateMilitaryRankDTO = {
+        abbreviation: "SARGENTO",
+        order: 5,
+      };
+
+      militaryRankRepository.findByOrder.mockResolvedValueOnce({
+        id: "existing-id",
+        abbreviation: "SGT",
+        order: 5,
+      });
+
+      // ACT & ASSERT
+      await expect(sut.validate(inputDto)).rejects.toThrow(
+        new DuplicatedKeyError("Ordem"),
+      );
+    });
+
+    it("should check abbreviation uniqueness before order uniqueness", async () => {
+      // ARRANGE
+      const { sut, militaryRankRepository } = sutInstance;
+      const inputDto: CreateMilitaryRankDTO = {
+        abbreviation: "CABO",
+        order: 5,
+      };
+
+      militaryRankRepository.findByAbbreviation.mockResolvedValueOnce({
+        id: "existing-id",
+        abbreviation: "CABO",
+        order: 2,
+      });
+
+      militaryRankRepository.findByOrder.mockResolvedValueOnce({
+        id: "existing-id-2",
+        abbreviation: "SGT",
+        order: 5,
+      });
+
+      // ACT & ASSERT
+      await expect(sut.validate(inputDto)).rejects.toThrow(
+        new DuplicatedKeyError("Abreviatura"),
+      );
+
+      // ASSERT - findByOrder should not be called due to fail-fast behavior
+      expect(militaryRankRepository.findByOrder).not.toHaveBeenCalled();
+    });
+
+    it("should pass uniqueness validation when both abbreviation and order are unique", async () => {
+      // ARRANGE
+      const { sut, militaryRankRepository } = sutInstance;
+      const inputDto: CreateMilitaryRankDTO = {
+        abbreviation: "NOVO",
+        order: 15,
+      };
+
+      militaryRankRepository.findByAbbreviation.mockResolvedValueOnce(null);
+      militaryRankRepository.findByOrder.mockResolvedValueOnce(null);
+
+      // ACT
+      const result = sut.validate(inputDto);
+
+      // ASSERT
+      await expect(result).resolves.toBeUndefined();
+      expect(militaryRankRepository.findByAbbreviation).toHaveBeenCalledWith(
+        "NOVO",
+      );
+      expect(militaryRankRepository.findByOrder).toHaveBeenCalledWith(15);
+    });
+  });
+
+  describe("Complete validation flow", () => {
+    it("should validate all steps in correct order: required fields -> format -> range -> uniqueness", async () => {
+      // ARRANGE
+      const { sut, militaryRankRepository } = sutInstance;
+      const inputDto: CreateMilitaryRankDTO = {
+        abbreviation: "VALID",
+        order: 10,
+      };
+
+      militaryRankRepository.findByAbbreviation.mockResolvedValueOnce(null);
+      militaryRankRepository.findByOrder.mockResolvedValueOnce(null);
+
+      // ACT
+      const result = sut.validate(inputDto);
+
+      // ASSERT
+      await expect(result).resolves.toBeUndefined();
+      expect(militaryRankRepository.findByAbbreviation).toHaveBeenCalledWith(
+        "VALID",
+      );
+      expect(militaryRankRepository.findByOrder).toHaveBeenCalledWith(10);
     });
   });
 });
