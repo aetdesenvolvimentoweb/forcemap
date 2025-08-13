@@ -1,3 +1,4 @@
+import { MissingParamError } from "@application/errors";
 import type { CreateMilitaryRankDTO } from "@domain/dtos";
 
 export class CreateMilitaryRankValidator {
@@ -5,13 +6,13 @@ export class CreateMilitaryRankValidator {
     abbreviation: string,
   ): void => {
     if (!abbreviation || abbreviation.trim() === "") {
-      throw new Error("Abbreviation is required");
+      throw new MissingParamError("Abreviatura");
     }
   };
 
   private readonly validateOrderPresence = (order: number): void => {
     if (order === null || order === undefined) {
-      throw new Error("Order is required");
+      throw new MissingParamError("Ordem");
     }
   };
 
