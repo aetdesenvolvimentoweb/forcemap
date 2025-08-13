@@ -3,6 +3,7 @@ import {
   InvalidParamError,
   MissingParamError,
 } from "@application/errors";
+import type { CreateMilitaryRankValidatorProtocol } from "@application/protocols";
 import type { CreateMilitaryRankDTO } from "@domain/dtos";
 import type { MilitaryRankRepository } from "@domain/repositories";
 
@@ -10,7 +11,9 @@ interface CreateMilitaryRankValidatorProps {
   militaryRankRepository: MilitaryRankRepository;
 }
 
-export class CreateMilitaryRankValidator {
+export class CreateMilitaryRankValidator
+  implements CreateMilitaryRankValidatorProtocol
+{
   constructor(private readonly props: CreateMilitaryRankValidatorProps) {}
 
   private readonly validateAbbreviationPresence = (
