@@ -1,8 +1,5 @@
-export interface MilitaryRankProps {
+export interface MilitaryRank {
+  id: string;
   abbreviation: string;
   order: number;
-}
-
-export interface MilitaryRank extends MilitaryRankProps {
-  id: string;
 }
