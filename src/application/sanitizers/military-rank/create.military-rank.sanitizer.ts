@@ -2,7 +2,7 @@ import { CreateMilitaryRankDTO } from "@domain/dtos";
 
 export class CreateMilitaryRankSanitizer {
   private readonly sanitizeAbbreviation = (abbreviation: string): string => {
-    if (!abbreviation || typeof abbreviation !== "string") return "";
+    if (!abbreviation || typeof abbreviation !== "string") return abbreviation;
 
     return abbreviation
       .trim() // Remove espaços em branco nas bordas
@@ -32,15 +32,9 @@ export class CreateMilitaryRankSanitizer {
   public readonly sanitize = (
     data: CreateMilitaryRankDTO,
   ): CreateMilitaryRankDTO => {
-    // Sanitização: garantir que apenas propriedades esperadas sejam processadas
-    const cleanInput = {
-      abbreviation: data?.abbreviation || "",
-      order: data?.order || 0,
-    };
-
     return {
-      abbreviation: this.sanitizeAbbreviation(cleanInput.abbreviation),
-      order: this.sanitizeOrder(cleanInput.order),
+      abbreviation: this.sanitizeAbbreviation(data.abbreviation),
+      order: this.sanitizeOrder(data.order),
     };
   };
 }
