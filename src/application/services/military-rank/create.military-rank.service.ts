@@ -1,7 +1,7 @@
-import { CreateMilitaryRankSanitizerProtocol } from "@application/protocols";
-import { CreateMilitaryRankDTO } from "@domain/dtos";
-import { MilitaryRankRepository } from "@domain/repositories";
-import { CreateMilitaryRankUseCase } from "@domain/usecases";
+import type { CreateMilitaryRankSanitizerProtocol } from "@application/protocols";
+import type { CreateMilitaryRankDTO } from "@domain/dtos";
+import type { MilitaryRankRepository } from "@domain/repositories";
+import type { CreateMilitaryRankUseCase } from "@domain/usecases";
 
 interface CreateMilitaryRankServiceProps {
   militaryRankRepository: MilitaryRankRepository;

@@ -1,6 +1,6 @@
 import { CreateMilitaryRankSanitizer } from "@application/sanitizers";
 import { CreateMilitaryRankService } from "@application/services";
-import { MilitaryRankRepository } from "@domain/index";
+import type { MilitaryRankRepository } from "@domain/index";
 
 interface SutTypes {
   sut: CreateMilitaryRankService;

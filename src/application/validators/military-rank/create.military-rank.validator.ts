@@ -1,4 +1,4 @@
-import { CreateMilitaryRankDTO } from "@domain/dtos";
+import type { CreateMilitaryRankDTO } from "@domain/dtos";
 
 export class CreateMilitaryRankValidator {
   private readonly validateAbbreviationPresence = (

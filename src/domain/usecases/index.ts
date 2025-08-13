@@ -1,1 +1,1 @@
-export * from "./military-ranks";
+export type * from "./military-ranks";

@@ -1,1 +1,1 @@
-export * from "./military-rank.dtos";
+export type * from "./military-rank.dtos";

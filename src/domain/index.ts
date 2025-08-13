@@ -1,4 +1,5 @@
-export * from "./entities";
-export * from "./dtos";
-export * from "./repositories";
-export * from "./usecases";
+export type * from "./entities";
+export type * from "./dtos";
+export type * from "./repositories";
+export type * from "./usecases";
+export * from "./erros";

@@ -1,1 +1,1 @@
-export * from "./sanitizers/create-military-rank-sanitizer.protocol";
+export type * from "./sanitizers/create-military-rank-sanitizer.protocol";
