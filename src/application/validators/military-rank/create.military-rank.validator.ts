@@ -1,7 +1,14 @@
 import { InvalidParamError, MissingParamError } from "@application/errors";
 import type { CreateMilitaryRankDTO } from "@domain/dtos";
+import type { MilitaryRankRepository } from "@domain/index";
+
+interface CreateMilitaryRankValidatorProps {
+  militaryRankRepository: MilitaryRankRepository;
+}
 
 export class CreateMilitaryRankValidator {
+  constructor(private readonly props: CreateMilitaryRankValidatorProps) {}
+
   private readonly validateAbbreviationPresence = (
     abbreviation: string,
   ): void => {
@@ -48,6 +55,25 @@ export class CreateMilitaryRankValidator {
     }
   };
 
+  private readonly validateAbbreviationUniqueness = async (
+    abbreviation: string,
+  ): Promise<void> => {
+    const exists =
+      await this.props.militaryRankRepository.findByAbbreviation(abbreviation);
+    if (exists) {
+      throw new InvalidParamError("Abreviatura", "já está em uso");
+    }
+  };
+
+  private readonly validateOrderUniqueness = async (
+    order: number,
+  ): Promise<void> => {
+    const exists = await this.props.militaryRankRepository.findByOrder(order);
+    if (exists) {
+      throw new InvalidParamError("Ordem", "já está em uso");
+    }
+  };
+
   private readonly validateRequiredFields = (
     data: CreateMilitaryRankDTO,
   ): void => {
@@ -62,10 +88,18 @@ export class CreateMilitaryRankValidator {
     this.validateOrderRange(data.order);
   };
 
+  private readonly validateUniqueness = async (
+    data: CreateMilitaryRankDTO,
+  ): Promise<void> => {
+    await this.validateAbbreviationUniqueness(data.abbreviation);
+    await this.validateOrderUniqueness(data.order);
+  };
+
   public readonly validate = async (
     data: CreateMilitaryRankDTO,
   ): Promise<void> => {
     this.validateRequiredFields(data);
     this.validateBusinessRules(data);
+    await this.validateUniqueness(data);
   };
 }

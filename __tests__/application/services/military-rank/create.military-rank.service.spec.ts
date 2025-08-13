@@ -11,7 +11,7 @@ interface SutTypes {
 const makeSut = (): SutTypes => {
   const militaryRankRepository = jest.mocked<MilitaryRankRepository>({
     create: jest.fn().mockResolvedValue(undefined),
-    findById: jest.fn(),
+    findByAbbreviation: jest.fn(),
     findByOrder: jest.fn(),
   });
 

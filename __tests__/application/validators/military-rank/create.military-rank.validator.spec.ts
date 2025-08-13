@@ -1,13 +1,21 @@
 import { InvalidParamError, MissingParamError } from "@application/errors";
 import { CreateMilitaryRankValidator } from "@application/validators";
 import type { CreateMilitaryRankDTO } from "@domain/dtos";
+import type { MilitaryRankRepository } from "@domain/index";
 
 interface SutTypes {
   sut: CreateMilitaryRankValidator;
 }
 
 const makeSut = (): SutTypes => {
-  const sut = new CreateMilitaryRankValidator();
+  const militaryRankRepository = jest.mocked<MilitaryRankRepository>({
+    create: jest.fn().mockResolvedValue(undefined),
+    findByAbbreviation: jest.fn().mockResolvedValue(null),
+    findByOrder: jest.fn().mockResolvedValue(null),
+  });
+  const sut = new CreateMilitaryRankValidator({
+    militaryRankRepository,
+  });
 
   return {
     sut,
