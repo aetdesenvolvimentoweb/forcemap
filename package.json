@@ -16,8 +16,10 @@
     "format": "prettier . --write",
     "lint": "eslint . --fix",
     "test": "jest",
-    "test:coverage": "pnpm test -- --coverage",
-    "test:staged": "pnpm test -- --only-changed",
+    "test:unit": "jest --config jest.unit.config.ts",
+    "test:integration": "jest --config jest.integration.config.ts",
+    "test:coverage": "jest --coverage",
+    "test:staged": "jest --only-changed",
     "prepare": "husky"
   },
   "devDependencies": {

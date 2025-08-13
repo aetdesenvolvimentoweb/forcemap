@@ -3,8 +3,15 @@ import type { Config } from "jest";
 const config: Config = {
   clearMocks: true,
   collectCoverage: false,
+  collectCoverageFrom: [
+    "<rootDir>/src/**/*.ts",
+    "!<rootDir>/src/**/index.ts",
+    "!<rootDir>/src/domain/**/*.ts",
+    "!<rootDir>/src/**/protocols/**/*.ts",
+  ],
   coverageDirectory: "coverage",
-  coverageProvider: "v8",
+  coverageProvider: "babel",
+  coverageReporters: ["text", "text-summary", "html", "lcov"],
   coverageThreshold: {
     global: {
       branches: 80,
@@ -25,7 +32,7 @@ const config: Config = {
     ],
   },
   roots: ["<rootDir>/src", "<rootDir>/__tests__"],
-  testMatch: ["**/__tests__/**/*.spec.ts", "**/__tests__/**/*.test.ts"],
+  testMatch: ["**/__tests__/**/*.spec.ts", "**/__tests__/**/*.test.ts"], // Todos os testes
   moduleNameMapper: {
     "^@domain/(.*)$": "<rootDir>/src/domain/$1",
     "^@application/(.*)$": "<rootDir>/src/application/$1",
@@ -34,6 +41,7 @@ const config: Config = {
     "^@tests/(.*)$": "<rootDir>/__tests__/$1",
     "^(\\.{1,2}/.*)\\.js$": "$1",
   },
+  displayName: "All Tests (.spec.ts + .test.ts)",
 };
 
 export default config;

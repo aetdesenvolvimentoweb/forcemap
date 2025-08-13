@@ -126,7 +126,7 @@ describe("CreateMilitaryRankSanitizer", () => {
       expect(result.order).toBe(3);
     });
 
-    it("should preserve invalid input for validator to handle", () => {
+    it("should preserve non-numeric string when parseFloat returns NaN", () => {
       // ARRANGE
       const { sut } = sutInstance;
       const inputDto = { abbreviation: "CEL", order: "abc" } as unknown as {
@@ -139,6 +139,21 @@ describe("CreateMilitaryRankSanitizer", () => {
 
       // ASSERT
       expect(result.order).toBe("abc");
+    });
+
+    it("should preserve invalid input for validator to handle", () => {
+      // ARRANGE
+      const { sut } = sutInstance;
+      const inputDto = { abbreviation: "CEL", order: "xyz123" } as unknown as {
+        abbreviation: string;
+        order: number;
+      };
+
+      // ACT
+      const result = sut.sanitize(inputDto);
+
+      // ASSERT
+      expect(result.order).toBe("xyz123");
     });
 
     it("should preserve null and undefined", () => {
