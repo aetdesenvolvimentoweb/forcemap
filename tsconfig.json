@@ -14,7 +14,15 @@
     "sourceMap": true,
     "types": ["node", "jest"],
     "resolveJsonModule": true,
-    "isolatedModules": true
+    "isolatedModules": true,
+    "baseUrl": ".",
+    "paths": {
+      "@domain/*": ["src/domain/*"],
+      "@application/*": ["src/application/*"],
+      "@infrastructure/*": ["src/infra/*"],
+      "@presentation/*": ["src/presentation/*"],
+      "@tests/*": ["__tests__/*"]
+    }
   },
   "include": ["src/**/*"],
   "exclude": [
