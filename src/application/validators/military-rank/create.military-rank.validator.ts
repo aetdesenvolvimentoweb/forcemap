@@ -1,4 +1,4 @@
-import { MissingParamError } from "@application/errors";
+import { InvalidParamError, MissingParamError } from "@application/errors";
 import type { CreateMilitaryRankDTO } from "@domain/dtos";
 
 export class CreateMilitaryRankValidator {
@@ -20,27 +20,31 @@ export class CreateMilitaryRankValidator {
     abbreviation: string,
   ): void => {
     if (abbreviation.length > 10) {
-      throw new Error("Abbreviation cannot exceed 10 characters");
+      throw new InvalidParamError(
+        "Abreviatura",
+        "não pode exceder 10 caracteres",
+      );
     }
 
     if (!/^[A-Z0-9º ]+$/.test(abbreviation.trim())) {
-      throw new Error(
-        "Abbreviation must contain only letters, numbers, spaces and ordinal character (º)",
+      throw new InvalidParamError(
+        "Abreviatura",
+        "deve conter apenas letras, números, espaços e/ou o caractere ordinal (º)",
       );
     }
   };
 
   private readonly validateOrderRange = (order: number): void => {
     if (!Number.isInteger(order)) {
-      throw new Error("Order must be an integer");
+      throw new InvalidParamError("Ordem", "deve ser um número inteiro");
     }
 
     if (order < 1) {
-      throw new Error("Order must be greater than 0");
+      throw new InvalidParamError("Ordem", "deve ser maior que 0");
     }
 
     if (order > 20) {
-      throw new Error("Order cannot exceed 20");
+      throw new InvalidParamError("Ordem", "não pode ser maior que 20");
     }
   };
 
