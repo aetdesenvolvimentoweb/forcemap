@@ -1,5 +1,7 @@
-import { CreateMilitaryRankUseCase } from "@domain/usecases";
+import { CreateMilitaryRankDTO, MilitaryRank } from "@domain/index";
 
 export interface MilitaryRankRepository {
-  create: CreateMilitaryRankUseCase;
+  create(data: CreateMilitaryRankDTO): Promise<void>;
+  findById(id: string): Promise<MilitaryRank | null>;
+  findByOrder(order: number): Promise<MilitaryRank | null>;
 }
