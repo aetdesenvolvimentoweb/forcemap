@@ -259,6 +259,7 @@ export default [
     files: ["**/*.spec.ts", "**/*.test.ts", "**/*.spec.tsx", "**/*.test.tsx"],
     rules: {
       "@typescript-eslint/unbound-method": "off",
+      "import/no-unused-modules": "off", // Desabilita para testes que importam apenas para testar
     },
   },
 

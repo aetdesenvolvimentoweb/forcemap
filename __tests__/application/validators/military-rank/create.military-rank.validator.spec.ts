@@ -1,0 +1,372 @@
+import { InvalidParamError, MissingParamError } from "@application/errors";
+import { CreateMilitaryRankValidator } from "@application/validators";
+import type { CreateMilitaryRankDTO } from "@domain/dtos";
+
+interface SutTypes {
+  sut: CreateMilitaryRankValidator;
+}
+
+const makeSut = (): SutTypes => {
+  const sut = new CreateMilitaryRankValidator();
+
+  return {
+    sut,
+  };
+};
+
+describe("CreateMilitaryRankValidator", () => {
+  let sutInstance: SutTypes;
+
+  beforeEach(() => {
+    sutInstance = makeSut();
+  });
+
+  describe("Validation of mandatory fields", () => {
+    it("should throw MissingParamError when abbreviation is empty", async () => {
+      // ARRANGE
+      const { sut } = sutInstance;
+      const inputDto: CreateMilitaryRankDTO = {
+        abbreviation: "",
+        order: 1,
+      };
+
+      // ACT & ASSERT
+      await expect(sut.validate(inputDto)).rejects.toThrow(
+        new MissingParamError("Abreviatura"),
+      );
+    });
+
+    it("should throw MissingParamError when abbreviation is only spaces", async () => {
+      // ARRANGE
+      const { sut } = sutInstance;
+      const inputDto: CreateMilitaryRankDTO = {
+        abbreviation: "   ",
+        order: 1,
+      };
+
+      // ACT & ASSERT
+      await expect(sut.validate(inputDto)).rejects.toThrow(
+        new MissingParamError("Abreviatura"),
+      );
+    });
+
+    it("should throw MissingParamError when order is null", async () => {
+      // ARRANGE
+      const { sut } = sutInstance;
+      const inputDto = {
+        abbreviation: "CABO",
+        order: null,
+      } as unknown as CreateMilitaryRankDTO;
+
+      // ACT & ASSERT
+      await expect(sut.validate(inputDto)).rejects.toThrow(
+        new MissingParamError("Ordem"),
+      );
+    });
+
+    it("should throw MissingParamError when order is undefined", async () => {
+      // ARRANGE
+      const { sut } = sutInstance;
+      const inputDto = {
+        abbreviation: "CABO",
+        order: undefined,
+      } as unknown as CreateMilitaryRankDTO;
+
+      // ACT & ASSERT
+      await expect(sut.validate(inputDto)).rejects.toThrow(
+        new MissingParamError("Ordem"),
+      );
+    });
+  });
+
+  describe("Abbreviation format validation", () => {
+    it("should throw InvalidParamError when abbreviation exceeds 10 characters", async () => {
+      // ARRANGE
+      const { sut } = sutInstance;
+      const inputDto: CreateMilitaryRankDTO = {
+        abbreviation: "ABCDEFGHIJK", // 11 characters
+        order: 1,
+      };
+
+      // ACT & ASSERT
+      await expect(sut.validate(inputDto)).rejects.toThrow(
+        new InvalidParamError("Abreviatura", "não pode exceder 10 caracteres"),
+      );
+    });
+
+    it("should throw InvalidParamError when abbreviation contains invalid characters", async () => {
+      // ARRANGE
+      const { sut } = sutInstance;
+      const inputDto: CreateMilitaryRankDTO = {
+        abbreviation: "CABO@#",
+        order: 1,
+      };
+
+      // ACT & ASSERT
+      await expect(sut.validate(inputDto)).rejects.toThrow(
+        new InvalidParamError(
+          "Abreviatura",
+          "deve conter apenas letras, números, espaços e/ou o caractere ordinal (º)",
+        ),
+      );
+    });
+
+    it("should throw InvalidParamError when abbreviation contains lowercase letters", async () => {
+      // ARRANGE
+      const { sut } = sutInstance;
+      const inputDto: CreateMilitaryRankDTO = {
+        abbreviation: "Cabo",
+        order: 1,
+      };
+
+      // ACT & ASSERT
+      await expect(sut.validate(inputDto)).rejects.toThrow(
+        new InvalidParamError(
+          "Abreviatura",
+          "deve conter apenas letras, números, espaços e/ou o caractere ordinal (º)",
+        ),
+      );
+    });
+
+    it("should accept abbreviation with uppercase letters", async () => {
+      // ARRANGE
+      const { sut } = sutInstance;
+      const inputDto: CreateMilitaryRankDTO = {
+        abbreviation: "CABO",
+        order: 1,
+      };
+
+      // ACT
+      const result = sut.validate(inputDto);
+
+      // ASSERT
+      await expect(result).resolves.toBeUndefined();
+    });
+
+    it("should accept abbreviation with numbers", async () => {
+      // ARRANGE
+      const { sut } = sutInstance;
+      const inputDto: CreateMilitaryRankDTO = {
+        abbreviation: "SGT1",
+        order: 1,
+      };
+
+      // ACT
+      const result = sut.validate(inputDto);
+
+      // ASSERT
+      await expect(result).resolves.toBeUndefined();
+    });
+
+    it("should accept abbreviation with spaces", async () => {
+      // ARRANGE
+      const { sut } = sutInstance;
+      const inputDto: CreateMilitaryRankDTO = {
+        abbreviation: "SUB TEN",
+        order: 1,
+      };
+
+      // ACT
+      const result = sut.validate(inputDto);
+
+      // ASSERT
+      await expect(result).resolves.toBeUndefined();
+    });
+
+    it("should accept abbreviation with ordinal character", async () => {
+      // ARRANGE
+      const { sut } = sutInstance;
+      const inputDto: CreateMilitaryRankDTO = {
+        abbreviation: "1º SGT",
+        order: 1,
+      };
+
+      // ACT
+      const result = sut.validate(inputDto);
+
+      // ASSERT
+      await expect(result).resolves.toBeUndefined();
+    });
+
+    it("should accept abbreviation with exactly 10 characters", async () => {
+      // ARRANGE
+      const { sut } = sutInstance;
+      const inputDto: CreateMilitaryRankDTO = {
+        abbreviation: "ABCDEFGHIJ", // 10 characters
+        order: 1,
+      };
+
+      // ACT
+      const result = sut.validate(inputDto);
+
+      // ASSERT
+      await expect(result).resolves.toBeUndefined();
+    });
+  });
+
+  describe("Order range validation", () => {
+    it("should throw InvalidParamError when order is not an integer", async () => {
+      // ARRANGE
+      const { sut } = sutInstance;
+      const inputDto: CreateMilitaryRankDTO = {
+        abbreviation: "CABO",
+        order: 1.5,
+      };
+
+      // ACT & ASSERT
+      await expect(sut.validate(inputDto)).rejects.toThrow(
+        new InvalidParamError("Ordem", "deve ser um número inteiro"),
+      );
+    });
+
+    it("should throw InvalidParamError when order is less than 1", async () => {
+      // ARRANGE
+      const { sut } = sutInstance;
+      const inputDto: CreateMilitaryRankDTO = {
+        abbreviation: "CABO",
+        order: 0,
+      };
+
+      // ACT & ASSERT
+      await expect(sut.validate(inputDto)).rejects.toThrow(
+        new InvalidParamError("Ordem", "deve ser maior que 0"),
+      );
+    });
+
+    it("should throw InvalidParamError when order is negative", async () => {
+      // ARRANGE
+      const { sut } = sutInstance;
+      const inputDto: CreateMilitaryRankDTO = {
+        abbreviation: "CABO",
+        order: -1,
+      };
+
+      // ACT & ASSERT
+      await expect(sut.validate(inputDto)).rejects.toThrow(
+        new InvalidParamError("Ordem", "deve ser maior que 0"),
+      );
+    });
+
+    it("should throw InvalidParamError when order is greater than 20", async () => {
+      // ARRANGE
+      const { sut } = sutInstance;
+      const inputDto: CreateMilitaryRankDTO = {
+        abbreviation: "CABO",
+        order: 21,
+      };
+
+      // ACT & ASSERT
+      await expect(sut.validate(inputDto)).rejects.toThrow(
+        new InvalidParamError("Ordem", "não pode ser maior que 20"),
+      );
+    });
+
+    it("should accept order equal to 1 (minimum value)", async () => {
+      // ARRANGE
+      const { sut } = sutInstance;
+      const inputDto: CreateMilitaryRankDTO = {
+        abbreviation: "CABO",
+        order: 1,
+      };
+
+      // ACT
+      const result = sut.validate(inputDto);
+
+      // ASSERT
+      await expect(result).resolves.toBeUndefined();
+    });
+
+    it("should accept order equal to 20 (maximum value)", async () => {
+      // ARRANGE
+      const { sut } = sutInstance;
+      const inputDto: CreateMilitaryRankDTO = {
+        abbreviation: "GENERAL",
+        order: 20,
+      };
+
+      // ACT
+      const result = sut.validate(inputDto);
+
+      // ASSERT
+      await expect(result).resolves.toBeUndefined();
+    });
+
+    it("should accept order in the middle of range", async () => {
+      // ARRANGE
+      const { sut } = sutInstance;
+      const inputDto: CreateMilitaryRankDTO = {
+        abbreviation: "SARGENTO",
+        order: 10,
+      };
+
+      // ACT
+      const result = sut.validate(inputDto);
+
+      // ASSERT
+      await expect(result).resolves.toBeUndefined();
+    });
+  });
+
+  describe("Success stories", () => {
+    it("should validate successfully with completely valid data", async () => {
+      // ARRANGE
+      const { sut } = sutInstance;
+      const inputDto: CreateMilitaryRankDTO = {
+        abbreviation: "1º SGT",
+        order: 8,
+      };
+
+      // ACT
+      const result = sut.validate(inputDto);
+
+      // ASSERT
+      await expect(result).resolves.toBeUndefined();
+    });
+
+    it("should validate successfully with single letter abbreviation", async () => {
+      // ARRANGE
+      const { sut } = sutInstance;
+      const inputDto: CreateMilitaryRankDTO = {
+        abbreviation: "G",
+        order: 20,
+      };
+
+      // ACT
+      const result = sut.validate(inputDto);
+
+      // ASSERT
+      await expect(result).resolves.toBeUndefined();
+    });
+
+    it("should validate successfully with numbers and ordinal character", async () => {
+      // ARRANGE
+      const { sut } = sutInstance;
+      const inputDto: CreateMilitaryRankDTO = {
+        abbreviation: "3º SGT",
+        order: 7,
+      };
+
+      // ACT
+      const result = sut.validate(inputDto);
+
+      // ASSERT
+      await expect(result).resolves.toBeUndefined();
+    });
+  });
+
+  describe("Validation priority", () => {
+    it("should check required fields before business rules", async () => {
+      // ARRANGE
+      const { sut } = sutInstance;
+      const inputDto: CreateMilitaryRankDTO = {
+        abbreviation: "", // Empty required field
+        order: 25, // Invalid value (but should not reach this validation)
+      };
+
+      // ACT & ASSERT
+      await expect(sut.validate(inputDto)).rejects.toThrow(
+        new MissingParamError("Abreviatura"),
+      );
+    });
+  });
+});
