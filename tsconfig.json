@@ -9,7 +9,6 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "outDir": "./dist",
-    "rootDir": "./src",
     "declaration": true,
     "sourceMap": true,
     "types": ["node", "jest"],
@@ -19,17 +18,11 @@
     "paths": {
       "@domain/*": ["src/domain/*"],
       "@application/*": ["src/application/*"],
-      "@infrastructure/*": ["src/infra/*"],
+      "@infra/*": ["src/infra/*"],
       "@presentation/*": ["src/presentation/*"],
       "@tests/*": ["__tests__/*"]
     }
   },
-  "include": ["src/**/*"],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "__tests__",
-    "**/*.spec.ts",
-    "**/*.test.ts"
-  ]
+  "include": ["src/**/*", "__tests__/**/*"],
+  "exclude": ["node_modules", "dist"]
 }
