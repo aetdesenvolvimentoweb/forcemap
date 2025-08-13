@@ -5,7 +5,7 @@ import {
 } from "@application/errors";
 import { CreateMilitaryRankValidator } from "@application/validators";
 import type { CreateMilitaryRankDTO } from "@domain/dtos";
-import type { MilitaryRankRepository } from "@domain/index";
+import type { MilitaryRankRepository } from "@domain/repositories";
 
 interface SutTypes {
   sut: CreateMilitaryRankValidator;

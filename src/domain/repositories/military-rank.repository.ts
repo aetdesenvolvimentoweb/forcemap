@@ -1,4 +1,5 @@
-import type { CreateMilitaryRankDTO, MilitaryRank } from "@domain/index";
+import type { CreateMilitaryRankDTO } from "@domain/dtos";
+import type { MilitaryRank } from "@domain/entities";
 
 export interface MilitaryRankRepository {
   create(data: CreateMilitaryRankDTO): Promise<void>;

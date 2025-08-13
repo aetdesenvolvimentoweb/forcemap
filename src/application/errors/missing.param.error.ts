@@ -1,4 +1,4 @@
-import { AppError } from "@domain/erros";
+import { AppError } from "@domain/errors";
 
 /**
  * Erro para parâmetros obrigatórios ausentes ou vazios
