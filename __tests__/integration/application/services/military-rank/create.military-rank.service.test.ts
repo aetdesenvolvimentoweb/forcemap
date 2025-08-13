@@ -90,7 +90,9 @@ describe("CreateMilitaryRankService - Integration Tests", () => {
       await sut.create(inputDto);
 
       // ASSERT
-      expect(militaryRankRepository.findByAbbreviation).toHaveBeenCalledWith("NOVO");
+      expect(militaryRankRepository.findByAbbreviation).toHaveBeenCalledWith(
+        "NOVO",
+      );
       expect(militaryRankRepository.findByOrder).toHaveBeenCalledWith(10);
       expect(militaryRankRepository.create).toHaveBeenCalledWith({
         abbreviation: "NOVO",
@@ -109,7 +111,9 @@ describe("CreateMilitaryRankService - Integration Tests", () => {
       } as CreateMilitaryRankDTO;
 
       // ACT & ASSERT
-      await expect(sut.create(inputDto)).rejects.toThrow("O campo Abreviatura precisa ser preenchido.");
+      await expect(sut.create(inputDto)).rejects.toThrow(
+        "O campo Abreviatura precisa ser preenchido.",
+      );
     });
 
     it("should throw error for missing order", async () => {
@@ -120,7 +124,9 @@ describe("CreateMilitaryRankService - Integration Tests", () => {
       } as CreateMilitaryRankDTO;
 
       // ACT & ASSERT
-      await expect(sut.create(inputDto)).rejects.toThrow("O campo Ordem precisa ser preenchido.");
+      await expect(sut.create(inputDto)).rejects.toThrow(
+        "O campo Ordem precisa ser preenchido.",
+      );
     });
 
     it("should sanitize invalid characters from abbreviation", async () => {
@@ -169,7 +175,7 @@ describe("CreateMilitaryRankService - Integration Tests", () => {
 
       // ACT & ASSERT
       await expect(sut.create(inputDto)).rejects.toThrow(
-        "O campo Ordem é inválido: não pode ser maior que 20"
+        "O campo Ordem é inválido: não pode ser maior que 20",
       );
     });
 
@@ -201,7 +207,9 @@ describe("CreateMilitaryRankService - Integration Tests", () => {
         abbreviation: "CEL",
         order: 2,
       };
-      militaryRankRepository.findByAbbreviation.mockResolvedValueOnce(existingMilitaryRank);
+      militaryRankRepository.findByAbbreviation.mockResolvedValueOnce(
+        existingMilitaryRank,
+      );
 
       const inputDto: CreateMilitaryRankDTO = {
         abbreviation: "CEL",
@@ -209,7 +217,9 @@ describe("CreateMilitaryRankService - Integration Tests", () => {
       };
 
       // ACT & ASSERT
-      await expect(sut.create(inputDto)).rejects.toThrow("Abreviatura já está em uso.");
+      await expect(sut.create(inputDto)).rejects.toThrow(
+        "Abreviatura já está em uso.",
+      );
       expect(militaryRankRepository.create).not.toHaveBeenCalled();
     });
 
@@ -221,7 +231,9 @@ describe("CreateMilitaryRankService - Integration Tests", () => {
         abbreviation: "MAJ",
         order: 5,
       };
-      militaryRankRepository.findByOrder.mockResolvedValueOnce(existingMilitaryRank);
+      militaryRankRepository.findByOrder.mockResolvedValueOnce(
+        existingMilitaryRank,
+      );
 
       const inputDto: CreateMilitaryRankDTO = {
         abbreviation: "CEL",
@@ -229,7 +241,9 @@ describe("CreateMilitaryRankService - Integration Tests", () => {
       };
 
       // ACT & ASSERT
-      await expect(sut.create(inputDto)).rejects.toThrow("Ordem já está em uso.");
+      await expect(sut.create(inputDto)).rejects.toThrow(
+        "Ordem já está em uso.",
+      );
       expect(militaryRankRepository.create).not.toHaveBeenCalled();
     });
   });
@@ -247,7 +261,9 @@ describe("CreateMilitaryRankService - Integration Tests", () => {
       await sut.create(inputDto);
 
       // ASSERT - verificar que todo o pipeline foi executado
-      expect(militaryRankRepository.findByAbbreviation).toHaveBeenCalledWith("2º TEN");
+      expect(militaryRankRepository.findByAbbreviation).toHaveBeenCalledWith(
+        "2º TEN",
+      );
       expect(militaryRankRepository.findByOrder).toHaveBeenCalledWith(8);
       expect(militaryRankRepository.create).toHaveBeenCalledWith({
         abbreviation: "2º TEN",
@@ -264,8 +280,10 @@ describe("CreateMilitaryRankService - Integration Tests", () => {
       };
 
       // ACT & ASSERT
-      await expect(sut.create(inputDto)).rejects.toThrow("O campo Abreviatura precisa ser preenchido.");
-      
+      await expect(sut.create(inputDto)).rejects.toThrow(
+        "O campo Abreviatura precisa ser preenchido.",
+      );
+
       // Não deve chegar até as validações de unicidade
       expect(militaryRankRepository.findByAbbreviation).not.toHaveBeenCalled();
       expect(militaryRankRepository.findByOrder).not.toHaveBeenCalled();
