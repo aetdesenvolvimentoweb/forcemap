@@ -9,6 +9,7 @@ const config: Config = {
     "!<rootDir>/src/**/index.ts",
     "!<rootDir>/src/**/interface.ts",
     "!<rootDir>/src/**/protocol.ts",
+    "!<rootDir>/src/domain/errors/app.error.ts", // Base class - testada indiretamente
   ],
   coverageDirectory: "coverage",
   coverageProvider: "babel",

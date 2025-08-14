@@ -20,9 +20,7 @@ export class CreateMilitaryRankService implements CreateMilitaryRankUseCase {
   ): Promise<void> => {
     const { militaryRankRepository, sanitizer, validator } = this.props;
 
-    const sanitizedData = sanitizer.sanitize(
-      data,
-    ) as CreateMilitaryRankInputDTO;
+    const sanitizedData = sanitizer.sanitize(data);
     await validator.validate(sanitizedData);
     await militaryRankRepository.create(sanitizedData);
   };
