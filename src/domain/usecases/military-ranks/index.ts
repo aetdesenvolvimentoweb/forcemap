@@ -1,1 +1,1 @@
-export type * from "./create.military-rank.usecase";
+export type * from "./create.military-rank.use-case";

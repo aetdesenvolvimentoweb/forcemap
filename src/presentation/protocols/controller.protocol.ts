@@ -1,4 +1,4 @@
-import type { HttpRequest, HttpResponse } from "./http.interface";
+import type { HttpRequest, HttpResponse } from "./http.protocol";
 
 /**
  * Interface contrato para controllers da camada de presentation

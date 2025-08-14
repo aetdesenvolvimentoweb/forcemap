@@ -1,2 +1,2 @@
-export type * from "./http.interface";
-export type * from "./controller.interface";
+export type * from "./http.protocol";
+export type * from "./controller.protocol";

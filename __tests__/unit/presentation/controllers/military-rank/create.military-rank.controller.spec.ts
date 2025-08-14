@@ -1,11 +1,11 @@
 import { CreateMilitaryRankController } from "@presentation/controllers/military-rank/create.military-rank.controller";
-import type { CreateMilitaryRankDTO } from "@domain/dtos";
+import type { CreateMilitaryRankInputDTO } from "@domain/dtos";
 import type { HttpRequest } from "@presentation/protocols";
 
 describe("CreateMilitaryRankController", () => {
   it("should return 201 on successful creation", async () => {
     const controller = new CreateMilitaryRankController();
-    const request: HttpRequest<CreateMilitaryRankDTO> = {
+    const request: HttpRequest<CreateMilitaryRankInputDTO> = {
       body: {
         data: {
           abbreviation: "Cel",

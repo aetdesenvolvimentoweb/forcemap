@@ -1,7 +1,7 @@
 import { CreateMilitaryRankSanitizer } from "@application/sanitizers";
 import { CreateMilitaryRankService } from "@application/services";
 import { CreateMilitaryRankValidator } from "@application/validators";
-import type { CreateMilitaryRankDTO } from "@domain/dtos";
+import type { CreateMilitaryRankInputDTO } from "@domain/dtos";
 import type { MilitaryRank } from "@domain/entities";
 import type { MilitaryRankRepository } from "@domain/repositories";
 
@@ -44,7 +44,7 @@ describe("CreateMilitaryRankService - Integration Tests", () => {
     it("should create a military rank with valid data", async () => {
       // ARRANGE
       const { sut, militaryRankRepository } = sutInstance;
-      const inputDto: CreateMilitaryRankDTO = {
+      const inputDto: CreateMilitaryRankInputDTO = {
         abbreviation: "  cel  ", // dados que precisam de sanitização
         order: 1,
       };
@@ -63,7 +63,7 @@ describe("CreateMilitaryRankService - Integration Tests", () => {
     it("should handle data with special characters in abbreviation", async () => {
       // ARRANGE
       const { sut, militaryRankRepository } = sutInstance;
-      const inputDto: CreateMilitaryRankDTO = {
+      const inputDto: CreateMilitaryRankInputDTO = {
         abbreviation: "  3º sgt  ",
         order: 5,
       };
@@ -81,7 +81,7 @@ describe("CreateMilitaryRankService - Integration Tests", () => {
     it("should check uniqueness before creating", async () => {
       // ARRANGE
       const { sut, militaryRankRepository } = sutInstance;
-      const inputDto: CreateMilitaryRankDTO = {
+      const inputDto: CreateMilitaryRankInputDTO = {
         abbreviation: "NOVO",
         order: 10,
       };
@@ -108,7 +108,7 @@ describe("CreateMilitaryRankService - Integration Tests", () => {
       const inputDto = {
         abbreviation: "",
         order: 1,
-      } as CreateMilitaryRankDTO;
+      } as CreateMilitaryRankInputDTO;
 
       // ACT & ASSERT
       await expect(sut.create(inputDto)).rejects.toThrow(
@@ -121,7 +121,7 @@ describe("CreateMilitaryRankService - Integration Tests", () => {
       const { sut } = sutInstance;
       const inputDto = {
         abbreviation: "CEL",
-      } as CreateMilitaryRankDTO;
+      } as CreateMilitaryRankInputDTO;
 
       // ACT & ASSERT
       await expect(sut.create(inputDto)).rejects.toThrow(
@@ -132,7 +132,7 @@ describe("CreateMilitaryRankService - Integration Tests", () => {
     it("should sanitize invalid characters from abbreviation", async () => {
       // ARRANGE
       const { sut, militaryRankRepository } = sutInstance;
-      const inputDto: CreateMilitaryRankDTO = {
+      const inputDto: CreateMilitaryRankInputDTO = {
         abbreviation: "invalid@char#", // caracteres inválidos são removidos pelo sanitizer
         order: 1,
       };
@@ -150,7 +150,7 @@ describe("CreateMilitaryRankService - Integration Tests", () => {
     it("should sanitize and limit abbreviation length", async () => {
       // ARRANGE
       const { sut, militaryRankRepository } = sutInstance;
-      const inputDto: CreateMilitaryRankDTO = {
+      const inputDto: CreateMilitaryRankInputDTO = {
         abbreviation: "VERY_LONG_ABBREVIATION", // será limitado pelo sanitizer
         order: 1,
       };
@@ -168,7 +168,7 @@ describe("CreateMilitaryRankService - Integration Tests", () => {
     it("should throw error for order out of range", async () => {
       // ARRANGE
       const { sut } = sutInstance;
-      const inputDto: CreateMilitaryRankDTO = {
+      const inputDto: CreateMilitaryRankInputDTO = {
         abbreviation: "CEL",
         order: 25, // fora do range 1-20
       };
@@ -182,7 +182,7 @@ describe("CreateMilitaryRankService - Integration Tests", () => {
     it("should sanitize decimal order to integer", async () => {
       // ARRANGE
       const { sut, militaryRankRepository } = sutInstance;
-      const inputDto: CreateMilitaryRankDTO = {
+      const inputDto: CreateMilitaryRankInputDTO = {
         abbreviation: "CEL",
         order: 1.5, // será convertido pelo sanitizer
       };
@@ -211,7 +211,7 @@ describe("CreateMilitaryRankService - Integration Tests", () => {
         existingMilitaryRank,
       );
 
-      const inputDto: CreateMilitaryRankDTO = {
+      const inputDto: CreateMilitaryRankInputDTO = {
         abbreviation: "CEL",
         order: 1,
       };
@@ -235,7 +235,7 @@ describe("CreateMilitaryRankService - Integration Tests", () => {
         existingMilitaryRank,
       );
 
-      const inputDto: CreateMilitaryRankDTO = {
+      const inputDto: CreateMilitaryRankInputDTO = {
         abbreviation: "CEL",
         order: 5,
       };
@@ -252,7 +252,7 @@ describe("CreateMilitaryRankService - Integration Tests", () => {
     it("should execute full pipeline: sanitize -> validate -> create with realistic data", async () => {
       // ARRANGE
       const { sut, militaryRankRepository } = sutInstance;
-      const inputDto: CreateMilitaryRankDTO = {
+      const inputDto: CreateMilitaryRankInputDTO = {
         abbreviation: "  2º ten  ", // precisa sanitização
         order: 8,
       };
@@ -274,7 +274,7 @@ describe("CreateMilitaryRankService - Integration Tests", () => {
     it("should fail fast on first validation error without checking uniqueness", async () => {
       // ARRANGE
       const { sut, militaryRankRepository } = sutInstance;
-      const inputDto: CreateMilitaryRankDTO = {
+      const inputDto: CreateMilitaryRankInputDTO = {
         abbreviation: "", // erro de campo obrigatório
         order: 1,
       };

@@ -5,9 +5,10 @@ const config: Config = {
   collectCoverage: false,
   collectCoverageFrom: [
     "<rootDir>/src/**/*.ts",
+    "!<rootDir>/src/**/error.ts",
     "!<rootDir>/src/**/index.ts",
-    "!<rootDir>/src/domain/**/*.ts",
-    "!<rootDir>/src/**/protocols/**/*.ts",
+    "!<rootDir>/src/**/interface.ts",
+    "!<rootDir>/src/**/protocol.ts",
   ],
   coverageDirectory: "coverage",
   coverageProvider: "babel",

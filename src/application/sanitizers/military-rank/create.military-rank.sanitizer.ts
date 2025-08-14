@@ -1,4 +1,4 @@
-import type { CreateMilitaryRankDTO } from "@domain/dtos";
+import type { CreateMilitaryRankInputDTO } from "@domain/dtos";
 
 export class CreateMilitaryRankSanitizer {
   private readonly sanitizeAbbreviation = (abbreviation: string): string => {
@@ -30,8 +30,8 @@ export class CreateMilitaryRankSanitizer {
   };
 
   public readonly sanitize = (
-    data: CreateMilitaryRankDTO,
-  ): CreateMilitaryRankDTO => {
+    data: CreateMilitaryRankInputDTO,
+  ): CreateMilitaryRankInputDTO => {
     return {
       abbreviation: this.sanitizeAbbreviation(data.abbreviation),
       order: this.sanitizeOrder(data.order),

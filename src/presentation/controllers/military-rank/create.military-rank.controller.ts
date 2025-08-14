@@ -1,5 +1,5 @@
 import { AppError } from "@domain/errors";
-import type { CreateMilitaryRankDTO } from "@domain/dtos";
+import type { CreateMilitaryRankInputDTO } from "@domain/dtos";
 import type {
   Controller,
   HttpRequest,
@@ -7,10 +7,10 @@ import type {
 } from "@presentation/protocols";
 
 export class CreateMilitaryRankController
-  implements Controller<CreateMilitaryRankDTO, null>
+  implements Controller<CreateMilitaryRankInputDTO, null>
 {
   public handle = async (
-    httpRequest: HttpRequest<CreateMilitaryRankDTO>,
+    httpRequest: HttpRequest<CreateMilitaryRankInputDTO>,
   ): Promise<HttpResponse<null>> => {
     try {
       if (!httpRequest.body.data) {
