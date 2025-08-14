@@ -1,4 +1,4 @@
-import type { IHttpRequest, IHttpResponse } from "./http.interface";
+import type { HttpRequest, HttpResponse } from "./http.interface";
 
 /**
  * Interface contrato para controllers da camada de presentation
@@ -16,17 +16,17 @@ import type { IHttpRequest, IHttpResponse } from "./http.interface";
  * especifique os tipos exatos de entrada e saída, proporcionando melhor
  * experiência de desenvolvimento e detecção de erros em tempo de compilação.
  *
- * @see {@link IHttpRequest} - Interface para requisições HTTP
- * @see {@link IHttpResponse} - Interface para respostas HTTP
+ * @see {@link HttpRequest} - Interface para requisições HTTP
+ * @see {@link HttpResponse} - Interface para respostas HTTP
  */
-export interface IController<REQ = unknown, RES = unknown> {
+export interface Controller<REQ = unknown, RES = unknown> {
   /**
    * Método principal para handling de requisições HTTP
    *
    * @method handle
    * @async
-   * @param {IHttpRequest<REQ>} httpRequest - Objeto de requisição HTTP tipado
-   * @returns {Promise<IHttpResponse<RES>>} Promise com resposta HTTP tipada
+   * @param {HttpRequest<REQ>} httpRequest - Objeto de requisição HTTP tipado
+   * @returns {Promise<HttpResponse<RES>>} Promise com resposta HTTP tipada
    * @description
    * Método responsável por processar uma requisição HTTP específica e retornar
    * uma resposta apropriada. Este é o ponto de entrada principal de qualquer
@@ -43,5 +43,5 @@ export interface IController<REQ = unknown, RES = unknown> {
    * @throws {CustomAppError} Quando erros de negócio ocorrem
    * @throws {Error} Para erros inesperados do sistema
    */
-  handle: (httpRequest: IHttpRequest<REQ>) => Promise<IHttpResponse<RES>>;
+  handle: (httpRequest: HttpRequest<REQ>) => Promise<HttpResponse<RES>>;
 }

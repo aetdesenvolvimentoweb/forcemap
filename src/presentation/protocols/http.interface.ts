@@ -1,7 +1,7 @@
 /**
  * Interface para requisições HTTP padronizadas na camada de presentation
  *
- * @interface IHttpRequest
+ * @interface HttpRequest
  * @template REQ - Tipo dos dados esperados no corpo da requisição
  * @description
  * Define a estrutura padrão de uma requisição HTTP dentro da arquitetura.
@@ -13,10 +13,10 @@
  * do corpo da requisição sejam tipados corretamente em cada controller,
  * melhorando a experiência de desenvolvimento e reduzindo erros.
  *
- * @see {@link IHttpResponse} - Interface para respostas HTTP
- * @see {@link IController} - Interface para controllers que utilizam esta requisição
+ * @see {@link HttpResponse} - Interface para respostas HTTP
+ * @see {@link Controller} - Interface para controllers que utilizam esta requisição
  */
-export interface IHttpRequest<REQ = unknown> {
+export interface HttpRequest<REQ = unknown> {
   /**
    * Corpo da requisição HTTP
    *
@@ -101,7 +101,7 @@ export interface IHttpRequest<REQ = unknown> {
 /**
  * Interface para respostas HTTP padronizadas na camada de presentation
  *
- * @interface IHttpResponse
+ * @interface HttpResponse
  * @template RES - Tipo dos dados retornados no corpo da resposta
  * @description
  * Define a estrutura padrão de uma resposta HTTP dentro da arquitetura.
@@ -113,10 +113,10 @@ export interface IHttpRequest<REQ = unknown> {
  * que cada endpoint especifique exatamente o tipo de dados que retorna,
  * melhorando a documentação automática e a experiência de desenvolvimento.
  *
- * @see {@link IHttpRequest} - Interface para requisições HTTP
- * @see {@link IHttpResponseFactory} - Factory para criar respostas padronizadas
+ * @see {@link HttpRequest} - Interface para requisições HTTP
+ * @see {@link HttpResponseFactory} - Factory para criar respostas padronizadas
  */
-export interface IHttpResponse<RES = unknown> {
+export interface HttpResponse<RES = unknown> {
   /**
    * Corpo da resposta HTTP
    *
