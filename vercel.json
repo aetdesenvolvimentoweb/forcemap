@@ -2,10 +2,10 @@
   "version": 2,
   "builds": [
     {
-      "src": "dist/main/index.js",
+      "src": "src/main/index.ts",
       "use": "@vercel/node",
       "config": {
-        "includeFiles": ["dist/**"],
+        "includeFiles": ["src/**"],
         "maxLambdaSize": "50mb"
       }
     }
@@ -13,7 +13,7 @@
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "dist/main/index.js"
+      "dest": "src/main/index.ts"
     }
   ],
   "env": {
