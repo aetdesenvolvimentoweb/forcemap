@@ -1,4 +1,11 @@
 {
   "resolveFullPaths": true,
-  "resolveFullExtension": ".js"
+  "resolveFullExtension": ".js",
+  "replacers": {
+    "@application/*": "application/$1",
+    "@domain/*": "domain/$1",
+    "@presentation/*": "presentation/$1",
+    "@infra/*": "infra/$1",
+    "@main/*": "main/$1"
+  }
 }

@@ -22,6 +22,7 @@ const config: Config = {
     "^@domain/(.*)$": "<rootDir>/src/domain/$1",
     "^@presentation/(.*)$": "<rootDir>/src/presentation/$1",
     "^@infra/(.*)$": "<rootDir>/src/infra/$1",
+    "^@main/(.*)$": "<rootDir>/src/main/$1",
   },
   collectCoverageFrom: ["src/**/*.ts", "!src/**/*.d.ts", "!src/**/index.ts"],
   coverageReporters: ["text", "lcov", "html"],
