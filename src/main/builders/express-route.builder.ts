@@ -117,6 +117,7 @@ export class ExpressRouteBuilder {
   /**
    * Método para aplicar rotas com middlewares específicos
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   buildWithMiddlewares(middlewares: any[]): void {
     console.log("🚀 [MAIN] Construindo rotas com middlewares para Express...");
 
