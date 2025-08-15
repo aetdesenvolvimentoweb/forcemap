@@ -1,6 +1,7 @@
-import { ExpressRouteBuilder } from "../builders/index.js";
+import type { RouteRegistry } from "@presentation/protocols";
 
-import type { RouteRegistry } from "../../presentation/protocols/index.js";
+import { ExpressRouteBuilder } from "../builders";
+
 import type { Express } from "express";
 
 export const setupRoutes = (
