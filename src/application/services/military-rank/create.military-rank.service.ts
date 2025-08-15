@@ -2,6 +2,7 @@ import type {
   CreateMilitaryRankSanitizerProtocol,
   CreateMilitaryRankValidatorProtocol,
 } from "@application/protocols";
+
 import type { CreateMilitaryRankInputDTO } from "@domain/dtos";
 import type { MilitaryRankRepository } from "@domain/repositories";
 import type { CreateMilitaryRankUseCase } from "@domain/usecases";

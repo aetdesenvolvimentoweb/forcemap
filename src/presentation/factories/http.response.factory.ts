@@ -1,4 +1,5 @@
 import type { AppError } from "@domain/errors";
+
 import type { HttpResponse } from "@presentation/protocols";
 
 export class HttpResponseFactory {

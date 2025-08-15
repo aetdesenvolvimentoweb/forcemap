@@ -1,7 +1,8 @@
-import { AppError } from "@domain/errors";
-import { EmptyRequestBodyError } from "@presentation/errors";
 import type { CreateMilitaryRankInputDTO } from "@domain/dtos";
+import { AppError } from "@domain/errors";
 import type { CreateMilitaryRankUseCase } from "@domain/usecases";
+
+import { EmptyRequestBodyError } from "@presentation/errors";
 import type { HttpResponseFactory } from "@presentation/factories";
 import type {
   Controller,

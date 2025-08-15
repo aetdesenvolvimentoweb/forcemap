@@ -4,6 +4,7 @@ import {
   MissingParamError,
 } from "@application/errors";
 import type { CreateMilitaryRankValidatorProtocol } from "@application/protocols";
+
 import type { CreateMilitaryRankInputDTO } from "@domain/dtos";
 import type { MilitaryRankRepository } from "@domain/repositories";
 
