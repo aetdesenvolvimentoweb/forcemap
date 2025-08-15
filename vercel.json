@@ -2,7 +2,7 @@
   "version": 2,
   "functions": {
     "dist/main/index.js": {
-      "runtime": "@vercel/node@3"
+      "runtime": "@vercel/node@20.x"
     }
   },
   "routes": [
