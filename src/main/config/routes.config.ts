@@ -29,5 +29,14 @@ export const setupRoutes = (
     });
   });
 
+  // Health check endpoint
+  app.get(`${apiPrefix}/health`, (_req, res) => {
+    res.status(200).json({
+      status: "ok",
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+    });
+  });
+
   console.log("✅ [MAIN] Rotas configuradas com sucesso!");
 };

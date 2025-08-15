@@ -14,15 +14,6 @@ export const setupApp = (app: Express, routeRegistry: RouteRegistry): void => {
   // Configuração de rotas via RouteRegistry
   setupRoutes(app, routeRegistry);
 
-  // Health check endpoint
-  app.get("/health", (_req, res) => {
-    res.status(200).json({
-      status: "ok",
-      timestamp: new Date().toISOString(),
-      uptime: process.uptime(),
-    });
-  });
-
   // 404 handler
   app.use((_req, res) => {
     res.status(404).json({
