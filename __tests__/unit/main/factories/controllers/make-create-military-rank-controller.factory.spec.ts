@@ -15,13 +15,15 @@ jest.mock("@presentation/controllers", () => ({
   CreateMilitaryRankController: jest.fn(),
 }));
 
-const mockMakeCreateMilitaryRankUseCase = makeCreateMilitaryRankUseCase as jest.MockedFunction<
-  typeof makeCreateMilitaryRankUseCase
->;
+const mockMakeCreateMilitaryRankUseCase =
+  makeCreateMilitaryRankUseCase as jest.MockedFunction<
+    typeof makeCreateMilitaryRankUseCase
+  >;
 
-const mockCreateMilitaryRankController = CreateMilitaryRankController as jest.MockedClass<
-  typeof CreateMilitaryRankController
->;
+const mockCreateMilitaryRankController =
+  CreateMilitaryRankController as jest.MockedClass<
+    typeof CreateMilitaryRankController
+  >;
 
 interface SutTypes {
   sut: typeof makeCreateMilitaryRankController;
@@ -70,9 +72,12 @@ describe("makeCreateMilitaryRankController", () => {
       create: jest.fn(),
     } as unknown as CreateMilitaryRankUseCase);
 
-    mockCreateMilitaryRankController.mockImplementation(() => ({
-      handle: jest.fn(),
-    }) as any);
+    mockCreateMilitaryRankController.mockImplementation(
+      () =>
+        ({
+          handle: jest.fn(),
+        }) as any,
+    );
   });
 
   afterEach(() => {
@@ -137,7 +142,9 @@ describe("makeCreateMilitaryRankController", () => {
       // ARRANGE
       const { sut, mockHttpResponseFactory } = makeSut();
       const mockControllerInstance = { handle: jest.fn() };
-      mockCreateMilitaryRankController.mockReturnValue(mockControllerInstance as any);
+      mockCreateMilitaryRankController.mockReturnValue(
+        mockControllerInstance as any,
+      );
 
       // ACT
       const result = sut({ httpResponseFactory: mockHttpResponseFactory });
@@ -164,35 +171,41 @@ describe("makeCreateMilitaryRankController", () => {
     it("should log controller creation start message", () => {
       // ARRANGE
       const { sut, mockHttpResponseFactory } = makeSut();
-      const consoleSpy = jest.spyOn(console, "log").mockImplementation(() => {});
+      const consoleSpy = jest
+        .spyOn(console, "log")
+        .mockImplementation(() => {});
 
       // ACT
       sut({ httpResponseFactory: mockHttpResponseFactory });
 
       // ASSERT
       expect(consoleSpy).toHaveBeenCalledWith(
-        "🏭 [MAIN] Criando CreateMilitaryRankController..."
+        "🏭 [MAIN] Criando CreateMilitaryRankController...",
       );
     });
 
     it("should log controller creation success message", () => {
       // ARRANGE
       const { sut, mockHttpResponseFactory } = makeSut();
-      const consoleSpy = jest.spyOn(console, "log").mockImplementation(() => {});
+      const consoleSpy = jest
+        .spyOn(console, "log")
+        .mockImplementation(() => {});
 
       // ACT
       sut({ httpResponseFactory: mockHttpResponseFactory });
 
       // ASSERT
       expect(consoleSpy).toHaveBeenCalledWith(
-        "✅ [MAIN] CreateMilitaryRankController criado com sucesso!"
+        "✅ [MAIN] CreateMilitaryRankController criado com sucesso!",
       );
     });
 
     it("should log messages in correct order", () => {
       // ARRANGE
       const { sut, mockHttpResponseFactory } = makeSut();
-      const consoleSpy = jest.spyOn(console, "log").mockImplementation(() => {});
+      const consoleSpy = jest
+        .spyOn(console, "log")
+        .mockImplementation(() => {});
 
       // ACT
       sut({ httpResponseFactory: mockHttpResponseFactory });
@@ -200,10 +213,10 @@ describe("makeCreateMilitaryRankController", () => {
       // ASSERT
       expect(consoleSpy.mock.calls).toHaveLength(2);
       expect(consoleSpy.mock.calls[0]?.[0]).toBe(
-        "🏭 [MAIN] Criando CreateMilitaryRankController..."
+        "🏭 [MAIN] Criando CreateMilitaryRankController...",
       );
       expect(consoleSpy.mock.calls[1]?.[0]).toBe(
-        "✅ [MAIN] CreateMilitaryRankController criado com sucesso!"
+        "✅ [MAIN] CreateMilitaryRankController criado com sucesso!",
       );
     });
   });
@@ -223,7 +236,9 @@ describe("makeCreateMilitaryRankController", () => {
       const { sut, mockHttpResponseFactory } = makeSut();
 
       // ACT & ASSERT
-      expect(() => sut({ httpResponseFactory: mockHttpResponseFactory })).not.toThrow();
+      expect(() =>
+        sut({ httpResponseFactory: mockHttpResponseFactory }),
+      ).not.toThrow();
       expect(sut.length).toBe(1);
     });
 
@@ -252,7 +267,7 @@ describe("makeCreateMilitaryRankController", () => {
       expect(mockCreateMilitaryRankController).toHaveBeenCalledWith(
         expect.objectContaining({
           httpResponseFactory: mockHttpResponseFactory,
-        })
+        }),
       );
     });
 
@@ -269,7 +284,7 @@ describe("makeCreateMilitaryRankController", () => {
       expect(mockCreateMilitaryRankController).toHaveBeenCalledWith(
         expect.objectContaining({
           createMilitaryRankService: mockUseCase,
-        })
+        }),
       );
     });
 
@@ -290,7 +305,7 @@ describe("makeCreateMilitaryRankController", () => {
       expect(mockCreateMilitaryRankController).toHaveBeenCalledWith(
         expect.objectContaining({
           httpResponseFactory: customHttpResponseFactory,
-        })
+        }),
       );
     });
   });
@@ -304,9 +319,9 @@ describe("makeCreateMilitaryRankController", () => {
       });
 
       // ACT & ASSERT
-      expect(() => sut({ httpResponseFactory: mockHttpResponseFactory })).toThrow(
-        "Use case creation error"
-      );
+      expect(() =>
+        sut({ httpResponseFactory: mockHttpResponseFactory }),
+      ).toThrow("Use case creation error");
     });
 
     it("should handle CreateMilitaryRankController constructor errors gracefully", () => {
@@ -317,9 +332,9 @@ describe("makeCreateMilitaryRankController", () => {
       });
 
       // ACT & ASSERT
-      expect(() => sut({ httpResponseFactory: mockHttpResponseFactory })).toThrow(
-        "Controller constructor error"
-      );
+      expect(() =>
+        sut({ httpResponseFactory: mockHttpResponseFactory }),
+      ).toThrow("Controller constructor error");
       expect(mockMakeCreateMilitaryRankUseCase).toHaveBeenCalledTimes(1);
     });
   });
@@ -330,9 +345,11 @@ describe("makeCreateMilitaryRankController", () => {
       const { sut, mockHttpResponseFactory } = makeSut();
       const mockUseCase = { create: jest.fn() };
       const mockControllerInstance = { handle: jest.fn() };
-      
+
       mockMakeCreateMilitaryRankUseCase.mockReturnValue(mockUseCase as any);
-      mockCreateMilitaryRankController.mockReturnValue(mockControllerInstance as any);
+      mockCreateMilitaryRankController.mockReturnValue(
+        mockControllerInstance as any,
+      );
 
       // ACT
       const result = sut({ httpResponseFactory: mockHttpResponseFactory });
@@ -375,11 +392,13 @@ describe("makeCreateMilitaryRankController", () => {
       sut({ httpResponseFactory: factory2 });
 
       // ASSERT
-      expect(mockCreateMilitaryRankController).toHaveBeenNthCalledWith(1,
-        expect.objectContaining({ httpResponseFactory: factory1 })
+      expect(mockCreateMilitaryRankController).toHaveBeenNthCalledWith(
+        1,
+        expect.objectContaining({ httpResponseFactory: factory1 }),
       );
-      expect(mockCreateMilitaryRankController).toHaveBeenNthCalledWith(2,
-        expect.objectContaining({ httpResponseFactory: factory2 })
+      expect(mockCreateMilitaryRankController).toHaveBeenNthCalledWith(
+        2,
+        expect.objectContaining({ httpResponseFactory: factory2 }),
       );
     });
   });
