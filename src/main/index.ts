@@ -24,9 +24,11 @@ const bootstrap = (): Express => {
   return app;
 };
 
+// Criar app uma única vez
+const app = bootstrap();
+
 // Para desenvolvimento local
 if (process.env.NODE_ENV !== "production") {
-  const app = bootstrap();
   const port = process.env.PORT ?? 3333;
 
   app.listen(port, () => {
@@ -36,5 +38,4 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 // Export para Vercel
-const app = bootstrap();
 export default app;
