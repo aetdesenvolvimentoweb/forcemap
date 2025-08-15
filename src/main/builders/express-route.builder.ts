@@ -1,6 +1,7 @@
-import { adaptExpressRoute } from "../../infra/adapters/index.js";
+import { RouteRegistry } from "@presentation/protocols";
 
-import type { RouteRegistry } from "../../presentation/protocols/index.js";
+import { adaptExpressRoute } from "@infra/adapters";
+
 import type { Application } from "express";
 
 /**
@@ -154,8 +155,6 @@ export class ExpressRouteBuilder {
       }
     });
 
-    console.log(
-      `✅ [MAIN] ${routes.length} rotas aplicadas com middlewares!`,
-    );
+    console.log(`✅ [MAIN] ${routes.length} rotas aplicadas com middlewares!`);
   }
 }

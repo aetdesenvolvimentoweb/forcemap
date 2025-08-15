@@ -1,7 +1,7 @@
 import express from "express";
 
-import { setupApp, setupAllRoutes } from "./config/index.js";
-import { DefaultRouteRegistry } from "./registries/index.js";
+import { setupAllRoutes, setupApp } from "./config";
+import { DefaultRouteRegistry } from "./registries";
 
 import type { Express } from "express";
 
