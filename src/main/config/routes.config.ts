@@ -29,5 +29,30 @@ export const setupRoutes = (
     });
   });
 
+  // Health check endpoint
+  app.get("/health", (_req, res) => {
+    res.status(200).json({
+      status: "healthy",
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      environment: process.env.NODE_ENV || "development",
+    });
+  });
+
+  // Root endpoint
+  app.get("/", (_req, res) => {
+    res.json({
+      message: "ForceMap API - Sistema de Gestão de Recursos CBMGO",
+      version: "1.0.0",
+      status: "running",
+      endpoints: {
+        health: "/health",
+        api: `${apiPrefix}`,
+        docs: "/docs",
+      },
+      timestamp: new Date().toISOString(),
+    });
+  });
+
   console.log("✅ [MAIN] Rotas configuradas com sucesso!");
 };
