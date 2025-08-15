@@ -48,12 +48,11 @@ export const adaptExpressRoute = (controller: Controller<unknown, unknown>) => {
       // Converte HttpResponse para Express Response
       res.status(httpResponse.statusCode).json(httpResponse.body);
     } catch (error) {
-      console.error("🚨 [INFRA-EXPRESS] Erro não tratado:", error);
+      console.error("🚨 [INFRA-EXPRESS] Erro no adaptador:", error);
 
-      // Fallback de erro
       res.status(500).json({
         error: "Internal Server Error",
-        message: "Something went wrong",
+        message: "Erro interno do servidor",
       });
     }
   };

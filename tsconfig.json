@@ -2,7 +2,7 @@
   "compilerOptions": {
     "module": "ESNext",
     "target": "ES2022",
-    "moduleResolution": "node",
+    "moduleResolution": "Node",
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "types": ["node"],
@@ -26,5 +26,15 @@
     }
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "__tests__"]
+  "exclude": ["node_modules", "dist", "__tests__"],
+  "tsc-alias": {
+    "resolveFullPaths": true,
+    "replacers": {
+      "@application/*": "application/$1",
+      "@domain/*": "domain/$1",
+      "@presentation/*": "presentation/$1",
+      "@infra/*": "infra/$1",
+      "@main/*": "main/$1"
+    }
+  }
 }

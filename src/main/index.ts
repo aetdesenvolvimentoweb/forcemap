@@ -1,7 +1,7 @@
 import express from "express";
 
-import { setupApp, setupAllRoutes } from "./config";
-import { DefaultRouteRegistry } from "./registries";
+import { setupApp, setupAllRoutes } from "./config/index.js";
+import { DefaultRouteRegistry } from "./registries/index.js";
 
 import type { Express } from "express";
 
@@ -28,7 +28,7 @@ const bootstrap = (): Express => {
 if (process.env.NODE_ENV !== "production") {
   const app = bootstrap();
   const port = process.env.PORT ?? 3333;
-  
+
   app.listen(port, () => {
     console.log(`🚀 Server running on port ${port}`);
     console.log(`📖 API Documentation: http://localhost:${port}/docs`);

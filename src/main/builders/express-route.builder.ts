@@ -1,7 +1,7 @@
 import { adaptExpressRoute } from "../../infra/adapters/index.js";
 
 import type { RouteRegistry } from "../../presentation/protocols/index.js";
-import type { Express } from "express";
+import type { Application } from "express";
 
 /**
  * 🚀 MAIN LAYER - Express Route Builder
@@ -18,7 +18,7 @@ import type { Express } from "express";
 
 export class ExpressRouteBuilder {
   constructor(
-    private readonly app: Express,
+    private readonly app: Application,
     private readonly routeRegistry: RouteRegistry,
   ) {}
 
@@ -70,9 +70,16 @@ export class ExpressRouteBuilder {
    * Método helper para adicionar prefix nas rotas
    */
   buildWithPrefix(prefix: string): void {
-    console.log(`🚀 [MAIN] Construindo rotas com prefix: ${prefix}`);
+    console.log(
+      `🚀 [MAIN] Construindo rotas com prefix "${prefix}" para Express...`,
+    );
 
     const routes = this.routeRegistry.getRoutes();
+
+    if (routes.length === 0) {
+      console.log("⚠️ [MAIN] Nenhuma rota registrada no RouteRegistry");
+      return;
+    }
 
     routes.forEach((route) => {
       const fullPath = `${prefix}${route.path}`;
@@ -96,11 +103,59 @@ export class ExpressRouteBuilder {
         case "PATCH":
           this.app.patch(fullPath, expressHandler);
           break;
+        default:
+          console.warn(`⚠️ [MAIN] Método HTTP não suportado: ${route.method}`);
       }
     });
 
     console.log(
-      `✅ [MAIN] ${routes.length} rotas aplicadas com prefix ${prefix}!`,
+      `✅ [MAIN] ${routes.length} rotas aplicadas com prefix "${prefix}"!`,
+    );
+  }
+
+  /**
+   * Método para aplicar rotas com middlewares específicos
+   */
+  buildWithMiddlewares(middlewares: any[]): void {
+    console.log("🚀 [MAIN] Construindo rotas com middlewares para Express...");
+
+    const routes = this.routeRegistry.getRoutes();
+
+    if (routes.length === 0) {
+      console.log("⚠️ [MAIN] Nenhuma rota registrada no RouteRegistry");
+      return;
+    }
+
+    routes.forEach((route) => {
+      console.log(
+        `🔗 [MAIN] Aplicando com middlewares: ${route.method} ${route.path}`,
+      );
+
+      const expressHandler = adaptExpressRoute(route.controller);
+
+      switch (route.method) {
+        case "GET":
+          this.app.get(route.path, ...middlewares, expressHandler);
+          break;
+        case "POST":
+          this.app.post(route.path, ...middlewares, expressHandler);
+          break;
+        case "PUT":
+          this.app.put(route.path, ...middlewares, expressHandler);
+          break;
+        case "DELETE":
+          this.app.delete(route.path, ...middlewares, expressHandler);
+          break;
+        case "PATCH":
+          this.app.patch(route.path, ...middlewares, expressHandler);
+          break;
+        default:
+          console.warn(`⚠️ [MAIN] Método HTTP não suportado: ${route.method}`);
+      }
+    });
+
+    console.log(
+      `✅ [MAIN] ${routes.length} rotas aplicadas com middlewares!`,
     );
   }
 }
