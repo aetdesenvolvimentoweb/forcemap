@@ -13,6 +13,8 @@
     "test:staged": "jest --onlyChanged",
     "dev": "tsx ./src/main/index.ts",
     "build": "tsc && tsc-alias",
+    "vercel-build": "tsc && tsc-alias",
+    "start": "node ./dist/main/index.js",
     "lint": "eslint src/ --fix",
     "format": "prettier --write \"src/**/*.{ts,js,json}\"",
     "commitlint": "commitlint --edit"
