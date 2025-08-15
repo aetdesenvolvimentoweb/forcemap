@@ -5,12 +5,6 @@ const config: Config = {
   extensionsToTreatAsEsm: [".ts"],
   testEnvironment: "node",
   roots: ["<rootDir>/src", "<rootDir>/__tests__"],
-  testMatch: [
-    "**/__tests__/**/*.test.ts",
-    "**/__tests__/**/*.spec.ts",
-    "**/*.test.ts",
-    "**/*.spec.ts",
-  ],
   transform: {
     "^.+\\.ts$": [
       "ts-jest",
@@ -30,12 +24,19 @@ const config: Config = {
     "^@infra/(.*)$": "<rootDir>/src/infra/$1",
   },
   collectCoverageFrom: ["src/**/*.ts", "!src/**/*.d.ts", "!src/**/index.ts"],
-  coverageDirectory: "coverage",
   coverageReporters: ["text", "lcov", "html"],
   setupFilesAfterEnv: [],
   verbose: true,
   clearMocks: true,
   restoreMocks: true,
+  collectCoverage: false,
+  testMatch: [
+    "**/__tests__/**/*.test.ts",
+    "**/__tests__/**/*.spec.ts",
+    "**/*.test.ts",
+    "**/*.spec.ts",
+  ],
+  coverageDirectory: "coverage",
 };
 
-module.exports = config;
+export default config;
