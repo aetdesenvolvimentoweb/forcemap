@@ -1,4 +1,4 @@
-import { makeCreateMilitaryRankController } from "@main/factories/controllers/make-create-military-rank-controller.factory";
+import { makeCreateMilitaryRankController } from "@main/factories/controllers";
 import { makeCreateMilitaryRankUseCase } from "@main/factories/usecases";
 import { CreateMilitaryRankController } from "@presentation/controllers";
 import type { HttpResponseFactory } from "@presentation/factories";

@@ -1,1 +1,1 @@
-export * from "./make-create-military-rank-controller.factory";
+export * from "./military-rank";

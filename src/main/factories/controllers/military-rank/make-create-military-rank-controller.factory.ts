@@ -4,7 +4,7 @@ import { CreateMilitaryRankController } from "@presentation/controllers";
 import type { HttpResponseFactory } from "@presentation/factories";
 import type { Controller } from "@presentation/protocols";
 
-import { makeCreateMilitaryRankUseCase } from "../usecases";
+import { makeCreateMilitaryRankUseCase } from "@main/factories/usecases";
 
 interface MakeCreateMilitaryRankControllerProps {
   httpResponseFactory: HttpResponseFactory;
