@@ -33,8 +33,7 @@ export class CreateMilitaryRankController
       await createMilitaryRankService.create(httpRequest.body.data);
 
       return httpResponseFactory.created();
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (error instanceof AppError) {
         return httpResponseFactory.badRequest(error);
       }
