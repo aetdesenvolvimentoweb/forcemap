@@ -1,6 +1,6 @@
-import { makeCreateMilitaryRankSanitizer } from "@main/factories/sanitizers/make-create-military-rank-sanitizer.factory";
 import { CreateMilitaryRankSanitizer } from "@application/sanitizers";
 import type { CreateMilitaryRankSanitizerProtocol } from "@application/protocols";
+import { makeCreateMilitaryRankSanitizer } from "@main/factories";
 
 // Mocks
 jest.mock("@application/sanitizers", () => ({

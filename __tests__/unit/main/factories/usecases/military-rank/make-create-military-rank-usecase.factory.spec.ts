@@ -1,9 +1,11 @@
-import { makeCreateMilitaryRankUseCase } from "@main/factories/usecases/military-rank/make-create-military-rank-usecase.factory";
 import { CreateMilitaryRankService } from "@application/services";
-import { makeMilitaryRankRepository } from "@main/factories/repositories/make-military-rank-repository.factory";
-import { makeCreateMilitaryRankSanitizer } from "@main/factories/sanitizers/make-create-military-rank-sanitizer.factory";
-import { makeCreateMilitaryRankValidator } from "@main/factories/validators/make-create-military-rank-validator.factory";
-import type { CreateMilitaryRankUseCase } from "@domain/usecases";
+import { CreateMilitaryRankUseCase } from "@domain/usecases";
+import {
+  makeCreateMilitaryRankSanitizer,
+  makeCreateMilitaryRankUseCase,
+  makeCreateMilitaryRankValidator,
+  makeMilitaryRankRepository,
+} from "@main/factories";
 
 // Mocks
 jest.mock("@application/services", () => ({
@@ -20,14 +22,14 @@ jest.mock(
 );
 
 jest.mock(
-  "@main/factories/sanitizers/make-create-military-rank-sanitizer.factory",
+  "@main/factories/sanitizers/military-rank/make-create-military-rank-sanitizer.factory",
   () => ({
     makeCreateMilitaryRankSanitizer: jest.fn(),
   }),
 );
 
 jest.mock(
-  "@main/factories/validators/make-create-military-rank-validator.factory",
+  "@main/factories/validators/military-rank/make-create-military-rank-validator.factory",
   () => ({
     makeCreateMilitaryRankValidator: jest.fn(),
   }),

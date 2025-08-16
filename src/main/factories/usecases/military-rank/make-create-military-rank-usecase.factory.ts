@@ -3,8 +3,8 @@ import { CreateMilitaryRankService } from "@application/services";
 import type { CreateMilitaryRankUseCase } from "@domain/usecases";
 
 import { makeMilitaryRankRepository } from "../../repositories/make-military-rank-repository.factory";
-import { makeCreateMilitaryRankSanitizer } from "../../sanitizers/make-create-military-rank-sanitizer.factory";
-import { makeCreateMilitaryRankValidator } from "../../validators/make-create-military-rank-validator.factory";
+import { makeCreateMilitaryRankSanitizer } from "../../sanitizers/military-rank/make-create-military-rank-sanitizer.factory";
+import { makeCreateMilitaryRankValidator } from "../../validators/military-rank/make-create-military-rank-validator.factory";
 
 /**
  * 🏭 MAIN LAYER - Factory para Use Case
