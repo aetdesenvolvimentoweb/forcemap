@@ -1,6 +1,8 @@
 import cors from "cors";
 import express from "express";
 
+import { makeHttpLoggingMiddleware } from "../factories/http-logging-middleware.factory";
+
 import type { Express } from "express";
 
 export const setupMiddlewares = (app: Express): void => {
@@ -24,8 +26,6 @@ export const setupMiddlewares = (app: Express): void => {
     next();
   });
 
-  // Request logging (simple version)
-  app.use((req, _res, next) => {
-    next();
-  });
+  // HTTP Request logging with Pino
+  app.use(makeHttpLoggingMiddleware().handle);
 };

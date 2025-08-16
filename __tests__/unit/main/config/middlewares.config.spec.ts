@@ -6,9 +6,16 @@ import type { Express, Request, Response, NextFunction } from "express";
 // Mocks
 jest.mock("cors");
 jest.mock("express");
+jest.mock("@main/factories/http-logging-middleware.factory");
 
 const mockCors = cors as jest.MockedFunction<typeof cors>;
 const mockExpress = express as jest.MockedObject<typeof express>;
+
+import { makeHttpLoggingMiddleware } from "@main/factories/http-logging-middleware.factory";
+const mockMakeHttpLoggingMiddleware =
+  makeHttpLoggingMiddleware as jest.MockedFunction<
+    typeof makeHttpLoggingMiddleware
+  >;
 
 interface SutTypes {
   sut: typeof setupMiddlewares;
@@ -43,6 +50,12 @@ describe("setupMiddlewares", () => {
 
     // Mock cors
     mockCors.mockReturnValue("cors-middleware" as any);
+
+    // Mock HTTP Logging Middleware
+    const mockLoggingMiddleware = {
+      handle: jest.fn(),
+    };
+    mockMakeHttpLoggingMiddleware.mockReturnValue(mockLoggingMiddleware as any);
   });
 
   afterEach(() => {
@@ -298,32 +311,13 @@ describe("setupMiddlewares", () => {
     it("should call next() in logging middleware", () => {
       // ARRANGE
       const { sut, mockApp } = makeSut();
-      const mockReq = {
-        method: "GET",
-        path: "/test",
-      } as Request;
-      const mockRes = {} as Response;
-      const mockNext = jest.fn() as NextFunction;
 
       // ACT
       sut(mockApp);
 
-      // Encontrar e executar o middleware de logging
-      const middlewareCalls = (mockApp.use as jest.Mock).mock.calls;
-      const loggingMiddleware = middlewareCalls.find((call) => {
-        const middleware = call[0];
-        return (
-          typeof middleware === "function" &&
-          middleware.length === 3 &&
-          !middleware.toString().includes("setHeader")
-        );
-      })?.[0];
-
-      loggingMiddleware?.(mockReq, mockRes, mockNext);
-
       // ASSERT
-      expect(mockNext).toHaveBeenCalledTimes(1);
-      expect(mockNext).toHaveBeenCalledWith();
+      expect(mockMakeHttpLoggingMiddleware).toHaveBeenCalledTimes(1);
+      expect(mockApp.use).toHaveBeenCalledTimes(5); // json, urlencoded, cors, security headers, logging
     });
   });
 
