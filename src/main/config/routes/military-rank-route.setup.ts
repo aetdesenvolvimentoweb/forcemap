@@ -29,29 +29,4 @@ export const setupMilitaryRankRoutes = (routeRegistry: RouteRegistry): void => {
       httpResponseFactory,
     }) as Controller,
   });
-
-  // Placeholder para outras rotas futuras
-  // routeRegistry.register({
-  //   method: 'GET',
-  //   path: '/military-ranks',
-  //   controller: makeListMilitaryRankController(),
-  // });
-
-  // routeRegistry.register({
-  //   method: 'GET',
-  //   path: '/military-ranks/:id',
-  //   controller: makeGetMilitaryRankController(),
-  // });
-
-  // routeRegistry.register({
-  //   method: 'PUT',
-  //   path: '/military-ranks/:id',
-  //   controller: makeUpdateMilitaryRankController(),
-  // });
-
-  // routeRegistry.register({
-  //   method: 'DELETE',
-  //   path: '/military-ranks/:id',
-  //   controller: makeDeleteMilitaryRankController(),
-  // });
 };

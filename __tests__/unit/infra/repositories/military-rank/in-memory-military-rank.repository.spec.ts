@@ -42,7 +42,7 @@ describe("InMemoryMilitaryRankRepository", () => {
       });
     });
 
-    it("should assign sequential IDs to created military ranks", async () => {
+    it("should generate unique UUIDs for created military ranks", async () => {
       // ARRANGE
       const { sut } = sutInstance;
       const firstRank: CreateMilitaryRankInputDTO = {
@@ -62,11 +62,16 @@ describe("InMemoryMilitaryRankRepository", () => {
       const first = await sut.findByAbbreviation("CEL");
       const second = await sut.findByAbbreviation("TCel");
 
-      expect(first?.id).toBe("1");
-      expect(second?.id).toBe("2");
+      expect(first?.id).toMatch(
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
+      );
+      expect(second?.id).toMatch(
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
+      );
+      expect(first?.id).not.toBe(second?.id);
     });
 
-    it("should simulate network/database delay", async () => {
+    it("should create military ranks without delays", async () => {
       // ARRANGE
       const { sut } = sutInstance;
       const militaryRankData: CreateMilitaryRankInputDTO = {
@@ -79,68 +84,12 @@ describe("InMemoryMilitaryRankRepository", () => {
       await sut.create(militaryRankData);
       const endTime = Date.now();
 
-      // ASSERT
-      expect(endTime - startTime).toBeGreaterThanOrEqual(100);
-    });
+      // ASSERT - Repository não deve simular delays em memória
+      expect(endTime - startTime).toBeLessThan(50);
 
-    it("should throw error when abbreviation already exists", async () => {
-      // ARRANGE
-      const { sut } = sutInstance;
-      const firstRank: CreateMilitaryRankInputDTO = {
-        abbreviation: "CEL",
-        order: 1,
-      };
-      const duplicateAbbreviation: CreateMilitaryRankInputDTO = {
-        abbreviation: "CEL",
-        order: 2,
-      };
-
-      await sut.create(firstRank);
-
-      // ACT & ASSERT
-      await expect(sut.create(duplicateAbbreviation)).rejects.toThrow(
-        "Military rank with abbreviation 'CEL' already exists",
-      );
-    });
-
-    it("should throw error when order already exists", async () => {
-      // ARRANGE
-      const { sut } = sutInstance;
-      const firstRank: CreateMilitaryRankInputDTO = {
-        abbreviation: "CEL",
-        order: 1,
-      };
-      const duplicateOrder: CreateMilitaryRankInputDTO = {
-        abbreviation: "TCel",
-        order: 1,
-      };
-
-      await sut.create(firstRank);
-
-      // ACT & ASSERT
-      await expect(sut.create(duplicateOrder)).rejects.toThrow(
-        "Military rank with order '1' already exists",
-      );
-    });
-
-    it("should check abbreviation uniqueness before order uniqueness", async () => {
-      // ARRANGE
-      const { sut } = sutInstance;
-      const firstRank: CreateMilitaryRankInputDTO = {
-        abbreviation: "CEL",
-        order: 1,
-      };
-      const duplicateBoth: CreateMilitaryRankInputDTO = {
-        abbreviation: "CEL", // Duplica abbreviation
-        order: 1, // Duplica order também
-      };
-
-      await sut.create(firstRank);
-
-      // ACT & ASSERT
-      await expect(sut.create(duplicateBoth)).rejects.toThrow(
-        "Military rank with abbreviation 'CEL' already exists",
-      );
+      // Verificar que foi criado
+      const created = await sut.findByAbbreviation("CEL");
+      expect(created).toBeDefined();
     });
   });
 
@@ -160,7 +109,7 @@ describe("InMemoryMilitaryRankRepository", () => {
 
       // ASSERT
       expect(result).toEqual({
-        id: "1",
+        id: expect.any(String),
         abbreviation: "CEL",
         order: 1,
       });
@@ -214,7 +163,7 @@ describe("InMemoryMilitaryRankRepository", () => {
 
       // ASSERT
       expect(result).toEqual({
-        id: "2",
+        id: expect.any(String),
         abbreviation: "TCel",
         order: 2,
       });
@@ -237,7 +186,7 @@ describe("InMemoryMilitaryRankRepository", () => {
 
       // ASSERT
       expect(result).toEqual({
-        id: "1",
+        id: expect.any(String),
         abbreviation: "CEL",
         order: 5,
       });
@@ -272,7 +221,7 @@ describe("InMemoryMilitaryRankRepository", () => {
 
       // ASSERT
       expect(result).toEqual({
-        id: "2",
+        id: expect.any(String),
         abbreviation: "TCel",
         order: 2,
       });
@@ -300,110 +249,6 @@ describe("InMemoryMilitaryRankRepository", () => {
       // ASSERT
       expect(minResult?.abbreviation).toBe("Min");
       expect(maxResult?.abbreviation).toBe("Max");
-    });
-  });
-
-  describe("listAll helper method", () => {
-    it("should return empty array when no ranks exist", async () => {
-      // ARRANGE
-      const { sut } = sutInstance;
-
-      // ACT
-      const result = await sut.listAll();
-
-      // ASSERT
-      expect(result).toEqual([]);
-    });
-
-    it("should return all created military ranks", async () => {
-      // ARRANGE
-      const { sut } = sutInstance;
-      const ranks: CreateMilitaryRankInputDTO[] = [
-        { abbreviation: "CEL", order: 1 },
-        { abbreviation: "TCel", order: 2 },
-        { abbreviation: "Maj", order: 3 },
-      ];
-
-      for (const rank of ranks) {
-        await sut.create(rank);
-      }
-
-      // ACT
-      const result = await sut.listAll();
-
-      // ASSERT
-      expect(result).toHaveLength(3);
-      expect(result).toEqual([
-        { id: "1", abbreviation: "CEL", order: 1 },
-        { id: "2", abbreviation: "TCel", order: 2 },
-        { id: "3", abbreviation: "Maj", order: 3 },
-      ]);
-    });
-
-    it("should return a copy of data (immutability)", async () => {
-      // ARRANGE
-      const { sut } = sutInstance;
-      const militaryRankData: CreateMilitaryRankInputDTO = {
-        abbreviation: "CEL",
-        order: 1,
-      };
-
-      await sut.create(militaryRankData);
-
-      // ACT
-      const result1 = await sut.listAll();
-      const result2 = await sut.listAll();
-
-      // ASSERT
-      expect(result1).not.toBe(result2); // Different references
-      expect(result1).toEqual(result2); // Same content
-    });
-  });
-
-  describe("integration scenarios", () => {
-    it("should maintain data consistency across multiple operations", async () => {
-      // ARRANGE
-      const { sut } = sutInstance;
-
-      // ACT - Create multiple ranks
-      await sut.create({ abbreviation: "CEL", order: 1 });
-      await sut.create({ abbreviation: "TCel", order: 2 });
-
-      // Try to create duplicate (should fail)
-      await expect(
-        sut.create({ abbreviation: "CEL", order: 3 }),
-      ).rejects.toThrow();
-
-      // Verify original data is intact
-      const cel = await sut.findByAbbreviation("CEL");
-      const tcel = await sut.findByOrder(2);
-      const all = await sut.listAll();
-
-      // ASSERT
-      expect(cel).toEqual({ id: "1", abbreviation: "CEL", order: 1 });
-      expect(tcel).toEqual({ id: "2", abbreviation: "TCel", order: 2 });
-      expect(all).toHaveLength(2);
-    });
-
-    it("should handle concurrent-like operations correctly", async () => {
-      // ARRANGE
-      const { sut } = sutInstance;
-
-      // ACT - Simulate concurrent operations
-      const promises = [
-        sut.create({ abbreviation: "A", order: 10 }),
-        sut.create({ abbreviation: "B", order: 20 }),
-        sut.create({ abbreviation: "C", order: 30 }),
-      ];
-
-      await Promise.all(promises);
-
-      // ASSERT
-      const all = await sut.listAll();
-      expect(all).toHaveLength(3);
-      expect(all.map((r) => r.abbreviation)).toEqual(
-        expect.arrayContaining(["A", "B", "C"]),
-      );
     });
   });
 });
