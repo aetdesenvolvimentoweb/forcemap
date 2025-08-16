@@ -18,6 +18,5 @@ interface MakeCreateMilitaryRankValidatorProps {
 export const makeCreateMilitaryRankValidator = ({
   militaryRankRepository,
 }: MakeCreateMilitaryRankValidatorProps): CreateMilitaryRankValidatorProtocol => {
-  console.log("🏭 [MAIN] Criando CreateMilitaryRankValidator");
   return new CreateMilitaryRankValidator({ militaryRankRepository });
 };

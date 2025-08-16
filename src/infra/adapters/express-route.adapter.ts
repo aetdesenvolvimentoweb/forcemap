@@ -1,3 +1,6 @@
+import type { AppError } from "@domain/errors";
+
+import { HttpResponseFactory } from "@presentation/factories";
 import type { Controller, HttpRequest } from "@presentation/protocols";
 
 import type { Request, Response } from "express";
@@ -18,6 +21,8 @@ import type { Request, Response } from "express";
 
 export const adaptExpressRoute = (controller: Controller<unknown, unknown>) => {
   return async (req: Request, res: Response): Promise<void> => {
+    const httpResponseFactory = new HttpResponseFactory();
+
     try {
       // Converte Express Request para HttpRequest (nosso protocolo)
       const httpRequest: HttpRequest = {
@@ -36,24 +41,30 @@ export const adaptExpressRoute = (controller: Controller<unknown, unknown>) => {
         params: req.params,
       };
 
-      console.log(
-        `🏗️ [INFRA-EXPRESS] ${req.method} ${req.path} - Executando controller...`,
-      );
-
       // Executa o controller (independente de framework)
       const httpResponse = await controller.handle(httpRequest);
-
-      console.log(`✅ [INFRA-EXPRESS] Response ${httpResponse.statusCode}`);
 
       // Converte HttpResponse para Express Response
       res.status(httpResponse.statusCode).json(httpResponse.body);
     } catch (error) {
-      console.error("🚨 [INFRA-EXPRESS] Erro no adaptador:", error);
+      // Verifica se é um erro conhecido da aplicação (AppError)
+      const isAppError = (error: unknown): error is AppError => {
+        return (
+          typeof error === "object" &&
+          error !== null &&
+          "statusCode" in error &&
+          "message" in error &&
+          typeof (error as AppError).statusCode === "number" &&
+          typeof (error as AppError).message === "string"
+        );
+      };
 
-      res.status(500).json({
-        error: "Internal Server Error",
-        message: "Erro interno do servidor",
-      });
+      // Trata erros conhecidos da aplicação vs erros inesperados do servidor
+      const httpResponse = isAppError(error)
+        ? httpResponseFactory.badRequest(error) // Erro de cliente (4xx)
+        : httpResponseFactory.serverError(); // Erro interno do servidor (500)
+
+      res.status(httpResponse.statusCode).json(httpResponse.body);
     }
   };
 };

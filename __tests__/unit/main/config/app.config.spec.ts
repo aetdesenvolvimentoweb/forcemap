@@ -51,9 +51,6 @@ describe("setupApp", () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    // Mock console methods to avoid cluttering test output
-    jest.spyOn(console, "error").mockImplementation(() => {});
-
     // Reset mock implementations
     mockSetupMiddlewares.mockImplementation(() => {});
     mockSetupRoutes.mockImplementation(() => {});
@@ -283,36 +280,6 @@ describe("setupApp", () => {
 
       // CLEANUP
       process.env.NODE_ENV = originalEnv;
-    });
-
-    it("should log errors to console", () => {
-      // ARRANGE
-      const { sut, mockApp, mockRouteRegistry } = makeSut();
-      const testError = new Error("Test error");
-      const mockReq = {} as Request;
-      const mockRes = {
-        status: jest.fn().mockReturnThis(),
-        json: jest.fn(),
-      } as unknown as Response;
-      const mockNext = jest.fn() as NextFunction;
-      const consoleSpy = jest
-        .spyOn(console, "error")
-        .mockImplementation(() => {});
-
-      // ACT
-      sut(mockApp, mockRouteRegistry);
-
-      // Encontrar e executar o error handler
-      const middlewareCalls = (mockApp.use as jest.Mock).mock.calls;
-      const errorHandler = middlewareCalls.find((call) => {
-        const handler = call[0];
-        return typeof handler === "function" && handler.length === 4;
-      })?.[0];
-
-      errorHandler?.(testError, mockReq, mockRes, mockNext);
-
-      // ASSERT
-      expect(consoleSpy).toHaveBeenCalledWith("🚨 Unhandled error:", testError);
     });
   });
 

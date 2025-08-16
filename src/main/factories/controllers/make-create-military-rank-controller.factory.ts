@@ -25,8 +25,6 @@ export const makeCreateMilitaryRankController = ({
   CreateMilitaryRankInputDTO,
   null
 > => {
-  console.log("🏭 [MAIN] Criando CreateMilitaryRankController...");
-
   // Use case vem pronto, com todas as dependências montadas
   const createMilitaryRankUseCase = makeCreateMilitaryRankUseCase();
 
@@ -35,6 +33,5 @@ export const makeCreateMilitaryRankController = ({
     createMilitaryRankService: createMilitaryRankUseCase,
   });
 
-  console.log("✅ [MAIN] CreateMilitaryRankController criado com sucesso!");
   return controller;
 };

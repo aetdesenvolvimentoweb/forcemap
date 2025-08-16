@@ -41,9 +41,6 @@ describe("makeCreateMilitaryRankValidator", () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    // Mock console methods to avoid cluttering test output
-    jest.spyOn(console, "log").mockImplementation(() => {});
-
     // Setup default mock returns
     mockCreateMilitaryRankValidator.mockImplementation(
       () =>
@@ -151,45 +148,6 @@ describe("makeCreateMilitaryRankValidator", () => {
     });
   });
 
-  describe("logging", () => {
-    it("should log validator creation message", () => {
-      // ARRANGE
-      const { sut, mockRepository } = makeSut();
-      const consoleSpy = jest
-        .spyOn(console, "log")
-        .mockImplementation(() => {});
-
-      // ACT
-      sut({ militaryRankRepository: mockRepository });
-
-      // ASSERT
-      expect(consoleSpy).toHaveBeenCalledWith(
-        "🏭 [MAIN] Criando CreateMilitaryRankValidator",
-      );
-    });
-
-    it("should log before creating validator", () => {
-      // ARRANGE
-      const { sut, mockRepository } = makeSut();
-      const callOrder: string[] = [];
-
-      const consoleSpy = jest.spyOn(console, "log").mockImplementation(() => {
-        callOrder.push("log");
-      });
-
-      mockCreateMilitaryRankValidator.mockImplementation(() => {
-        callOrder.push("validator");
-        return { validate: jest.fn() } as any;
-      });
-
-      // ACT
-      sut({ militaryRankRepository: mockRepository });
-
-      // ASSERT
-      expect(callOrder).toEqual(["log", "validator"]);
-    });
-  });
-
   describe("function signature", () => {
     it("should be a function named makeCreateMilitaryRankValidator", () => {
       // ARRANGE
@@ -268,24 +226,6 @@ describe("makeCreateMilitaryRankValidator", () => {
   });
 
   describe("dependency isolation", () => {
-    it("should create independent validator instances", () => {
-      // ARRANGE
-      const { sut, mockRepository } = makeSut();
-      const consoleSpy = jest
-        .spyOn(console, "log")
-        .mockImplementation(() => {});
-
-      // ACT
-      const result1 = sut({ militaryRankRepository: mockRepository });
-      const result2 = sut({ militaryRankRepository: mockRepository });
-
-      // ASSERT
-      // Cada chamada deve ser independente
-      expect(consoleSpy).toHaveBeenCalledTimes(2);
-      expect(mockCreateMilitaryRankValidator).toHaveBeenCalledTimes(2);
-      expect(result1).not.toBe(result2); // Instâncias diferentes
-    });
-
     it("should handle multiple repositories correctly", () => {
       // ARRANGE
       const { sut } = makeSut();

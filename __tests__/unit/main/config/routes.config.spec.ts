@@ -54,9 +54,6 @@ describe("setupRoutes", () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    // Mock console methods to avoid cluttering test output
-    jest.spyOn(console, "log").mockImplementation(() => {});
-
     // Mock process.uptime for health endpoint
     jest.spyOn(process, "uptime").mockReturnValue(12345);
   });
@@ -194,60 +191,6 @@ describe("setupRoutes", () => {
     });
   });
 
-  describe("logging", () => {
-    it("should log configuration start message", () => {
-      // ARRANGE
-      const { sut, mockApp, mockRouteRegistry } = makeSut();
-      const consoleSpy = jest
-        .spyOn(console, "log")
-        .mockImplementation(() => {});
-
-      // ACT
-      sut(mockApp, mockRouteRegistry);
-
-      // ASSERT
-      expect(consoleSpy).toHaveBeenCalledWith(
-        "🚀 [MAIN] Configurando rotas...",
-      );
-    });
-
-    it("should log configuration success message", () => {
-      // ARRANGE
-      const { sut, mockApp, mockRouteRegistry } = makeSut();
-      const consoleSpy = jest
-        .spyOn(console, "log")
-        .mockImplementation(() => {});
-
-      // ACT
-      sut(mockApp, mockRouteRegistry);
-
-      // ASSERT
-      expect(consoleSpy).toHaveBeenCalledWith(
-        "✅ [MAIN] Rotas configuradas com sucesso!",
-      );
-    });
-
-    it("should log messages in correct order", () => {
-      // ARRANGE
-      const { sut, mockApp, mockRouteRegistry } = makeSut();
-      const consoleSpy = jest
-        .spyOn(console, "log")
-        .mockImplementation(() => {});
-
-      // ACT
-      sut(mockApp, mockRouteRegistry);
-
-      // ASSERT
-      expect(consoleSpy.mock.calls).toHaveLength(2);
-      expect(consoleSpy.mock.calls[0]?.[0]).toBe(
-        "🚀 [MAIN] Configurando rotas...",
-      );
-      expect(consoleSpy.mock.calls[1]?.[0]).toBe(
-        "✅ [MAIN] Rotas configuradas com sucesso!",
-      );
-    });
-  });
-
   describe("function signature", () => {
     it("should be a function named setupRoutes", () => {
       // ARRANGE
@@ -276,41 +219,6 @@ describe("setupRoutes", () => {
 
       // ASSERT
       expect(result).toBeUndefined();
-    });
-  });
-
-  describe("execution flow", () => {
-    it("should execute operations in correct order", () => {
-      // ARRANGE
-      const { sut, mockApp, mockRouteRegistry, mockRouteBuilder } = makeSut();
-      const callOrder: string[] = [];
-
-      const consoleSpy = jest
-        .spyOn(console, "log")
-        .mockImplementation((message) => {
-          if (message.includes("Configurando")) callOrder.push("startLog");
-          if (message.includes("configuradas")) callOrder.push("endLog");
-        });
-
-      mockRouteBuilder.buildWithPrefix.mockImplementation(() => {
-        callOrder.push("buildWithPrefix");
-      });
-
-      (mockApp.get as jest.Mock).mockImplementation(() => {
-        callOrder.push("registerEndpoint");
-      });
-
-      // ACT
-      sut(mockApp, mockRouteRegistry);
-
-      // ASSERT
-      expect(callOrder).toEqual([
-        "startLog",
-        "buildWithPrefix",
-        "registerEndpoint",
-        "registerEndpoint",
-        "endLog",
-      ]);
     });
   });
 

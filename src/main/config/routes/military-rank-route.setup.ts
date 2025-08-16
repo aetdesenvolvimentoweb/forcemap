@@ -18,8 +18,6 @@ import { makeCreateMilitaryRankController } from "@main/factories";
  */
 
 export const setupMilitaryRankRoutes = (routeRegistry: RouteRegistry): void => {
-  console.log("📋 [MAIN] Configurando rotas de Military Rank...");
-
   // Criar instância da HttpResponseFactory
   const httpResponseFactory = new HttpResponseFactory();
 
@@ -56,6 +54,4 @@ export const setupMilitaryRankRoutes = (routeRegistry: RouteRegistry): void => {
   //   path: '/military-ranks/:id',
   //   controller: makeDeleteMilitaryRankController(),
   // });
-
-  console.log("✅ [MAIN] Rotas de Military Rank configuradas!");
 };

@@ -1,3 +1,5 @@
+import { InvalidParamError } from "@application/errors";
+
 import { RouteRegistry } from "@presentation/protocols";
 
 import { adaptExpressRoute } from "@infra/adapters";
@@ -27,18 +29,13 @@ export class ExpressRouteBuilder {
    * Aplica todas as rotas registradas no RouteRegistry ao Express app
    */
   build(): void {
-    console.log("🚀 [MAIN] Construindo rotas do registry para Express...");
-
     const routes = this.routeRegistry.getRoutes();
 
     if (routes.length === 0) {
-      console.log("⚠️ [MAIN] Nenhuma rota registrada no RouteRegistry");
       return;
     }
 
     routes.forEach((route) => {
-      console.log(`🔗 [MAIN] Aplicando: ${route.method} ${route.path}`);
-
       // Usa o adapter da INFRA para converter controller
       const expressHandler = adaptExpressRoute(route.controller);
 
@@ -60,11 +57,12 @@ export class ExpressRouteBuilder {
           this.app.patch(route.path, expressHandler);
           break;
         default:
-          console.warn(`⚠️ [MAIN] Método HTTP não suportado: ${route.method}`);
+          throw new InvalidParamError(
+            "Método HTTP",
+            `"${route.method}" não é suportado. Métodos válidos: GET, POST, PUT, DELETE, PATCH`,
+          );
       }
     });
-
-    console.log(`✅ [MAIN] ${routes.length} rotas aplicadas com sucesso!`);
   }
 
   /**
@@ -91,29 +89,15 @@ export class ExpressRouteBuilder {
     } = {},
   ): void {
     const { prefix = "", middlewares = [] } = options;
-    const logContext = prefix
-      ? `com prefix "${prefix}"`
-      : middlewares.length > 0
-        ? "com middlewares"
-        : "";
-
-    console.log(`🚀 [MAIN] Construindo rotas ${logContext} para Express...`);
 
     const routes = this.routeRegistry.getRoutes();
 
     if (routes.length === 0) {
-      console.log("⚠️ [MAIN] Nenhuma rota registrada no RouteRegistry");
       return;
     }
 
     routes.forEach((route) => {
       const fullPath = prefix ? `${prefix}${route.path}` : route.path;
-      const logMessage =
-        middlewares.length > 0
-          ? `🔗 [MAIN] Aplicando com middlewares: ${route.method} ${fullPath}`
-          : `🔗 [MAIN] Aplicando: ${route.method} ${fullPath}`;
-
-      console.log(logMessage);
 
       const expressHandler = adaptExpressRoute(route.controller);
 
@@ -124,14 +108,6 @@ export class ExpressRouteBuilder {
         expressHandler,
       );
     });
-
-    const successMessage = prefix
-      ? `✅ [MAIN] ${routes.length} rotas aplicadas com prefix "${prefix}"!`
-      : middlewares.length > 0
-        ? `✅ [MAIN] ${routes.length} rotas aplicadas com middlewares!`
-        : `✅ [MAIN] ${routes.length} rotas aplicadas com sucesso!`;
-
-    console.log(successMessage);
   }
 
   /**
@@ -170,7 +146,10 @@ export class ExpressRouteBuilder {
         this.app.patch(...(args as [any, ...any[]]));
         break;
       default:
-        console.warn(`⚠️ [MAIN] Método HTTP não suportado: ${method}`);
+        throw new InvalidParamError(
+          "Método HTTP",
+          `"${method}" não é suportado. Métodos válidos: GET, POST, PUT, DELETE, PATCH`,
+        );
     }
   }
 }

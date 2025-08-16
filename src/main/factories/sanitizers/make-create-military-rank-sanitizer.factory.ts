@@ -11,6 +11,5 @@ import { CreateMilitaryRankSanitizer } from "@application/sanitizers";
 
 export const makeCreateMilitaryRankSanitizer =
   (): CreateMilitaryRankSanitizerProtocol => {
-    console.log("🏭 [MAIN] Criando CreateMilitaryRankSanitizer");
     return new CreateMilitaryRankSanitizer();
   };

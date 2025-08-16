@@ -44,10 +44,6 @@ describe("ExpressRouteBuilder", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockAdaptExpressRoute.mockReturnValue(mockExpressHandler);
-
-    // Mock console methods to avoid cluttering test output
-    jest.spyOn(console, "log").mockImplementation(() => {});
-    jest.spyOn(console, "warn").mockImplementation(() => {});
   });
 
   afterEach(() => {
@@ -101,9 +97,6 @@ describe("ExpressRouteBuilder", () => {
       // ASSERT
       expect(mockRouteRegistry.getRoutes).toHaveBeenCalledTimes(1);
       expect(mockAdaptExpressRoute).not.toHaveBeenCalled();
-      expect(console.log).toHaveBeenCalledWith(
-        "⚠️ [MAIN] Nenhuma rota registrada no RouteRegistry",
-      );
     });
 
     it("should support all HTTP methods", () => {
@@ -132,48 +125,6 @@ describe("ExpressRouteBuilder", () => {
       );
       expect(mockApp.patch).toHaveBeenCalledWith("/patch", mockExpressHandler);
     });
-
-    it("should warn about unsupported HTTP methods", () => {
-      // ARRANGE
-      const { sut } = makeSut();
-      const routes = [
-        { method: "INVALID", path: "/invalid", controller: mockController },
-      ];
-      (mockRouteRegistry.getRoutes as jest.Mock).mockReturnValue(routes);
-      const builder = new sut(mockApp, mockRouteRegistry);
-
-      // ACT
-      builder.build();
-
-      // ASSERT
-      expect(console.warn).toHaveBeenCalledWith(
-        "⚠️ [MAIN] Método HTTP não suportado: INVALID",
-      );
-    });
-
-    it("should log route building process", () => {
-      // ARRANGE
-      const { sut } = makeSut();
-      const routes = [
-        { method: "GET", path: "/test", controller: mockController },
-      ];
-      (mockRouteRegistry.getRoutes as jest.Mock).mockReturnValue(routes);
-      const builder = new sut(mockApp, mockRouteRegistry);
-
-      // ACT
-      builder.build();
-
-      // ASSERT
-      expect(console.log).toHaveBeenCalledWith(
-        "🚀 [MAIN] Construindo rotas do registry para Express...",
-      );
-      expect(console.log).toHaveBeenCalledWith(
-        "🔗 [MAIN] Aplicando: GET /test",
-      );
-      expect(console.log).toHaveBeenCalledWith(
-        "✅ [MAIN] 1 rotas aplicadas com sucesso!",
-      );
-    });
   });
 
   describe("buildWithPrefix method", () => {
@@ -193,30 +144,6 @@ describe("ExpressRouteBuilder", () => {
       expect(mockApp.get).toHaveBeenCalledWith(
         "/api/v1/users",
         mockExpressHandler,
-      );
-    });
-
-    it("should log prefix information", () => {
-      // ARRANGE
-      const { sut } = makeSut();
-      const routes = [
-        { method: "GET", path: "/test", controller: mockController },
-      ];
-      (mockRouteRegistry.getRoutes as jest.Mock).mockReturnValue(routes);
-      const builder = new sut(mockApp, mockRouteRegistry);
-
-      // ACT
-      builder.buildWithPrefix("/api");
-
-      // ASSERT
-      expect(console.log).toHaveBeenCalledWith(
-        '🚀 [MAIN] Construindo rotas com prefix "/api" para Express...',
-      );
-      expect(console.log).toHaveBeenCalledWith(
-        "🔗 [MAIN] Aplicando: GET /api/test",
-      );
-      expect(console.log).toHaveBeenCalledWith(
-        '✅ [MAIN] 1 rotas aplicadas com prefix "/api"!',
       );
     });
 
@@ -258,24 +185,6 @@ describe("ExpressRouteBuilder", () => {
         mockExpressHandler,
       );
     });
-
-    it("should warn about unsupported HTTP methods with prefix", () => {
-      // ARRANGE
-      const { sut } = makeSut();
-      const routes = [
-        { method: "INVALID", path: "/invalid", controller: mockController },
-      ];
-      (mockRouteRegistry.getRoutes as jest.Mock).mockReturnValue(routes);
-      const builder = new sut(mockApp, mockRouteRegistry);
-
-      // ACT
-      builder.buildWithPrefix("/api");
-
-      // ASSERT
-      expect(console.warn).toHaveBeenCalledWith(
-        "⚠️ [MAIN] Método HTTP não suportado: INVALID",
-      );
-    });
   });
 
   describe("buildWithMiddlewares method", () => {
@@ -298,31 +207,6 @@ describe("ExpressRouteBuilder", () => {
         middlewares[0],
         middlewares[1],
         mockExpressHandler,
-      );
-    });
-
-    it("should log middleware information", () => {
-      // ARRANGE
-      const { sut } = makeSut();
-      const routes = [
-        { method: "GET", path: "/test", controller: mockController },
-      ];
-      const middlewares = [jest.fn()];
-      (mockRouteRegistry.getRoutes as jest.Mock).mockReturnValue(routes);
-      const builder = new sut(mockApp, mockRouteRegistry);
-
-      // ACT
-      builder.buildWithMiddlewares(middlewares);
-
-      // ASSERT
-      expect(console.log).toHaveBeenCalledWith(
-        "🚀 [MAIN] Construindo rotas com middlewares para Express...",
-      );
-      expect(console.log).toHaveBeenCalledWith(
-        "🔗 [MAIN] Aplicando com middlewares: GET /test",
-      );
-      expect(console.log).toHaveBeenCalledWith(
-        "✅ [MAIN] 1 rotas aplicadas com middlewares!",
       );
     });
 
@@ -389,25 +273,6 @@ describe("ExpressRouteBuilder", () => {
         middlewares[0],
         middlewares[1],
         mockExpressHandler,
-      );
-    });
-
-    it("should warn about unsupported HTTP methods with middlewares", () => {
-      // ARRANGE
-      const { sut } = makeSut();
-      const routes = [
-        { method: "INVALID", path: "/invalid", controller: mockController },
-      ];
-      const middlewares = [jest.fn()];
-      (mockRouteRegistry.getRoutes as jest.Mock).mockReturnValue(routes);
-      const builder = new sut(mockApp, mockRouteRegistry);
-
-      // ACT
-      builder.buildWithMiddlewares(middlewares);
-
-      // ASSERT
-      expect(console.warn).toHaveBeenCalledWith(
-        "⚠️ [MAIN] Método HTTP não suportado: INVALID",
       );
     });
   });
@@ -479,9 +344,6 @@ describe("ExpressRouteBuilder", () => {
       builder.buildWithPrefix("/api");
 
       // ASSERT
-      expect(console.log).toHaveBeenCalledWith(
-        "⚠️ [MAIN] Nenhuma rota registrada no RouteRegistry",
-      );
       expect(mockAdaptExpressRoute).not.toHaveBeenCalled();
     });
 
@@ -495,9 +357,6 @@ describe("ExpressRouteBuilder", () => {
       builder.buildWithMiddlewares([jest.fn()]);
 
       // ASSERT
-      expect(console.log).toHaveBeenCalledWith(
-        "⚠️ [MAIN] Nenhuma rota registrada no RouteRegistry",
-      );
       expect(mockAdaptExpressRoute).not.toHaveBeenCalled();
     });
   });
@@ -535,9 +394,6 @@ describe("ExpressRouteBuilder", () => {
 
       // ASSERT
       expect(mockAdaptExpressRoute).toHaveBeenCalledTimes(7);
-      expect(console.log).toHaveBeenCalledWith(
-        "✅ [MAIN] 7 rotas aplicadas com sucesso!",
-      );
     });
 
     it("should maintain consistency across multiple build calls", () => {
@@ -557,43 +413,6 @@ describe("ExpressRouteBuilder", () => {
       expect(mockRouteRegistry.getRoutes).toHaveBeenCalledTimes(2);
       expect(mockAdaptExpressRoute).toHaveBeenCalledTimes(2);
       expect(mockApp.get).toHaveBeenCalledTimes(2);
-    });
-  });
-
-  describe("logging behavior", () => {
-    it("should log different scenarios appropriately", () => {
-      // ARRANGE
-      const { sut } = makeSut();
-      const routes = [
-        { method: "GET", path: "/test1", controller: mockController },
-        { method: "POST", path: "/test2", controller: mockController },
-        { method: "INVALID", path: "/test3", controller: mockController },
-      ];
-      (mockRouteRegistry.getRoutes as jest.Mock).mockReturnValue(routes);
-      const builder = new sut(mockApp, mockRouteRegistry);
-
-      // ACT
-      builder.build();
-
-      // ASSERT
-      expect(console.log).toHaveBeenCalledWith(
-        "🚀 [MAIN] Construindo rotas do registry para Express...",
-      );
-      expect(console.log).toHaveBeenCalledWith(
-        "🔗 [MAIN] Aplicando: GET /test1",
-      );
-      expect(console.log).toHaveBeenCalledWith(
-        "🔗 [MAIN] Aplicando: POST /test2",
-      );
-      expect(console.log).toHaveBeenCalledWith(
-        "🔗 [MAIN] Aplicando: INVALID /test3",
-      );
-      expect(console.warn).toHaveBeenCalledWith(
-        "⚠️ [MAIN] Método HTTP não suportado: INVALID",
-      );
-      expect(console.log).toHaveBeenCalledWith(
-        "✅ [MAIN] 3 rotas aplicadas com sucesso!",
-      );
     });
   });
 });

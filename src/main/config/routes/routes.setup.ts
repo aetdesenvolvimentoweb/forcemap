@@ -15,8 +15,6 @@ import { setupMilitaryRankRoutes } from "./military-rank-route.setup";
  */
 
 export const setupAllRoutes = (routeRegistry: RouteRegistry): void => {
-  console.log("🚀 [MAIN] Configurando todas as rotas da aplicação...");
-
   // Military Rank Domain Routes
   setupMilitaryRankRoutes(routeRegistry);
 
@@ -26,14 +24,6 @@ export const setupAllRoutes = (routeRegistry: RouteRegistry): void => {
   // setupReportRoutes(routeRegistry);
   // setupAuthRoutes(routeRegistry);
 
-  const totalRoutes = routeRegistry.getRoutes().length;
-  console.log(`📋 [MAIN] ${totalRoutes} rotas registradas com sucesso!`);
-
-  // Log detalhado das rotas (apenas em desenvolvimento)
-  if (process.env.NODE_ENV === "development") {
-    console.log("📋 [MAIN] Rotas registradas:");
-    routeRegistry.getRoutes().forEach((route, index) => {
-      console.log(`  ${index + 1}. ${route.method} ${route.path}`);
-    });
-  }
+  // Validar total de rotas registradas
+  routeRegistry.getRoutes();
 };

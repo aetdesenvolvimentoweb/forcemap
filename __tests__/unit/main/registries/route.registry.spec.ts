@@ -7,13 +7,15 @@ interface SutTypes {
 
 const makeSut = (): SutTypes => {
   const sut = new DefaultRouteRegistry();
-  
+
   return {
     sut,
   };
 };
 
-const makeRouteConfig = (overrides: Partial<RouteConfig> = {}): RouteConfig => ({
+const makeRouteConfig = (
+  overrides: Partial<RouteConfig> = {},
+): RouteConfig => ({
   method: "POST",
   path: "/military-ranks",
   controller: { handle: jest.fn() } as any,
@@ -23,9 +25,6 @@ const makeRouteConfig = (overrides: Partial<RouteConfig> = {}): RouteConfig => (
 describe("DefaultRouteRegistry", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    
-    // Mock console methods to avoid cluttering test output
-    jest.spyOn(console, "log").mockImplementation(() => {});
   });
 
   afterEach(() => {
@@ -100,29 +99,16 @@ describe("DefaultRouteRegistry", () => {
       expect(routes[2]).toEqual(route3);
     });
 
-    it("should log route registration", () => {
-      // ARRANGE
-      const { sut } = makeSut();
-      const routeConfig = makeRouteConfig({ method: "GET", path: "/test" });
-      const consoleSpy = jest.spyOn(console, "log").mockImplementation(() => {});
-
-      // ACT
-      sut.register(routeConfig);
-
-      // ASSERT
-      expect(consoleSpy).toHaveBeenCalledWith(
-        "📝 [MAIN-REGISTRY] Registrando rota: GET /test"
-      );
-    });
-
     it("should handle different HTTP methods", () => {
       // ARRANGE
       const { sut } = makeSut();
       const methods = ["GET", "POST", "PUT", "DELETE", "PATCH"] as const;
-      
+
       // ACT
-      methods.forEach(method => {
-        sut.register(makeRouteConfig({ method, path: `/${method.toLowerCase()}` }));
+      methods.forEach((method) => {
+        sut.register(
+          makeRouteConfig({ method, path: `/${method.toLowerCase()}` }),
+        );
       });
 
       // ASSERT
@@ -161,7 +147,7 @@ describe("DefaultRouteRegistry", () => {
       // ASSERT
       expect(routes1).toEqual(routes2);
       expect(routes1).not.toBe(routes2); // Different references
-      
+
       // Modifying returned array should not affect internal state
       routes1.pop();
       expect(sut.getRoutes()).toHaveLength(1);
@@ -178,7 +164,7 @@ describe("DefaultRouteRegistry", () => {
       sut.register(route1);
       sut.register(route2);
       sut.register(route3);
-      
+
       const result = sut.getRoutes();
 
       // ASSERT
@@ -193,7 +179,7 @@ describe("DefaultRouteRegistry", () => {
       const getRoute = makeRouteConfig({ method: "GET", path: "/get1" });
       const postRoute1 = makeRouteConfig({ method: "POST", path: "/post1" });
       const postRoute2 = makeRouteConfig({ method: "POST", path: "/post2" });
-      
+
       sut.register(getRoute);
       sut.register(postRoute1);
       sut.register(postRoute2);
@@ -229,7 +215,7 @@ describe("DefaultRouteRegistry", () => {
       const { sut } = makeSut();
       const targetRoute = makeRouteConfig({ method: "GET", path: "/target" });
       const otherRoute = makeRouteConfig({ method: "POST", path: "/other" });
-      
+
       sut.register(targetRoute);
       sut.register(otherRoute);
 
@@ -243,7 +229,10 @@ describe("DefaultRouteRegistry", () => {
     it("should return undefined when route not found", () => {
       // ARRANGE
       const { sut } = makeSut();
-      const existingRoute = makeRouteConfig({ method: "GET", path: "/existing" });
+      const existingRoute = makeRouteConfig({
+        method: "GET",
+        path: "/existing",
+      });
       sut.register(existingRoute);
 
       // ACT
@@ -258,7 +247,7 @@ describe("DefaultRouteRegistry", () => {
       const { sut } = makeSut();
       const getRoute = makeRouteConfig({ method: "GET", path: "/resource" });
       const postRoute = makeRouteConfig({ method: "POST", path: "/resource" });
-      
+
       sut.register(getRoute);
       sut.register(postRoute);
 
@@ -270,66 +259,6 @@ describe("DefaultRouteRegistry", () => {
       expect(foundGet).toEqual(getRoute);
       expect(foundPost).toEqual(postRoute);
       expect(foundGet).not.toEqual(foundPost);
-    });
-  });
-
-  describe("logRoutes helper method", () => {
-    it("should log total routes count when no routes exist", () => {
-      // ARRANGE
-      const { sut } = makeSut();
-      const consoleSpy = jest.spyOn(console, "log").mockImplementation(() => {});
-
-      // ACT
-      sut.logRoutes();
-
-      // ASSERT
-      expect(consoleSpy).toHaveBeenCalledWith(
-        "📋 [MAIN-REGISTRY] Total de rotas registradas: 0"
-      );
-    });
-
-    it("should log total routes count and details when routes exist", () => {
-      // ARRANGE
-      const { sut } = makeSut();
-      const route1 = makeRouteConfig({ method: "GET", path: "/route1" });
-      const route2 = makeRouteConfig({ method: "POST", path: "/route2" });
-      
-      sut.register(route1);
-      sut.register(route2);
-      
-      const consoleSpy = jest.spyOn(console, "log").mockImplementation(() => {});
-
-      // ACT
-      sut.logRoutes();
-
-      // ASSERT
-      expect(consoleSpy).toHaveBeenCalledWith(
-        "📋 [MAIN-REGISTRY] Total de rotas registradas: 2"
-      );
-      expect(consoleSpy).toHaveBeenCalledWith("  1. GET /route1");
-      expect(consoleSpy).toHaveBeenCalledWith("  2. POST /route2");
-    });
-
-    it("should log routes in registration order", () => {
-      // ARRANGE
-      const { sut } = makeSut();
-      const routes = [
-        makeRouteConfig({ method: "POST", path: "/first" }),
-        makeRouteConfig({ method: "GET", path: "/second" }),
-        makeRouteConfig({ method: "PUT", path: "/third" }),
-      ];
-      
-      routes.forEach(route => sut.register(route));
-      
-      const consoleSpy = jest.spyOn(console, "log").mockImplementation(() => {});
-
-      // ACT
-      sut.logRoutes();
-
-      // ASSERT
-      expect(consoleSpy).toHaveBeenCalledWith("  1. POST /first");
-      expect(consoleSpy).toHaveBeenCalledWith("  2. GET /second");
-      expect(consoleSpy).toHaveBeenCalledWith("  3. PUT /third");
     });
   });
 
@@ -345,7 +274,7 @@ describe("DefaultRouteRegistry", () => {
       ];
 
       // ACT - Register routes
-      routes.forEach(route => sut.register(route));
+      routes.forEach((route) => sut.register(route));
 
       // ASSERT - Verify all operations work together
       expect(sut.getRoutes()).toHaveLength(4);
@@ -362,18 +291,18 @@ describe("DefaultRouteRegistry", () => {
 
       // ACT & ASSERT - Step by step verification
       expect(sut.getRoutes()).toHaveLength(0);
-      
+
       sut.register(initialRoute);
       expect(sut.getRoutes()).toHaveLength(1);
-      
+
       const moreRoutes = [
         makeRouteConfig({ method: "POST", path: "/more1" }),
         makeRouteConfig({ method: "PUT", path: "/more2" }),
       ];
-      
-      moreRoutes.forEach(route => sut.register(route));
+
+      moreRoutes.forEach((route) => sut.register(route));
       expect(sut.getRoutes()).toHaveLength(3);
-      
+
       // State should remain consistent
       expect(sut.getRoutes()[0]).toEqual(initialRoute);
       expect(sut.getRoutes()[1]).toEqual(moreRoutes[0]);
@@ -409,7 +338,7 @@ describe("DefaultRouteRegistry", () => {
       ];
 
       // ACT
-      specialRoutes.forEach(route => sut.register(route));
+      specialRoutes.forEach((route) => sut.register(route));
 
       // ASSERT
       const routes = sut.getRoutes();
@@ -423,7 +352,7 @@ describe("DefaultRouteRegistry", () => {
       // ARRANGE
       const { sut } = makeSut();
       const routeCount = 100;
-      
+
       // ACT
       for (let i = 0; i < routeCount; i++) {
         sut.register(makeRouteConfig({ path: `/route${i}` }));
@@ -450,7 +379,7 @@ describe("DefaultRouteRegistry", () => {
       // ARRANGE
       const registry1 = new DefaultRouteRegistry();
       const registry2 = new DefaultRouteRegistry();
-      
+
       const route1 = makeRouteConfig({ path: "/registry1" });
       const route2 = makeRouteConfig({ path: "/registry2" });
 

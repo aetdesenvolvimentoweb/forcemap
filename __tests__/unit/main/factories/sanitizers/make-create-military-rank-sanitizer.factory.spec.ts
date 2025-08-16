@@ -32,9 +32,6 @@ describe("makeCreateMilitaryRankSanitizer", () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    // Mock console methods to avoid cluttering test output
-    jest.spyOn(console, "log").mockImplementation(() => {});
-
     // Setup default mock returns
     mockCreateMilitaryRankSanitizer.mockImplementation(
       () =>
@@ -92,45 +89,6 @@ describe("makeCreateMilitaryRankSanitizer", () => {
       expect(result1).toBe(sanitizer1);
       expect(result2).toBe(sanitizer2);
       expect(mockCreateMilitaryRankSanitizer).toHaveBeenCalledTimes(2);
-    });
-  });
-
-  describe("logging", () => {
-    it("should log sanitizer creation message", () => {
-      // ARRANGE
-      const { sut } = makeSut();
-      const consoleSpy = jest
-        .spyOn(console, "log")
-        .mockImplementation(() => {});
-
-      // ACT
-      sut();
-
-      // ASSERT
-      expect(consoleSpy).toHaveBeenCalledWith(
-        "🏭 [MAIN] Criando CreateMilitaryRankSanitizer",
-      );
-    });
-
-    it("should log before creating sanitizer", () => {
-      // ARRANGE
-      const { sut } = makeSut();
-      const callOrder: string[] = [];
-
-      const consoleSpy = jest.spyOn(console, "log").mockImplementation(() => {
-        callOrder.push("log");
-      });
-
-      mockCreateMilitaryRankSanitizer.mockImplementation(() => {
-        callOrder.push("sanitizer");
-        return { sanitize: jest.fn() } as any;
-      });
-
-      // ACT
-      sut();
-
-      // ASSERT
-      expect(callOrder).toEqual(["log", "sanitizer"]);
     });
   });
 
@@ -193,24 +151,6 @@ describe("makeCreateMilitaryRankSanitizer", () => {
   });
 
   describe("instantiation independence", () => {
-    it("should create independent sanitizer instances", () => {
-      // ARRANGE
-      const { sut } = makeSut();
-      const consoleSpy = jest
-        .spyOn(console, "log")
-        .mockImplementation(() => {});
-
-      // ACT
-      const result1 = sut();
-      const result2 = sut();
-
-      // ASSERT
-      // Cada chamada deve ser independente
-      expect(consoleSpy).toHaveBeenCalledTimes(2);
-      expect(mockCreateMilitaryRankSanitizer).toHaveBeenCalledTimes(2);
-      expect(result1).not.toBe(result2); // Instâncias diferentes
-    });
-
     it("should maintain factory isolation", () => {
       // ARRANGE
       const { sut } = makeSut();

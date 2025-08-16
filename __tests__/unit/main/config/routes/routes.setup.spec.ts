@@ -33,9 +33,6 @@ describe("setupAllRoutes", () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    // Mock console methods to avoid cluttering test output
-    jest.spyOn(console, "log").mockImplementation(() => {});
-
     // Reset mock implementation for setupMilitaryRankRoutes
     mockSetupMilitaryRankRoutes.mockImplementation(() => {});
   });
@@ -72,80 +69,6 @@ describe("setupAllRoutes", () => {
 
       // ASSERT
       expect(mockRouteRegistry.getRoutes).toHaveBeenCalledTimes(1);
-    });
-
-    it("should log total routes count", () => {
-      // ARRANGE
-      const { sut, mockRouteRegistry } = makeSut();
-      const mockRoutes = [
-        { method: "POST", path: "/military-ranks", controller: {} },
-        { method: "GET", path: "/military-ranks", controller: {} },
-      ];
-      (mockRouteRegistry.getRoutes as jest.Mock).mockReturnValue(mockRoutes);
-      const consoleSpy = jest
-        .spyOn(console, "log")
-        .mockImplementation(() => {});
-
-      // ACT
-      sut(mockRouteRegistry);
-
-      // ASSERT
-      expect(consoleSpy).toHaveBeenCalledWith(
-        "🚀 [MAIN] Configurando todas as rotas da aplicação...",
-      );
-      expect(consoleSpy).toHaveBeenCalledWith(
-        "📋 [MAIN] 2 rotas registradas com sucesso!",
-      );
-    });
-
-    it("should handle environment-specific logging", () => {
-      // ARRANGE
-      const { sut, mockRouteRegistry } = makeSut();
-      const originalEnv = process.env.NODE_ENV;
-      process.env.NODE_ENV = "development";
-      const mockRoutes = [
-        { method: "POST", path: "/military-ranks", controller: {} },
-      ];
-      (mockRouteRegistry.getRoutes as jest.Mock).mockReturnValue(mockRoutes);
-      const consoleSpy = jest
-        .spyOn(console, "log")
-        .mockImplementation(() => {});
-
-      // ACT
-      sut(mockRouteRegistry);
-
-      // ASSERT
-      expect(consoleSpy).toHaveBeenCalledWith("📋 [MAIN] Rotas registradas:");
-      expect(consoleSpy).toHaveBeenCalledWith("  1. POST /military-ranks");
-
-      // CLEANUP
-      process.env.NODE_ENV = originalEnv;
-    });
-
-    it("should not log detailed routes in non-development environment", () => {
-      // ARRANGE
-      const { sut, mockRouteRegistry } = makeSut();
-      const originalEnv = process.env.NODE_ENV;
-      process.env.NODE_ENV = "production";
-      const mockRoutes = [
-        { method: "POST", path: "/military-ranks", controller: {} },
-      ];
-      (mockRouteRegistry.getRoutes as jest.Mock).mockReturnValue(mockRoutes);
-      const consoleSpy = jest
-        .spyOn(console, "log")
-        .mockImplementation(() => {});
-
-      // ACT
-      sut(mockRouteRegistry);
-
-      // ASSERT
-      expect(consoleSpy).not.toHaveBeenCalledWith(
-        "📋 [MAIN] Rotas registradas:",
-      );
-      expect(consoleSpy).not.toHaveBeenCalledWith("  1. POST /military-ranks");
-
-      // CLEANUP
-      process.env.NODE_ENV = originalEnv;
     });
   });
 
@@ -298,66 +221,6 @@ describe("setupAllRoutes", () => {
         customRouteRegistry,
       );
       expect(customRouteRegistry.getRoutes).toHaveBeenCalledTimes(1);
-    });
-  });
-
-  describe("console logging", () => {
-    it("should log initial setup message", () => {
-      // ARRANGE
-      const { sut, mockRouteRegistry } = makeSut();
-      (mockRouteRegistry.getRoutes as jest.Mock).mockReturnValue([]);
-      const consoleSpy = jest
-        .spyOn(console, "log")
-        .mockImplementation(() => {});
-
-      // ACT
-      sut(mockRouteRegistry);
-
-      // ASSERT
-      expect(consoleSpy).toHaveBeenCalledWith(
-        "🚀 [MAIN] Configurando todas as rotas da aplicação...",
-      );
-    });
-
-    it("should log success message with route count", () => {
-      // ARRANGE
-      const { sut, mockRouteRegistry } = makeSut();
-      const mockRoutes = [
-        { method: "POST", path: "/military-ranks", controller: {} },
-        { method: "GET", path: "/military-ranks", controller: {} },
-      ];
-      (mockRouteRegistry.getRoutes as jest.Mock).mockReturnValue(mockRoutes);
-      const consoleSpy = jest
-        .spyOn(console, "log")
-        .mockImplementation(() => {});
-
-      // ACT
-      sut(mockRouteRegistry);
-
-      // ASSERT
-      expect(consoleSpy).toHaveBeenCalledWith(
-        "📋 [MAIN] 2 rotas registradas com sucesso!",
-      );
-    });
-
-    it("should handle singular route count in log message", () => {
-      // ARRANGE
-      const { sut, mockRouteRegistry } = makeSut();
-      const mockRoutes = [
-        { method: "POST", path: "/military-ranks", controller: {} },
-      ];
-      (mockRouteRegistry.getRoutes as jest.Mock).mockReturnValue(mockRoutes);
-      const consoleSpy = jest
-        .spyOn(console, "log")
-        .mockImplementation(() => {});
-
-      // ACT
-      sut(mockRouteRegistry);
-
-      // ASSERT
-      expect(consoleSpy).toHaveBeenCalledWith(
-        "📋 [MAIN] 1 rotas registradas com sucesso!",
-      );
     });
   });
 });

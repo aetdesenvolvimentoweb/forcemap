@@ -16,10 +16,6 @@ import { makeCreateMilitaryRankValidator } from "../validators/make-create-milit
  */
 
 export const makeCreateMilitaryRankUseCase = (): CreateMilitaryRankUseCase => {
-  console.log(
-    "🏭 [MAIN] Montando CreateMilitaryRankUseCase com todas as dependências...",
-  );
-
   // 1. Criar Repository (INFRA layer)
   const militaryRankRepository = makeMilitaryRankRepository();
 
@@ -36,6 +32,5 @@ export const makeCreateMilitaryRankUseCase = (): CreateMilitaryRankUseCase => {
     validator,
   });
 
-  console.log("✅ [MAIN] CreateMilitaryRankUseCase montado com sucesso!");
   return useCase;
 };

@@ -34,9 +34,6 @@ describe("makeMilitaryRankRepository", () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    // Mock console methods to avoid cluttering test output
-    jest.spyOn(console, "log").mockImplementation(() => {});
-
     // Setup default mock returns
     mockInMemoryMilitaryRankRepository.mockImplementation(
       () =>
@@ -105,45 +102,6 @@ describe("makeMilitaryRankRepository", () => {
       expect(result1).toBe(instance1);
       expect(result2).toBe(instance2);
       expect(mockInMemoryMilitaryRankRepository).toHaveBeenCalledTimes(2);
-    });
-  });
-
-  describe("logging", () => {
-    it("should log repository creation message", () => {
-      // ARRANGE
-      const { sut } = makeSut();
-      const consoleSpy = jest
-        .spyOn(console, "log")
-        .mockImplementation(() => {});
-
-      // ACT
-      sut();
-
-      // ASSERT
-      expect(consoleSpy).toHaveBeenCalledWith(
-        "🏭 [MAIN] Criando InMemoryMilitaryRankRepository",
-      );
-    });
-
-    it("should log before creating repository", () => {
-      // ARRANGE
-      const { sut } = makeSut();
-      const callOrder: string[] = [];
-
-      const consoleSpy = jest.spyOn(console, "log").mockImplementation(() => {
-        callOrder.push("log");
-      });
-
-      mockInMemoryMilitaryRankRepository.mockImplementation(() => {
-        callOrder.push("repository");
-        return { create: jest.fn() } as any;
-      });
-
-      // ACT
-      sut();
-
-      // ASSERT
-      expect(callOrder).toEqual(["log", "repository"]);
     });
   });
 
@@ -304,24 +262,6 @@ describe("makeMilitaryRankRepository", () => {
       results.forEach((result, index) => {
         expect(result).toBe(repositories[index]);
       });
-    });
-
-    it("should maintain factory isolation", () => {
-      // ARRANGE
-      const { sut } = makeSut();
-      const consoleSpy = jest
-        .spyOn(console, "log")
-        .mockImplementation(() => {});
-
-      // ACT
-      const result1 = sut();
-      const result2 = sut();
-
-      // ASSERT
-      // Cada chamada deve ser independente
-      expect(consoleSpy).toHaveBeenCalledTimes(2);
-      expect(mockInMemoryMilitaryRankRepository).toHaveBeenCalledTimes(2);
-      expect(result1).not.toBe(result2); // Instâncias diferentes
     });
   });
 

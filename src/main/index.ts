@@ -9,9 +9,6 @@ import type { Express } from "express";
 const bootstrap = (): Express => {
   const app = express();
 
-  // 🎯 APLICAÇÃO PRÁTICA DO ROUTE REGISTRY:
-  console.log("🚀 [MAIN] Inicializando Route Registry...");
-
   // 1. Criar instância do RouteRegistry
   const routeRegistry = new DefaultRouteRegistry();
 
@@ -30,8 +27,7 @@ if (process.env.NODE_ENV !== "production") {
   const port = process.env.PORT ?? 3333;
 
   app.listen(port, () => {
-    console.log(`🚀 Server running on port ${port}`);
-    console.log(`📖 API Documentation: http://localhost:${port}/docs`);
+    console.log(`🚀 API running on port http://localhost:${port}`);
   });
 }
 

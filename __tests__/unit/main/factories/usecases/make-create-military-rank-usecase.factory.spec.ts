@@ -89,9 +89,6 @@ const makeSut = (): SutTypes => {
 describe("makeCreateMilitaryRankUseCase", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-
-    // Mock console methods to avoid cluttering test output
-    jest.spyOn(console, "log").mockImplementation(() => {});
   });
 
   afterEach(() => {
@@ -201,78 +198,6 @@ describe("makeCreateMilitaryRankUseCase", () => {
       // ASSERT
       expect(result).toBe(mockService);
       expect(typeof result.create).toBe("function");
-    });
-  });
-
-  describe("logging", () => {
-    it("should log usecase creation start message", () => {
-      // ARRANGE
-      const { sut, mockRepository, mockSanitizer, mockValidator, mockService } =
-        makeSut();
-      const consoleSpy = jest
-        .spyOn(console, "log")
-        .mockImplementation(() => {});
-
-      mockMakeMilitaryRankRepository.mockReturnValue(mockRepository);
-      mockMakeCreateMilitaryRankSanitizer.mockReturnValue(mockSanitizer);
-      mockMakeCreateMilitaryRankValidator.mockReturnValue(mockValidator);
-      mockCreateMilitaryRankService.mockReturnValue(mockService as any);
-
-      // ACT
-      sut();
-
-      // ASSERT
-      expect(consoleSpy).toHaveBeenCalledWith(
-        "🏭 [MAIN] Montando CreateMilitaryRankUseCase com todas as dependências...",
-      );
-    });
-
-    it("should log usecase creation success message", () => {
-      // ARRANGE
-      const { sut, mockRepository, mockSanitizer, mockValidator, mockService } =
-        makeSut();
-      const consoleSpy = jest
-        .spyOn(console, "log")
-        .mockImplementation(() => {});
-
-      mockMakeMilitaryRankRepository.mockReturnValue(mockRepository);
-      mockMakeCreateMilitaryRankSanitizer.mockReturnValue(mockSanitizer);
-      mockMakeCreateMilitaryRankValidator.mockReturnValue(mockValidator);
-      mockCreateMilitaryRankService.mockReturnValue(mockService as any);
-
-      // ACT
-      sut();
-
-      // ASSERT
-      expect(consoleSpy).toHaveBeenCalledWith(
-        "✅ [MAIN] CreateMilitaryRankUseCase montado com sucesso!",
-      );
-    });
-
-    it("should log in correct order (start → success)", () => {
-      // ARRANGE
-      const { sut, mockRepository, mockSanitizer, mockValidator, mockService } =
-        makeSut();
-      const logCalls: string[] = [];
-      const consoleSpy = jest
-        .spyOn(console, "log")
-        .mockImplementation((message: string) => {
-          logCalls.push(message);
-        });
-
-      mockMakeMilitaryRankRepository.mockReturnValue(mockRepository);
-      mockMakeCreateMilitaryRankSanitizer.mockReturnValue(mockSanitizer);
-      mockMakeCreateMilitaryRankValidator.mockReturnValue(mockValidator);
-      mockCreateMilitaryRankService.mockReturnValue(mockService as any);
-
-      // ACT
-      sut();
-
-      // ASSERT
-      expect(logCalls).toEqual([
-        "🏭 [MAIN] Montando CreateMilitaryRankUseCase com todas as dependências...",
-        "✅ [MAIN] CreateMilitaryRankUseCase montado com sucesso!",
-      ]);
     });
   });
 

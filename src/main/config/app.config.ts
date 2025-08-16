@@ -30,8 +30,6 @@ export const setupApp = (app: Express, routeRegistry: RouteRegistry): void => {
       res: express.Response,
       _next: express.NextFunction,
     ) => {
-      console.error("🚨 Unhandled error:", error);
-
       res.status(500).json({
         error: "Internal Server Error",
         message: "Something went wrong",

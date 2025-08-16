@@ -64,9 +64,6 @@ describe("makeCreateMilitaryRankController", () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    // Mock console methods to avoid cluttering test output
-    jest.spyOn(console, "log").mockImplementation(() => {});
-
     // Setup default mock returns
     mockMakeCreateMilitaryRankUseCase.mockReturnValue({
       create: jest.fn(),
@@ -164,60 +161,6 @@ describe("makeCreateMilitaryRankController", () => {
       expect(result).toBeDefined();
       expect(typeof result).toBe("object");
       expect(typeof result.handle).toBe("function");
-    });
-  });
-
-  describe("logging", () => {
-    it("should log controller creation start message", () => {
-      // ARRANGE
-      const { sut, mockHttpResponseFactory } = makeSut();
-      const consoleSpy = jest
-        .spyOn(console, "log")
-        .mockImplementation(() => {});
-
-      // ACT
-      sut({ httpResponseFactory: mockHttpResponseFactory });
-
-      // ASSERT
-      expect(consoleSpy).toHaveBeenCalledWith(
-        "🏭 [MAIN] Criando CreateMilitaryRankController...",
-      );
-    });
-
-    it("should log controller creation success message", () => {
-      // ARRANGE
-      const { sut, mockHttpResponseFactory } = makeSut();
-      const consoleSpy = jest
-        .spyOn(console, "log")
-        .mockImplementation(() => {});
-
-      // ACT
-      sut({ httpResponseFactory: mockHttpResponseFactory });
-
-      // ASSERT
-      expect(consoleSpy).toHaveBeenCalledWith(
-        "✅ [MAIN] CreateMilitaryRankController criado com sucesso!",
-      );
-    });
-
-    it("should log messages in correct order", () => {
-      // ARRANGE
-      const { sut, mockHttpResponseFactory } = makeSut();
-      const consoleSpy = jest
-        .spyOn(console, "log")
-        .mockImplementation(() => {});
-
-      // ACT
-      sut({ httpResponseFactory: mockHttpResponseFactory });
-
-      // ASSERT
-      expect(consoleSpy.mock.calls).toHaveLength(2);
-      expect(consoleSpy.mock.calls[0]?.[0]).toBe(
-        "🏭 [MAIN] Criando CreateMilitaryRankController...",
-      );
-      expect(consoleSpy.mock.calls[1]?.[0]).toBe(
-        "✅ [MAIN] CreateMilitaryRankController criado com sucesso!",
-      );
     });
   });
 

@@ -19,9 +19,6 @@ export class DefaultRouteRegistry implements RouteRegistry {
   private readonly routes: RouteConfig[] = [];
 
   register(config: RouteConfig): void {
-    console.log(
-      `📝 [MAIN-REGISTRY] Registrando rota: ${config.method} ${config.path}`,
-    );
     this.routes.push(config);
   }
 
@@ -42,15 +39,5 @@ export class DefaultRouteRegistry implements RouteRegistry {
     return this.routes.find(
       (route) => route.method === method && route.path === path,
     );
-  }
-
-  // Método helper para debugging
-  logRoutes(): void {
-    console.log(
-      `📋 [MAIN-REGISTRY] Total de rotas registradas: ${this.routes.length}`,
-    );
-    this.routes.forEach((route, index) => {
-      console.log(`  ${index + 1}. ${route.method} ${route.path}`);
-    });
   }
 }

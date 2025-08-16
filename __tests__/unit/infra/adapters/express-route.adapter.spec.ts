@@ -189,8 +189,7 @@ describe("Express Route Adapter", () => {
       // ASSERT
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.json).toHaveBeenCalledWith({
-        error: "Internal Server Error",
-        message: "Erro interno do servidor",
+        error: "Erro interno no servidor.",
       });
     });
 
@@ -206,8 +205,68 @@ describe("Express Route Adapter", () => {
       // ASSERT
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.json).toHaveBeenCalledWith({
-        error: "Internal Server Error",
-        message: "Erro interno do servidor",
+        error: "Erro interno no servidor.",
+      });
+    });
+
+    it("should handle AppError and return client error status", async () => {
+      // ARRANGE
+      const { sut, controller, req, res } = sutInstance;
+      // Cria um objeto que simula um AppError
+      const appError = {
+        name: "AppError",
+        message: "Campo obrigatório não informado",
+        statusCode: 422,
+      };
+
+      controller.handle.mockRejectedValue(appError);
+
+      // ACT
+      await sut(req as Request, res as Response);
+
+      // ASSERT
+      expect(res.status).toHaveBeenCalledWith(422);
+      expect(res.json).toHaveBeenCalledWith({
+        error: "Campo obrigatório não informado",
+      });
+    });
+
+    it("should differentiate between AppError and server errors", async () => {
+      // ARRANGE
+      const { sut, controller, req, res } = sutInstance;
+
+      // Primeiro testa com AppError
+      const appError = {
+        name: "InvalidParamError",
+        message: "Parâmetro inválido",
+        statusCode: 400,
+      };
+
+      controller.handle.mockRejectedValueOnce(appError);
+
+      // ACT - primeira chamada (AppError)
+      await sut(req as Request, res as Response);
+
+      // ASSERT - primeira chamada
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({
+        error: "Parâmetro inválido",
+      });
+
+      // Reset mocks
+      jest.clearAllMocks();
+
+      // Agora testa com erro de servidor
+      const serverError = new TypeError("Unexpected null");
+      controller.handle.mockRejectedValueOnce(serverError);
+
+      // ACT - segunda chamada (Server Error)
+      await sut(req as Request, res as Response);
+
+      // ASSERT - segunda chamada
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({
+        error: "Erro interno no servidor.",
       });
     });
   });
@@ -255,59 +314,6 @@ describe("Express Route Adapter", () => {
       expect(res.status).toHaveBeenCalledWith(204);
       expect(res.status).toHaveReturnedWith(res); // Verifica que retorna this
       expect(res.json).toHaveBeenCalledWith(undefined);
-    });
-  });
-
-  describe("Logging behavior", () => {
-    let consoleSpy: jest.SpyInstance;
-    let consoleErrorSpy: jest.SpyInstance;
-
-    beforeEach(() => {
-      consoleSpy = jest.spyOn(console, "log").mockImplementation();
-      consoleErrorSpy = jest.spyOn(console, "error").mockImplementation();
-    });
-
-    afterEach(() => {
-      consoleSpy.mockRestore();
-      consoleErrorSpy.mockRestore();
-    });
-
-    it("should log request and response information", async () => {
-      // ARRANGE
-      const { sut, controller, req, res } = sutInstance;
-
-      controller.handle.mockResolvedValue({
-        statusCode: 200,
-        body: { data: "success" },
-      });
-
-      // ACT
-      await sut(req as Request, res as Response);
-
-      // ASSERT
-      expect(consoleSpy).toHaveBeenCalledWith(
-        "🏗️ [INFRA-EXPRESS] POST /military-ranks - Executando controller...",
-      );
-      expect(consoleSpy).toHaveBeenCalledWith(
-        "✅ [INFRA-EXPRESS] Response 200",
-      );
-    });
-
-    it("should log errors when they occur", async () => {
-      // ARRANGE
-      const { sut, controller, req, res } = sutInstance;
-      const error = new Error("Test error");
-
-      controller.handle.mockRejectedValue(error);
-
-      // ACT
-      await sut(req as Request, res as Response);
-
-      // ASSERT
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        "🚨 [INFRA-EXPRESS] Erro no adaptador:",
-        error,
-      );
     });
   });
 });

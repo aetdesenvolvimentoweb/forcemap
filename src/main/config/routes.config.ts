@@ -8,8 +8,6 @@ export const setupRoutes = (
   app: Express,
   routeRegistry: RouteRegistry,
 ): void => {
-  console.log("🚀 [MAIN] Configurando rotas...");
-
   // API prefix
   const apiPrefix = "/api/v1";
 
@@ -38,6 +36,4 @@ export const setupRoutes = (
       uptime: process.uptime(),
     });
   });
-
-  console.log("✅ [MAIN] Rotas configuradas com sucesso!");
 };

@@ -50,9 +50,6 @@ describe("setupMilitaryRankRoutes", () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    // Mock console methods to avoid cluttering test output
-    jest.spyOn(console, "log").mockImplementation(() => {});
-
     // Setup default mock returns
     mockMakeCreateMilitaryRankController.mockReturnValue(mockController);
   });
@@ -122,51 +119,6 @@ describe("setupMilitaryRankRoutes", () => {
         path: "/military-ranks",
         controller: customController,
       });
-    });
-  });
-
-  describe("logging behavior", () => {
-    it("should log setup start message", () => {
-      // ARRANGE
-      const { sut, mockRouteRegistry } = makeSut();
-
-      // ACT
-      sut(mockRouteRegistry);
-
-      // ASSERT
-      expect(console.log).toHaveBeenCalledWith(
-        "📋 [MAIN] Configurando rotas de Military Rank...",
-      );
-    });
-
-    it("should log setup completion message", () => {
-      // ARRANGE
-      const { sut, mockRouteRegistry } = makeSut();
-
-      // ACT
-      sut(mockRouteRegistry);
-
-      // ASSERT
-      expect(console.log).toHaveBeenCalledWith(
-        "✅ [MAIN] Rotas de Military Rank configuradas!",
-      );
-    });
-
-    it("should log messages in correct order", () => {
-      // ARRANGE
-      const { sut, mockRouteRegistry } = makeSut();
-
-      // ACT
-      sut(mockRouteRegistry);
-
-      // ASSERT
-      const logCalls = (console.log as jest.Mock).mock.calls;
-      expect(logCalls[0][0]).toBe(
-        "📋 [MAIN] Configurando rotas de Military Rank...",
-      );
-      expect(logCalls[1][0]).toBe(
-        "✅ [MAIN] Rotas de Military Rank configuradas!",
-      );
     });
   });
 
@@ -296,9 +248,6 @@ describe("setupMilitaryRankRoutes", () => {
 
       // ACT & ASSERT
       expect(() => sut(mockRouteRegistry)).toThrow("Factory error");
-      expect(console.log).toHaveBeenCalledWith(
-        "📋 [MAIN] Configurando rotas de Military Rank...",
-      );
     });
   });
 
@@ -380,9 +329,6 @@ describe("setupMilitaryRankRoutes", () => {
 
       // ACT & ASSERT
       expect(() => sut(mockRouteRegistry)).toThrow("Registry error");
-      expect(console.log).toHaveBeenCalledWith(
-        "📋 [MAIN] Configurando rotas de Military Rank...",
-      );
     });
 
     it("should handle HttpResponseFactory creation errors", () => {

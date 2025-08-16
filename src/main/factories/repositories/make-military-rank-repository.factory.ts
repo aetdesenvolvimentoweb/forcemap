@@ -22,6 +22,5 @@ export const makeMilitaryRankRepository = (): MilitaryRankRepository => {
   //   return new MongoMilitaryRankRepository(mongoClient);
   // }
 
-  console.log("🏭 [MAIN] Criando InMemoryMilitaryRankRepository");
   return new InMemoryMilitaryRankRepository();
 };

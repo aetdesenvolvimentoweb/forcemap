@@ -18,8 +18,6 @@ export class InMemoryMilitaryRankRepository implements MilitaryRankRepository {
   private currentId = 1;
 
   async create(militaryRankData: CreateMilitaryRankInputDTO): Promise<void> {
-    console.log("🗄️ [INFRA] Salvando no 'banco':", militaryRankData);
-
     // Simula verificação de duplicata por abbreviation
     const existsByAbbreviation = await this.findByAbbreviation(
       militaryRankData.abbreviation,
@@ -47,17 +45,14 @@ export class InMemoryMilitaryRankRepository implements MilitaryRankRepository {
     };
 
     this.data.push(newMilitaryRank);
-    console.log("✅ [INFRA] Salvo com sucesso! ID:", newMilitaryRank.id);
   }
 
   async findByAbbreviation(abbreviation: string): Promise<MilitaryRank | null> {
-    console.log("🔍 [INFRA] Buscando por abbreviation:", abbreviation);
     const found = this.data.find((item) => item.abbreviation === abbreviation);
     return found || null;
   }
 
   async findByOrder(order: number): Promise<MilitaryRank | null> {
-    console.log("🔍 [INFRA] Buscando por order:", order);
     const found = this.data.find((item) => item.order === order);
     return found || null;
   }
