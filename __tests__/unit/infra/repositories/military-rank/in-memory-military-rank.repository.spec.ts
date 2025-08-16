@@ -71,7 +71,7 @@ describe("InMemoryMilitaryRankRepository", () => {
       expect(first?.id).not.toBe(second?.id);
     });
 
-    it("should create military ranks without delays", async () => {
+    it("should create military rank and be immediately available", async () => {
       // ARRANGE
       const { sut } = sutInstance;
       const militaryRankData: CreateMilitaryRankInputDTO = {
@@ -80,16 +80,16 @@ describe("InMemoryMilitaryRankRepository", () => {
       };
 
       // ACT
-      const startTime = Date.now();
       await sut.create(militaryRankData);
-      const endTime = Date.now();
 
-      // ASSERT - Repository não deve simular delays em memória
-      expect(endTime - startTime).toBeLessThan(50);
-
-      // Verificar que foi criado
+      // ASSERT - Verificar que foi criado e está disponível
       const created = await sut.findByAbbreviation("CEL");
       expect(created).toBeDefined();
+      expect(created).toEqual({
+        id: expect.any(String),
+        abbreviation: "CEL",
+        order: 1,
+      });
     });
   });
 

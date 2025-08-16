@@ -93,24 +93,23 @@ describe("HttpLoggingMiddleware", () => {
     });
 
     describe("on response finish", () => {
-      beforeEach(() => {
-        (mockResponse.on as jest.Mock).mockImplementation((event, callback) => {
-          if (event === "finish") {
-            // Simular término da resposta
-            setTimeout(callback, 0);
-          }
-        });
-      });
-
-      it("should log success response with info level", async () => {
+      it("should log success response with info level", () => {
+        // ARRANGE
         mockResponse.statusCode = 200;
         (mockResponse.get as jest.Mock).mockReturnValue("1024");
+        let finishCallback: () => void = () => {};
 
+        (mockResponse.on as jest.Mock).mockImplementation((event, callback) => {
+          if (event === "finish") {
+            finishCallback = callback;
+          }
+        });
+
+        // ACT
         sut.handle(mockRequest as Request, mockResponse as Response, mockNext);
+        finishCallback(); // Executar callback diretamente
 
-        // Aguardar execução do callback
-        await new Promise((resolve) => setTimeout(resolve, 10));
-
+        // ASSERT
         expect(mockChildLogger.info).toHaveBeenCalledWith(
           expect.stringMatching(/Request finished - 200 \d+ms/),
           expect.objectContaining({
@@ -121,26 +120,44 @@ describe("HttpLoggingMiddleware", () => {
         );
       });
 
-      it("should log client error response with warn level", async () => {
+      it("should log client error response with warn level", () => {
+        // ARRANGE
         mockResponse.statusCode = 400;
+        let finishCallback: () => void = () => {};
 
+        (mockResponse.on as jest.Mock).mockImplementation((event, callback) => {
+          if (event === "finish") {
+            finishCallback = callback;
+          }
+        });
+
+        // ACT
         sut.handle(mockRequest as Request, mockResponse as Response, mockNext);
+        finishCallback(); // Executar callback diretamente
 
-        await new Promise((resolve) => setTimeout(resolve, 10));
-
+        // ASSERT
         expect(mockChildLogger.warn).toHaveBeenCalledWith(
           expect.stringMatching(/Request finished - 400 \d+ms/),
           expect.any(Object),
         );
       });
 
-      it("should log server error response with error level", async () => {
+      it("should log server error response with error level", () => {
+        // ARRANGE
         mockResponse.statusCode = 500;
+        let finishCallback: () => void = () => {};
 
+        (mockResponse.on as jest.Mock).mockImplementation((event, callback) => {
+          if (event === "finish") {
+            finishCallback = callback;
+          }
+        });
+
+        // ACT
         sut.handle(mockRequest as Request, mockResponse as Response, mockNext);
+        finishCallback(); // Executar callback diretamente
 
-        await new Promise((resolve) => setTimeout(resolve, 10));
-
+        // ASSERT
         expect(mockChildLogger.error).toHaveBeenCalledWith(
           expect.stringMatching(/Request finished - 500 \d+ms/),
           expect.any(Object),
