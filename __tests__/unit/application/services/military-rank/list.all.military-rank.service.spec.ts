@@ -1,4 +1,4 @@
-import type { MilitaryRankListItemDTO } from "@domain/dtos";
+import type { MilitaryRank } from "@domain/entities";
 import type { MilitaryRankRepository } from "@domain/repositories";
 import { ListAllMilitaryRankService } from "@application/services/military-rank/list.all.military-rank.service";
 
@@ -30,7 +30,7 @@ describe("ListAllMilitaryRankService", () => {
     it("should call militaryRankRepository.listAll", async () => {
       // ARRANGE
       const { sut, mockMilitaryRankRepository } = makeSut();
-      const mockResult: MilitaryRankListItemDTO[] = [
+      const mockResult: MilitaryRank[] = [
         { id: "1", abbreviation: "SGT", order: 5 },
         { id: "2", abbreviation: "TEN", order: 10 },
       ];
@@ -47,7 +47,7 @@ describe("ListAllMilitaryRankService", () => {
     it("should return all military ranks from repository", async () => {
       // ARRANGE
       const { sut, mockMilitaryRankRepository } = makeSut();
-      const mockResult: MilitaryRankListItemDTO[] = [
+      const mockResult: MilitaryRank[] = [
         { id: "uuid-1", abbreviation: "CAB", order: 1 },
         { id: "uuid-2", abbreviation: "SGT", order: 5 },
         { id: "uuid-3", abbreviation: "TEN", order: 10 },
@@ -80,7 +80,7 @@ describe("ListAllMilitaryRankService", () => {
     it("should return empty array when no military ranks exist", async () => {
       // ARRANGE
       const { sut, mockMilitaryRankRepository } = makeSut();
-      const mockResult: MilitaryRankListItemDTO[] = [];
+      const mockResult: MilitaryRank[] = [];
       mockMilitaryRankRepository.listAll.mockResolvedValue(mockResult);
 
       // ACT
@@ -95,7 +95,7 @@ describe("ListAllMilitaryRankService", () => {
     it("should preserve order returned by repository", async () => {
       // ARRANGE
       const { sut, mockMilitaryRankRepository } = makeSut();
-      const mockResult: MilitaryRankListItemDTO[] = [
+      const mockResult: MilitaryRank[] = [
         { id: "3", abbreviation: "TEN", order: 10 },
         { id: "1", abbreviation: "CAB", order: 1 },
         { id: "2", abbreviation: "SGT", order: 5 },
@@ -146,10 +146,10 @@ describe("ListAllMilitaryRankService", () => {
       expect(typeof sut.listAll).toBe("function");
     });
 
-    it("should return Promise<MilitaryRankListItemDTO[]>", async () => {
+    it("should return Promise<MilitaryRank[]>", async () => {
       // ARRANGE
       const { sut, mockMilitaryRankRepository } = makeSut();
-      const mockResult: MilitaryRankListItemDTO[] = [];
+      const mockResult: MilitaryRank[] = [];
       mockMilitaryRankRepository.listAll.mockResolvedValue(mockResult);
 
       // ACT

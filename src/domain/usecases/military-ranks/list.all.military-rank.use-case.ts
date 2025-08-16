@@ -1,5 +1,5 @@
-import type { MilitaryRankListItemDTO } from "@domain/dtos";
+import type { MilitaryRank } from "@domain/entities";
 
 export interface ListAllMilitaryRankUseCase {
-  listAll(): Promise<MilitaryRankListItemDTO[]>;
+  listAll(): Promise<MilitaryRank[]>;
 }
