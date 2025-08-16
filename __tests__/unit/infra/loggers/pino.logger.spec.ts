@@ -97,7 +97,7 @@ describe("PinoLogger", () => {
   describe("child", () => {
     it("should create a child logger with bindings", () => {
       const bindings = { module: "test" };
-      
+
       // Para testes de child, é melhor testar a implementação real
       // pois envolve criação de nova instância do PinoLogger
       const sutWithRealPino = new PinoLogger();
