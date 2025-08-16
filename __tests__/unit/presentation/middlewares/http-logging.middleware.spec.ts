@@ -51,24 +51,16 @@ describe("HttpLoggingMiddleware", () => {
 
   describe("handle", () => {
     it("should set correlation ID header", () => {
-      sut.handle(
-        mockRequest as Request,
-        mockResponse as Response,
-        mockNext
-      );
+      sut.handle(mockRequest as Request, mockResponse as Response, mockNext);
 
       expect(mockResponse.setHeader).toHaveBeenCalledWith(
         "X-Correlation-ID",
-        expect.stringMatching(/^req_\d+_[a-z0-9]{9}$/)
+        expect.stringMatching(/^req_\d+_[a-z0-9]{9}$/),
       );
     });
 
     it("should create child logger with request context", () => {
-      sut.handle(
-        mockRequest as Request,
-        mockResponse as Response,
-        mockNext
-      );
+      sut.handle(mockRequest as Request, mockResponse as Response, mockNext);
 
       expect(mockLogger.child).toHaveBeenCalledWith({
         correlationId: expect.stringMatching(/^req_\d+_[a-z0-9]{9}$/),
@@ -80,35 +72,23 @@ describe("HttpLoggingMiddleware", () => {
     });
 
     it("should log request started", () => {
-      sut.handle(
-        mockRequest as Request,
-        mockResponse as Response,
-        mockNext
-      );
+      sut.handle(mockRequest as Request, mockResponse as Response, mockNext);
 
       expect(mockChildLogger.info).toHaveBeenCalledWith("Request started");
     });
 
     it("should call next function", () => {
-      sut.handle(
-        mockRequest as Request,
-        mockResponse as Response,
-        mockNext
-      );
+      sut.handle(mockRequest as Request, mockResponse as Response, mockNext);
 
       expect(mockNext).toHaveBeenCalled();
     });
 
     it("should register finish event listener", () => {
-      sut.handle(
-        mockRequest as Request,
-        mockResponse as Response,
-        mockNext
-      );
+      sut.handle(mockRequest as Request, mockResponse as Response, mockNext);
 
       expect(mockResponse.on).toHaveBeenCalledWith(
         "finish",
-        expect.any(Function)
+        expect.any(Function),
       );
     });
 
@@ -126,14 +106,10 @@ describe("HttpLoggingMiddleware", () => {
         mockResponse.statusCode = 200;
         (mockResponse.get as jest.Mock).mockReturnValue("1024");
 
-        sut.handle(
-          mockRequest as Request,
-          mockResponse as Response,
-          mockNext
-        );
+        sut.handle(mockRequest as Request, mockResponse as Response, mockNext);
 
         // Aguardar execução do callback
-        await new Promise(resolve => setTimeout(resolve, 10));
+        await new Promise((resolve) => setTimeout(resolve, 10));
 
         expect(mockChildLogger.info).toHaveBeenCalledWith(
           expect.stringMatching(/Request finished - 200 \d+ms/),
@@ -141,41 +117,33 @@ describe("HttpLoggingMiddleware", () => {
             statusCode: 200,
             responseTime: expect.stringMatching(/\d+ms/),
             contentLength: "1024",
-          })
+          }),
         );
       });
 
       it("should log client error response with warn level", async () => {
         mockResponse.statusCode = 400;
 
-        sut.handle(
-          mockRequest as Request,
-          mockResponse as Response,
-          mockNext
-        );
+        sut.handle(mockRequest as Request, mockResponse as Response, mockNext);
 
-        await new Promise(resolve => setTimeout(resolve, 10));
+        await new Promise((resolve) => setTimeout(resolve, 10));
 
         expect(mockChildLogger.warn).toHaveBeenCalledWith(
           expect.stringMatching(/Request finished - 400 \d+ms/),
-          expect.any(Object)
+          expect.any(Object),
         );
       });
 
       it("should log server error response with error level", async () => {
         mockResponse.statusCode = 500;
 
-        sut.handle(
-          mockRequest as Request,
-          mockResponse as Response,
-          mockNext
-        );
+        sut.handle(mockRequest as Request, mockResponse as Response, mockNext);
 
-        await new Promise(resolve => setTimeout(resolve, 10));
+        await new Promise((resolve) => setTimeout(resolve, 10));
 
         expect(mockChildLogger.error).toHaveBeenCalledWith(
           expect.stringMatching(/Request finished - 500 \d+ms/),
-          expect.any(Object)
+          expect.any(Object),
         );
       });
     });
