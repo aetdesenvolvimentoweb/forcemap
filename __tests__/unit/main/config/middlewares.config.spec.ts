@@ -294,6 +294,39 @@ describe("setupMiddlewares", () => {
     });
   });
 
+  describe("request logging behavior", () => {
+    it("should call next() in logging middleware", () => {
+      // ARRANGE
+      const { sut, mockApp } = makeSut();
+      const mockReq = {
+        method: "GET",
+        path: "/test",
+      } as Request;
+      const mockRes = {} as Response;
+      const mockNext = jest.fn() as NextFunction;
+
+      // ACT
+      sut(mockApp);
+
+      // Encontrar e executar o middleware de logging
+      const middlewareCalls = (mockApp.use as jest.Mock).mock.calls;
+      const loggingMiddleware = middlewareCalls.find((call) => {
+        const middleware = call[0];
+        return (
+          typeof middleware === "function" &&
+          middleware.length === 3 &&
+          !middleware.toString().includes("setHeader")
+        );
+      })?.[0];
+
+      loggingMiddleware?.(mockReq, mockRes, mockNext);
+
+      // ASSERT
+      expect(mockNext).toHaveBeenCalledTimes(1);
+      expect(mockNext).toHaveBeenCalledWith();
+    });
+  });
+
   describe("function signature", () => {
     it("should be a function named setupMiddlewares", () => {
       // ARRANGE

@@ -125,6 +125,21 @@ describe("ExpressRouteBuilder", () => {
       );
       expect(mockApp.patch).toHaveBeenCalledWith("/patch", mockExpressHandler);
     });
+
+    it("should throw InvalidParamError for unsupported HTTP method", () => {
+      // ARRANGE
+      const { sut } = makeSut();
+      const routes = [
+        { method: "OPTIONS", path: "/test", controller: mockController },
+      ];
+      (mockRouteRegistry.getRoutes as jest.Mock).mockReturnValue(routes);
+      const builder = new sut(mockApp, mockRouteRegistry);
+
+      // ACT & ASSERT
+      expect(() => builder.build()).toThrow(
+        'O campo Método HTTP é inválido: "OPTIONS" não é suportado. Métodos válidos: GET, POST, PUT, DELETE, PATCH',
+      );
+    });
   });
 
   describe("buildWithPrefix method", () => {
@@ -273,6 +288,22 @@ describe("ExpressRouteBuilder", () => {
         middlewares[0],
         middlewares[1],
         mockExpressHandler,
+      );
+    });
+
+    it("should throw InvalidParamError for unsupported HTTP method", () => {
+      // ARRANGE
+      const { sut } = makeSut();
+      const routes = [
+        { method: "TRACE", path: "/test", controller: mockController },
+      ];
+      const middlewares = [jest.fn()];
+      (mockRouteRegistry.getRoutes as jest.Mock).mockReturnValue(routes);
+      const builder = new sut(mockApp, mockRouteRegistry);
+
+      // ACT & ASSERT
+      expect(() => builder.buildWithMiddlewares(middlewares)).toThrow(
+        'O campo Método HTTP é inválido: "TRACE" não é suportado. Métodos válidos: GET, POST, PUT, DELETE, PATCH',
       );
     });
   });
