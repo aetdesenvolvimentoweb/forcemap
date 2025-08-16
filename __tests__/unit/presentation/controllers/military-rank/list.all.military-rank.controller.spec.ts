@@ -20,7 +20,7 @@ describe("ListAllMilitaryRankController", () => {
       order: 1,
     },
     {
-      id: "123e4567-e89b-12d3-a456-426614174002", 
+      id: "123e4567-e89b-12d3-a456-426614174002",
       abbreviation: "CEL",
       order: 2,
     },
@@ -55,7 +55,7 @@ describe("ListAllMilitaryRankController", () => {
         statusCode: 200,
         body: { data: mockMilitaryRanks },
       };
-      
+
       listAllMilitaryRankService.listAll.mockResolvedValue(mockMilitaryRanks);
       httpResponseFactory.ok.mockReturnValue(expectedResponse);
 
