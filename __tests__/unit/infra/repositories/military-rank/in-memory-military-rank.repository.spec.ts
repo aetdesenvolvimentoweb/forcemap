@@ -251,4 +251,56 @@ describe("InMemoryMilitaryRankRepository", () => {
       expect(maxResult?.abbreviation).toBe("Max");
     });
   });
+
+  describe("listAll method", () => {
+    it("should return empty array when no ranks exist", async () => {
+      // ARRANGE
+      const { sut } = sutInstance;
+
+      // ACT
+      const result = await sut.listAll();
+
+      // ASSERT
+      expect(result).toEqual([]);
+    });
+
+    it("should return all created ranks", async () => {
+      // ARRANGE
+      const { sut } = sutInstance;
+      const ranks: CreateMilitaryRankInputDTO[] = [
+        { abbreviation: "GEN", order: 1 },
+        { abbreviation: "CEL", order: 2 },
+        { abbreviation: "MAJ", order: 3 },
+      ];
+
+      for (const rank of ranks) {
+        await sut.create(rank);
+      }
+
+      // ACT
+      const result = await sut.listAll();
+
+      // ASSERT
+      expect(result).toHaveLength(3);
+      expect(result).toEqual([
+        { id: expect.any(String), abbreviation: "GEN", order: 1 },
+        { id: expect.any(String), abbreviation: "CEL", order: 2 },
+        { id: expect.any(String), abbreviation: "MAJ", order: 3 },
+      ]);
+    });
+
+    it("should return copy of data (immutability)", async () => {
+      // ARRANGE
+      const { sut } = sutInstance;
+      await sut.create({ abbreviation: "CPT", order: 1 });
+
+      // ACT
+      const result1 = await sut.listAll();
+      const result2 = await sut.listAll();
+
+      // ASSERT
+      expect(result1).not.toBe(result2); // Different instances
+      expect(result1).toEqual(result2); // Same content
+    });
+  });
 });
