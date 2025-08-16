@@ -1,4 +1,4 @@
-import { makeCreateMilitaryRankUseCase } from "@main/factories/usecases/make-create-military-rank-usecase.factory";
+import { makeCreateMilitaryRankUseCase } from "@main/factories/usecases/military-rank/make-create-military-rank-usecase.factory";
 import { CreateMilitaryRankService } from "@application/services";
 import { makeMilitaryRankRepository } from "@main/factories/repositories/make-military-rank-repository.factory";
 import { makeCreateMilitaryRankSanitizer } from "@main/factories/sanitizers/make-create-military-rank-sanitizer.factory";
