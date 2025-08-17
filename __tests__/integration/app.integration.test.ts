@@ -4,6 +4,7 @@ import express from "express";
 import { DefaultRouteRegistry } from "@main/registries";
 import { setupApp } from "@main/config/app.config";
 import { setupAllRoutes } from "@main/config/routes/routes.setup";
+import { clearRepositoryInstance } from "@main/factories/repositories/make-military-rank-repository.factory";
 
 /**
  * 🔗 INTEGRATION TESTS - Express App Integration
@@ -23,6 +24,9 @@ describe("Express App Integration", () => {
   let routeRegistry: DefaultRouteRegistry;
 
   beforeEach(() => {
+    // Limpar o singleton do repositório para garantir estado limpo entre os testes
+    clearRepositoryInstance();
+
     // Setup da aplicação completa
     app = express();
     routeRegistry = new DefaultRouteRegistry();

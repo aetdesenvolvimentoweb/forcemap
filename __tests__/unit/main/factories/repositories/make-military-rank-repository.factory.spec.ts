@@ -1,4 +1,7 @@
-import { makeMilitaryRankRepository } from "@main/factories/repositories/make-military-rank-repository.factory";
+import {
+  makeMilitaryRankRepository,
+  clearRepositoryInstance,
+} from "@main/factories/repositories/make-military-rank-repository.factory";
 import { InMemoryMilitaryRankRepository } from "@infra/repositories";
 import type { MilitaryRankRepository } from "@domain/repositories";
 
@@ -47,6 +50,7 @@ describe("makeMilitaryRankRepository", () => {
 
   afterEach(() => {
     jest.restoreAllMocks();
+    clearRepositoryInstance(); // Limpa o singleton entre os testes
   });
 
   describe("repository creation", () => {
@@ -84,24 +88,20 @@ describe("makeMilitaryRankRepository", () => {
       expect(typeof result.findByOrder).toBe("function");
     });
 
-    it("should create new instance on each call", () => {
+    it("should return same instance on multiple calls (singleton)", () => {
       // ARRANGE
       const { sut } = makeSut();
-      const instance1 = { create: jest.fn() };
-      const instance2 = { create: jest.fn() };
-
-      mockInMemoryMilitaryRankRepository
-        .mockReturnValueOnce(instance1 as any)
-        .mockReturnValueOnce(instance2 as any);
 
       // ACT
       const result1 = sut();
       const result2 = sut();
+      const result3 = sut();
 
-      // ASSERT
-      expect(result1).toBe(instance1);
-      expect(result2).toBe(instance2);
-      expect(mockInMemoryMilitaryRankRepository).toHaveBeenCalledTimes(2);
+      // ASSERT - Para InMemory, deve retornar a mesma instância (singleton)
+      expect(result1).toBe(result2);
+      expect(result2).toBe(result3);
+      expect(result1).toBe(result3);
+      expect(mockInMemoryMilitaryRankRepository).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -141,18 +141,22 @@ describe("makeMilitaryRankRepository", () => {
   });
 
   describe("error handling", () => {
-    it("should handle InMemoryMilitaryRankRepository constructor errors gracefully", () => {
+    it("should handle InMemoryMilitaryRankRepository constructor errors gracefully on first call", () => {
       // ARRANGE
       const { sut } = makeSut();
       mockInMemoryMilitaryRankRepository.mockImplementation(() => {
         throw new Error("Repository constructor error");
       });
 
-      // ACT & ASSERT
+      // ACT & ASSERT - Erro só acontece na primeira chamada (criação do singleton)
+      expect(() => sut()).toThrow("Repository constructor error");
+
+      // Limpar o singleton para testar novamente
+      clearRepositoryInstance();
       expect(() => sut()).toThrow("Repository constructor error");
     });
 
-    it("should propagate repository instantiation errors", () => {
+    it("should propagate repository instantiation errors on singleton creation", () => {
       // ARRANGE
       const { sut } = makeSut();
       const customError = new Error("Custom repository error");
@@ -160,13 +164,17 @@ describe("makeMilitaryRankRepository", () => {
         throw customError;
       });
 
-      // ACT & ASSERT
+      // ACT & ASSERT - Erro só acontece na primeira chamada (criação do singleton)
+      expect(() => sut()).toThrow(customError);
+
+      // Se chamar novamente depois de limpar, deve dar erro novamente
+      clearRepositoryInstance();
       expect(() => sut()).toThrow(customError);
     });
   });
 
   describe("future extensibility", () => {
-    it("should be easily extensible for different repository types", () => {
+    it("should use singleton pattern for InMemory implementation", () => {
       // ARRANGE
       const { sut } = makeSut();
 
@@ -229,39 +237,19 @@ describe("makeMilitaryRankRepository", () => {
       expect(result).toBe(mockRepositoryInstance);
     });
 
-    it("should work consistently across multiple invocations", () => {
+    it("should return consistent singleton across multiple invocations", () => {
       // ARRANGE
       const { sut } = makeSut();
-      const repositories = [
-        {
-          create: jest.fn(),
-          findByAbbreviation: jest.fn(),
-          findByOrder: jest.fn(),
-        },
-        {
-          create: jest.fn(),
-          findByAbbreviation: jest.fn(),
-          findByOrder: jest.fn(),
-        },
-        {
-          create: jest.fn(),
-          findByAbbreviation: jest.fn(),
-          findByOrder: jest.fn(),
-        },
-      ];
-
-      repositories.forEach((repo) => {
-        mockInMemoryMilitaryRankRepository.mockReturnValueOnce(repo as any);
-      });
 
       // ACT
-      const results = [sut(), sut(), sut()];
+      const result1 = sut();
+      const result2 = sut();
+      const result3 = sut();
 
-      // ASSERT
-      expect(mockInMemoryMilitaryRankRepository).toHaveBeenCalledTimes(3);
-      results.forEach((result, index) => {
-        expect(result).toBe(repositories[index]);
-      });
+      // ASSERT - Como é singleton, deve ser chamado apenas 1 vez e retornar a mesma instância
+      expect(mockInMemoryMilitaryRankRepository).toHaveBeenCalledTimes(1);
+      expect(result1).toBe(result2);
+      expect(result2).toBe(result3);
     });
   });
 
