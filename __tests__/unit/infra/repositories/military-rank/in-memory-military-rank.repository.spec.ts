@@ -303,4 +303,50 @@ describe("InMemoryMilitaryRankRepository", () => {
       expect(result1).toEqual(result2); // Same content
     });
   });
+
+  describe("listById method", () => {
+    it("should return military rank by id when exists", async () => {
+      const { sut } = sutInstance;
+      const rankData: CreateMilitaryRankInputDTO = { abbreviation: "CEL", order: 1 };
+      await sut.create(rankData);
+      const created = await sut.findByAbbreviation("CEL");
+      const result = await sut.listById(created!.id);
+      expect(result).toEqual({
+        id: created!.id,
+        abbreviation: "CEL",
+        order: 1,
+      });
+    });
+
+    it("should return null when id does not exist", async () => {
+      const { sut } = sutInstance;
+      const result = await sut.listById("non-existent-id");
+      expect(result).toBeNull();
+    });
+
+    it("should find correct rank among multiple ranks by id", async () => {
+      const { sut } = sutInstance;
+      const ranks: CreateMilitaryRankInputDTO[] = [
+        { abbreviation: "CEL", order: 1 },
+        { abbreviation: "TCel", order: 2 },
+        { abbreviation: "Maj", order: 3 },
+      ];
+      const ids: string[] = [];
+      for (const rank of ranks) {
+        await sut.create(rank);
+        const created = await sut.findByAbbreviation(rank.abbreviation);
+        if (created) {
+          ids.push(created.id);
+        }
+      }
+      // Garantir que temos o id esperado
+      expect(ids).toHaveLength(3);
+      const result = await sut.listById(ids[1]!);
+      expect(result).toEqual({
+        id: ids[1]!,
+        abbreviation: "TCel",
+        order: 2,
+      });
+    });
+  });
 });
