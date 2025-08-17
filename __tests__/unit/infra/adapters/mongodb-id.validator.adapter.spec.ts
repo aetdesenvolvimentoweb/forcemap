@@ -15,8 +15,12 @@ describe("MongoDbIdValidatorAdapter", () => {
 
   it("should throw InvalidParamError for invalid MongoDB ObjectId", async () => {
     const invalidId = "invalid-id";
-    await expect(adapter.validate(invalidId)).rejects.toThrow(InvalidParamError);
-    await expect(adapter.validate(invalidId)).rejects.toThrow("Inválido para MongoDB");
+    await expect(adapter.validate(invalidId)).rejects.toThrow(
+      InvalidParamError,
+    );
+    await expect(adapter.validate(invalidId)).rejects.toThrow(
+      "Inválido para MongoDB",
+    );
   });
 
   it("should throw InvalidParamError for empty string", async () => {
