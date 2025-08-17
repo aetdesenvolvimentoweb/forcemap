@@ -17,6 +17,7 @@ const makeSut = (): SutTypes => {
     create: jest.fn().mockResolvedValue(undefined),
     findByAbbreviation: jest.fn(),
     findByOrder: jest.fn(),
+    listAll: jest.fn().mockResolvedValue([]),
   });
 
   const sanitizer = {

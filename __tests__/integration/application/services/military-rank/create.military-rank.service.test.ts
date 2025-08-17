@@ -15,6 +15,7 @@ const makeSut = (): SutTypes => {
     create: jest.fn().mockResolvedValue(undefined),
     findByAbbreviation: jest.fn().mockResolvedValue(null),
     findByOrder: jest.fn().mockResolvedValue(null),
+    listAll: jest.fn().mockResolvedValue([]),
   });
 
   // Usando implementações reais para teste de integração

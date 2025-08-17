@@ -20,6 +20,7 @@ const makeSut = (): SutTypes => {
       statusCode: 500,
       body: { error: "Erro interno no servidor." },
     }),
+    ok: jest.fn().mockReturnValue({ statusCode: 200, body: { data: [] } }),
   });
 
   const createMilitaryRankService = jest.mocked<CreateMilitaryRankUseCase>({
