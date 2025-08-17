@@ -1,7 +1,10 @@
 import { HttpResponseFactory } from "@presentation/factories";
 import type { Controller, RouteRegistry } from "@presentation/protocols";
 
-import { makeCreateMilitaryRankController } from "@main/factories";
+import {
+  makeCreateMilitaryRankController,
+  makeListAllMilitaryRankController,
+} from "@main/factories";
 
 /**
  * 📋 MAIN LAYER - Military Rank Route Setup
@@ -26,6 +29,15 @@ export const setupMilitaryRankRoutes = (routeRegistry: RouteRegistry): void => {
     method: "POST",
     path: "/military-ranks",
     controller: makeCreateMilitaryRankController({
+      httpResponseFactory,
+    }) as Controller,
+  });
+
+  // ListAll Military Rank
+  routeRegistry.register({
+    method: "GET",
+    path: "/military-ranks",
+    controller: makeListAllMilitaryRankController({
       httpResponseFactory,
     }) as Controller,
   });

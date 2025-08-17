@@ -38,7 +38,13 @@ describe("makeListAllMilitaryRankController", () => {
     (makeListAllMilitaryRankUseCase as jest.Mock).mockReturnValue(mockUseCase);
 
     // Mock ListAllMilitaryRankController constructor
-    (ListAllMilitaryRankController as jest.MockedClass<typeof ListAllMilitaryRankController>).mockImplementation(() => mockController as unknown as ListAllMilitaryRankController);
+    (
+      ListAllMilitaryRankController as jest.MockedClass<
+        typeof ListAllMilitaryRankController
+      >
+    ).mockImplementation(
+      () => mockController as unknown as ListAllMilitaryRankController,
+    );
   });
 
   afterEach(() => {
@@ -48,7 +54,9 @@ describe("makeListAllMilitaryRankController", () => {
   describe("factory orchestration", () => {
     it("should call makeListAllMilitaryRankUseCase to create use case", () => {
       // Act
-      makeListAllMilitaryRankController({ httpResponseFactory: mockHttpResponseFactory });
+      makeListAllMilitaryRankController({
+        httpResponseFactory: mockHttpResponseFactory,
+      });
 
       // Assert
       expect(makeListAllMilitaryRankUseCase).toHaveBeenCalledTimes(1);
@@ -57,7 +65,9 @@ describe("makeListAllMilitaryRankController", () => {
 
     it("should create ListAllMilitaryRankController with correct dependencies", () => {
       // Act
-      makeListAllMilitaryRankController({ httpResponseFactory: mockHttpResponseFactory });
+      makeListAllMilitaryRankController({
+        httpResponseFactory: mockHttpResponseFactory,
+      });
 
       // Assert
       expect(ListAllMilitaryRankController).toHaveBeenCalledTimes(1);
@@ -78,13 +88,19 @@ describe("makeListAllMilitaryRankController", () => {
         return mockUseCase;
       });
 
-      (ListAllMilitaryRankController as jest.MockedClass<typeof ListAllMilitaryRankController>).mockImplementation(() => {
+      (
+        ListAllMilitaryRankController as jest.MockedClass<
+          typeof ListAllMilitaryRankController
+        >
+      ).mockImplementation(() => {
         controllerCallOrder = ++callCounter;
         return mockController as unknown as ListAllMilitaryRankController;
       });
 
       // Act
-      makeListAllMilitaryRankController({ httpResponseFactory: mockHttpResponseFactory });
+      makeListAllMilitaryRankController({
+        httpResponseFactory: mockHttpResponseFactory,
+      });
 
       // Assert
       expect(useCaseCallOrder).toBeLessThan(controllerCallOrder);
@@ -96,7 +112,9 @@ describe("makeListAllMilitaryRankController", () => {
   describe("return value", () => {
     it("should return the created controller instance", () => {
       // Act
-      const result = makeListAllMilitaryRankController({ httpResponseFactory: mockHttpResponseFactory });
+      const result = makeListAllMilitaryRankController({
+        httpResponseFactory: mockHttpResponseFactory,
+      });
 
       // Assert
       expect(result).toBe(mockController);
@@ -104,12 +122,16 @@ describe("makeListAllMilitaryRankController", () => {
 
     it("should return a Controller with correct generic types", () => {
       // Act
-      const result = makeListAllMilitaryRankController({ httpResponseFactory: mockHttpResponseFactory });
+      const result = makeListAllMilitaryRankController({
+        httpResponseFactory: mockHttpResponseFactory,
+      });
 
       // Assert
-      expect(result).toEqual(expect.objectContaining({
-        handle: expect.any(Function),
-      }));
+      expect(result).toEqual(
+        expect.objectContaining({
+          handle: expect.any(Function),
+        }),
+      );
     });
   });
 
@@ -117,22 +139,28 @@ describe("makeListAllMilitaryRankController", () => {
     it("should be a function named makeListAllMilitaryRankController", () => {
       // Assert
       expect(typeof makeListAllMilitaryRankController).toBe("function");
-      expect(makeListAllMilitaryRankController.name).toBe("makeListAllMilitaryRankController");
+      expect(makeListAllMilitaryRankController.name).toBe(
+        "makeListAllMilitaryRankController",
+      );
     });
 
     it("should accept props parameter with httpResponseFactory", () => {
       // Assert
       expect(makeListAllMilitaryRankController.length).toBe(1);
-      
+
       // Verify it accepts the correct parameter structure
       expect(() => {
-        makeListAllMilitaryRankController({ httpResponseFactory: mockHttpResponseFactory });
+        makeListAllMilitaryRankController({
+          httpResponseFactory: mockHttpResponseFactory,
+        });
       }).not.toThrow();
     });
 
     it("should return Controller type", () => {
       // Act
-      const result = makeListAllMilitaryRankController({ httpResponseFactory: mockHttpResponseFactory });
+      const result = makeListAllMilitaryRankController({
+        httpResponseFactory: mockHttpResponseFactory,
+      });
 
       // Assert - Check if it has the Controller interface
       expect(result).toHaveProperty("handle");
@@ -143,22 +171,40 @@ describe("makeListAllMilitaryRankController", () => {
   describe("dependency injection", () => {
     it("should inject httpResponseFactory into controller", () => {
       // Act
-      makeListAllMilitaryRankController({ httpResponseFactory: mockHttpResponseFactory });
+      makeListAllMilitaryRankController({
+        httpResponseFactory: mockHttpResponseFactory,
+      });
 
       // Assert
-      const constructorCall = (ListAllMilitaryRankController as jest.MockedClass<typeof ListAllMilitaryRankController>).mock.calls[0];
+      const constructorCall = (
+        ListAllMilitaryRankController as jest.MockedClass<
+          typeof ListAllMilitaryRankController
+        >
+      ).mock.calls[0];
       expect(constructorCall).toBeDefined();
-      expect(constructorCall?.[0]).toHaveProperty("httpResponseFactory", mockHttpResponseFactory);
+      expect(constructorCall?.[0]).toHaveProperty(
+        "httpResponseFactory",
+        mockHttpResponseFactory,
+      );
     });
 
     it("should inject use case as listAllMilitaryRankService", () => {
       // Act
-      makeListAllMilitaryRankController({ httpResponseFactory: mockHttpResponseFactory });
+      makeListAllMilitaryRankController({
+        httpResponseFactory: mockHttpResponseFactory,
+      });
 
       // Assert
-      const constructorCall = (ListAllMilitaryRankController as jest.MockedClass<typeof ListAllMilitaryRankController>).mock.calls[0];
+      const constructorCall = (
+        ListAllMilitaryRankController as jest.MockedClass<
+          typeof ListAllMilitaryRankController
+        >
+      ).mock.calls[0];
       expect(constructorCall).toBeDefined();
-      expect(constructorCall?.[0]).toHaveProperty("listAllMilitaryRankService", mockUseCase);
+      expect(constructorCall?.[0]).toHaveProperty(
+        "listAllMilitaryRankService",
+        mockUseCase,
+      );
     });
 
     it("should work with different HttpResponseFactory implementations", () => {
@@ -171,12 +217,21 @@ describe("makeListAllMilitaryRankController", () => {
       } as unknown as jest.Mocked<HttpResponseFactory>;
 
       // Act
-      makeListAllMilitaryRankController({ httpResponseFactory: alternativeHttpResponseFactory });
+      makeListAllMilitaryRankController({
+        httpResponseFactory: alternativeHttpResponseFactory,
+      });
 
       // Assert
-      const constructorCall = (ListAllMilitaryRankController as jest.MockedClass<typeof ListAllMilitaryRankController>).mock.calls[0];
+      const constructorCall = (
+        ListAllMilitaryRankController as jest.MockedClass<
+          typeof ListAllMilitaryRankController
+        >
+      ).mock.calls[0];
       expect(constructorCall).toBeDefined();
-      expect(constructorCall?.[0]).toHaveProperty("httpResponseFactory", alternativeHttpResponseFactory);
+      expect(constructorCall?.[0]).toHaveProperty(
+        "httpResponseFactory",
+        alternativeHttpResponseFactory,
+      );
     });
   });
 
@@ -190,20 +245,28 @@ describe("makeListAllMilitaryRankController", () => {
 
       // Act & Assert
       expect(() => {
-        makeListAllMilitaryRankController({ httpResponseFactory: mockHttpResponseFactory });
+        makeListAllMilitaryRankController({
+          httpResponseFactory: mockHttpResponseFactory,
+        });
       }).toThrow("UseCase factory failed");
     });
 
     it("should handle ListAllMilitaryRankController constructor errors gracefully", () => {
       // Arrange
       const error = new Error("Controller constructor failed");
-      (ListAllMilitaryRankController as jest.MockedClass<typeof ListAllMilitaryRankController>).mockImplementation(() => {
+      (
+        ListAllMilitaryRankController as jest.MockedClass<
+          typeof ListAllMilitaryRankController
+        >
+      ).mockImplementation(() => {
         throw error;
       });
 
       // Act & Assert
       expect(() => {
-        makeListAllMilitaryRankController({ httpResponseFactory: mockHttpResponseFactory });
+        makeListAllMilitaryRankController({
+          httpResponseFactory: mockHttpResponseFactory,
+        });
       }).toThrow("Controller constructor failed");
     });
   });
@@ -211,7 +274,9 @@ describe("makeListAllMilitaryRankController", () => {
   describe("integration scenarios", () => {
     it("should handle complete factory flow", () => {
       // Act
-      const result = makeListAllMilitaryRankController({ httpResponseFactory: mockHttpResponseFactory });
+      const result = makeListAllMilitaryRankController({
+        httpResponseFactory: mockHttpResponseFactory,
+      });
 
       // Assert - Verify complete flow
       expect(makeListAllMilitaryRankUseCase).toHaveBeenCalled();
@@ -224,14 +289,29 @@ describe("makeListAllMilitaryRankController", () => {
 
     it("should create independent controller instances on multiple calls", () => {
       // Arrange
-      const mockController2 = { handle: jest.fn(), props: {} as any } as unknown as jest.Mocked<Controller<null, MilitaryRank[]>>;
-      (ListAllMilitaryRankController as jest.MockedClass<typeof ListAllMilitaryRankController>)
-        .mockReturnValueOnce(mockController as unknown as ListAllMilitaryRankController)
-        .mockReturnValueOnce(mockController2 as unknown as ListAllMilitaryRankController);
+      const mockController2 = {
+        handle: jest.fn(),
+        props: {} as any,
+      } as unknown as jest.Mocked<Controller<null, MilitaryRank[]>>;
+      (
+        ListAllMilitaryRankController as jest.MockedClass<
+          typeof ListAllMilitaryRankController
+        >
+      )
+        .mockReturnValueOnce(
+          mockController as unknown as ListAllMilitaryRankController,
+        )
+        .mockReturnValueOnce(
+          mockController2 as unknown as ListAllMilitaryRankController,
+        );
 
       // Act
-      const result1 = makeListAllMilitaryRankController({ httpResponseFactory: mockHttpResponseFactory });
-      const result2 = makeListAllMilitaryRankController({ httpResponseFactory: mockHttpResponseFactory });
+      const result1 = makeListAllMilitaryRankController({
+        httpResponseFactory: mockHttpResponseFactory,
+      });
+      const result2 = makeListAllMilitaryRankController({
+        httpResponseFactory: mockHttpResponseFactory,
+      });
 
       // Assert
       expect(result1).toBe(mockController);
@@ -241,8 +321,12 @@ describe("makeListAllMilitaryRankController", () => {
 
     it("should maintain factory isolation between calls", () => {
       // Act
-      makeListAllMilitaryRankController({ httpResponseFactory: mockHttpResponseFactory });
-      makeListAllMilitaryRankController({ httpResponseFactory: mockHttpResponseFactory });
+      makeListAllMilitaryRankController({
+        httpResponseFactory: mockHttpResponseFactory,
+      });
+      makeListAllMilitaryRankController({
+        httpResponseFactory: mockHttpResponseFactory,
+      });
 
       // Assert
       expect(makeListAllMilitaryRankUseCase).toHaveBeenCalledTimes(2);
