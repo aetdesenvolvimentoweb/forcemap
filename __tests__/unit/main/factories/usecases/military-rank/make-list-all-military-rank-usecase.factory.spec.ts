@@ -11,6 +11,8 @@ jest.mock("@application/services", () => ({
   ListAllMilitaryRankService: jest.fn(),
 }));
 
+jest.mock;
+
 jest.mock("@main/factories/repositories", () => ({
   makeMilitaryRankRepository: jest.fn(),
 }));
@@ -274,6 +276,7 @@ describe("makeListAllMilitaryRankUseCase", () => {
         create: jest.fn(),
         findByAbbreviation: jest.fn(),
         findByOrder: jest.fn(),
+        listById: jest.fn(),
       };
       mockMakeMilitaryRankRepository.mockReturnValue(alternativeRepository);
 

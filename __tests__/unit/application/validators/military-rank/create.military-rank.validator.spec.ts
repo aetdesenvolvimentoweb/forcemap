@@ -18,6 +18,7 @@ const makeSut = (): SutTypes => {
     findByAbbreviation: jest.fn().mockResolvedValue(null),
     findByOrder: jest.fn().mockResolvedValue(null),
     listAll: jest.fn().mockResolvedValue([]),
+    listById: jest.fn().mockResolvedValue(null),
   });
   const sut = new CreateMilitaryRankValidator({
     militaryRankRepository,

@@ -13,6 +13,7 @@ const makeSut = (): SutTypes => {
     findByAbbreviation: jest.fn(),
     findByOrder: jest.fn(),
     listAll: jest.fn(),
+    listById: jest.fn().mockResolvedValue(null),
   };
 
   const sut = new ListAllMilitaryRankService({

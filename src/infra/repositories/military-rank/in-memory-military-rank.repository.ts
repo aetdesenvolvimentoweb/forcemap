@@ -40,4 +40,9 @@ export class InMemoryMilitaryRankRepository implements MilitaryRankRepository {
   async listAll(): Promise<MilitaryRank[]> {
     return [...this.data];
   }
+
+  async listById(id: string): Promise<MilitaryRank | null> {
+    const found = this.data.find((item) => item.id === id);
+    return found || null;
+  }
 }

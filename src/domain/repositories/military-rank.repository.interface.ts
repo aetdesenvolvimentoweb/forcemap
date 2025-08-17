@@ -6,4 +6,5 @@ export interface MilitaryRankRepository {
   findByAbbreviation(abbreviation: string): Promise<MilitaryRank | null>;
   findByOrder(order: number): Promise<MilitaryRank | null>;
   listAll(): Promise<MilitaryRank[]>;
+  listById(id: string): Promise<MilitaryRank | null>;
 }
