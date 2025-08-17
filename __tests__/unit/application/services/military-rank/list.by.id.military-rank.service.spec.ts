@@ -54,53 +54,69 @@ describe("ListByIdMilitaryRankService", () => {
     const { sut, sanitizer, validator } = sutInstance;
     const id = "123";
     const sanitizedId = "sanitized-123";
-  sanitizer.sanitize.mockReturnValue(sanitizedId);
-  // Mock para retornar um objeto válido
-  sutInstance.militaryRankRepository.listById.mockResolvedValue({ id: sanitizedId, abbreviation: "CEL", order: 1 } as MilitaryRank);
+    sanitizer.sanitize.mockReturnValue(sanitizedId);
+    // Mock para retornar um objeto válido
+    sutInstance.militaryRankRepository.listById.mockResolvedValue({
+      id: sanitizedId,
+      abbreviation: "CEL",
+      order: 1,
+    } as MilitaryRank);
 
-  await sut.listById(id);
+    await sut.listById(id);
 
-  expect(sanitizer.sanitize).toHaveBeenCalledWith(id);
-  expect(validator.validate).toHaveBeenCalledWith(sanitizedId);
+    expect(sanitizer.sanitize).toHaveBeenCalledWith(id);
+    expect(validator.validate).toHaveBeenCalledWith(sanitizedId);
   });
 
   it("should call validator with sanitized id", async () => {
     const { sut, sanitizer, validator } = sutInstance;
     const id = "123";
     const sanitizedId = "sanitized-123";
-  sanitizer.sanitize.mockReturnValue(sanitizedId);
-  sutInstance.militaryRankRepository.listById.mockResolvedValue({ id: sanitizedId, abbreviation: "CEL", order: 1 } as MilitaryRank);
+    sanitizer.sanitize.mockReturnValue(sanitizedId);
+    sutInstance.militaryRankRepository.listById.mockResolvedValue({
+      id: sanitizedId,
+      abbreviation: "CEL",
+      order: 1,
+    } as MilitaryRank);
 
-  await sut.listById(id);
+    await sut.listById(id);
 
-  expect(validator.validate).toHaveBeenCalledWith(sanitizedId);
+    expect(validator.validate).toHaveBeenCalledWith(sanitizedId);
   });
 
   it("should call militaryRankRepository.listById with sanitized id", async () => {
     const { sut, sanitizer, militaryRankRepository } = sutInstance;
     const id = "  123  ";
     const sanitizedId = "123";
-  sanitizer.sanitize.mockReturnValue(sanitizedId);
-  sutInstance.militaryRankRepository.listById.mockResolvedValue({ id: sanitizedId, abbreviation: "CEL", order: 1 } as MilitaryRank);
+    sanitizer.sanitize.mockReturnValue(sanitizedId);
+    sutInstance.militaryRankRepository.listById.mockResolvedValue({
+      id: sanitizedId,
+      abbreviation: "CEL",
+      order: 1,
+    } as MilitaryRank);
 
-  await sut.listById(id);
+    await sut.listById(id);
 
-  expect(militaryRankRepository.listById).toHaveBeenCalledWith(sanitizedId);
-  expect(militaryRankRepository.listById).not.toHaveBeenCalledWith(id);
+    expect(militaryRankRepository.listById).toHaveBeenCalledWith(sanitizedId);
+    expect(militaryRankRepository.listById).not.toHaveBeenCalledWith(id);
   });
 
   it("should follow the correct execution order: sanitize -> validate -> listById", async () => {
     const { sut, sanitizer, validator, militaryRankRepository } = sutInstance;
     const id = "123";
     const sanitizedId = "123";
-  sanitizer.sanitize.mockReturnValue(sanitizedId);
-  sutInstance.militaryRankRepository.listById.mockResolvedValue({ id: sanitizedId, abbreviation: "CEL", order: 1 } as MilitaryRank);
+    sanitizer.sanitize.mockReturnValue(sanitizedId);
+    sutInstance.militaryRankRepository.listById.mockResolvedValue({
+      id: sanitizedId,
+      abbreviation: "CEL",
+      order: 1,
+    } as MilitaryRank);
 
-  await sut.listById(id);
+    await sut.listById(id);
 
-  expect(sanitizer.sanitize).toHaveBeenCalledWith(id);
-  expect(validator.validate).toHaveBeenCalledWith(sanitizedId);
-  expect(militaryRankRepository.listById).toHaveBeenCalledWith(sanitizedId);
+    expect(sanitizer.sanitize).toHaveBeenCalledWith(id);
+    expect(validator.validate).toHaveBeenCalledWith(sanitizedId);
+    expect(militaryRankRepository.listById).toHaveBeenCalledWith(sanitizedId);
   });
 
   it("should throw EntityNotFoundError if militaryRank is not found", async () => {
@@ -117,7 +133,11 @@ describe("ListByIdMilitaryRankService", () => {
     const { sut, sanitizer, militaryRankRepository } = sutInstance;
     const id = "found";
     const sanitizedId = "found";
-    const militaryRank = { id: sanitizedId, abbreviation: "CEL", order: 1 } as MilitaryRank;
+    const militaryRank = {
+      id: sanitizedId,
+      abbreviation: "CEL",
+      order: 1,
+    } as MilitaryRank;
     sanitizer.sanitize.mockReturnValue(sanitizedId);
     militaryRankRepository.listById.mockResolvedValue(militaryRank);
 

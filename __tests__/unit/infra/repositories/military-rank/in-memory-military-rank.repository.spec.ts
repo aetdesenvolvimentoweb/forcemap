@@ -307,7 +307,10 @@ describe("InMemoryMilitaryRankRepository", () => {
   describe("listById method", () => {
     it("should return military rank by id when exists", async () => {
       const { sut } = sutInstance;
-      const rankData: CreateMilitaryRankInputDTO = { abbreviation: "CEL", order: 1 };
+      const rankData: CreateMilitaryRankInputDTO = {
+        abbreviation: "CEL",
+        order: 1,
+      };
       await sut.create(rankData);
       const created = await sut.findByAbbreviation("CEL");
       const result = await sut.listById(created!.id);
