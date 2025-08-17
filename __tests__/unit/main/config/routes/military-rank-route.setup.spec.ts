@@ -1,9 +1,13 @@
 import { setupMilitaryRankRoutes } from "@main/config/routes";
 import { HttpResponseFactory } from "@presentation/factories";
-import { makeCreateMilitaryRankController } from "@main/factories";
+import {
+  makeCreateMilitaryRankController,
+  makeListAllMilitaryRankController,
+} from "@main/factories";
 import type { RouteRegistry } from "@presentation/protocols";
 import type { CreateMilitaryRankInputDTO } from "@domain/dtos";
 import type { Controller } from "@presentation/protocols";
+import type { MilitaryRank } from "@domain/entities";
 
 // Mocks
 jest.mock("@presentation/factories", () => ({
@@ -16,11 +20,17 @@ jest.mock("@presentation/factories", () => ({
 
 jest.mock("@main/factories", () => ({
   makeCreateMilitaryRankController: jest.fn(),
+  makeListAllMilitaryRankController: jest.fn(),
 }));
 
 const mockMakeCreateMilitaryRankController =
   makeCreateMilitaryRankController as jest.MockedFunction<
     typeof makeCreateMilitaryRankController
+  >;
+
+const mockMakeListAllMilitaryRankController =
+  makeListAllMilitaryRankController as jest.MockedFunction<
+    typeof makeListAllMilitaryRankController
   >;
 
 const mockHttpResponseFactory = HttpResponseFactory as jest.MockedClass<
@@ -38,12 +48,17 @@ describe("setupMilitaryRankRoutes", () => {
     handle: jest.fn(),
   } as Controller<CreateMilitaryRankInputDTO, null>;
 
+  const mockListController = {
+    handle: jest.fn(),
+  } as Controller<null, MilitaryRank[]>;
+
   // Sistema sob teste
   const makeSut = () => {
     return {
       sut: setupMilitaryRankRoutes,
       mockRouteRegistry,
       mockController,
+      mockListController,
     };
   };
 
@@ -52,6 +67,7 @@ describe("setupMilitaryRankRoutes", () => {
 
     // Setup default mock returns
     mockMakeCreateMilitaryRankController.mockReturnValue(mockController);
+    mockMakeListAllMilitaryRankController.mockReturnValue(mockListController);
   });
 
   afterEach(() => {
@@ -59,7 +75,7 @@ describe("setupMilitaryRankRoutes", () => {
   });
 
   describe("route registration", () => {
-    it("should register POST /military-ranks route", () => {
+    it("should register POST and GET /military-ranks routes", () => {
       // ARRANGE
       const { sut, mockRouteRegistry } = makeSut();
 
@@ -67,11 +83,16 @@ describe("setupMilitaryRankRoutes", () => {
       sut(mockRouteRegistry);
 
       // ASSERT
-      expect(mockRouteRegistry.register).toHaveBeenCalledTimes(1);
-      expect(mockRouteRegistry.register).toHaveBeenCalledWith({
+      expect(mockRouteRegistry.register).toHaveBeenCalledTimes(2);
+      expect(mockRouteRegistry.register).toHaveBeenNthCalledWith(1, {
         method: "POST",
         path: "/military-ranks",
         controller: mockController,
+      });
+      expect(mockRouteRegistry.register).toHaveBeenNthCalledWith(2, {
+        method: "GET",
+        path: "/military-ranks",
+        controller: mockListController,
       });
     });
 
@@ -210,11 +231,16 @@ describe("setupMilitaryRankRoutes", () => {
       sut(mockRouteRegistry);
 
       // ASSERT
-      expect(mockRouteRegistry.register).toHaveBeenCalledTimes(1);
-      expect(mockRouteRegistry.register).toHaveBeenCalledWith({
+      expect(mockRouteRegistry.register).toHaveBeenCalledTimes(2);
+      expect(mockRouteRegistry.register).toHaveBeenNthCalledWith(1, {
         method: "POST",
         path: "/military-ranks",
         controller: mockController,
+      });
+      expect(mockRouteRegistry.register).toHaveBeenNthCalledWith(2, {
+        method: "GET",
+        path: "/military-ranks",
+        controller: mockListController,
       });
     });
 
@@ -231,11 +257,16 @@ describe("setupMilitaryRankRoutes", () => {
       sut(customRouteRegistry);
 
       // ASSERT
-      expect(customRouteRegistry.register).toHaveBeenCalledTimes(1);
-      expect(customRouteRegistry.register).toHaveBeenCalledWith({
+      expect(customRouteRegistry.register).toHaveBeenCalledTimes(2);
+      expect(customRouteRegistry.register).toHaveBeenNthCalledWith(1, {
         method: "POST",
         path: "/military-ranks",
         controller: mockController,
+      });
+      expect(customRouteRegistry.register).toHaveBeenNthCalledWith(2, {
+        method: "GET",
+        path: "/military-ranks",
+        controller: mockListController,
       });
     });
 
@@ -260,8 +291,8 @@ describe("setupMilitaryRankRoutes", () => {
       sut(mockRouteRegistry);
 
       // ASSERT
-      // Currently only registers one route, but structure supports more
-      expect(mockRouteRegistry.register).toHaveBeenCalledTimes(1);
+      // Currently registers two routes (POST and GET), structure supports more
+      expect(mockRouteRegistry.register).toHaveBeenCalledTimes(2);
 
       // Verify the function structure allows for easy extension
       expect(typeof sut).toBe("function");

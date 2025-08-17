@@ -45,7 +45,7 @@ describe("Express App Integration", () => {
         version: "1.0.0",
         status: "running",
         timestamp: expect.any(String),
-        registeredRoutes: 1, // POST /military-ranks
+        registeredRoutes: 2, // POST /military-ranks + GET /military-ranks
       });
     });
 
@@ -120,14 +120,26 @@ describe("Express App Integration", () => {
       // ARRANGE
       const validData = { abbreviation: "CEL", order: 1 };
 
-      // ACT
-      const response = await request(app)
+      // ACT - Test POST route
+      const createResponse = await request(app)
         .post("/api/v1/military-ranks")
         .send(validData)
         .expect(201);
 
       // ASSERT - Se chegou até aqui, a rota foi registrada corretamente
-      expect(response.status).toBe(201);
+      expect(createResponse.status).toBe(201);
+    });
+
+    it("should register GET military rank route correctly", async () => {
+      // ACT - Test GET route
+      const listResponse = await request(app)
+        .get("/api/v1/military-ranks")
+        .expect(200);
+
+      // ASSERT - Route is registered and returns array
+      expect(listResponse.status).toBe(200);
+      expect(listResponse.body).toHaveProperty("data");
+      expect(Array.isArray(listResponse.body.data)).toBe(true);
     });
 
     it("should validate request data through complete pipeline", async () => {
