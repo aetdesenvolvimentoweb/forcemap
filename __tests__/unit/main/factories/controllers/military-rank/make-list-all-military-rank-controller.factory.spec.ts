@@ -1,9 +1,9 @@
-import { makeListAllMilitaryRankController } from "@main/factories/controllers/military-rank/make-list-all-military-rank-controller.factory";
 import { makeListAllMilitaryRankUseCase } from "@main/factories/usecases";
 import { ListAllMilitaryRankController } from "@presentation/controllers";
 import type { HttpResponseFactory } from "@presentation/factories";
 import type { Controller } from "@presentation/protocols";
 import type { MilitaryRank } from "@domain/entities";
+import { makeListAllMilitaryRankController } from "@main/factories";
 
 // Mock das dependências
 jest.mock("@main/factories/usecases");
