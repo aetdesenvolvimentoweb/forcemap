@@ -4,7 +4,7 @@ import type { ListByIdMilitaryRankUseCase } from "@domain/usecases";
 
 import { makeMilitaryRankRepository } from "@main/factories/repositories";
 import { makeIdSanitizer } from "@main/factories/sanitizers";
-import { makeMongoDbIdValidator } from "@main/factories/validators";
+import { makeUUIDIdValidator } from "@main/factories/validators";
 
 /**
  * 🏭 MAIN LAYER - Factory para Use Case
@@ -24,7 +24,7 @@ export const makeListByIdMilitaryRankUseCase =
     const sanitizer = makeIdSanitizer();
 
     // 3. Criar Validator (APPLICATION layer) - precisa do repository
-    const validator = makeMongoDbIdValidator();
+    const validator = makeUUIDIdValidator();
 
     // 4. Montar o Service com todas as dependências
     const useCase = new ListByIdMilitaryRankService({

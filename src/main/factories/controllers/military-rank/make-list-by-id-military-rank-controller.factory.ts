@@ -4,7 +4,7 @@ import { ListByIdMilitaryRankController } from "@presentation/controllers/milita
 import type { HttpResponseFactory } from "@presentation/factories";
 import type { Controller } from "@presentation/protocols";
 
-import { makeListByIdMilitaryRankUseCase } from "@main/factories/usecases/military-rank/list-by-id-military-rank-usecase.factory";
+import { makeListByIdMilitaryRankUseCase } from "@main/factories/usecases/military-rank/make-list-by-id-military-rank-usecase.factory";
 
 interface MakeListByIdMilitaryRankControllerProps {
   httpResponseFactory: HttpResponseFactory;

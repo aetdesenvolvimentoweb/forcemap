@@ -1,4 +1,4 @@
-import { makeListByIdMilitaryRankUseCase } from "@main/factories/usecases/military-rank/list-by-id-military-rank-usecase.factory";
+import { makeListByIdMilitaryRankUseCase } from "@main/factories/usecases/military-rank/make-list-by-id-military-rank-usecase.factory";
 import { ListByIdMilitaryRankService } from "@application/services/military-rank/list.by.id.military-rank.service";
 
 jest.mock("@main/factories/repositories", () => ({

@@ -26,7 +26,7 @@ export class CreateMilitaryRankController
     const { httpResponseFactory, createMilitaryRankService } = this.props;
 
     try {
-      if (!httpRequest.body.data) {
+      if (!httpRequest.body || !httpRequest.body.data) {
         throw new EmptyRequestBodyError();
       }
 

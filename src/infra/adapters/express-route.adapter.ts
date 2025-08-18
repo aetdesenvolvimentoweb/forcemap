@@ -24,11 +24,16 @@ export const adaptExpressRoute = (controller: Controller<unknown, unknown>) => {
     const httpResponseFactory = new HttpResponseFactory();
 
     try {
+      let body: HttpRequest['body'] = {};
+      
+      // Verifica o método HTTP e extrai os dados do body
+      if(req.method === "POST" || req.method === "PUT" || req.method === "PATCH") {
+        body = req.body;
+      }
+
       // Converte Express Request para HttpRequest (nosso protocolo)
       const httpRequest: HttpRequest = {
-        body: {
-          data: req.body, // Os dados vêm do body do Express
-        },
+        body,
         header: req.headers as Record<string, string>,
         query: Object.fromEntries(
           Object.entries(req.query).map(([key, value]) => [
