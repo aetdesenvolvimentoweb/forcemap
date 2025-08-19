@@ -23,7 +23,7 @@ export const makeListByIdMilitaryRankUseCase =
     // 2. Criar Sanitizer (APPLICATION layer)
     const sanitizer = makeIdSanitizer();
 
-    // 3. Criar Validator (APPLICATION layer) - precisa do repository
+    // 3. Criar Validator (APPLICATION layer)
     const validator = makeUUIDIdValidator();
 
     // 4. Montar o Service com todas as dependências

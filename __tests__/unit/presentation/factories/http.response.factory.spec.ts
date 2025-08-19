@@ -21,17 +21,11 @@ describe("HttpResponseFactory", () => {
   });
 
   describe("created", () => {
-    it("should return HTTP 201 Created response", () => {
-      // ARRANGE
+    it("should return HTTP 201 Created response without body", () => {
       const { sut } = sutInstance;
-
-      // ACT
       const response = sut.created();
-
-      // ASSERT
-      expect(response).toEqual({
-        statusCode: 201,
-      });
+      expect(response).toEqual({ statusCode: 201 });
+      expect(response.body).toBeUndefined();
     });
   });
 
@@ -71,19 +65,32 @@ describe("HttpResponseFactory", () => {
 
   describe("serverError", () => {
     it("should return HTTP 500 Internal Server Error", () => {
-      // ARRANGE
       const { sut } = sutInstance;
-
-      // ACT
       const response = sut.serverError();
-
-      // ASSERT
       expect(response).toEqual({
         statusCode: 500,
         body: {
           error: "Erro interno no servidor.",
         },
       });
+    });
+  });
+
+  describe("ok", () => {
+    it("should return HTTP 200 OK with data when provided", () => {
+      const { sut } = sutInstance;
+      const response = sut.ok({ foo: "bar" });
+      expect(response).toEqual({
+        statusCode: 200,
+        body: { data: { foo: "bar" } },
+      });
+    });
+
+    it("should return HTTP 200 OK without body when no data is provided", () => {
+      const { sut } = sutInstance;
+      const response = sut.ok();
+      expect(response).toEqual({ statusCode: 200 });
+      expect(response.body).toBeUndefined();
     });
   });
 });
