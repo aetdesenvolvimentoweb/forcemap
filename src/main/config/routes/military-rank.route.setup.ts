@@ -6,6 +6,7 @@ import {
   makeDeleteMilitaryRankController,
   makeListAllMilitaryRankController,
   makeListByIdMilitaryRankController,
+  makeUpdateMilitaryRankController,
 } from "@main/factories";
 
 /**
@@ -58,6 +59,15 @@ export const setupMilitaryRankRoutes = (routeRegistry: RouteRegistry): void => {
     method: "DELETE",
     path: "/military-ranks/:id",
     controller: makeDeleteMilitaryRankController({
+      httpResponseFactory,
+    }) as Controller,
+  });
+
+  // Update Military Rank
+  routeRegistry.register({
+    method: "PUT",
+    path: "/military-ranks/:id",
+    controller: makeUpdateMilitaryRankController({
       httpResponseFactory,
     }) as Controller,
   });

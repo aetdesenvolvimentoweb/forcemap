@@ -1,1 +1,1 @@
-export * from "./make.create.military-rank.sanitizer.factory";
+export * from "./make.military-rank.input.dto.sanitizer.factory";

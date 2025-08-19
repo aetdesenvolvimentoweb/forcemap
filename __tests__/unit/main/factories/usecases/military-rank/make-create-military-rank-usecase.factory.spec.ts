@@ -22,14 +22,14 @@ jest.mock(
 );
 
 jest.mock(
-  "@main/factories/sanitizers/military-rank/make.create.military-rank.sanitizer.factory",
+  "@main/factories/sanitizers/military-rank/make.military-rank.input.dto.sanitizer.factory",
   () => ({
     makeMilitaryRankInputDTOSanitizer: jest.fn(),
   }),
 );
 
 jest.mock(
-  "@main/factories/validators/military-rank/make.create.military-rank.validator.factory",
+  "@main/factories/validators/military-rank/make.military-rank.validator.factory",
   () => ({
     makeMilitaryRankValidator: jest.fn(),
   }),
@@ -65,6 +65,9 @@ const makeSut = (): SutTypes => {
     create: jest.fn(),
     findByAbbreviation: jest.fn(),
     findByOrder: jest.fn(),
+    findById: jest.fn(),
+    update: jest.fn(),
+    delete: jest.fn(),
   };
 
   const mockSanitizer = {

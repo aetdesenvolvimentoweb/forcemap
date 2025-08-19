@@ -1,1 +1,1 @@
-export * from "./make.create.military-rank.validator.factory";
+export * from "./make.military-rank.validator.factory";

@@ -49,7 +49,7 @@ describe("Express App Integration", () => {
         version: "1.0.0",
         status: "running",
         timestamp: expect.any(String),
-        registeredRoutes: 4,
+        registeredRoutes: 5,
       });
     });
 

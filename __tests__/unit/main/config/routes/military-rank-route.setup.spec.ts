@@ -25,6 +25,7 @@ jest.mock("@main/factories", () => ({
   makeListAllMilitaryRankController: jest.fn(),
   makeListByIdMilitaryRankController: jest.fn(),
   makeDeleteMilitaryRankController: jest.fn(),
+  makeUpdateMilitaryRankController: jest.fn(),
 }));
 const mockMakeDeleteMilitaryRankController =
   makeDeleteMilitaryRankController as jest.MockedFunction<
@@ -98,7 +99,7 @@ describe("setupMilitaryRankRoutes", () => {
   });
 
   describe("route registration", () => {
-    it("should register POST, GET /military-ranks, GET /military-ranks/:id and DELETE /military-ranks/:id routes", () => {
+    it("should register POST, GET /military-ranks, GET /military-ranks/:id, DELETE /military-ranks/:id and PUT /military-ranks/:id routes", () => {
       // ARRANGE
       const { sut, mockRouteRegistry } = makeSut();
 
@@ -106,7 +107,7 @@ describe("setupMilitaryRankRoutes", () => {
       sut(mockRouteRegistry);
 
       // ASSERT
-      expect(mockRouteRegistry.register).toHaveBeenCalledTimes(4);
+      expect(mockRouteRegistry.register).toHaveBeenCalledTimes(5);
       expect(mockRouteRegistry.register).toHaveBeenNthCalledWith(1, {
         method: "POST",
         path: "/military-ranks",
@@ -264,7 +265,7 @@ describe("setupMilitaryRankRoutes", () => {
       sut(mockRouteRegistry);
 
       // ASSERT
-      expect(mockRouteRegistry.register).toHaveBeenCalledTimes(4);
+      expect(mockRouteRegistry.register).toHaveBeenCalledTimes(5);
       expect(mockRouteRegistry.register).toHaveBeenNthCalledWith(1, {
         method: "POST",
         path: "/military-ranks",
@@ -290,7 +291,7 @@ describe("setupMilitaryRankRoutes", () => {
       sut(customRouteRegistry);
 
       // ASSERT
-      expect(customRouteRegistry.register).toHaveBeenCalledTimes(4);
+      expect(customRouteRegistry.register).toHaveBeenCalledTimes(5);
       expect(customRouteRegistry.register).toHaveBeenNthCalledWith(1, {
         method: "POST",
         path: "/military-ranks",
@@ -325,7 +326,7 @@ describe("setupMilitaryRankRoutes", () => {
 
       // ASSERT
       // Currently registers two routes (POST and GET), structure supports more
-      expect(mockRouteRegistry.register).toHaveBeenCalledTimes(4);
+      expect(mockRouteRegistry.register).toHaveBeenCalledTimes(5);
 
       // Verify the function structure allows for easy extension
       expect(typeof sut).toBe("function");
