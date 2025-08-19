@@ -19,8 +19,15 @@ export class HttpResponseFactory {
     body: { error: "Erro interno no servidor." },
   });
 
-  public readonly ok = <T>(data?: T): HttpResponse<T> => ({
-    statusCode: 200,
-    body: { data },
-  });
+  public readonly ok = <T>(data?: T): HttpResponse<T> => {
+    if (data) {
+      return {
+        statusCode: 200,
+        body: { data },
+      };
+    }
+    return {
+      statusCode: 200,
+    };
+  };
 }
