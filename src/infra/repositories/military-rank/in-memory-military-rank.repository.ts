@@ -16,7 +16,7 @@ import type { MilitaryRankRepository } from "@domain/repositories";
 // Por enquanto, uma implementação em memória para demonstrar
 // Depois substituiremos por Prisma/MongoDB/etc.
 export class InMemoryMilitaryRankRepository implements MilitaryRankRepository {
-  private readonly data: MilitaryRank[] = [];
+  private data: MilitaryRank[] = [];
 
   async create(militaryRankData: CreateMilitaryRankInputDTO): Promise<void> {
     const newMilitaryRank: MilitaryRank = {
@@ -44,5 +44,9 @@ export class InMemoryMilitaryRankRepository implements MilitaryRankRepository {
   async listById(id: string): Promise<MilitaryRank | null> {
     const found = this.data.find((item) => item.id === id);
     return found || null;
+  }
+
+  async delete(id: string): Promise<void> {
+    this.data = this.data.filter((item) => item.id !== id);
   }
 }
