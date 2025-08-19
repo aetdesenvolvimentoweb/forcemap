@@ -1,5 +1,5 @@
-import type { CreateMilitaryRankInputDTO } from "@domain/dtos";
+import type { MilitaryRankInputDTO } from "@domain/dtos";
 
 export interface CreateMilitaryRankUseCase {
-  create(data: CreateMilitaryRankInputDTO): Promise<void>;
+  create(data: MilitaryRankInputDTO): Promise<void>;
 }

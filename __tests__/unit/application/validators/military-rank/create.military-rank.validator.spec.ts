@@ -4,7 +4,7 @@ import {
   MissingParamError,
 } from "@application/errors";
 import { CreateMilitaryRankValidator } from "@application/validators";
-import type { CreateMilitaryRankInputDTO } from "@domain/dtos";
+import type { MilitaryRankInputDTO } from "@domain/dtos";
 import type { MilitaryRankRepository } from "@domain/repositories";
 
 interface SutTypes {
@@ -41,7 +41,7 @@ describe("CreateMilitaryRankValidator", () => {
     it("should throw MissingParamError when abbreviation is empty", async () => {
       // ARRANGE
       const { sut } = sutInstance;
-      const inputDto: CreateMilitaryRankInputDTO = {
+      const inputDto: MilitaryRankInputDTO = {
         abbreviation: "",
         order: 1,
       };
@@ -55,7 +55,7 @@ describe("CreateMilitaryRankValidator", () => {
     it("should throw MissingParamError when abbreviation is only spaces", async () => {
       // ARRANGE
       const { sut } = sutInstance;
-      const inputDto: CreateMilitaryRankInputDTO = {
+      const inputDto: MilitaryRankInputDTO = {
         abbreviation: "   ",
         order: 1,
       };
@@ -72,7 +72,7 @@ describe("CreateMilitaryRankValidator", () => {
       const inputDto = {
         abbreviation: "CABO",
         order: null,
-      } as unknown as CreateMilitaryRankInputDTO;
+      } as unknown as MilitaryRankInputDTO;
 
       // ACT & ASSERT
       await expect(sut.validate(inputDto)).rejects.toThrow(
@@ -86,7 +86,7 @@ describe("CreateMilitaryRankValidator", () => {
       const inputDto = {
         abbreviation: "CABO",
         order: undefined,
-      } as unknown as CreateMilitaryRankInputDTO;
+      } as unknown as MilitaryRankInputDTO;
 
       // ACT & ASSERT
       await expect(sut.validate(inputDto)).rejects.toThrow(
@@ -99,7 +99,7 @@ describe("CreateMilitaryRankValidator", () => {
     it("should throw InvalidParamError when abbreviation exceeds 10 characters", async () => {
       // ARRANGE
       const { sut } = sutInstance;
-      const inputDto: CreateMilitaryRankInputDTO = {
+      const inputDto: MilitaryRankInputDTO = {
         abbreviation: "ABCDEFGHIJK", // 11 characters
         order: 1,
       };
@@ -113,7 +113,7 @@ describe("CreateMilitaryRankValidator", () => {
     it("should throw InvalidParamError when abbreviation contains invalid characters", async () => {
       // ARRANGE
       const { sut } = sutInstance;
-      const inputDto: CreateMilitaryRankInputDTO = {
+      const inputDto: MilitaryRankInputDTO = {
         abbreviation: "CABO@#",
         order: 1,
       };
@@ -130,7 +130,7 @@ describe("CreateMilitaryRankValidator", () => {
     it("should throw InvalidParamError when abbreviation contains lowercase letters", async () => {
       // ARRANGE
       const { sut } = sutInstance;
-      const inputDto: CreateMilitaryRankInputDTO = {
+      const inputDto: MilitaryRankInputDTO = {
         abbreviation: "Cabo",
         order: 1,
       };
@@ -147,7 +147,7 @@ describe("CreateMilitaryRankValidator", () => {
     it("should accept abbreviation with uppercase letters", async () => {
       // ARRANGE
       const { sut } = sutInstance;
-      const inputDto: CreateMilitaryRankInputDTO = {
+      const inputDto: MilitaryRankInputDTO = {
         abbreviation: "CABO",
         order: 1,
       };
@@ -162,7 +162,7 @@ describe("CreateMilitaryRankValidator", () => {
     it("should accept abbreviation with numbers", async () => {
       // ARRANGE
       const { sut } = sutInstance;
-      const inputDto: CreateMilitaryRankInputDTO = {
+      const inputDto: MilitaryRankInputDTO = {
         abbreviation: "SGT1",
         order: 1,
       };
@@ -177,7 +177,7 @@ describe("CreateMilitaryRankValidator", () => {
     it("should accept abbreviation with spaces", async () => {
       // ARRANGE
       const { sut } = sutInstance;
-      const inputDto: CreateMilitaryRankInputDTO = {
+      const inputDto: MilitaryRankInputDTO = {
         abbreviation: "SUB TEN",
         order: 1,
       };
@@ -192,7 +192,7 @@ describe("CreateMilitaryRankValidator", () => {
     it("should accept abbreviation with ordinal character", async () => {
       // ARRANGE
       const { sut } = sutInstance;
-      const inputDto: CreateMilitaryRankInputDTO = {
+      const inputDto: MilitaryRankInputDTO = {
         abbreviation: "1º SGT",
         order: 1,
       };
@@ -207,7 +207,7 @@ describe("CreateMilitaryRankValidator", () => {
     it("should accept abbreviation with exactly 10 characters", async () => {
       // ARRANGE
       const { sut } = sutInstance;
-      const inputDto: CreateMilitaryRankInputDTO = {
+      const inputDto: MilitaryRankInputDTO = {
         abbreviation: "ABCDEFGHIJ", // 10 characters
         order: 1,
       };
@@ -224,7 +224,7 @@ describe("CreateMilitaryRankValidator", () => {
     it("should throw InvalidParamError when order is not an integer", async () => {
       // ARRANGE
       const { sut } = sutInstance;
-      const inputDto: CreateMilitaryRankInputDTO = {
+      const inputDto: MilitaryRankInputDTO = {
         abbreviation: "CABO",
         order: 1.5,
       };
@@ -238,7 +238,7 @@ describe("CreateMilitaryRankValidator", () => {
     it("should throw InvalidParamError when order is less than 1", async () => {
       // ARRANGE
       const { sut } = sutInstance;
-      const inputDto: CreateMilitaryRankInputDTO = {
+      const inputDto: MilitaryRankInputDTO = {
         abbreviation: "CABO",
         order: 0,
       };
@@ -252,7 +252,7 @@ describe("CreateMilitaryRankValidator", () => {
     it("should throw InvalidParamError when order is negative", async () => {
       // ARRANGE
       const { sut } = sutInstance;
-      const inputDto: CreateMilitaryRankInputDTO = {
+      const inputDto: MilitaryRankInputDTO = {
         abbreviation: "CABO",
         order: -1,
       };
@@ -266,7 +266,7 @@ describe("CreateMilitaryRankValidator", () => {
     it("should throw InvalidParamError when order is greater than 20", async () => {
       // ARRANGE
       const { sut } = sutInstance;
-      const inputDto: CreateMilitaryRankInputDTO = {
+      const inputDto: MilitaryRankInputDTO = {
         abbreviation: "CABO",
         order: 21,
       };
@@ -280,7 +280,7 @@ describe("CreateMilitaryRankValidator", () => {
     it("should accept order equal to 1 (minimum value)", async () => {
       // ARRANGE
       const { sut } = sutInstance;
-      const inputDto: CreateMilitaryRankInputDTO = {
+      const inputDto: MilitaryRankInputDTO = {
         abbreviation: "CABO",
         order: 1,
       };
@@ -295,7 +295,7 @@ describe("CreateMilitaryRankValidator", () => {
     it("should accept order equal to 20 (maximum value)", async () => {
       // ARRANGE
       const { sut } = sutInstance;
-      const inputDto: CreateMilitaryRankInputDTO = {
+      const inputDto: MilitaryRankInputDTO = {
         abbreviation: "GENERAL",
         order: 20,
       };
@@ -310,7 +310,7 @@ describe("CreateMilitaryRankValidator", () => {
     it("should accept order in the middle of range", async () => {
       // ARRANGE
       const { sut } = sutInstance;
-      const inputDto: CreateMilitaryRankInputDTO = {
+      const inputDto: MilitaryRankInputDTO = {
         abbreviation: "SARGENTO",
         order: 10,
       };
@@ -327,7 +327,7 @@ describe("CreateMilitaryRankValidator", () => {
     it("should validate successfully with completely valid data", async () => {
       // ARRANGE
       const { sut } = sutInstance;
-      const inputDto: CreateMilitaryRankInputDTO = {
+      const inputDto: MilitaryRankInputDTO = {
         abbreviation: "1º SGT",
         order: 8,
       };
@@ -342,7 +342,7 @@ describe("CreateMilitaryRankValidator", () => {
     it("should validate successfully with single letter abbreviation", async () => {
       // ARRANGE
       const { sut } = sutInstance;
-      const inputDto: CreateMilitaryRankInputDTO = {
+      const inputDto: MilitaryRankInputDTO = {
         abbreviation: "G",
         order: 20,
       };
@@ -357,7 +357,7 @@ describe("CreateMilitaryRankValidator", () => {
     it("should validate successfully with numbers and ordinal character", async () => {
       // ARRANGE
       const { sut } = sutInstance;
-      const inputDto: CreateMilitaryRankInputDTO = {
+      const inputDto: MilitaryRankInputDTO = {
         abbreviation: "3º SGT",
         order: 7,
       };
@@ -374,7 +374,7 @@ describe("CreateMilitaryRankValidator", () => {
     it("should check required fields before business rules", async () => {
       // ARRANGE
       const { sut } = sutInstance;
-      const inputDto: CreateMilitaryRankInputDTO = {
+      const inputDto: MilitaryRankInputDTO = {
         abbreviation: "", // Empty required field
         order: 25, // Invalid value (but should not reach this validation)
       };
@@ -390,7 +390,7 @@ describe("CreateMilitaryRankValidator", () => {
     it("should throw DuplicatedKeyError when abbreviation already exists", async () => {
       // ARRANGE
       const { sut, militaryRankRepository } = sutInstance;
-      const inputDto: CreateMilitaryRankInputDTO = {
+      const inputDto: MilitaryRankInputDTO = {
         abbreviation: "CABO",
         order: 1,
       };
@@ -410,7 +410,7 @@ describe("CreateMilitaryRankValidator", () => {
     it("should throw DuplicatedKeyError when order already exists", async () => {
       // ARRANGE
       const { sut, militaryRankRepository } = sutInstance;
-      const inputDto: CreateMilitaryRankInputDTO = {
+      const inputDto: MilitaryRankInputDTO = {
         abbreviation: "SARGENTO",
         order: 5,
       };
@@ -430,7 +430,7 @@ describe("CreateMilitaryRankValidator", () => {
     it("should check abbreviation uniqueness before order uniqueness", async () => {
       // ARRANGE
       const { sut, militaryRankRepository } = sutInstance;
-      const inputDto: CreateMilitaryRankInputDTO = {
+      const inputDto: MilitaryRankInputDTO = {
         abbreviation: "CABO",
         order: 5,
       };
@@ -459,7 +459,7 @@ describe("CreateMilitaryRankValidator", () => {
     it("should pass uniqueness validation when both abbreviation and order are unique", async () => {
       // ARRANGE
       const { sut, militaryRankRepository } = sutInstance;
-      const inputDto: CreateMilitaryRankInputDTO = {
+      const inputDto: MilitaryRankInputDTO = {
         abbreviation: "NOVO",
         order: 15,
       };
@@ -483,7 +483,7 @@ describe("CreateMilitaryRankValidator", () => {
     it("should validate all steps in correct order: required fields -> format -> range -> uniqueness", async () => {
       // ARRANGE
       const { sut, militaryRankRepository } = sutInstance;
-      const inputDto: CreateMilitaryRankInputDTO = {
+      const inputDto: MilitaryRankInputDTO = {
         abbreviation: "VALID",
         order: 10,
       };

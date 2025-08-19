@@ -1,24 +1,18 @@
 import { CreateMilitaryRankSanitizer } from "@application/sanitizers";
 import { CreateMilitaryRankService } from "@application/services";
 import { CreateMilitaryRankValidator } from "@application/validators";
-import type { CreateMilitaryRankInputDTO } from "@domain/dtos";
+import type { MilitaryRankInputDTO } from "@domain/dtos";
 import type { MilitaryRank } from "@domain/entities";
 import type { MilitaryRankRepository } from "@domain/repositories";
+import { InMemoryMilitaryRankRepository } from "@infra/repositories";
 
 interface SutTypes {
   sut: CreateMilitaryRankService;
-  militaryRankRepository: jest.Mocked<MilitaryRankRepository>;
+  militaryRankRepository: MilitaryRankRepository;
 }
 
 const makeSut = (): SutTypes => {
-  const militaryRankRepository = jest.mocked<MilitaryRankRepository>({
-    create: jest.fn().mockResolvedValue(undefined),
-    findByAbbreviation: jest.fn().mockResolvedValue(null),
-    findByOrder: jest.fn().mockResolvedValue(null),
-    listAll: jest.fn().mockResolvedValue([]),
-    listById: jest.fn().mockResolvedValue(null),
-    delete: jest.fn().mockResolvedValue(undefined),
-  });
+  const militaryRankRepository = new InMemoryMilitaryRankRepository();
 
   // Usando implementações reais para teste de integração
   const sanitizer = new CreateMilitaryRankSanitizer();
@@ -47,7 +41,8 @@ describe("CreateMilitaryRankService - Integration Tests", () => {
     it("should create a military rank with valid data", async () => {
       // ARRANGE
       const { sut, militaryRankRepository } = sutInstance;
-      const inputDto: CreateMilitaryRankInputDTO = {
+      const spyCreate = jest.spyOn(militaryRankRepository, "create");
+      const inputDto: MilitaryRankInputDTO = {
         abbreviation: "  cel  ", // dados que precisam de sanitização
         order: 1,
       };
@@ -56,17 +51,18 @@ describe("CreateMilitaryRankService - Integration Tests", () => {
       await sut.create(inputDto);
 
       // ASSERT
-      expect(militaryRankRepository.create).toHaveBeenCalledWith({
+      expect(spyCreate).toHaveBeenCalledWith({
         abbreviation: "CEL", // verificar se foi sanitizado
         order: 1,
       });
-      expect(militaryRankRepository.create).toHaveBeenCalledTimes(1);
+      expect(spyCreate).toHaveBeenCalledTimes(1);
     });
 
     it("should handle data with special characters in abbreviation", async () => {
       // ARRANGE
       const { sut, militaryRankRepository } = sutInstance;
-      const inputDto: CreateMilitaryRankInputDTO = {
+      const spyCreate = jest.spyOn(militaryRankRepository, "create");
+      const inputDto: MilitaryRankInputDTO = {
         abbreviation: "  3º sgt  ",
         order: 5,
       };
@@ -75,7 +71,7 @@ describe("CreateMilitaryRankService - Integration Tests", () => {
       await sut.create(inputDto);
 
       // ASSERT
-      expect(militaryRankRepository.create).toHaveBeenCalledWith({
+      expect(spyCreate).toHaveBeenCalledWith({
         abbreviation: "3º SGT",
         order: 5,
       });
@@ -84,7 +80,13 @@ describe("CreateMilitaryRankService - Integration Tests", () => {
     it("should check uniqueness before creating", async () => {
       // ARRANGE
       const { sut, militaryRankRepository } = sutInstance;
-      const inputDto: CreateMilitaryRankInputDTO = {
+      const spyFindByAbbreviation = jest.spyOn(
+        militaryRankRepository,
+        "findByAbbreviation",
+      );
+      const spyFindByOrder = jest.spyOn(militaryRankRepository, "findByOrder");
+      const spyCreate = jest.spyOn(militaryRankRepository, "create");
+      const inputDto: MilitaryRankInputDTO = {
         abbreviation: "NOVO",
         order: 10,
       };
@@ -93,11 +95,9 @@ describe("CreateMilitaryRankService - Integration Tests", () => {
       await sut.create(inputDto);
 
       // ASSERT
-      expect(militaryRankRepository.findByAbbreviation).toHaveBeenCalledWith(
-        "NOVO",
-      );
-      expect(militaryRankRepository.findByOrder).toHaveBeenCalledWith(10);
-      expect(militaryRankRepository.create).toHaveBeenCalledWith({
+      expect(spyFindByAbbreviation).toHaveBeenCalledWith("NOVO");
+      expect(spyFindByOrder).toHaveBeenCalledWith(10);
+      expect(spyCreate).toHaveBeenCalledWith({
         abbreviation: "NOVO",
         order: 10,
       });
@@ -111,7 +111,7 @@ describe("CreateMilitaryRankService - Integration Tests", () => {
       const inputDto = {
         abbreviation: "",
         order: 1,
-      } as CreateMilitaryRankInputDTO;
+      } as MilitaryRankInputDTO;
 
       // ACT & ASSERT
       await expect(sut.create(inputDto)).rejects.toThrow(
@@ -124,7 +124,7 @@ describe("CreateMilitaryRankService - Integration Tests", () => {
       const { sut } = sutInstance;
       const inputDto = {
         abbreviation: "CEL",
-      } as CreateMilitaryRankInputDTO;
+      } as MilitaryRankInputDTO;
 
       // ACT & ASSERT
       await expect(sut.create(inputDto)).rejects.toThrow(
@@ -135,7 +135,8 @@ describe("CreateMilitaryRankService - Integration Tests", () => {
     it("should sanitize invalid characters from abbreviation", async () => {
       // ARRANGE
       const { sut, militaryRankRepository } = sutInstance;
-      const inputDto: CreateMilitaryRankInputDTO = {
+      const spyCreate = jest.spyOn(militaryRankRepository, "create");
+      const inputDto: MilitaryRankInputDTO = {
         abbreviation: "invalid@char#", // caracteres inválidos são removidos pelo sanitizer
         order: 1,
       };
@@ -144,7 +145,7 @@ describe("CreateMilitaryRankService - Integration Tests", () => {
       await sut.create(inputDto);
 
       // ASSERT - sanitizer remove caracteres inválidos
-      expect(militaryRankRepository.create).toHaveBeenCalledWith({
+      expect(spyCreate).toHaveBeenCalledWith({
         abbreviation: "INVALIDCHA", // @ e # removidos, limitado a 10 chars
         order: 1,
       });
@@ -153,7 +154,8 @@ describe("CreateMilitaryRankService - Integration Tests", () => {
     it("should sanitize and limit abbreviation length", async () => {
       // ARRANGE
       const { sut, militaryRankRepository } = sutInstance;
-      const inputDto: CreateMilitaryRankInputDTO = {
+      const spyCreate = jest.spyOn(militaryRankRepository, "create");
+      const inputDto: MilitaryRankInputDTO = {
         abbreviation: "VERY_LONG_ABBREVIATION", // será limitado pelo sanitizer
         order: 1,
       };
@@ -162,7 +164,7 @@ describe("CreateMilitaryRankService - Integration Tests", () => {
       await sut.create(inputDto);
 
       // ASSERT - sanitizer limita a 10 caracteres
-      expect(militaryRankRepository.create).toHaveBeenCalledWith({
+      expect(spyCreate).toHaveBeenCalledWith({
         abbreviation: "VERYLONGAB", // limitado e _ removido
         order: 1,
       });
@@ -171,7 +173,7 @@ describe("CreateMilitaryRankService - Integration Tests", () => {
     it("should throw error for order out of range", async () => {
       // ARRANGE
       const { sut } = sutInstance;
-      const inputDto: CreateMilitaryRankInputDTO = {
+      const inputDto: MilitaryRankInputDTO = {
         abbreviation: "CEL",
         order: 25, // fora do range 1-20
       };
@@ -185,7 +187,8 @@ describe("CreateMilitaryRankService - Integration Tests", () => {
     it("should sanitize decimal order to integer", async () => {
       // ARRANGE
       const { sut, militaryRankRepository } = sutInstance;
-      const inputDto: CreateMilitaryRankInputDTO = {
+      const spyCreate = jest.spyOn(militaryRankRepository, "create");
+      const inputDto: MilitaryRankInputDTO = {
         abbreviation: "CEL",
         order: 1.5, // será convertido pelo sanitizer
       };
@@ -194,7 +197,7 @@ describe("CreateMilitaryRankService - Integration Tests", () => {
       await sut.create(inputDto);
 
       // ASSERT - sanitizer converte 1.5 para 1
-      expect(militaryRankRepository.create).toHaveBeenCalledWith({
+      expect(spyCreate).toHaveBeenCalledWith({
         abbreviation: "CEL",
         order: 1,
       });
@@ -205,49 +208,50 @@ describe("CreateMilitaryRankService - Integration Tests", () => {
     it("should throw error when abbreviation already exists", async () => {
       // ARRANGE
       const { sut, militaryRankRepository } = sutInstance;
-      const existingMilitaryRank: MilitaryRank = {
-        id: "existing-id",
-        abbreviation: "CEL",
-        order: 2,
-      };
-      militaryRankRepository.findByAbbreviation.mockResolvedValueOnce(
-        existingMilitaryRank,
-      );
 
-      const inputDto: CreateMilitaryRankInputDTO = {
+      const inputDTO1: MilitaryRankInputDTO = {
         abbreviation: "CEL",
         order: 1,
       };
 
+      await militaryRankRepository.create(inputDTO1);
+
+      const spyCreate = jest.spyOn(militaryRankRepository, "create");
+
+      const inputDTO2: MilitaryRankInputDTO = {
+        abbreviation: "CEL",
+        order: 2,
+      };
+
       // ACT & ASSERT
-      await expect(sut.create(inputDto)).rejects.toThrow(
+      await expect(sut.create(inputDTO2)).rejects.toThrow(
         "Abreviatura já está em uso.",
       );
-      expect(militaryRankRepository.create).not.toHaveBeenCalled();
+      expect(spyCreate).not.toHaveBeenCalled();
     });
 
     it("should throw error when order already exists", async () => {
       // ARRANGE
       const { sut, militaryRankRepository } = sutInstance;
-      const existingMilitaryRank: MilitaryRank = {
-        id: "existing-id",
+      const inputDTO1: MilitaryRankInputDTO = {
         abbreviation: "MAJ",
         order: 5,
       };
-      militaryRankRepository.findByOrder.mockResolvedValueOnce(
-        existingMilitaryRank,
-      );
 
-      const inputDto: CreateMilitaryRankInputDTO = {
+      await militaryRankRepository.create(inputDTO1);
+
+      const spyCreate = jest.spyOn(militaryRankRepository, "create");
+
+      const inputDTO2: MilitaryRankInputDTO = {
         abbreviation: "CEL",
         order: 5,
       };
 
       // ACT & ASSERT
-      await expect(sut.create(inputDto)).rejects.toThrow(
+      await expect(sut.create(inputDTO2)).rejects.toThrow(
         "Ordem já está em uso.",
       );
-      expect(militaryRankRepository.create).not.toHaveBeenCalled();
+      expect(spyCreate).not.toHaveBeenCalled();
     });
   });
 
@@ -255,7 +259,14 @@ describe("CreateMilitaryRankService - Integration Tests", () => {
     it("should execute full pipeline: sanitize -> validate -> create with realistic data", async () => {
       // ARRANGE
       const { sut, militaryRankRepository } = sutInstance;
-      const inputDto: CreateMilitaryRankInputDTO = {
+      const spyCreate = jest.spyOn(militaryRankRepository, "create");
+      const spyFindByAbbreviation = jest.spyOn(
+        militaryRankRepository,
+        "findByAbbreviation",
+      );
+      const spyFindByOrder = jest.spyOn(militaryRankRepository, "findByOrder");
+
+      const inputDto: MilitaryRankInputDTO = {
         abbreviation: "  2º ten  ", // precisa sanitização
         order: 8,
       };
@@ -264,11 +275,9 @@ describe("CreateMilitaryRankService - Integration Tests", () => {
       await sut.create(inputDto);
 
       // ASSERT - verificar que todo o pipeline foi executado
-      expect(militaryRankRepository.findByAbbreviation).toHaveBeenCalledWith(
-        "2º TEN",
-      );
-      expect(militaryRankRepository.findByOrder).toHaveBeenCalledWith(8);
-      expect(militaryRankRepository.create).toHaveBeenCalledWith({
+      expect(spyFindByAbbreviation).toHaveBeenCalledWith("2º TEN");
+      expect(spyFindByOrder).toHaveBeenCalledWith(8);
+      expect(spyCreate).toHaveBeenCalledWith({
         abbreviation: "2º TEN",
         order: 8,
       });
@@ -277,7 +286,14 @@ describe("CreateMilitaryRankService - Integration Tests", () => {
     it("should fail fast on first validation error without checking uniqueness", async () => {
       // ARRANGE
       const { sut, militaryRankRepository } = sutInstance;
-      const inputDto: CreateMilitaryRankInputDTO = {
+      const spyFindByAbbreviation = jest.spyOn(
+        militaryRankRepository,
+        "findByAbbreviation",
+      );
+      const spyFindByOrder = jest.spyOn(militaryRankRepository, "findByOrder");
+      const spyCreate = jest.spyOn(militaryRankRepository, "create");
+
+      const inputDto: MilitaryRankInputDTO = {
         abbreviation: "", // erro de campo obrigatório
         order: 1,
       };
@@ -288,9 +304,9 @@ describe("CreateMilitaryRankService - Integration Tests", () => {
       );
 
       // Não deve chegar até as validações de unicidade
-      expect(militaryRankRepository.findByAbbreviation).not.toHaveBeenCalled();
-      expect(militaryRankRepository.findByOrder).not.toHaveBeenCalled();
-      expect(militaryRankRepository.create).not.toHaveBeenCalled();
+      expect(spyFindByAbbreviation).not.toHaveBeenCalled();
+      expect(spyFindByOrder).not.toHaveBeenCalled();
+      expect(spyCreate).not.toHaveBeenCalled();
     });
   });
 });

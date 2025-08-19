@@ -1,5 +1,5 @@
-import type { CreateMilitaryRankInputDTO } from "@domain/dtos";
+import type { MilitaryRankInputDTO } from "@domain/dtos";
 
 export interface CreateMilitaryRankSanitizerProtocol {
-  sanitize(data: CreateMilitaryRankInputDTO): CreateMilitaryRankInputDTO;
+  sanitize(data: MilitaryRankInputDTO): MilitaryRankInputDTO;
 }

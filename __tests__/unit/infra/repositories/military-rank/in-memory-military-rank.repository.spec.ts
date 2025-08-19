@@ -1,5 +1,5 @@
 import { InMemoryMilitaryRankRepository } from "@infra/repositories";
-import type { CreateMilitaryRankInputDTO } from "@domain/dtos";
+import type { MilitaryRankInputDTO } from "@domain/dtos";
 
 interface SutTypes {
   sut: InMemoryMilitaryRankRepository;
@@ -24,7 +24,7 @@ describe("InMemoryMilitaryRankRepository", () => {
     it("should create a military rank successfully", async () => {
       // ARRANGE
       const { sut } = sutInstance;
-      const militaryRankData: CreateMilitaryRankInputDTO = {
+      const militaryRankData: MilitaryRankInputDTO = {
         abbreviation: "CEL",
         order: 1,
       };
@@ -44,11 +44,11 @@ describe("InMemoryMilitaryRankRepository", () => {
     it("should generate unique UUIDs for created military ranks", async () => {
       // ARRANGE
       const { sut } = sutInstance;
-      const firstRank: CreateMilitaryRankInputDTO = {
+      const firstRank: MilitaryRankInputDTO = {
         abbreviation: "CEL",
         order: 1,
       };
-      const secondRank: CreateMilitaryRankInputDTO = {
+      const secondRank: MilitaryRankInputDTO = {
         abbreviation: "TCel",
         order: 2,
       };
@@ -73,7 +73,7 @@ describe("InMemoryMilitaryRankRepository", () => {
     it("should create military rank and be immediately available", async () => {
       // ARRANGE
       const { sut } = sutInstance;
-      const militaryRankData: CreateMilitaryRankInputDTO = {
+      const militaryRankData: MilitaryRankInputDTO = {
         abbreviation: "CEL",
         order: 1,
       };
@@ -96,7 +96,7 @@ describe("InMemoryMilitaryRankRepository", () => {
     it("should find military rank by abbreviation when exists", async () => {
       // ARRANGE
       const { sut } = sutInstance;
-      const militaryRankData: CreateMilitaryRankInputDTO = {
+      const militaryRankData: MilitaryRankInputDTO = {
         abbreviation: "CEL",
         order: 1,
       };
@@ -128,7 +128,7 @@ describe("InMemoryMilitaryRankRepository", () => {
     it("should be case sensitive", async () => {
       // ARRANGE
       const { sut } = sutInstance;
-      const militaryRankData: CreateMilitaryRankInputDTO = {
+      const militaryRankData: MilitaryRankInputDTO = {
         abbreviation: "CEL",
         order: 1,
       };
@@ -147,7 +147,7 @@ describe("InMemoryMilitaryRankRepository", () => {
     it("should find correct rank among multiple ranks", async () => {
       // ARRANGE
       const { sut } = sutInstance;
-      const ranks: CreateMilitaryRankInputDTO[] = [
+      const ranks: MilitaryRankInputDTO[] = [
         { abbreviation: "CEL", order: 1 },
         { abbreviation: "TCel", order: 2 },
         { abbreviation: "Maj", order: 3 },
@@ -173,7 +173,7 @@ describe("InMemoryMilitaryRankRepository", () => {
     it("should find military rank by order when exists", async () => {
       // ARRANGE
       const { sut } = sutInstance;
-      const militaryRankData: CreateMilitaryRankInputDTO = {
+      const militaryRankData: MilitaryRankInputDTO = {
         abbreviation: "CEL",
         order: 5,
       };
@@ -205,7 +205,7 @@ describe("InMemoryMilitaryRankRepository", () => {
     it("should find correct rank among multiple ranks", async () => {
       // ARRANGE
       const { sut } = sutInstance;
-      const ranks: CreateMilitaryRankInputDTO[] = [
+      const ranks: MilitaryRankInputDTO[] = [
         { abbreviation: "CEL", order: 1 },
         { abbreviation: "TCel", order: 2 },
         { abbreviation: "Maj", order: 3 },
@@ -229,11 +229,11 @@ describe("InMemoryMilitaryRankRepository", () => {
     it("should handle edge case orders", async () => {
       // ARRANGE
       const { sut } = sutInstance;
-      const minOrder: CreateMilitaryRankInputDTO = {
+      const minOrder: MilitaryRankInputDTO = {
         abbreviation: "Min",
         order: 1,
       };
-      const maxOrder: CreateMilitaryRankInputDTO = {
+      const maxOrder: MilitaryRankInputDTO = {
         abbreviation: "Max",
         order: 20,
       };
@@ -266,7 +266,7 @@ describe("InMemoryMilitaryRankRepository", () => {
     it("should return all created ranks", async () => {
       // ARRANGE
       const { sut } = sutInstance;
-      const ranks: CreateMilitaryRankInputDTO[] = [
+      const ranks: MilitaryRankInputDTO[] = [
         { abbreviation: "GEN", order: 1 },
         { abbreviation: "CEL", order: 2 },
         { abbreviation: "MAJ", order: 3 },
@@ -306,7 +306,7 @@ describe("InMemoryMilitaryRankRepository", () => {
   describe("listById method", () => {
     it("should return military rank by id when exists", async () => {
       const { sut } = sutInstance;
-      const rankData: CreateMilitaryRankInputDTO = {
+      const rankData: MilitaryRankInputDTO = {
         abbreviation: "CEL",
         order: 1,
       };
@@ -328,7 +328,7 @@ describe("InMemoryMilitaryRankRepository", () => {
 
     it("should find correct rank among multiple ranks by id", async () => {
       const { sut } = sutInstance;
-      const ranks: CreateMilitaryRankInputDTO[] = [
+      const ranks: MilitaryRankInputDTO[] = [
         { abbreviation: "CEL", order: 1 },
         { abbreviation: "TCel", order: 2 },
         { abbreviation: "Maj", order: 3 },
@@ -355,7 +355,7 @@ describe("InMemoryMilitaryRankRepository", () => {
   describe("delete method", () => {
     it("should delete a military rank by id", async () => {
       const { sut } = sutInstance;
-      const rankData: CreateMilitaryRankInputDTO = {
+      const rankData: MilitaryRankInputDTO = {
         abbreviation: "CEL",
         order: 1,
       };
@@ -373,7 +373,7 @@ describe("InMemoryMilitaryRankRepository", () => {
 
     it("should only delete the specified id", async () => {
       const { sut } = sutInstance;
-      const ranks: CreateMilitaryRankInputDTO[] = [
+      const ranks: MilitaryRankInputDTO[] = [
         { abbreviation: "CEL", order: 1 },
         { abbreviation: "TCel", order: 2 },
       ];

@@ -1,4 +1,4 @@
-import type { CreateMilitaryRankInputDTO } from "@domain/dtos";
+import type { MilitaryRankInputDTO } from "@domain/dtos";
 
 import { CreateMilitaryRankController } from "@presentation/controllers";
 import type { HttpResponseFactory } from "@presentation/factories";
@@ -22,7 +22,7 @@ interface MakeCreateMilitaryRankControllerProps {
 export const makeCreateMilitaryRankController = ({
   httpResponseFactory,
 }: MakeCreateMilitaryRankControllerProps): Controller<
-  CreateMilitaryRankInputDTO,
+  MilitaryRankInputDTO,
   null
 > => {
   // Use case vem pronto, com todas as dependências montadas

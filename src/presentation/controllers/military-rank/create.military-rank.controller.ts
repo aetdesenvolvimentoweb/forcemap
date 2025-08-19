@@ -1,4 +1,4 @@
-import type { CreateMilitaryRankInputDTO } from "@domain/dtos";
+import type { MilitaryRankInputDTO } from "@domain/dtos";
 import { AppError } from "@domain/errors";
 import type { CreateMilitaryRankUseCase } from "@domain/usecases";
 
@@ -16,12 +16,12 @@ interface CreateMilitaryRankControllerProps {
 }
 
 export class CreateMilitaryRankController
-  implements Controller<CreateMilitaryRankInputDTO, null>
+  implements Controller<MilitaryRankInputDTO, null>
 {
   constructor(private readonly props: CreateMilitaryRankControllerProps) {}
 
   public handle = async (
-    httpRequest: HttpRequest<CreateMilitaryRankInputDTO>,
+    httpRequest: HttpRequest<MilitaryRankInputDTO>,
   ): Promise<HttpResponse<null>> => {
     const { httpResponseFactory, createMilitaryRankService } = this.props;
 

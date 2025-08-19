@@ -7,7 +7,7 @@ import {
   makeDeleteMilitaryRankController,
 } from "@main/factories";
 import type { RouteRegistry } from "@presentation/protocols";
-import type { CreateMilitaryRankInputDTO } from "@domain/dtos";
+import type { MilitaryRankInputDTO } from "@domain/dtos";
 import type { Controller } from "@presentation/protocols";
 import type { MilitaryRank } from "@domain/entities";
 
@@ -62,7 +62,7 @@ describe("setupMilitaryRankRoutes", () => {
 
   const mockController = {
     handle: jest.fn(),
-  } as Controller<CreateMilitaryRankInputDTO, null>;
+  } as Controller<MilitaryRankInputDTO, null>;
 
   const mockListController = {
     handle: jest.fn(),
@@ -159,7 +159,7 @@ describe("setupMilitaryRankRoutes", () => {
       // ARRANGE
       const { sut, mockRouteRegistry } = makeSut();
       const customController = { handle: jest.fn() } as Controller<
-        CreateMilitaryRankInputDTO,
+        MilitaryRankInputDTO,
         null
       >;
       mockMakeCreateMilitaryRankController.mockReturnValue(customController);

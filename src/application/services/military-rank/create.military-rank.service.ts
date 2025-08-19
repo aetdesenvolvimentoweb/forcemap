@@ -3,7 +3,7 @@ import type {
   CreateMilitaryRankValidatorProtocol,
 } from "@application/protocols";
 
-import type { CreateMilitaryRankInputDTO } from "@domain/dtos";
+import type { MilitaryRankInputDTO } from "@domain/dtos";
 import type { MilitaryRankRepository } from "@domain/repositories";
 import type { CreateMilitaryRankUseCase } from "@domain/usecases";
 
@@ -17,7 +17,7 @@ export class CreateMilitaryRankService implements CreateMilitaryRankUseCase {
   constructor(private readonly props: CreateMilitaryRankServiceProps) {}
 
   public readonly create = async (
-    data: CreateMilitaryRankInputDTO,
+    data: MilitaryRankInputDTO,
   ): Promise<void> => {
     const { militaryRankRepository, sanitizer, validator } = this.props;
 

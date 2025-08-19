@@ -1,5 +1,5 @@
-import type { CreateMilitaryRankInputDTO } from "@domain/dtos";
+import type { MilitaryRankInputDTO } from "@domain/dtos";
 
 export interface CreateMilitaryRankValidatorProtocol {
-  validate(data: CreateMilitaryRankInputDTO): Promise<void>;
+  validate(data: MilitaryRankInputDTO): Promise<void>;
 }

@@ -1,4 +1,4 @@
-import type { CreateMilitaryRankInputDTO } from "@domain/dtos";
+import type { MilitaryRankInputDTO } from "@domain/dtos";
 import type { CreateMilitaryRankUseCase } from "@domain/usecases";
 import { CreateMilitaryRankController } from "@presentation/controllers";
 import type { HttpResponseFactory } from "@presentation/factories";
@@ -51,7 +51,7 @@ describe("CreateMilitaryRankController", () => {
       // ARRANGE
       const { sut, httpResponseFactory, createMilitaryRankService } =
         sutInstance;
-      const httpRequest: HttpRequest<CreateMilitaryRankInputDTO> = {
+      const httpRequest: HttpRequest<MilitaryRankInputDTO> = {
         body: {
           data: {
             abbreviation: "CEL",
@@ -82,9 +82,9 @@ describe("CreateMilitaryRankController", () => {
       // ARRANGE
       const { sut, httpResponseFactory, createMilitaryRankService } =
         sutInstance;
-      const httpRequest: HttpRequest<CreateMilitaryRankInputDTO> = {
+      const httpRequest: HttpRequest<MilitaryRankInputDTO> = {
         body: {},
-      } as HttpRequest<CreateMilitaryRankInputDTO>;
+      } as HttpRequest<MilitaryRankInputDTO>;
 
       // ACT
       const response = await sut.handle(httpRequest);
@@ -103,7 +103,7 @@ describe("CreateMilitaryRankController", () => {
       const error = new InvalidParamError("Abreviatura", "é obrigatória");
       createMilitaryRankService.create.mockRejectedValueOnce(error);
 
-      const httpRequest: HttpRequest<CreateMilitaryRankInputDTO> = {
+      const httpRequest: HttpRequest<MilitaryRankInputDTO> = {
         body: {
           data: {
             abbreviation: "CEL",
@@ -131,7 +131,7 @@ describe("CreateMilitaryRankController", () => {
       const error = new Error("Database connection failed");
       createMilitaryRankService.create.mockRejectedValueOnce(error);
 
-      const httpRequest: HttpRequest<CreateMilitaryRankInputDTO> = {
+      const httpRequest: HttpRequest<MilitaryRankInputDTO> = {
         body: {
           data: {
             abbreviation: "CEL",

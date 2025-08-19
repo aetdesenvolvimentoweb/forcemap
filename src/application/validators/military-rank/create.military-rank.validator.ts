@@ -5,7 +5,7 @@ import {
 } from "@application/errors";
 import type { CreateMilitaryRankValidatorProtocol } from "@application/protocols";
 
-import type { CreateMilitaryRankInputDTO } from "@domain/dtos";
+import type { MilitaryRankInputDTO } from "@domain/dtos";
 import type { MilitaryRankRepository } from "@domain/repositories";
 
 interface CreateMilitaryRankValidatorProps {
@@ -83,28 +83,28 @@ export class CreateMilitaryRankValidator
   };
 
   private readonly validateRequiredFields = (
-    data: CreateMilitaryRankInputDTO,
+    data: MilitaryRankInputDTO,
   ): void => {
     this.validateAbbreviationPresence(data.abbreviation);
     this.validateOrderPresence(data.order);
   };
 
   private readonly validateBusinessRules = (
-    data: CreateMilitaryRankInputDTO,
+    data: MilitaryRankInputDTO,
   ): void => {
     this.validateAbbreviationFormat(data.abbreviation);
     this.validateOrderRange(data.order);
   };
 
   private readonly validateUniqueness = async (
-    data: CreateMilitaryRankInputDTO,
+    data: MilitaryRankInputDTO,
   ): Promise<void> => {
     await this.validateAbbreviationUniqueness(data.abbreviation);
     await this.validateOrderUniqueness(data.order);
   };
 
   public readonly validate = async (
-    data: CreateMilitaryRankInputDTO,
+    data: MilitaryRankInputDTO,
   ): Promise<void> => {
     this.validateRequiredFields(data);
     this.validateBusinessRules(data);

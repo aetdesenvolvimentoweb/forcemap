@@ -3,7 +3,7 @@ import { makeCreateMilitaryRankUseCase } from "@main/factories/usecases";
 import { CreateMilitaryRankController } from "@presentation/controllers";
 import type { HttpResponseFactory } from "@presentation/factories";
 import type { Controller } from "@presentation/protocols";
-import type { CreateMilitaryRankInputDTO } from "@domain/dtos";
+import type { MilitaryRankInputDTO } from "@domain/dtos";
 import type { CreateMilitaryRankUseCase } from "@domain/usecases";
 
 // Mocks
@@ -29,7 +29,7 @@ interface SutTypes {
   sut: typeof makeCreateMilitaryRankController;
   mockHttpResponseFactory: HttpResponseFactory;
   mockUseCase: CreateMilitaryRankUseCase;
-  mockController: Controller<CreateMilitaryRankInputDTO, null>;
+  mockController: Controller<MilitaryRankInputDTO, null>;
 }
 
 const makeSut = (): SutTypes => {
@@ -50,7 +50,7 @@ const makeSut = (): SutTypes => {
 
   const mockController = {
     handle: jest.fn(),
-  } as unknown as Controller<CreateMilitaryRankInputDTO, null>;
+  } as unknown as Controller<MilitaryRankInputDTO, null>;
 
   return {
     sut: makeCreateMilitaryRankController,

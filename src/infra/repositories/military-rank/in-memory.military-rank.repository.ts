@@ -1,6 +1,6 @@
 import { randomUUID } from "crypto";
 
-import type { CreateMilitaryRankInputDTO } from "@domain/dtos";
+import type { MilitaryRankInputDTO } from "@domain/dtos";
 import type { MilitaryRank } from "@domain/entities";
 import type { MilitaryRankRepository } from "@domain/repositories";
 
@@ -18,7 +18,7 @@ import type { MilitaryRankRepository } from "@domain/repositories";
 export class InMemoryMilitaryRankRepository implements MilitaryRankRepository {
   private data: MilitaryRank[] = [];
 
-  async create(militaryRankData: CreateMilitaryRankInputDTO): Promise<void> {
+  async create(militaryRankData: MilitaryRankInputDTO): Promise<void> {
     const newMilitaryRank: MilitaryRank = {
       id: randomUUID(),
       ...militaryRankData,
@@ -48,5 +48,15 @@ export class InMemoryMilitaryRankRepository implements MilitaryRankRepository {
 
   async delete(id: string): Promise<void> {
     this.data = this.data.filter((item) => item.id !== id);
+  }
+
+  async update(id: string, data: MilitaryRankInputDTO): Promise<void> {
+    const index = this.data.findIndex((item) => item.id === id);
+    if (index !== -1 && this.data[index]) {
+      this.data[index] = {
+        ...this.data[index],
+        ...data,
+      };
+    }
   }
 }

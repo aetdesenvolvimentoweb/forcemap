@@ -1,5 +1,5 @@
-import type { UpdateMilitaryRankInputDTO } from "@domain/dtos";
+import type { MilitaryRankInputDTO } from "@domain/dtos";
 
 export interface UpdateMilitaryRankUseCase {
-  update(id: string, data: UpdateMilitaryRankInputDTO): Promise<void>;
+  update(id: string, data: MilitaryRankInputDTO): Promise<void>;
 }

@@ -1,9 +1,4 @@
-export interface CreateMilitaryRankInputDTO {
+export interface MilitaryRankInputDTO {
   abbreviation: string;
   order: number;
-}
-
-export interface UpdateMilitaryRankInputDTO {
-  abbreviation?: string;
-  order?: number;
 }

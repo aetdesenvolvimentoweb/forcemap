@@ -2,25 +2,18 @@ import { DeleteMilitaryRankService } from "@application/services";
 import { MilitaryRankRepository } from "@domain/repositories";
 import { IdSanitizer } from "@application/sanitizers";
 import { UUIDIdValidatorAdapter } from "@infra/adapters";
-import { EntityNotFoundError } from "@application/errors";
-import type { MilitaryRank } from "@domain/entities";
+import { InMemoryMilitaryRankRepository } from "@infra/repositories";
+import { randomUUID } from "crypto";
 
 interface SutTypes {
   sut: DeleteMilitaryRankService;
-  militaryRankRepository: jest.Mocked<MilitaryRankRepository>;
+  militaryRankRepository: MilitaryRankRepository;
   sanitizer: IdSanitizer;
   validator: UUIDIdValidatorAdapter;
 }
 
 const makeSut = (): SutTypes => {
-  const militaryRankRepository = jest.mocked<MilitaryRankRepository>({
-    create: jest.fn(),
-    findByAbbreviation: jest.fn(),
-    findByOrder: jest.fn(),
-    listAll: jest.fn(),
-    listById: jest.fn(),
-    delete: jest.fn(),
-  });
+  const militaryRankRepository = new InMemoryMilitaryRankRepository();
   const sanitizer = new IdSanitizer();
   const validator = new UUIDIdValidatorAdapter();
   const sut = new DeleteMilitaryRankService({
@@ -41,15 +34,18 @@ describe("DeleteMilitaryRankService - Integration Tests", () => {
   describe("Successful deletion flow", () => {
     it("should delete military rank when id exists", async () => {
       const { sut, militaryRankRepository } = sutInstance;
-      const id = "550e8400-e29b-41d4-a716-446655440000";
-      militaryRankRepository.listById.mockResolvedValueOnce({
-        id,
+      const deleteSpy = jest.spyOn(militaryRankRepository, "delete");
+
+      await militaryRankRepository.create({
         abbreviation: "CEL",
         order: 1,
       });
-      militaryRankRepository.delete.mockResolvedValueOnce();
-      await expect(sut.delete(id)).resolves.toBeUndefined();
-      expect(militaryRankRepository.delete).toHaveBeenCalledWith(id);
+
+      const militaryRank =
+        await militaryRankRepository.findByAbbreviation("CEL");
+
+      await expect(sut.delete(militaryRank!.id)).resolves.not.toThrow();
+      expect(deleteSpy).toHaveBeenCalledWith(militaryRank?.id);
     });
   });
 
@@ -69,9 +65,9 @@ describe("DeleteMilitaryRankService - Integration Tests", () => {
     });
 
     it("should throw EntityNotFoundError if military rank does not exist", async () => {
-      const { sut, militaryRankRepository } = sutInstance;
-      const id = "550e8400-e29b-41d4-a716-446655440000";
-      militaryRankRepository.listById.mockResolvedValueOnce(null);
+      const { sut } = sutInstance;
+      const id = randomUUID();
+
       await expect(sut.delete(id)).rejects.toThrow(
         "Posto/Graduação não encontrado(a) com esse ID",
       );
