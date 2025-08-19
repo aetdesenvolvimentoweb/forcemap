@@ -57,14 +57,14 @@ describe("DeleteMilitaryRankService - Integration Tests", () => {
     it("should throw error if id is missing", async () => {
       const { sut } = sutInstance;
       await expect(sut.delete("")).rejects.toThrow(
-        "O campo ID é inválido: Erro no formato."
+        "O campo ID é inválido: Erro no formato.",
       );
     });
 
     it("should throw error if id is not a valid UUID", async () => {
       const { sut } = sutInstance;
       await expect(sut.delete("invalid-id")).rejects.toThrow(
-        "O campo ID é inválido: Erro no formato."
+        "O campo ID é inválido: Erro no formato.",
       );
     });
 
@@ -73,7 +73,7 @@ describe("DeleteMilitaryRankService - Integration Tests", () => {
       const id = "550e8400-e29b-41d4-a716-446655440000";
       militaryRankRepository.listById.mockResolvedValueOnce(null);
       await expect(sut.delete(id)).rejects.toThrow(
-        "Posto/Graduação não encontrado(a) com esse ID"
+        "Posto/Graduação não encontrado(a) com esse ID",
       );
     });
   });

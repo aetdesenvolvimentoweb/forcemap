@@ -1,1 +1,1 @@
-export * from "./make-military-rank-repository.factory";
+export * from "./make.military-rank.repository.factory";

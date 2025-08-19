@@ -3,7 +3,7 @@ import { setupMilitaryRankRoutes } from "@main/config/routes";
 import type { RouteRegistry } from "@presentation/protocols";
 
 // Mocks
-jest.mock("@main/config/routes/military-rank-route.setup", () => ({
+jest.mock("@main/config/routes/military-rank.route.setup", () => ({
   setupMilitaryRankRoutes: jest.fn(),
 }));
 

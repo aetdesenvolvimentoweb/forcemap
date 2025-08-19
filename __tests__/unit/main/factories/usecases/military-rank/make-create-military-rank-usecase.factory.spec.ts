@@ -15,21 +15,21 @@ jest.mock("@application/services", () => ({
 }));
 
 jest.mock(
-  "@main/factories/repositories/make-military-rank-repository.factory",
+  "@main/factories/repositories/make.military-rank.repository.factory",
   () => ({
     makeMilitaryRankRepository: jest.fn(),
   }),
 );
 
 jest.mock(
-  "@main/factories/sanitizers/military-rank/make-create-military-rank-sanitizer.factory",
+  "@main/factories/sanitizers/military-rank/make.create.military-rank.sanitizer.factory",
   () => ({
     makeCreateMilitaryRankSanitizer: jest.fn(),
   }),
 );
 
 jest.mock(
-  "@main/factories/validators/military-rank/make-create-military-rank-validator.factory",
+  "@main/factories/validators/military-rank/make.create.military-rank.validator.factory",
   () => ({
     makeCreateMilitaryRankValidator: jest.fn(),
   }),

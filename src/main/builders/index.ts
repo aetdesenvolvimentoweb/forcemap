@@ -1,1 +1,1 @@
-export { ExpressRouteBuilder } from "./express-route.builder";
+export { ExpressRouteBuilder } from "./express.route.builder";

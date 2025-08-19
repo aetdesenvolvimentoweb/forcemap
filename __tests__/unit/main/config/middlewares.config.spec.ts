@@ -7,7 +7,7 @@ import { makeHttpLoggingMiddleware } from "@main/factories";
 // Mocks
 jest.mock("cors");
 jest.mock("express");
-jest.mock("@main/factories/http-logging-middleware.factory");
+jest.mock("@main/factories/http.logging.middleware.factory");
 
 const mockCors = cors as jest.MockedFunction<typeof cors>;
 const mockExpress = express as jest.MockedObject<typeof express>;

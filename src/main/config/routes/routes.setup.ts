@@ -1,6 +1,6 @@
 import type { RouteRegistry } from "@presentation/protocols";
 
-import { setupMilitaryRankRoutes } from "./military-rank-route.setup";
+import { setupMilitaryRankRoutes } from "./military-rank.route.setup";
 
 /**
  * 🚀 MAIN LAYER - Central Route Setup
