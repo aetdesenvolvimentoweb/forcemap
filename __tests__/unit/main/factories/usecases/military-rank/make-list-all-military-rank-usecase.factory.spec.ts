@@ -1,10 +1,8 @@
 import { ListAllMilitaryRankService } from "@application/services";
 
-import { ListAllMilitaryRankUseCase } from "@domain/usecases";
+import { makeListAllMilitaryRankUseCase } from "@main/factories";
 
 import { makeMilitaryRankRepository } from "@main/factories/repositories";
-
-import { makeListAllMilitaryRankUseCase } from "@main/factories/usecases/military-rank";
 
 // Mocks
 jest.mock("@application/services", () => ({

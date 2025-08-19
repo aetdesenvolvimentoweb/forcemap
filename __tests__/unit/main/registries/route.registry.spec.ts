@@ -1,4 +1,4 @@
-import { DefaultRouteRegistry } from "@main/registries/route.registry";
+import { DefaultRouteRegistry } from "@main/registries";
 import type { RouteConfig, RouteRegistry } from "@presentation/protocols";
 
 interface SutTypes {

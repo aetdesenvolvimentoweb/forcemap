@@ -1,7 +1,7 @@
-import { makeCreateMilitaryRankValidator } from "@main/factories/validators/military-rank/make-create-military-rank-validator.factory";
 import { CreateMilitaryRankValidator } from "@application/validators";
 import type { CreateMilitaryRankValidatorProtocol } from "@application/protocols";
 import type { MilitaryRankRepository } from "@domain/repositories";
+import { makeCreateMilitaryRankValidator } from "@main/factories";
 
 // Mocks
 jest.mock("@application/validators", () => ({

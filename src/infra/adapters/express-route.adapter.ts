@@ -26,7 +26,7 @@ export const adaptExpressRoute = (controller: Controller<unknown, unknown>) => {
     try {
       // Converte Express Request para HttpRequest (nosso protocolo)
       const httpRequest: HttpRequest = {
-        body: req.body,
+        body: { data: req.body },
         header: req.headers as Record<string, string>,
         query: Object.fromEntries(
           Object.entries(req.query).map(([key, value]) => [

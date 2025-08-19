@@ -1,6 +1,6 @@
-import { CreateMilitaryRankController } from "@presentation/controllers/military-rank/create.military-rank.controller";
 import type { CreateMilitaryRankInputDTO } from "@domain/dtos";
 import type { CreateMilitaryRankUseCase } from "@domain/usecases";
+import { CreateMilitaryRankController } from "@presentation/controllers";
 import type { HttpResponseFactory } from "@presentation/factories";
 import type { HttpRequest } from "@presentation/protocols";
 

@@ -1,5 +1,11 @@
-import { makeListByIdMilitaryRankUseCase } from "@main/factories/usecases/military-rank/make-list-by-id-military-rank-usecase.factory";
-import { ListByIdMilitaryRankService } from "@application/services/military-rank/list.by.id.military-rank.service";
+jest.mock("@main/factories/validators", () => ({
+  makeUUIDIdValidator: jest.fn(() => ({
+    validate: jest.fn(),
+  })),
+  makeMongoDbIdValidator: jest.fn(() => ({ validate: jest.fn() })),
+}));
+import { ListByIdMilitaryRankService } from "@application/services";
+import { makeListByIdMilitaryRankUseCase } from "@main/factories";
 
 jest.mock("@main/factories/repositories", () => ({
   makeMilitaryRankRepository: jest.fn(() => ({ fake: true })),
@@ -7,9 +13,7 @@ jest.mock("@main/factories/repositories", () => ({
 jest.mock("@main/factories/sanitizers", () => ({
   makeIdSanitizer: jest.fn(() => ({ sanitize: jest.fn() })),
 }));
-jest.mock("@main/factories/validators", () => ({
-  makeMongoDbIdValidator: jest.fn(() => ({ validate: jest.fn() })),
-}));
+// ...existing code...
 
 describe("makeListByIdMilitaryRankUseCase", () => {
   it("should return an instance of ListByIdMilitaryRankService", () => {

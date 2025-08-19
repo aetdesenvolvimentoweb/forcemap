@@ -1,5 +1,5 @@
-import { MongoDbIdValidatorAdapter } from "@infra/adapters/mongodb-id.validator.adapter";
 import { InvalidParamError } from "@application/errors";
+import { MongoDbIdValidatorAdapter } from "@infra/adapters";
 
 describe("MongoDbIdValidatorAdapter", () => {
   let adapter: MongoDbIdValidatorAdapter;

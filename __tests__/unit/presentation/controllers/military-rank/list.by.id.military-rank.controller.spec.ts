@@ -1,6 +1,6 @@
-import { ListByIdMilitaryRankController } from "@presentation/controllers/military-rank/list.by.id.military-rank.controller";
-import { EmptyRequestBodyError } from "@presentation/errors";
+import { MissingParamError } from "@application/errors";
 import { AppError } from "@domain/errors";
+import { ListByIdMilitaryRankController } from "@presentation/controllers";
 
 describe("ListByIdMilitaryRankController", () => {
   const makeHttpResponseFactory = () => ({
@@ -27,25 +27,26 @@ describe("ListByIdMilitaryRankController", () => {
     return { sut, httpResponseFactory, listByIdMilitaryRankService };
   };
 
-  it("should return 400 if request body data is empty", async () => {
+  it("should return 400 if params.id is missing", async () => {
     const { sut, httpResponseFactory } = makeSut();
-    const httpRequest = { body: { data: "" } };
+    const httpRequest = { params: {}, body: { data: "" } };
     await sut.handle(httpRequest);
     expect(httpResponseFactory.badRequest).toHaveBeenCalledWith(
-      expect.any(EmptyRequestBodyError),
+      expect.any(MissingParamError),
     );
   });
 
   it("should call service with correct id", async () => {
     const { sut, listByIdMilitaryRankService } = makeSut();
-    const httpRequest = { body: { data: "123" } };
+    const httpRequest = { params: { id: "123" }, body: { data: "123" } };
+    listByIdMilitaryRankService.listById.mockResolvedValue({ id: "123" });
     await sut.handle(httpRequest);
     expect(listByIdMilitaryRankService.listById).toHaveBeenCalledWith("123");
   });
 
   it("should return 200 and data if service succeeds", async () => {
     const { sut, httpResponseFactory, listByIdMilitaryRankService } = makeSut();
-    const httpRequest = { body: { data: "123" } };
+    const httpRequest = { params: { id: "123" }, body: { data: "123" } };
     const result = { id: "123", abbreviation: "CEL", order: 1 };
     listByIdMilitaryRankService.listById.mockResolvedValue(result);
     await sut.handle(httpRequest);
@@ -54,7 +55,7 @@ describe("ListByIdMilitaryRankController", () => {
 
   it("should return 400 if service throws AppError", async () => {
     const { sut, httpResponseFactory, listByIdMilitaryRankService } = makeSut();
-    const httpRequest = { body: { data: "123" } };
+    const httpRequest = { params: { id: "123" }, body: { data: "123" } };
     const error = new AppError("Erro", 400);
     listByIdMilitaryRankService.listById.mockRejectedValue(error);
     await sut.handle(httpRequest);
@@ -63,7 +64,7 @@ describe("ListByIdMilitaryRankController", () => {
 
   it("should return 500 if service throws unknown error", async () => {
     const { sut, httpResponseFactory, listByIdMilitaryRankService } = makeSut();
-    const httpRequest = { body: { data: "123" } };
+    const httpRequest = { params: { id: "123" }, body: { data: "123" } };
     listByIdMilitaryRankService.listById.mockRejectedValue(
       new Error("Unknown error"),
     );

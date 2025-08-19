@@ -66,7 +66,7 @@ describe("Express Route Adapter", () => {
 
       controller.handle.mockResolvedValue({
         statusCode: 201,
-        body: { data: "success" },
+        body: {},
       });
 
       // ACT

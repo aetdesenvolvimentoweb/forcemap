@@ -1,11 +1,10 @@
 import { MilitaryRank } from "@domain/entities";
 import { AppError } from "@domain/errors";
-import { ListAllMilitaryRankUseCase } from "@domain/usecases/military-ranks/list.all.military-rank.use-case";
+import { ListAllMilitaryRankUseCase } from "@domain/usecases";
+import { ListAllMilitaryRankController } from "@presentation/controllers";
 
 import { HttpResponseFactory } from "@presentation/factories";
 import type { HttpRequest, HttpResponse } from "@presentation/protocols";
-
-import { ListAllMilitaryRankController } from "@presentation/controllers/military-rank";
 
 describe("ListAllMilitaryRankController", () => {
   let controller: ListAllMilitaryRankController;

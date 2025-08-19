@@ -1,5 +1,5 @@
-import { makeIdSanitizer } from "@main/factories/sanitizers/make-id-sanitizer.factory";
-import { IdSanitizer } from "@application/sanitizers/id.sanitizer";
+import { IdSanitizer } from "@application/sanitizers";
+import { makeIdSanitizer } from "@main/factories";
 
 describe("makeIdSanitizer", () => {
   it("should return an instance of IdSanitizer", () => {

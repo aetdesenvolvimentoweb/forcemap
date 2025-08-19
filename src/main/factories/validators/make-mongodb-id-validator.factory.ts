@@ -1,4 +1,4 @@
-import { IdValidatorProtocol } from "@application/protocols/validators/id.validator.protocol";
+import { IdValidatorProtocol } from "@application/protocols";
 
 import { MongoDbIdValidatorAdapter } from "@infra/adapters";
 

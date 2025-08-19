@@ -3,6 +3,7 @@ import { HttpResponseFactory } from "@presentation/factories";
 import {
   makeCreateMilitaryRankController,
   makeListAllMilitaryRankController,
+  makeListByIdMilitaryRankController,
 } from "@main/factories";
 import type { RouteRegistry } from "@presentation/protocols";
 import type { CreateMilitaryRankInputDTO } from "@domain/dtos";
@@ -21,6 +22,7 @@ jest.mock("@presentation/factories", () => ({
 jest.mock("@main/factories", () => ({
   makeCreateMilitaryRankController: jest.fn(),
   makeListAllMilitaryRankController: jest.fn(),
+  makeListByIdMilitaryRankController: jest.fn(),
 }));
 
 const mockMakeCreateMilitaryRankController =
@@ -31,6 +33,11 @@ const mockMakeCreateMilitaryRankController =
 const mockMakeListAllMilitaryRankController =
   makeListAllMilitaryRankController as jest.MockedFunction<
     typeof makeListAllMilitaryRankController
+  >;
+
+const mockMakeListByIdMilitaryRankController =
+  makeListByIdMilitaryRankController as jest.MockedFunction<
+    typeof makeListByIdMilitaryRankController
   >;
 
 const mockHttpResponseFactory = HttpResponseFactory as jest.MockedClass<
@@ -53,12 +60,17 @@ describe("setupMilitaryRankRoutes", () => {
   } as Controller<null, MilitaryRank[]>;
 
   // Sistema sob teste
+  const mockByIdController = {
+    handle: jest.fn(),
+  } as Controller<string, MilitaryRank | null>;
+
   const makeSut = () => {
     return {
       sut: setupMilitaryRankRoutes,
       mockRouteRegistry,
       mockController,
       mockListController,
+      mockByIdController,
     };
   };
 
@@ -68,6 +80,7 @@ describe("setupMilitaryRankRoutes", () => {
     // Setup default mock returns
     mockMakeCreateMilitaryRankController.mockReturnValue(mockController);
     mockMakeListAllMilitaryRankController.mockReturnValue(mockListController);
+    mockMakeListByIdMilitaryRankController.mockReturnValue(mockByIdController);
   });
 
   afterEach(() => {
@@ -75,7 +88,7 @@ describe("setupMilitaryRankRoutes", () => {
   });
 
   describe("route registration", () => {
-    it("should register POST and GET /military-ranks routes", () => {
+    it("should register POST, GET /military-ranks and GET /military-ranks/:id routes", () => {
       // ARRANGE
       const { sut, mockRouteRegistry } = makeSut();
 
@@ -83,7 +96,7 @@ describe("setupMilitaryRankRoutes", () => {
       sut(mockRouteRegistry);
 
       // ASSERT
-      expect(mockRouteRegistry.register).toHaveBeenCalledTimes(2);
+      expect(mockRouteRegistry.register).toHaveBeenCalledTimes(3);
       expect(mockRouteRegistry.register).toHaveBeenNthCalledWith(1, {
         method: "POST",
         path: "/military-ranks",
@@ -93,6 +106,11 @@ describe("setupMilitaryRankRoutes", () => {
         method: "GET",
         path: "/military-ranks",
         controller: mockListController,
+      });
+      expect(mockRouteRegistry.register).toHaveBeenNthCalledWith(3, {
+        method: "GET",
+        path: "/military-ranks/:id",
+        controller: expect.any(Object),
       });
     });
 
@@ -231,7 +249,7 @@ describe("setupMilitaryRankRoutes", () => {
       sut(mockRouteRegistry);
 
       // ASSERT
-      expect(mockRouteRegistry.register).toHaveBeenCalledTimes(2);
+      expect(mockRouteRegistry.register).toHaveBeenCalledTimes(3);
       expect(mockRouteRegistry.register).toHaveBeenNthCalledWith(1, {
         method: "POST",
         path: "/military-ranks",
@@ -257,7 +275,7 @@ describe("setupMilitaryRankRoutes", () => {
       sut(customRouteRegistry);
 
       // ASSERT
-      expect(customRouteRegistry.register).toHaveBeenCalledTimes(2);
+      expect(customRouteRegistry.register).toHaveBeenCalledTimes(3);
       expect(customRouteRegistry.register).toHaveBeenNthCalledWith(1, {
         method: "POST",
         path: "/military-ranks",
@@ -292,7 +310,7 @@ describe("setupMilitaryRankRoutes", () => {
 
       // ASSERT
       // Currently registers two routes (POST and GET), structure supports more
-      expect(mockRouteRegistry.register).toHaveBeenCalledTimes(2);
+      expect(mockRouteRegistry.register).toHaveBeenCalledTimes(3);
 
       // Verify the function structure allows for easy extension
       expect(typeof sut).toBe("function");

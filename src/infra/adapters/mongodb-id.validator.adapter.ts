@@ -1,7 +1,7 @@
 import { ObjectId } from "mongodb";
 
 import { InvalidParamError } from "@application/errors";
-import { IdValidatorProtocol } from "@application/protocols/validators/id.validator.protocol";
+import { IdValidatorProtocol } from "@application/protocols";
 
 export class MongoDbIdValidatorAdapter implements IdValidatorProtocol {
   public async validate(id: string): Promise<void> {

@@ -1,5 +1,5 @@
+import { setupMiddlewares } from "@main/config";
 import { setupApp } from "@main/config/app.config";
-import { setupMiddlewares } from "@main/config/middlewares.config";
 import { setupRoutes } from "@main/config/routes.config";
 import type { RouteRegistry } from "@presentation/protocols";
 import type { Express, Request, Response, NextFunction } from "express";

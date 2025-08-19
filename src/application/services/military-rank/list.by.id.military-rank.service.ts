@@ -1,6 +1,8 @@
 import { EntityNotFoundError } from "@application/errors";
-import { IdSanitizerProtocol } from "@application/protocols";
-import { IdValidatorProtocol } from "@application/protocols/validators/id.validator.protocol";
+import {
+  IdSanitizerProtocol,
+  IdValidatorProtocol,
+} from "@application/protocols";
 
 import { MilitaryRank } from "@domain/entities";
 import type { MilitaryRankRepository } from "@domain/repositories";

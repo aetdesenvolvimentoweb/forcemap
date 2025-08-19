@@ -1,4 +1,4 @@
-import { IdSanitizer } from "@application/sanitizers/id.sanitizer";
+import { IdSanitizer } from "@application/sanitizers";
 
 describe("IdSanitizer", () => {
   let sanitizer: IdSanitizer;

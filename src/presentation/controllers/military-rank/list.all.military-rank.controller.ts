@@ -1,6 +1,6 @@
 import { MilitaryRank } from "@domain/entities";
 import { AppError } from "@domain/errors";
-import { ListAllMilitaryRankUseCase } from "@domain/usecases/military-ranks/list.all.military-rank.use-case";
+import { ListAllMilitaryRankUseCase } from "@domain/usecases";
 
 import type { HttpResponseFactory } from "@presentation/factories";
 import type {

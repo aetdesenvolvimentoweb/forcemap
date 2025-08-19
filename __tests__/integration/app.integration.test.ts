@@ -3,8 +3,8 @@ import express from "express";
 
 import { DefaultRouteRegistry } from "@main/registries";
 import { setupApp } from "@main/config/app.config";
-import { setupAllRoutes } from "@main/config/routes/routes.setup";
-import { clearRepositoryInstance } from "@main/factories/repositories/make-military-rank-repository.factory";
+import { clearRepositoryInstance } from "@main/factories";
+import { setupAllRoutes } from "@main/config";
 
 /**
  * 🔗 INTEGRATION TESTS - Express App Integration
@@ -49,7 +49,7 @@ describe("Express App Integration", () => {
         version: "1.0.0",
         status: "running",
         timestamp: expect.any(String),
-        registeredRoutes: 2, // POST /military-ranks + GET /military-ranks
+        registeredRoutes: 3, // POST /military-ranks + GET /military-ranks + GET /military-ranks/:id
       });
     });
 

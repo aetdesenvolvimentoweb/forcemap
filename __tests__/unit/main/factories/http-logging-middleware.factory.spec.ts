@@ -1,4 +1,4 @@
-import { makeHttpLoggingMiddleware } from "@main/factories/http-logging-middleware.factory";
+import { makeHttpLoggingMiddleware } from "@main/factories";
 import { HttpLoggingMiddleware } from "@presentation/middlewares";
 
 describe("makeHttpLoggingMiddleware", () => {

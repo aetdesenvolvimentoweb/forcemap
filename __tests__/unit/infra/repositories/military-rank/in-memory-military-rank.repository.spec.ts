@@ -1,6 +1,5 @@
 import { InMemoryMilitaryRankRepository } from "@infra/repositories";
 import type { CreateMilitaryRankInputDTO } from "@domain/dtos";
-import type { MilitaryRank } from "@domain/entities";
 
 interface SutTypes {
   sut: InMemoryMilitaryRankRepository;

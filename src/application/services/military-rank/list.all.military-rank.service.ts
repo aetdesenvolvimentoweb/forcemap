@@ -1,6 +1,6 @@
 import type { MilitaryRank } from "@domain/entities";
 import type { MilitaryRankRepository } from "@domain/repositories";
-import { ListAllMilitaryRankUseCase } from "@domain/usecases/military-ranks/list.all.military-rank.use-case";
+import { ListAllMilitaryRankUseCase } from "@domain/usecases";
 
 interface ListAllMilitaryRankServiceProps {
   militaryRankRepository: MilitaryRankRepository;

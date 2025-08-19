@@ -1,5 +1,5 @@
-import { makeLogger } from "@main/factories/logger.factory";
 import { PinoLogger } from "@infra/loggers";
+import { makeLogger } from "@main/factories";
 
 describe("makeLogger", () => {
   it("should return a PinoLogger instance", () => {

@@ -1,7 +1,3 @@
-import { IdValidatorProtocol } from "@application/protocols/validators/id.validator.protocol";
-
-import { UUIDIdValidatorAdapter } from "@infra/adapters/uuid-id.validator.adapter";
-
 /**
  * 🏭 MAIN LAYER - Factory para Validator
  *
@@ -9,6 +5,10 @@ import { UUIDIdValidatorAdapter } from "@infra/adapters/uuid-id.validator.adapte
  * - Criar instância do validator
  * - Injetar repository (dependency injection)
  */
+
+import { IdValidatorProtocol } from "@application/protocols";
+
+import { UUIDIdValidatorAdapter } from "@infra/adapters";
 
 export const makeUUIDIdValidator = (): IdValidatorProtocol => {
   return new UUIDIdValidatorAdapter();

@@ -1,5 +1,5 @@
-import { makeMongoDbIdValidator } from "@main/factories/validators/make-mongodb-id-validator.factory";
 import { MongoDbIdValidatorAdapter } from "@infra/adapters";
+import { makeMongoDbIdValidator } from "@main/factories";
 
 describe("makeMongoDbIdValidator", () => {
   it("should return an instance of MongoDbIdValidatorAdapter", () => {

@@ -1,9 +1,11 @@
-import { ListByIdMilitaryRankService } from "@application/services/military-rank/list.by.id.military-rank.service";
 import { EntityNotFoundError } from "@application/errors";
-import type { IdSanitizerProtocol } from "@application/protocols";
-import type { IdValidatorProtocol } from "@application/protocols/validators/id.validator.protocol";
+import type {
+  IdSanitizerProtocol,
+  IdValidatorProtocol,
+} from "@application/protocols";
 import type { MilitaryRankRepository } from "@domain/repositories";
 import type { MilitaryRank } from "@domain/entities";
+import { ListByIdMilitaryRankService } from "@application/services";
 
 interface SutTypes {
   sut: ListByIdMilitaryRankService;

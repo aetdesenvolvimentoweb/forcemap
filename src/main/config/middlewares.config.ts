@@ -1,7 +1,7 @@
 import cors from "cors";
 import express from "express";
 
-import { makeHttpLoggingMiddleware } from "../factories/http-logging-middleware.factory";
+import { makeHttpLoggingMiddleware } from "@main/factories";
 
 import type { Express } from "express";
 

@@ -1,9 +1,9 @@
 import { MissingParamError } from "@application/errors";
+
 import { MilitaryRank } from "@domain/entities";
 import { AppError } from "@domain/errors";
 import type { ListByIdMilitaryRankUseCase } from "@domain/usecases";
 
-import { EmptyRequestBodyError } from "@presentation/errors";
 import type { HttpResponseFactory } from "@presentation/factories";
 import type {
   Controller,
@@ -27,12 +27,12 @@ export class ListByIdMilitaryRankController
     const { httpResponseFactory, listByIdMilitaryRankService } = this.props;
 
     try {
-      if(!httpRequest.params || !httpRequest.params.id) {
+      if (!httpRequest.params || !httpRequest.params.id) {
         throw new MissingParamError("ID");
       }
 
       const httpResponse = await listByIdMilitaryRankService.listById(
-        httpRequest.params.id
+        httpRequest.params.id,
       );
 
       return httpResponseFactory.ok(httpResponse);

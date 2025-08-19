@@ -1,6 +1,6 @@
+import { ListAllMilitaryRankService } from "@application/services";
 import type { MilitaryRank } from "@domain/entities";
 import type { MilitaryRankRepository } from "@domain/repositories";
-import { ListAllMilitaryRankService } from "@application/services/military-rank/list.all.military-rank.service";
 
 interface SutTypes {
   sut: ListAllMilitaryRankService;

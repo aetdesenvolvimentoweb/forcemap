@@ -1,5 +1,5 @@
 import type { IdSanitizerProtocol } from "@application/protocols";
-import { IdSanitizer } from "@application/sanitizers/id.sanitizer";
+import { IdSanitizer } from "@application/sanitizers";
 
 /**
  * 🏭 MAIN LAYER - Factory para Sanitizer

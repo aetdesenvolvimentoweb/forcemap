@@ -1,4 +1,4 @@
-import { ListByIdMilitaryRankService } from "@application/services/military-rank/list.by.id.military-rank.service";
+import { ListByIdMilitaryRankService } from "@application/services";
 
 import type { ListByIdMilitaryRankUseCase } from "@domain/usecases";
 

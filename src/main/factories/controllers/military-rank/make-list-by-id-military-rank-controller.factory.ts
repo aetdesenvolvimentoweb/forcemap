@@ -1,10 +1,10 @@
 import { MilitaryRank } from "@domain/entities";
 
-import { ListByIdMilitaryRankController } from "@presentation/controllers/military-rank/list.by.id.military-rank.controller";
+import { ListByIdMilitaryRankController } from "@presentation/controllers";
 import type { HttpResponseFactory } from "@presentation/factories";
 import type { Controller } from "@presentation/protocols";
 
-import { makeListByIdMilitaryRankUseCase } from "@main/factories/usecases/military-rank/make-list-by-id-military-rank-usecase.factory";
+import { makeListByIdMilitaryRankUseCase } from "@main/factories/usecases";
 
 interface MakeListByIdMilitaryRankControllerProps {
   httpResponseFactory: HttpResponseFactory;

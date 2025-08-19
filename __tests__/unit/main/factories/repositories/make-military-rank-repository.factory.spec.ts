@@ -1,9 +1,9 @@
-import {
-  makeMilitaryRankRepository,
-  clearRepositoryInstance,
-} from "@main/factories/repositories/make-military-rank-repository.factory";
 import { InMemoryMilitaryRankRepository } from "@infra/repositories";
 import type { MilitaryRankRepository } from "@domain/repositories";
+import {
+  clearRepositoryInstance,
+  makeMilitaryRankRepository,
+} from "@main/factories";
 
 // Mocks
 jest.mock("@infra/repositories", () => ({
