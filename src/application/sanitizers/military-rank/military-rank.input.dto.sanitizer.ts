@@ -1,6 +1,10 @@
+import { MilitaryRankInputDTOSanitizerProtocol } from "@application/protocols";
+
 import type { MilitaryRankInputDTO } from "@domain/dtos";
 
-export class MilitaryRankInputDTOSanitizer {
+export class MilitaryRankInputDTOSanitizer
+  implements MilitaryRankInputDTOSanitizerProtocol
+{
   private readonly sanitizeAbbreviation = (abbreviation: string): string => {
     if (!abbreviation || typeof abbreviation !== "string") return abbreviation;
 

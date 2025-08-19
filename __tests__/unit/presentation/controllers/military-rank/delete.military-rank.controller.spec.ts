@@ -1,4 +1,4 @@
-import { DeleteMilitaryRankController } from "@presentation/controllers/military-rank/delete.military-rank.controller";
+import { DeleteMilitaryRankController } from "@presentation/controllers";
 import { MissingParamError } from "@application/errors";
 import { AppError } from "@domain/errors";
 

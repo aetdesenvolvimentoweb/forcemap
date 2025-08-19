@@ -1,4 +1,4 @@
-import { DeleteMilitaryRankService } from "@application/services/military-rank/delete.military-rank.service";
+import { DeleteMilitaryRankService } from "@application/services";
 import { EntityNotFoundError } from "@application/errors";
 
 describe("DeleteMilitaryRankService", () => {

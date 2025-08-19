@@ -1,4 +1,4 @@
-import { UpdateMilitaryRankService } from "@application/services/military-rank/update.military-rank.service";
+import { UpdateMilitaryRankService } from "@application/services";
 import type { MilitaryRankInputDTO } from "@domain/dtos";
 
 describe("UpdateMilitaryRankService", () => {
