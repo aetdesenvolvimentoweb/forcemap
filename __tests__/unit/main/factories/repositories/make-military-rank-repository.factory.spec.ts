@@ -25,6 +25,7 @@ const makeSut = (): SutTypes => {
     create: jest.fn(),
     findByAbbreviation: jest.fn(),
     findByOrder: jest.fn(),
+    delete: jest.fn(),
   } as unknown as MilitaryRankRepository;
 
   return {
@@ -44,6 +45,7 @@ describe("makeMilitaryRankRepository", () => {
           create: jest.fn(),
           findByAbbreviation: jest.fn(),
           findByOrder: jest.fn(),
+          delete: jest.fn(),
         }) as any,
     );
   });
@@ -73,6 +75,7 @@ describe("makeMilitaryRankRepository", () => {
         create: jest.fn(),
         findByAbbreviation: jest.fn(),
         findByOrder: jest.fn(),
+        delete: jest.fn(),
       };
       mockInMemoryMilitaryRankRepository.mockReturnValue(
         mockRepositoryInstance as any,
@@ -224,6 +227,7 @@ describe("makeMilitaryRankRepository", () => {
         create: jest.fn(),
         findByAbbreviation: jest.fn(),
         findByOrder: jest.fn(),
+        delete: jest.fn(),
       };
       mockInMemoryMilitaryRankRepository.mockReturnValue(
         mockRepositoryInstance as any,
@@ -257,7 +261,12 @@ describe("makeMilitaryRankRepository", () => {
     it("should return object with all required MilitaryRankRepository methods", () => {
       // ARRANGE
       const { sut } = makeSut();
-      const requiredMethods = ["create", "findByAbbreviation", "findByOrder"];
+      const requiredMethods = [
+        "create",
+        "findByAbbreviation",
+        "findByOrder",
+        "delete",
+      ];
 
       // ACT
       const result = sut();
@@ -286,6 +295,7 @@ describe("makeMilitaryRankRepository", () => {
       expect(result.create).toBeDefined();
       expect(result.findByAbbreviation).toBeDefined();
       expect(result.findByOrder).toBeDefined();
+      expect(result.delete).toBeDefined();
     });
   });
 });
