@@ -7,4 +7,5 @@ export interface MilitaryRankRepository {
   findByOrder(order: number): Promise<MilitaryRank | null>;
   listAll(): Promise<MilitaryRank[]>;
   listById(id: string): Promise<MilitaryRank | null>;
+  delete(id: string): Promise<void>;
 }
