@@ -351,4 +351,40 @@ describe("InMemoryMilitaryRankRepository", () => {
       });
     });
   });
+
+  describe("delete method", () => {
+    it("should delete a military rank by id", async () => {
+      const { sut } = sutInstance;
+      const rankData: CreateMilitaryRankInputDTO = {
+        abbreviation: "CEL",
+        order: 1,
+      };
+      await sut.create(rankData);
+      const created = await sut.findByAbbreviation("CEL");
+      expect(await sut.listById(created!.id)).not.toBeNull();
+      await sut.delete(created!.id);
+      expect(await sut.listById(created!.id)).toBeNull();
+    });
+
+    it("should not throw if id does not exist", async () => {
+      const { sut } = sutInstance;
+      await expect(sut.delete("non-existent-id")).resolves.toBeUndefined();
+    });
+
+    it("should only delete the specified id", async () => {
+      const { sut } = sutInstance;
+      const ranks: CreateMilitaryRankInputDTO[] = [
+        { abbreviation: "CEL", order: 1 },
+        { abbreviation: "TCel", order: 2 },
+      ];
+      for (const rank of ranks) {
+        await sut.create(rank);
+      }
+      const cel = await sut.findByAbbreviation("CEL");
+      const tcel = await sut.findByAbbreviation("TCel");
+      await sut.delete(cel!.id);
+      expect(await sut.listById(cel!.id)).toBeNull();
+      expect(await sut.listById(tcel!.id)).not.toBeNull();
+    });
+  });
 });
