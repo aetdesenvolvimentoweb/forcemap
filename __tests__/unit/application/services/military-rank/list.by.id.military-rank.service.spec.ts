@@ -21,6 +21,8 @@ const makeSut = (): SutTypes => {
     findByOrder: jest.fn(),
     listAll: jest.fn(),
     listById: jest.fn().mockResolvedValue(null),
+    delete: jest.fn(),
+    update: jest.fn(),
   } as jest.Mocked<MilitaryRankRepository>;
 
   const sanitizer = {

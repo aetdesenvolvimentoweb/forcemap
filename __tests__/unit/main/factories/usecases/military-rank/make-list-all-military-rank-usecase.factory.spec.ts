@@ -275,6 +275,8 @@ describe("makeListAllMilitaryRankUseCase", () => {
         findByAbbreviation: jest.fn(),
         findByOrder: jest.fn(),
         listById: jest.fn(),
+        delete: jest.fn(),
+        update: jest.fn(),
       };
       mockMakeMilitaryRankRepository.mockReturnValue(alternativeRepository);
 
