@@ -1,6 +1,6 @@
 import type { MilitaryRankInputDTO } from "@domain/dtos";
 
-export class CreateMilitaryRankSanitizer {
+export class MilitaryRankInputDTOSanitizer {
   private readonly sanitizeAbbreviation = (abbreviation: string): string => {
     if (!abbreviation || typeof abbreviation !== "string") return abbreviation;
 

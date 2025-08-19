@@ -1,9 +1,9 @@
 import { CreateMilitaryRankService } from "@application/services";
 import { CreateMilitaryRankUseCase } from "@domain/usecases";
 import {
-  makeCreateMilitaryRankSanitizer,
+  makeMilitaryRankInputDTOSanitizer,
   makeCreateMilitaryRankUseCase,
-  makeCreateMilitaryRankValidator,
+  makeMilitaryRankValidator,
   makeMilitaryRankRepository,
 } from "@main/factories";
 
@@ -24,14 +24,14 @@ jest.mock(
 jest.mock(
   "@main/factories/sanitizers/military-rank/make.create.military-rank.sanitizer.factory",
   () => ({
-    makeCreateMilitaryRankSanitizer: jest.fn(),
+    makeMilitaryRankInputDTOSanitizer: jest.fn(),
   }),
 );
 
 jest.mock(
   "@main/factories/validators/military-rank/make.create.military-rank.validator.factory",
   () => ({
-    makeCreateMilitaryRankValidator: jest.fn(),
+    makeMilitaryRankValidator: jest.fn(),
   }),
 );
 
@@ -43,13 +43,13 @@ const mockMakeMilitaryRankRepository =
   makeMilitaryRankRepository as jest.MockedFunction<
     typeof makeMilitaryRankRepository
   >;
-const mockMakeCreateMilitaryRankSanitizer =
-  makeCreateMilitaryRankSanitizer as jest.MockedFunction<
-    typeof makeCreateMilitaryRankSanitizer
+const mockMakeMilitaryRankInputDTOSanitizer =
+  makeMilitaryRankInputDTOSanitizer as jest.MockedFunction<
+    typeof makeMilitaryRankInputDTOSanitizer
   >;
-const mockMakeCreateMilitaryRankValidator =
-  makeCreateMilitaryRankValidator as jest.MockedFunction<
-    typeof makeCreateMilitaryRankValidator
+const mockMakeMilitaryRankValidator =
+  makeMilitaryRankValidator as jest.MockedFunction<
+    typeof makeMilitaryRankValidator
   >;
 
 interface SutTypes {
@@ -104,8 +104,8 @@ describe("makeCreateMilitaryRankUseCase", () => {
         makeSut();
 
       mockMakeMilitaryRankRepository.mockReturnValue(mockRepository);
-      mockMakeCreateMilitaryRankSanitizer.mockReturnValue(mockSanitizer);
-      mockMakeCreateMilitaryRankValidator.mockReturnValue(mockValidator);
+      mockMakeMilitaryRankInputDTOSanitizer.mockReturnValue(mockSanitizer);
+      mockMakeMilitaryRankValidator.mockReturnValue(mockValidator);
       mockCreateMilitaryRankService.mockReturnValue(mockService as any);
 
       // ACT
@@ -113,8 +113,8 @@ describe("makeCreateMilitaryRankUseCase", () => {
 
       // ASSERT
       expect(mockMakeMilitaryRankRepository).toHaveBeenCalledTimes(1);
-      expect(mockMakeCreateMilitaryRankSanitizer).toHaveBeenCalledTimes(1);
-      expect(mockMakeCreateMilitaryRankValidator).toHaveBeenCalledTimes(1);
+      expect(mockMakeMilitaryRankInputDTOSanitizer).toHaveBeenCalledTimes(1);
+      expect(mockMakeMilitaryRankValidator).toHaveBeenCalledTimes(1);
       expect(mockCreateMilitaryRankService).toHaveBeenCalledTimes(1);
     });
 
@@ -129,12 +129,12 @@ describe("makeCreateMilitaryRankUseCase", () => {
         return mockRepository;
       });
 
-      mockMakeCreateMilitaryRankValidator.mockImplementation(() => {
+      mockMakeMilitaryRankValidator.mockImplementation(() => {
         callOrder.push("validator");
         return mockValidator;
       });
 
-      mockMakeCreateMilitaryRankSanitizer.mockReturnValue(mockSanitizer);
+      mockMakeMilitaryRankInputDTOSanitizer.mockReturnValue(mockSanitizer);
       mockCreateMilitaryRankService.mockReturnValue(mockService as any);
 
       // ACT
@@ -150,15 +150,15 @@ describe("makeCreateMilitaryRankUseCase", () => {
         makeSut();
 
       mockMakeMilitaryRankRepository.mockReturnValue(mockRepository);
-      mockMakeCreateMilitaryRankSanitizer.mockReturnValue(mockSanitizer);
-      mockMakeCreateMilitaryRankValidator.mockReturnValue(mockValidator);
+      mockMakeMilitaryRankInputDTOSanitizer.mockReturnValue(mockSanitizer);
+      mockMakeMilitaryRankValidator.mockReturnValue(mockValidator);
       mockCreateMilitaryRankService.mockReturnValue(mockService as any);
 
       // ACT
       sut();
 
       // ASSERT
-      expect(mockMakeCreateMilitaryRankValidator).toHaveBeenCalledWith({
+      expect(mockMakeMilitaryRankValidator).toHaveBeenCalledWith({
         militaryRankRepository: mockRepository,
       });
     });
@@ -169,8 +169,8 @@ describe("makeCreateMilitaryRankUseCase", () => {
         makeSut();
 
       mockMakeMilitaryRankRepository.mockReturnValue(mockRepository);
-      mockMakeCreateMilitaryRankSanitizer.mockReturnValue(mockSanitizer);
-      mockMakeCreateMilitaryRankValidator.mockReturnValue(mockValidator);
+      mockMakeMilitaryRankInputDTOSanitizer.mockReturnValue(mockSanitizer);
+      mockMakeMilitaryRankValidator.mockReturnValue(mockValidator);
       mockCreateMilitaryRankService.mockReturnValue(mockService as any);
 
       // ACT
@@ -190,8 +190,8 @@ describe("makeCreateMilitaryRankUseCase", () => {
         makeSut();
 
       mockMakeMilitaryRankRepository.mockReturnValue(mockRepository);
-      mockMakeCreateMilitaryRankSanitizer.mockReturnValue(mockSanitizer);
-      mockMakeCreateMilitaryRankValidator.mockReturnValue(mockValidator);
+      mockMakeMilitaryRankInputDTOSanitizer.mockReturnValue(mockSanitizer);
+      mockMakeMilitaryRankValidator.mockReturnValue(mockValidator);
       mockCreateMilitaryRankService.mockReturnValue(mockService as any);
 
       // ACT
@@ -228,8 +228,8 @@ describe("makeCreateMilitaryRankUseCase", () => {
         makeSut();
 
       mockMakeMilitaryRankRepository.mockReturnValue(mockRepository);
-      mockMakeCreateMilitaryRankSanitizer.mockReturnValue(mockSanitizer);
-      mockMakeCreateMilitaryRankValidator.mockReturnValue(mockValidator);
+      mockMakeMilitaryRankInputDTOSanitizer.mockReturnValue(mockSanitizer);
+      mockMakeMilitaryRankValidator.mockReturnValue(mockValidator);
       mockCreateMilitaryRankService.mockReturnValue(mockService as any);
 
       // ACT
@@ -258,7 +258,7 @@ describe("makeCreateMilitaryRankUseCase", () => {
       // ARRANGE
       const { sut, mockRepository } = makeSut();
       mockMakeMilitaryRankRepository.mockReturnValue(mockRepository);
-      mockMakeCreateMilitaryRankSanitizer.mockImplementation(() => {
+      mockMakeMilitaryRankInputDTOSanitizer.mockImplementation(() => {
         throw new Error("Sanitizer factory error");
       });
 
@@ -270,8 +270,8 @@ describe("makeCreateMilitaryRankUseCase", () => {
       // ARRANGE
       const { sut, mockRepository, mockSanitizer } = makeSut();
       mockMakeMilitaryRankRepository.mockReturnValue(mockRepository);
-      mockMakeCreateMilitaryRankSanitizer.mockReturnValue(mockSanitizer);
-      mockMakeCreateMilitaryRankValidator.mockImplementation(() => {
+      mockMakeMilitaryRankInputDTOSanitizer.mockReturnValue(mockSanitizer);
+      mockMakeMilitaryRankValidator.mockImplementation(() => {
         throw new Error("Validator factory error");
       });
 
@@ -283,8 +283,8 @@ describe("makeCreateMilitaryRankUseCase", () => {
       // ARRANGE
       const { sut, mockRepository, mockSanitizer, mockValidator } = makeSut();
       mockMakeMilitaryRankRepository.mockReturnValue(mockRepository);
-      mockMakeCreateMilitaryRankSanitizer.mockReturnValue(mockSanitizer);
-      mockMakeCreateMilitaryRankValidator.mockReturnValue(mockValidator);
+      mockMakeMilitaryRankInputDTOSanitizer.mockReturnValue(mockSanitizer);
+      mockMakeMilitaryRankValidator.mockReturnValue(mockValidator);
       mockCreateMilitaryRankService.mockImplementation((props) => {
         throw new Error("Service instantiation error");
       });
@@ -306,12 +306,12 @@ describe("makeCreateMilitaryRankUseCase", () => {
         return mockRepository;
       });
 
-      mockMakeCreateMilitaryRankSanitizer.mockImplementation(() => {
+      mockMakeMilitaryRankInputDTOSanitizer.mockImplementation(() => {
         creationOrder.push("sanitizer");
         return mockSanitizer;
       });
 
-      mockMakeCreateMilitaryRankValidator.mockImplementation(() => {
+      mockMakeMilitaryRankValidator.mockImplementation(() => {
         creationOrder.push("validator");
         return mockValidator;
       });
@@ -344,13 +344,13 @@ describe("makeCreateMilitaryRankUseCase", () => {
         return mockRepository;
       });
 
-      mockMakeCreateMilitaryRankValidator.mockImplementation((params) => {
+      mockMakeMilitaryRankValidator.mockImplementation((params) => {
         operations.push("validator-called-with-repo");
         expect(params.militaryRankRepository).toBe(mockRepository);
         return mockValidator;
       });
 
-      mockMakeCreateMilitaryRankSanitizer.mockReturnValue(mockSanitizer);
+      mockMakeMilitaryRankInputDTOSanitizer.mockReturnValue(mockSanitizer);
       mockCreateMilitaryRankService.mockReturnValue(mockService as any);
 
       // ACT
@@ -371,8 +371,8 @@ describe("makeCreateMilitaryRankUseCase", () => {
         makeSut();
 
       mockMakeMilitaryRankRepository.mockReturnValue(mockRepository);
-      mockMakeCreateMilitaryRankSanitizer.mockReturnValue(mockSanitizer);
-      mockMakeCreateMilitaryRankValidator.mockReturnValue(mockValidator);
+      mockMakeMilitaryRankInputDTOSanitizer.mockReturnValue(mockSanitizer);
+      mockMakeMilitaryRankValidator.mockReturnValue(mockValidator);
       mockCreateMilitaryRankService.mockReturnValue(mockService as any);
 
       // ACT
@@ -381,8 +381,8 @@ describe("makeCreateMilitaryRankUseCase", () => {
       // ASSERT
       // Verifica se todos os factories foram chamados
       expect(mockMakeMilitaryRankRepository).toHaveBeenCalledTimes(1);
-      expect(mockMakeCreateMilitaryRankSanitizer).toHaveBeenCalledTimes(1);
-      expect(mockMakeCreateMilitaryRankValidator).toHaveBeenCalledTimes(1);
+      expect(mockMakeMilitaryRankInputDTOSanitizer).toHaveBeenCalledTimes(1);
+      expect(mockMakeMilitaryRankValidator).toHaveBeenCalledTimes(1);
       expect(mockCreateMilitaryRankService).toHaveBeenCalledTimes(1);
 
       // Verifica se o resultado é correto
@@ -396,8 +396,8 @@ describe("makeCreateMilitaryRankUseCase", () => {
       const service2 = { create: jest.fn() };
 
       mockMakeMilitaryRankRepository.mockReturnValue(mockRepository);
-      mockMakeCreateMilitaryRankSanitizer.mockReturnValue(mockSanitizer);
-      mockMakeCreateMilitaryRankValidator.mockReturnValue(mockValidator);
+      mockMakeMilitaryRankInputDTOSanitizer.mockReturnValue(mockSanitizer);
+      mockMakeMilitaryRankValidator.mockReturnValue(mockValidator);
       mockCreateMilitaryRankService
         .mockReturnValueOnce(service1 as any)
         .mockReturnValueOnce(service2 as any);
@@ -418,8 +418,8 @@ describe("makeCreateMilitaryRankUseCase", () => {
         makeSut();
 
       mockMakeMilitaryRankRepository.mockReturnValue(mockRepository);
-      mockMakeCreateMilitaryRankSanitizer.mockReturnValue(mockSanitizer);
-      mockMakeCreateMilitaryRankValidator.mockReturnValue(mockValidator);
+      mockMakeMilitaryRankInputDTOSanitizer.mockReturnValue(mockSanitizer);
+      mockMakeMilitaryRankValidator.mockReturnValue(mockValidator);
       mockCreateMilitaryRankService.mockReturnValue(mockService as any);
 
       // ACT
@@ -429,8 +429,8 @@ describe("makeCreateMilitaryRankUseCase", () => {
       // ASSERT
       // Cada chamada deve criar novas instâncias
       expect(mockMakeMilitaryRankRepository).toHaveBeenCalledTimes(2);
-      expect(mockMakeCreateMilitaryRankSanitizer).toHaveBeenCalledTimes(2);
-      expect(mockMakeCreateMilitaryRankValidator).toHaveBeenCalledTimes(2);
+      expect(mockMakeMilitaryRankInputDTOSanitizer).toHaveBeenCalledTimes(2);
+      expect(mockMakeMilitaryRankValidator).toHaveBeenCalledTimes(2);
       expect(mockCreateMilitaryRankService).toHaveBeenCalledTimes(2);
     });
   });
@@ -442,8 +442,8 @@ describe("makeCreateMilitaryRankUseCase", () => {
         makeSut();
 
       mockMakeMilitaryRankRepository.mockReturnValue(mockRepository);
-      mockMakeCreateMilitaryRankSanitizer.mockReturnValue(mockSanitizer);
-      mockMakeCreateMilitaryRankValidator.mockReturnValue(mockValidator);
+      mockMakeMilitaryRankInputDTOSanitizer.mockReturnValue(mockSanitizer);
+      mockMakeMilitaryRankValidator.mockReturnValue(mockValidator);
       mockCreateMilitaryRankService.mockReturnValue(mockService as any);
 
       // ACT
@@ -461,8 +461,8 @@ describe("makeCreateMilitaryRankUseCase", () => {
         makeSut();
 
       mockMakeMilitaryRankRepository.mockReturnValue(mockRepository);
-      mockMakeCreateMilitaryRankSanitizer.mockReturnValue(mockSanitizer);
-      mockMakeCreateMilitaryRankValidator.mockReturnValue(mockValidator);
+      mockMakeMilitaryRankInputDTOSanitizer.mockReturnValue(mockSanitizer);
+      mockMakeMilitaryRankValidator.mockReturnValue(mockValidator);
       mockCreateMilitaryRankService.mockReturnValue(mockService as any);
 
       // ACT

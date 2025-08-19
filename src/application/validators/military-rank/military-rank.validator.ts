@@ -3,19 +3,18 @@ import {
   InvalidParamError,
   MissingParamError,
 } from "@application/errors";
-import type { CreateMilitaryRankValidatorProtocol } from "@application/protocols";
+import { MilitaryRankValidatorProtocol } from "@application/protocols";
+// O validator agora serve para create e update, aceitando idToIgnore
 
 import type { MilitaryRankInputDTO } from "@domain/dtos";
 import type { MilitaryRankRepository } from "@domain/repositories";
 
-interface CreateMilitaryRankValidatorProps {
+interface MilitaryRankValidatorProps {
   militaryRankRepository: MilitaryRankRepository;
 }
 
-export class CreateMilitaryRankValidator
-  implements CreateMilitaryRankValidatorProtocol
-{
-  constructor(private readonly props: CreateMilitaryRankValidatorProps) {}
+export class MilitaryRankValidator implements MilitaryRankValidatorProtocol {
+  constructor(private readonly props: MilitaryRankValidatorProps) {}
 
   private readonly validateAbbreviationPresence = (
     abbreviation: string,
@@ -65,19 +64,21 @@ export class CreateMilitaryRankValidator
 
   private readonly validateAbbreviationUniqueness = async (
     abbreviation: string,
+    idToIgnore?: string,
   ): Promise<void> => {
     const exists =
       await this.props.militaryRankRepository.findByAbbreviation(abbreviation);
-    if (exists) {
+    if (exists && (!idToIgnore || exists.id !== idToIgnore)) {
       throw new DuplicatedKeyError("Abreviatura");
     }
   };
 
   private readonly validateOrderUniqueness = async (
     order: number,
+    idToIgnore?: string,
   ): Promise<void> => {
     const exists = await this.props.militaryRankRepository.findByOrder(order);
-    if (exists) {
+    if (exists && (!idToIgnore || exists.id !== idToIgnore)) {
       throw new DuplicatedKeyError("Ordem");
     }
   };
@@ -98,16 +99,21 @@ export class CreateMilitaryRankValidator
 
   private readonly validateUniqueness = async (
     data: MilitaryRankInputDTO,
+    idToIgnore?: string,
   ): Promise<void> => {
-    await this.validateAbbreviationUniqueness(data.abbreviation);
-    await this.validateOrderUniqueness(data.order);
+    await this.validateAbbreviationUniqueness(data.abbreviation, idToIgnore);
+    await this.validateOrderUniqueness(data.order, idToIgnore);
   };
 
+  /**
+   * Valida para create (idToIgnore não informado) ou update (idToIgnore informado)
+   */
   public readonly validate = async (
     data: MilitaryRankInputDTO,
+    idToIgnore?: string,
   ): Promise<void> => {
     this.validateRequiredFields(data);
     this.validateBusinessRules(data);
-    await this.validateUniqueness(data);
+    await this.validateUniqueness(data, idToIgnore);
   };
 }

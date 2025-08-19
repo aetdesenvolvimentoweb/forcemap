@@ -1,18 +1,18 @@
-import { CreateMilitaryRankSanitizer } from "@application/sanitizers";
+import { MilitaryRankInputDTOSanitizer } from "@application/sanitizers";
 
 interface SutTypes {
-  sut: CreateMilitaryRankSanitizer;
+  sut: MilitaryRankInputDTOSanitizer;
 }
 
 const makeSut = (): SutTypes => {
-  const sut = new CreateMilitaryRankSanitizer();
+  const sut = new MilitaryRankInputDTOSanitizer();
 
   return {
     sut,
   };
 };
 
-describe("CreateMilitaryRankSanitizer", () => {
+describe("MilitaryRankInputDTOSanitizer", () => {
   let sutInstance: SutTypes;
 
   beforeEach(() => {

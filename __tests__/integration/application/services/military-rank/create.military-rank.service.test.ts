@@ -1,8 +1,7 @@
-import { CreateMilitaryRankSanitizer } from "@application/sanitizers";
+import { MilitaryRankInputDTOSanitizer } from "@application/sanitizers";
 import { CreateMilitaryRankService } from "@application/services";
-import { CreateMilitaryRankValidator } from "@application/validators";
+import { MilitaryRankValidator } from "@application/validators";
 import type { MilitaryRankInputDTO } from "@domain/dtos";
-import type { MilitaryRank } from "@domain/entities";
 import type { MilitaryRankRepository } from "@domain/repositories";
 import { InMemoryMilitaryRankRepository } from "@infra/repositories";
 
@@ -15,8 +14,8 @@ const makeSut = (): SutTypes => {
   const militaryRankRepository = new InMemoryMilitaryRankRepository();
 
   // Usando implementações reais para teste de integração
-  const sanitizer = new CreateMilitaryRankSanitizer();
-  const validator = new CreateMilitaryRankValidator({ militaryRankRepository });
+  const sanitizer = new MilitaryRankInputDTOSanitizer();
+  const validator = new MilitaryRankValidator({ militaryRankRepository });
 
   const sut = new CreateMilitaryRankService({
     militaryRankRepository,

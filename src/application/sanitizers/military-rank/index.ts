@@ -1,1 +1,1 @@
-export * from "./create.military-rank.sanitizer";
+export * from "./military-rank.input.dto.sanitizer";

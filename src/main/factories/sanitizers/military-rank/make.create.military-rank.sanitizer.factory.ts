@@ -1,5 +1,5 @@
-import type { CreateMilitaryRankSanitizerProtocol } from "@application/protocols";
-import { CreateMilitaryRankSanitizer } from "@application/sanitizers";
+import type { MilitaryRankInputDTOSanitizerProtocol } from "@application/protocols";
+import { MilitaryRankInputDTOSanitizer } from "@application/sanitizers";
 
 /**
  * 🏭 MAIN LAYER - Factory para Sanitizer
@@ -9,7 +9,7 @@ import { CreateMilitaryRankSanitizer } from "@application/sanitizers";
  * - Configurar dependências se necessário
  */
 
-export const makeCreateMilitaryRankSanitizer =
-  (): CreateMilitaryRankSanitizerProtocol => {
-    return new CreateMilitaryRankSanitizer();
+export const makeMilitaryRankInputDTOSanitizer =
+  (): MilitaryRankInputDTOSanitizerProtocol => {
+    return new MilitaryRankInputDTOSanitizer();
   };

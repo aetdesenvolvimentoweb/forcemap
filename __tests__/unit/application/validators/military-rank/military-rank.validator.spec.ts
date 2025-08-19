@@ -3,12 +3,12 @@ import {
   InvalidParamError,
   MissingParamError,
 } from "@application/errors";
-import { CreateMilitaryRankValidator } from "@application/validators";
+import { MilitaryRankValidator } from "@application/validators";
 import type { MilitaryRankInputDTO } from "@domain/dtos";
 import type { MilitaryRankRepository } from "@domain/repositories";
 
 interface SutTypes {
-  sut: CreateMilitaryRankValidator;
+  sut: MilitaryRankValidator;
   militaryRankRepository: jest.Mocked<MilitaryRankRepository>;
 }
 
@@ -19,8 +19,10 @@ const makeSut = (): SutTypes => {
     findByOrder: jest.fn().mockResolvedValue(null),
     listAll: jest.fn().mockResolvedValue([]),
     listById: jest.fn().mockResolvedValue(null),
+    update: jest.fn().mockResolvedValue(undefined),
+    delete: jest.fn().mockResolvedValue(undefined),
   });
-  const sut = new CreateMilitaryRankValidator({
+  const sut = new MilitaryRankValidator({
     militaryRankRepository,
   });
 
@@ -30,7 +32,7 @@ const makeSut = (): SutTypes => {
   };
 };
 
-describe("CreateMilitaryRankValidator", () => {
+describe("MilitaryRankValidator", () => {
   let sutInstance: SutTypes;
 
   beforeEach(() => {
@@ -404,6 +406,70 @@ describe("CreateMilitaryRankValidator", () => {
       // ACT & ASSERT
       await expect(sut.validate(inputDto)).rejects.toThrow(
         new DuplicatedKeyError("Abreviatura"),
+      );
+    });
+
+    it("should NOT throw DuplicatedKeyError when updating and found abbreviation has same id as idToIgnore", async () => {
+      const { sut, militaryRankRepository } = sutInstance;
+      const inputDto: MilitaryRankInputDTO = {
+        abbreviation: "CABO",
+        order: 1,
+      };
+      militaryRankRepository.findByAbbreviation.mockResolvedValueOnce({
+        id: "same-id",
+        abbreviation: "CABO",
+        order: 2,
+      });
+      // ACT & ASSERT
+      await expect(sut.validate(inputDto, "same-id")).resolves.toBeUndefined();
+    });
+
+    it("should throw DuplicatedKeyError when updating and found abbreviation has different id than idToIgnore", async () => {
+      const { sut, militaryRankRepository } = sutInstance;
+      const inputDto: MilitaryRankInputDTO = {
+        abbreviation: "CABO",
+        order: 1,
+      };
+      militaryRankRepository.findByAbbreviation.mockResolvedValueOnce({
+        id: "other-id",
+        abbreviation: "CABO",
+        order: 2,
+      });
+      // ACT & ASSERT
+      await expect(sut.validate(inputDto, "my-id")).rejects.toThrow(
+        new DuplicatedKeyError("Abreviatura"),
+      );
+    });
+
+    it("should NOT throw DuplicatedKeyError when updating and found order has same id as idToIgnore", async () => {
+      const { sut, militaryRankRepository } = sutInstance;
+      const inputDto: MilitaryRankInputDTO = {
+        abbreviation: "SARGENTO",
+        order: 5,
+      };
+      militaryRankRepository.findByOrder.mockResolvedValueOnce({
+        id: "same-id",
+        abbreviation: "SGT",
+        order: 5,
+      });
+      // ACT & ASSERT
+      await expect(sut.validate(inputDto, "same-id")).resolves.toBeUndefined();
+    });
+
+    it("should throw DuplicatedKeyError when updating and found order has different id than idToIgnore", async () => {
+      const { sut, militaryRankRepository } = sutInstance;
+      const inputDto: MilitaryRankInputDTO = {
+        abbreviation: "SARGENTO",
+        order: 5,
+      };
+      militaryRankRepository.findByOrder.mockResolvedValueOnce({
+        id: "other-id",
+        abbreviation: "SGT",
+        order: 5,
+      });
+      // ACT & ASSERT
+      await expect(sut.validate(inputDto, "my-id")).rejects.toThrow(
+        new DuplicatedKeyError("Ordem"),
       );
     });
 

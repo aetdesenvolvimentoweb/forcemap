@@ -1,39 +1,39 @@
-import { CreateMilitaryRankSanitizer } from "@application/sanitizers";
-import type { CreateMilitaryRankSanitizerProtocol } from "@application/protocols";
-import { makeCreateMilitaryRankSanitizer } from "@main/factories";
+import { MilitaryRankInputDTOSanitizer } from "@application/sanitizers";
+import type { MilitaryRankInputDTOSanitizerProtocol } from "@application/protocols";
+import { makeMilitaryRankInputDTOSanitizer } from "@main/factories";
 
 // Mocks
 jest.mock("@application/sanitizers", () => ({
-  CreateMilitaryRankSanitizer: jest.fn(),
+  MilitaryRankInputDTOSanitizer: jest.fn(),
 }));
 
-const mockCreateMilitaryRankSanitizer =
-  CreateMilitaryRankSanitizer as jest.MockedClass<
-    typeof CreateMilitaryRankSanitizer
+const mockMilitaryRankInputDTOSanitizer =
+  MilitaryRankInputDTOSanitizer as jest.MockedClass<
+    typeof MilitaryRankInputDTOSanitizer
   >;
 
 interface SutTypes {
-  sut: typeof makeCreateMilitaryRankSanitizer;
-  mockSanitizer: CreateMilitaryRankSanitizerProtocol;
+  sut: typeof makeMilitaryRankInputDTOSanitizer;
+  mockSanitizer: MilitaryRankInputDTOSanitizerProtocol;
 }
 
 const makeSut = (): SutTypes => {
   const mockSanitizer = {
     sanitize: jest.fn(),
-  } as unknown as CreateMilitaryRankSanitizerProtocol;
+  } as unknown as MilitaryRankInputDTOSanitizerProtocol;
 
   return {
-    sut: makeCreateMilitaryRankSanitizer,
+    sut: makeMilitaryRankInputDTOSanitizer,
     mockSanitizer,
   };
 };
 
-describe("makeCreateMilitaryRankSanitizer", () => {
+describe("makeMilitaryRankInputDTOSanitizer", () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
     // Setup default mock returns
-    mockCreateMilitaryRankSanitizer.mockImplementation(
+    mockMilitaryRankInputDTOSanitizer.mockImplementation(
       () =>
         ({
           sanitize: jest.fn(),
@@ -46,7 +46,7 @@ describe("makeCreateMilitaryRankSanitizer", () => {
   });
 
   describe("sanitizer creation", () => {
-    it("should create CreateMilitaryRankSanitizer instance", () => {
+    it("should create MilitaryRankInputDTOSanitizer instance", () => {
       // ARRANGE
       const { sut } = makeSut();
 
@@ -54,14 +54,14 @@ describe("makeCreateMilitaryRankSanitizer", () => {
       sut();
 
       // ASSERT
-      expect(mockCreateMilitaryRankSanitizer).toHaveBeenCalledTimes(1);
-      expect(mockCreateMilitaryRankSanitizer).toHaveBeenCalledWith();
+      expect(mockMilitaryRankInputDTOSanitizer).toHaveBeenCalledTimes(1);
+      expect(mockMilitaryRankInputDTOSanitizer).toHaveBeenCalledWith();
     });
 
-    it("should return CreateMilitaryRankSanitizerProtocol interface", () => {
+    it("should return MilitaryRankInputDTOSanitizerProtocol interface", () => {
       // ARRANGE
       const { sut, mockSanitizer } = makeSut();
-      mockCreateMilitaryRankSanitizer.mockReturnValue(mockSanitizer as any);
+      mockMilitaryRankInputDTOSanitizer.mockReturnValue(mockSanitizer as any);
 
       // ACT
       const result = sut();
@@ -77,7 +77,7 @@ describe("makeCreateMilitaryRankSanitizer", () => {
       const sanitizer1 = { sanitize: jest.fn() };
       const sanitizer2 = { sanitize: jest.fn() };
 
-      mockCreateMilitaryRankSanitizer
+      mockMilitaryRankInputDTOSanitizer
         .mockReturnValueOnce(sanitizer1 as any)
         .mockReturnValueOnce(sanitizer2 as any);
 
@@ -88,17 +88,17 @@ describe("makeCreateMilitaryRankSanitizer", () => {
       // ASSERT
       expect(result1).toBe(sanitizer1);
       expect(result2).toBe(sanitizer2);
-      expect(mockCreateMilitaryRankSanitizer).toHaveBeenCalledTimes(2);
+      expect(mockMilitaryRankInputDTOSanitizer).toHaveBeenCalledTimes(2);
     });
   });
 
   describe("function signature", () => {
-    it("should be a function named makeCreateMilitaryRankSanitizer", () => {
+    it("should be a function named makeMilitaryRankInputDTOSanitizer", () => {
       // ARRANGE
       const { sut } = makeSut();
 
       // ASSERT
-      expect(sut.name).toBe("makeCreateMilitaryRankSanitizer");
+      expect(sut.name).toBe("makeMilitaryRankInputDTOSanitizer");
       expect(typeof sut).toBe("function");
     });
 
@@ -111,7 +111,7 @@ describe("makeCreateMilitaryRankSanitizer", () => {
       expect(sut.length).toBe(0);
     });
 
-    it("should return CreateMilitaryRankSanitizerProtocol type", () => {
+    it("should return MilitaryRankInputDTOSanitizerProtocol type", () => {
       // ARRANGE
       const { sut } = makeSut();
 
@@ -126,10 +126,10 @@ describe("makeCreateMilitaryRankSanitizer", () => {
   });
 
   describe("error handling", () => {
-    it("should handle CreateMilitaryRankSanitizer constructor errors gracefully", () => {
+    it("should handle MilitaryRankInputDTOSanitizer constructor errors gracefully", () => {
       // ARRANGE
       const { sut } = makeSut();
-      mockCreateMilitaryRankSanitizer.mockImplementation(() => {
+      mockMilitaryRankInputDTOSanitizer.mockImplementation(() => {
         throw new Error("Sanitizer constructor error");
       });
 
@@ -141,7 +141,7 @@ describe("makeCreateMilitaryRankSanitizer", () => {
       // ARRANGE
       const { sut } = makeSut();
       const customError = new Error("Custom sanitizer error");
-      mockCreateMilitaryRankSanitizer.mockImplementation(() => {
+      mockMilitaryRankInputDTOSanitizer.mockImplementation(() => {
         throw customError;
       });
 
@@ -154,19 +154,19 @@ describe("makeCreateMilitaryRankSanitizer", () => {
     it("should maintain factory isolation", () => {
       // ARRANGE
       const { sut } = makeSut();
-      const instances: CreateMilitaryRankSanitizerProtocol[] = [];
+      const instances: MilitaryRankInputDTOSanitizerProtocol[] = [];
 
       // ACT
       for (let i = 0; i < 3; i++) {
         const mockInstance = { sanitize: jest.fn() };
-        mockCreateMilitaryRankSanitizer.mockReturnValueOnce(
+        mockMilitaryRankInputDTOSanitizer.mockReturnValueOnce(
           mockInstance as any,
         );
         instances.push(sut());
       }
 
       // ASSERT
-      expect(mockCreateMilitaryRankSanitizer).toHaveBeenCalledTimes(3);
+      expect(mockMilitaryRankInputDTOSanitizer).toHaveBeenCalledTimes(3);
       instances.forEach((instance, index) => {
         instances.forEach((otherInstance, otherIndex) => {
           if (index !== otherIndex) {
@@ -181,14 +181,14 @@ describe("makeCreateMilitaryRankSanitizer", () => {
     it("should handle complete sanitizer factory flow", () => {
       // ARRANGE
       const { sut, mockSanitizer } = makeSut();
-      mockCreateMilitaryRankSanitizer.mockReturnValue(mockSanitizer as any);
+      mockMilitaryRankInputDTOSanitizer.mockReturnValue(mockSanitizer as any);
 
       // ACT
       const result = sut();
 
       // ASSERT
-      expect(mockCreateMilitaryRankSanitizer).toHaveBeenCalledTimes(1);
-      expect(mockCreateMilitaryRankSanitizer).toHaveBeenCalledWith();
+      expect(mockMilitaryRankInputDTOSanitizer).toHaveBeenCalledTimes(1);
+      expect(mockMilitaryRankInputDTOSanitizer).toHaveBeenCalledWith();
       expect(result).toBe(mockSanitizer);
     });
 
@@ -202,14 +202,14 @@ describe("makeCreateMilitaryRankSanitizer", () => {
       ];
 
       sanitizers.forEach((sanitizer) => {
-        mockCreateMilitaryRankSanitizer.mockReturnValueOnce(sanitizer as any);
+        mockMilitaryRankInputDTOSanitizer.mockReturnValueOnce(sanitizer as any);
       });
 
       // ACT
       const results = [sut(), sut(), sut()];
 
       // ASSERT
-      expect(mockCreateMilitaryRankSanitizer).toHaveBeenCalledTimes(3);
+      expect(mockMilitaryRankInputDTOSanitizer).toHaveBeenCalledTimes(3);
       results.forEach((result, index) => {
         expect(result).toBe(sanitizers[index]);
       });
@@ -225,7 +225,7 @@ describe("makeCreateMilitaryRankSanitizer", () => {
       // ASSERT
       // Verifica que a factory é simples mas extensível
       expect(result).toBeDefined();
-      expect(mockCreateMilitaryRankSanitizer).toHaveBeenCalledWith();
+      expect(mockMilitaryRankInputDTOSanitizer).toHaveBeenCalledWith();
       // No futuro, se dependencies forem necessárias, a interface pode ser mantida
     });
   });
@@ -242,7 +242,7 @@ describe("makeCreateMilitaryRankSanitizer", () => {
       expect(typeof result.sanitize).toBe("function");
     });
 
-    it("should ensure sanitizer implements CreateMilitaryRankSanitizerProtocol interface", () => {
+    it("should ensure sanitizer implements MilitaryRankInputDTOSanitizerProtocol interface", () => {
       // ARRANGE
       const { sut } = makeSut();
 
@@ -286,11 +286,11 @@ describe("makeCreateMilitaryRankSanitizer", () => {
 
       // ASSERT
       // Atualmente não tem dependências, mas a estrutura permite adicionar facilmente
-      expect(mockCreateMilitaryRankSanitizer).toHaveBeenCalledWith();
+      expect(mockMilitaryRankInputDTOSanitizer).toHaveBeenCalledWith();
       expect(result).toBeDefined();
 
       // Se no futuro precisar de dependencies, a factory pode ser estendida:
-      // Example: sut({ someConfig }) → new CreateMilitaryRankSanitizer({ someConfig })
+      // Example: sut({ someConfig }) → new MilitaryRankInputDTOSanitizer({ someConfig })
     });
 
     it("should maintain factory pattern consistency", () => {

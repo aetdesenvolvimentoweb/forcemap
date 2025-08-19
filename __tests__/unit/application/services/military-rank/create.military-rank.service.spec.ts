@@ -1,15 +1,15 @@
 import { CreateMilitaryRankService } from "@application/services";
 import type {
-  CreateMilitaryRankSanitizerProtocol,
-  CreateMilitaryRankValidatorProtocol,
+  MilitaryRankInputDTOSanitizerProtocol,
+  MilitaryRankValidatorProtocol,
 } from "@application/protocols";
 import type { MilitaryRankRepository } from "@domain/repositories";
 
 interface SutTypes {
   sut: CreateMilitaryRankService;
   militaryRankRepository: MilitaryRankRepository;
-  sanitizer: jest.Mocked<CreateMilitaryRankSanitizerProtocol>;
-  validator: jest.Mocked<CreateMilitaryRankValidatorProtocol>;
+  sanitizer: jest.Mocked<MilitaryRankInputDTOSanitizerProtocol>;
+  validator: jest.Mocked<MilitaryRankValidatorProtocol>;
 }
 
 const makeSut = (): SutTypes => {
@@ -25,11 +25,11 @@ const makeSut = (): SutTypes => {
 
   const sanitizer = {
     sanitize: jest.fn(),
-  } as jest.Mocked<CreateMilitaryRankSanitizerProtocol>;
+  } as jest.Mocked<MilitaryRankInputDTOSanitizerProtocol>;
 
   const validator = {
     validate: jest.fn().mockResolvedValue(undefined),
-  } as jest.Mocked<CreateMilitaryRankValidatorProtocol>;
+  } as jest.Mocked<MilitaryRankValidatorProtocol>;
 
   const sut = new CreateMilitaryRankService({
     militaryRankRepository,

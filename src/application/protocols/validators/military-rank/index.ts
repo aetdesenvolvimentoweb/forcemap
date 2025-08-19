@@ -1,1 +1,1 @@
-export * from "./create-military-rank-validator.protocol";
+export * from "./military-rank-validator.protocol";

@@ -1,5 +1,5 @@
-import type { CreateMilitaryRankValidatorProtocol } from "@application/protocols";
-import { CreateMilitaryRankValidator } from "@application/validators";
+import type { MilitaryRankValidatorProtocol } from "@application/protocols";
+import { MilitaryRankValidator } from "@application/validators";
 
 import type { MilitaryRankRepository } from "@domain/repositories";
 
@@ -11,12 +11,12 @@ import type { MilitaryRankRepository } from "@domain/repositories";
  * - Injetar repository (dependency injection)
  */
 
-interface MakeCreateMilitaryRankValidatorProps {
+interface MakeMilitaryRankValidatorProps {
   militaryRankRepository: MilitaryRankRepository;
 }
 
-export const makeCreateMilitaryRankValidator = ({
+export const makeMilitaryRankValidator = ({
   militaryRankRepository,
-}: MakeCreateMilitaryRankValidatorProps): CreateMilitaryRankValidatorProtocol => {
-  return new CreateMilitaryRankValidator({ militaryRankRepository });
+}: MakeMilitaryRankValidatorProps): MilitaryRankValidatorProtocol => {
+  return new MilitaryRankValidator({ militaryRankRepository });
 };

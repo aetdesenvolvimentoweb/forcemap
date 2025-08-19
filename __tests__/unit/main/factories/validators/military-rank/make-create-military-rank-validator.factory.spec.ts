@@ -1,22 +1,21 @@
-import { CreateMilitaryRankValidator } from "@application/validators";
-import type { CreateMilitaryRankValidatorProtocol } from "@application/protocols";
+import { MilitaryRankValidator } from "@application/validators";
+import type { MilitaryRankValidatorProtocol } from "@application/protocols";
 import type { MilitaryRankRepository } from "@domain/repositories";
-import { makeCreateMilitaryRankValidator } from "@main/factories";
+import { makeMilitaryRankValidator } from "@main/factories";
 
 // Mocks
 jest.mock("@application/validators", () => ({
-  CreateMilitaryRankValidator: jest.fn(),
+  MilitaryRankValidator: jest.fn(),
 }));
 
-const mockCreateMilitaryRankValidator =
-  CreateMilitaryRankValidator as jest.MockedClass<
-    typeof CreateMilitaryRankValidator
-  >;
+const mockMilitaryRankValidator = MilitaryRankValidator as jest.MockedClass<
+  typeof MilitaryRankValidator
+>;
 
 interface SutTypes {
-  sut: typeof makeCreateMilitaryRankValidator;
+  sut: typeof makeMilitaryRankValidator;
   mockRepository: MilitaryRankRepository;
-  mockValidator: CreateMilitaryRankValidatorProtocol;
+  mockValidator: MilitaryRankValidatorProtocol;
 }
 
 const makeSut = (): SutTypes => {
@@ -28,21 +27,21 @@ const makeSut = (): SutTypes => {
 
   const mockValidator = {
     validate: jest.fn(),
-  } as unknown as CreateMilitaryRankValidatorProtocol;
+  } as unknown as MilitaryRankValidatorProtocol;
 
   return {
-    sut: makeCreateMilitaryRankValidator,
+    sut: makeMilitaryRankValidator,
     mockRepository,
     mockValidator,
   };
 };
 
-describe("makeCreateMilitaryRankValidator", () => {
+describe("makeMilitaryRankValidator", () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
     // Setup default mock returns
-    mockCreateMilitaryRankValidator.mockImplementation(
+    mockMilitaryRankValidator.mockImplementation(
       () =>
         ({
           validate: jest.fn(),
@@ -55,7 +54,7 @@ describe("makeCreateMilitaryRankValidator", () => {
   });
 
   describe("validator creation", () => {
-    it("should create CreateMilitaryRankValidator instance with repository", () => {
+    it("should create MilitaryRankValidator instance with repository", () => {
       // ARRANGE
       const { sut, mockRepository } = makeSut();
 
@@ -63,16 +62,16 @@ describe("makeCreateMilitaryRankValidator", () => {
       sut({ militaryRankRepository: mockRepository });
 
       // ASSERT
-      expect(mockCreateMilitaryRankValidator).toHaveBeenCalledTimes(1);
-      expect(mockCreateMilitaryRankValidator).toHaveBeenCalledWith({
+      expect(mockMilitaryRankValidator).toHaveBeenCalledTimes(1);
+      expect(mockMilitaryRankValidator).toHaveBeenCalledWith({
         militaryRankRepository: mockRepository,
       });
     });
 
-    it("should return CreateMilitaryRankValidatorProtocol interface", () => {
+    it("should return MilitaryRankValidatorProtocol interface", () => {
       // ARRANGE
       const { sut, mockRepository, mockValidator } = makeSut();
-      mockCreateMilitaryRankValidator.mockReturnValue(mockValidator as any);
+      mockMilitaryRankValidator.mockReturnValue(mockValidator as any);
 
       // ACT
       const result = sut({ militaryRankRepository: mockRepository });
@@ -88,7 +87,7 @@ describe("makeCreateMilitaryRankValidator", () => {
       const validator1 = { validate: jest.fn() };
       const validator2 = { validate: jest.fn() };
 
-      mockCreateMilitaryRankValidator
+      mockMilitaryRankValidator
         .mockReturnValueOnce(validator1 as any)
         .mockReturnValueOnce(validator2 as any);
 
@@ -99,7 +98,7 @@ describe("makeCreateMilitaryRankValidator", () => {
       // ASSERT
       expect(result1).toBe(validator1);
       expect(result2).toBe(validator2);
-      expect(mockCreateMilitaryRankValidator).toHaveBeenCalledTimes(2);
+      expect(mockMilitaryRankValidator).toHaveBeenCalledTimes(2);
     });
   });
 
@@ -112,7 +111,7 @@ describe("makeCreateMilitaryRankValidator", () => {
       sut({ militaryRankRepository: mockRepository });
 
       // ASSERT
-      expect(mockCreateMilitaryRankValidator).toHaveBeenCalledWith({
+      expect(mockMilitaryRankValidator).toHaveBeenCalledWith({
         militaryRankRepository: mockRepository,
       });
     });
@@ -128,10 +127,10 @@ describe("makeCreateMilitaryRankValidator", () => {
       sut({ militaryRankRepository: repository2 });
 
       // ASSERT
-      expect(mockCreateMilitaryRankValidator).toHaveBeenNthCalledWith(1, {
+      expect(mockMilitaryRankValidator).toHaveBeenNthCalledWith(1, {
         militaryRankRepository: repository1,
       });
-      expect(mockCreateMilitaryRankValidator).toHaveBeenNthCalledWith(2, {
+      expect(mockMilitaryRankValidator).toHaveBeenNthCalledWith(2, {
         militaryRankRepository: repository2,
       });
     });
@@ -144,17 +143,17 @@ describe("makeCreateMilitaryRankValidator", () => {
       // TypeScript should enforce this at compile time,
       // but we test runtime behavior
       expect(() => sut({} as any)).not.toThrow();
-      expect(mockCreateMilitaryRankValidator).toHaveBeenCalledWith({});
+      expect(mockMilitaryRankValidator).toHaveBeenCalledWith({});
     });
   });
 
   describe("function signature", () => {
-    it("should be a function named makeCreateMilitaryRankValidator", () => {
+    it("should be a function named makeMilitaryRankValidator", () => {
       // ARRANGE
       const { sut } = makeSut();
 
       // ASSERT
-      expect(sut.name).toBe("makeCreateMilitaryRankValidator");
+      expect(sut.name).toBe("makeMilitaryRankValidator");
       expect(typeof sut).toBe("function");
     });
 
@@ -169,7 +168,7 @@ describe("makeCreateMilitaryRankValidator", () => {
       expect(sut.length).toBe(1);
     });
 
-    it("should return CreateMilitaryRankValidatorProtocol type", () => {
+    it("should return MilitaryRankValidatorProtocol type", () => {
       // ARRANGE
       const { sut, mockRepository } = makeSut();
 
@@ -184,10 +183,10 @@ describe("makeCreateMilitaryRankValidator", () => {
   });
 
   describe("error handling", () => {
-    it("should handle CreateMilitaryRankValidator constructor errors gracefully", () => {
+    it("should handle MilitaryRankValidator constructor errors gracefully", () => {
       // ARRANGE
       const { sut, mockRepository } = makeSut();
-      mockCreateMilitaryRankValidator.mockImplementation(() => {
+      mockMilitaryRankValidator.mockImplementation(() => {
         throw new Error("Validator constructor error");
       });
 
@@ -201,7 +200,7 @@ describe("makeCreateMilitaryRankValidator", () => {
       // ARRANGE
       const { sut, mockRepository } = makeSut();
       const customError = new Error("Custom validator error");
-      mockCreateMilitaryRankValidator.mockImplementation(() => {
+      mockMilitaryRankValidator.mockImplementation(() => {
         throw customError;
       });
 
@@ -219,7 +218,7 @@ describe("makeCreateMilitaryRankValidator", () => {
       sut({ militaryRankRepository: undefined as any });
 
       // ASSERT
-      expect(mockCreateMilitaryRankValidator).toHaveBeenCalledWith({
+      expect(mockMilitaryRankValidator).toHaveBeenCalledWith({
         militaryRankRepository: undefined,
       });
     });
@@ -239,14 +238,14 @@ describe("makeCreateMilitaryRankValidator", () => {
       sut({ militaryRankRepository: repo3 });
 
       // ASSERT
-      expect(mockCreateMilitaryRankValidator).toHaveBeenCalledTimes(3);
-      expect(mockCreateMilitaryRankValidator).toHaveBeenNthCalledWith(1, {
+      expect(mockMilitaryRankValidator).toHaveBeenCalledTimes(3);
+      expect(mockMilitaryRankValidator).toHaveBeenNthCalledWith(1, {
         militaryRankRepository: repo1,
       });
-      expect(mockCreateMilitaryRankValidator).toHaveBeenNthCalledWith(2, {
+      expect(mockMilitaryRankValidator).toHaveBeenNthCalledWith(2, {
         militaryRankRepository: repo2,
       });
-      expect(mockCreateMilitaryRankValidator).toHaveBeenNthCalledWith(3, {
+      expect(mockMilitaryRankValidator).toHaveBeenNthCalledWith(3, {
         militaryRankRepository: repo3,
       });
     });
@@ -256,14 +255,14 @@ describe("makeCreateMilitaryRankValidator", () => {
     it("should handle complete validator factory flow", () => {
       // ARRANGE
       const { sut, mockRepository, mockValidator } = makeSut();
-      mockCreateMilitaryRankValidator.mockReturnValue(mockValidator as any);
+      mockMilitaryRankValidator.mockReturnValue(mockValidator as any);
 
       // ACT
       const result = sut({ militaryRankRepository: mockRepository });
 
       // ASSERT
-      expect(mockCreateMilitaryRankValidator).toHaveBeenCalledTimes(1);
-      expect(mockCreateMilitaryRankValidator).toHaveBeenCalledWith({
+      expect(mockMilitaryRankValidator).toHaveBeenCalledTimes(1);
+      expect(mockMilitaryRankValidator).toHaveBeenCalledWith({
         militaryRankRepository: mockRepository,
       });
       expect(result).toBe(mockValidator);
@@ -279,7 +278,7 @@ describe("makeCreateMilitaryRankValidator", () => {
       ];
 
       validators.forEach((validator) => {
-        mockCreateMilitaryRankValidator.mockReturnValueOnce(validator as any);
+        mockMilitaryRankValidator.mockReturnValueOnce(validator as any);
       });
 
       // ACT
@@ -290,7 +289,7 @@ describe("makeCreateMilitaryRankValidator", () => {
       ];
 
       // ASSERT
-      expect(mockCreateMilitaryRankValidator).toHaveBeenCalledTimes(3);
+      expect(mockMilitaryRankValidator).toHaveBeenCalledTimes(3);
       results.forEach((result, index) => {
         expect(result).toBe(validators[index]);
       });
@@ -309,7 +308,7 @@ describe("makeCreateMilitaryRankValidator", () => {
       expect(typeof result.validate).toBe("function");
     });
 
-    it("should ensure validator implements CreateMilitaryRankValidatorProtocol interface", () => {
+    it("should ensure validator implements MilitaryRankValidatorProtocol interface", () => {
       // ARRANGE
       const { sut, mockRepository } = makeSut();
 

@@ -387,4 +387,35 @@ describe("InMemoryMilitaryRankRepository", () => {
       expect(await sut.listById(tcel!.id)).not.toBeNull();
     });
   });
+
+  describe("update method", () => {
+    it("should update an existing military rank", async () => {
+      const { sut } = sutInstance;
+      const initialData: MilitaryRankInputDTO = {
+        abbreviation: "CEL",
+        order: 1,
+      };
+      await sut.create(initialData);
+      const created = await sut.findByAbbreviation("CEL");
+      expect(created).toBeDefined();
+      // ACT
+      await sut.update(created!.id, { abbreviation: "GENERAL", order: 2 });
+      // ASSERT
+      const updated = await sut.listById(created!.id);
+      expect(updated).toEqual({
+        id: created!.id,
+        abbreviation: "GENERAL",
+        order: 2,
+      });
+    });
+
+    it("should not update anything if id does not exist", async () => {
+      const { sut } = sutInstance;
+      // ACT
+      await sut.update("non-existent-id", { abbreviation: "X", order: 99 });
+      // ASSERT
+      const all = await sut.listAll();
+      expect(all).toEqual([]);
+    });
+  });
 });

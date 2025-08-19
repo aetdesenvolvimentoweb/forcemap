@@ -1,6 +1,6 @@
 import type {
-  CreateMilitaryRankSanitizerProtocol,
-  CreateMilitaryRankValidatorProtocol,
+  MilitaryRankInputDTOSanitizerProtocol,
+  MilitaryRankValidatorProtocol,
 } from "@application/protocols";
 
 import type { MilitaryRankInputDTO } from "@domain/dtos";
@@ -9,8 +9,8 @@ import type { CreateMilitaryRankUseCase } from "@domain/usecases";
 
 interface CreateMilitaryRankServiceProps {
   militaryRankRepository: MilitaryRankRepository;
-  sanitizer: CreateMilitaryRankSanitizerProtocol;
-  validator: CreateMilitaryRankValidatorProtocol;
+  sanitizer: MilitaryRankInputDTOSanitizerProtocol;
+  validator: MilitaryRankValidatorProtocol;
 }
 
 export class CreateMilitaryRankService implements CreateMilitaryRankUseCase {
