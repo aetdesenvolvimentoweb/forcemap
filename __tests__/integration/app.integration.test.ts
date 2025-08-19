@@ -49,7 +49,7 @@ describe("Express App Integration", () => {
         version: "1.0.0",
         status: "running",
         timestamp: expect.any(String),
-        registeredRoutes: 3, // POST /military-ranks + GET /military-ranks + GET /military-ranks/:id
+        registeredRoutes: 4,
       });
     });
 

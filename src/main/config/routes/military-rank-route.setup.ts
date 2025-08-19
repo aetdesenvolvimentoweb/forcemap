@@ -3,6 +3,7 @@ import type { Controller, RouteRegistry } from "@presentation/protocols";
 
 import {
   makeCreateMilitaryRankController,
+  makeDeleteMilitaryRankController,
   makeListAllMilitaryRankController,
   makeListByIdMilitaryRankController,
 } from "@main/factories";
@@ -48,6 +49,15 @@ export const setupMilitaryRankRoutes = (routeRegistry: RouteRegistry): void => {
     method: "GET",
     path: "/military-ranks/:id",
     controller: makeListByIdMilitaryRankController({
+      httpResponseFactory,
+    }) as Controller,
+  });
+
+  // Delete Military Rank
+  routeRegistry.register({
+    method: "DELETE",
+    path: "/military-ranks/:id",
+    controller: makeDeleteMilitaryRankController({
       httpResponseFactory,
     }) as Controller,
   });
