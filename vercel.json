@@ -1,12 +1,37 @@
 {
   "version": 2,
-  "rewrites": [
+  "builds": [
     {
-      "source": "/(.*)",
-      "destination": "/api"
+      "src": "dist/main/server.js",
+      "use": "@vercel/node"
     }
   ],
-  "env": {
-    "NODE_ENV": "production"
-  }
+  "routes": [
+    {
+      "src": "/api-docs/swagger.json",
+      "dest": "/dist/main/server.js"
+    },
+    {
+      "src": "/api-docs/(.*)",
+      "dest": "/dist/main/server.js"
+    },
+    {
+      "src": "/api/v1/(.*)",
+      "dest": "/dist/main/server.js"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/api-docs/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET,OPTIONS" },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "X-Requested-With,content-type"
+        },
+        { "key": "Access-Control-Allow-Credentials", "value": "true" }
+      ]
+    }
+  ]
 }
