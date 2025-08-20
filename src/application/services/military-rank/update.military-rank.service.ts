@@ -1,3 +1,4 @@
+import { EntityNotFoundError } from "@application/errors";
 import type {
   IdSanitizerProtocol,
   IdValidatorProtocol,
@@ -36,6 +37,13 @@ export class UpdateMilitaryRankService implements UpdateMilitaryRankUseCase {
     const sanitizedData = dataSanitizer.sanitize(data);
     await idValidator.validate(sanitizedId);
     await dataValidator.validate(sanitizedData, sanitizedId);
+
+    const militaryRank = await militaryRankRepository.listById(sanitizedId);
+
+    if (!militaryRank) {
+      throw new EntityNotFoundError("Posto/Graduação");
+    }
+
     await militaryRankRepository.update(sanitizedId, sanitizedData);
   };
 }

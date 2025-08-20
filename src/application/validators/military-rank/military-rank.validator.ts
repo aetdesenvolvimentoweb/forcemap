@@ -40,7 +40,7 @@ export class MilitaryRankValidator implements MilitaryRankValidatorProtocol {
       );
     }
 
-    if (!/^[A-Z0-9º ]+$/.test(abbreviation.trim())) {
+    if (!/^[A-Z0-9º ]+$/.test(abbreviation)) {
       throw new InvalidParamError(
         "Abreviatura",
         "deve conter apenas letras, números, espaços e/ou o caractere ordinal (º)",
@@ -50,15 +50,15 @@ export class MilitaryRankValidator implements MilitaryRankValidatorProtocol {
 
   private readonly validateOrderRange = (order: number): void => {
     if (!Number.isInteger(order)) {
-      throw new InvalidParamError("Ordem", "deve ser um número inteiro");
+      throw new InvalidParamError("Ordem", "deve ser um número inteiro.");
     }
 
     if (order < 1) {
-      throw new InvalidParamError("Ordem", "deve ser maior que 0");
+      throw new InvalidParamError("Ordem", "deve ser maior que 0.");
     }
 
     if (order > 20) {
-      throw new InvalidParamError("Ordem", "não pode ser maior que 20");
+      throw new InvalidParamError("Ordem", "deve ser menor que 20.");
     }
   };
 

@@ -27,7 +27,7 @@ export class HttpResponseFactory {
       };
     }
     return {
-      statusCode: 200,
+      statusCode: 204,
     };
   };
 }

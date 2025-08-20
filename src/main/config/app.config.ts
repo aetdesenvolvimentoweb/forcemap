@@ -1,11 +1,11 @@
 import express from "express";
+import type { Express } from "express";
 
 import { RouteRegistry } from "@presentation/protocols";
 
 import { setupMiddlewares } from "./middlewares.config";
 import { setupRoutes } from "./routes.config";
-
-import type { Express } from "express";
+import { setupSwagger } from "./swagger.setup";
 
 export const setupApp = (app: Express, routeRegistry: RouteRegistry): void => {
   // Configuração de middlewares globais
@@ -13,6 +13,9 @@ export const setupApp = (app: Express, routeRegistry: RouteRegistry): void => {
 
   // Configuração de rotas via RouteRegistry
   setupRoutes(app, routeRegistry);
+
+  // Configuração do Swagger
+  setupSwagger(app);
 
   // 404 handler
   app.use((_req, res) => {

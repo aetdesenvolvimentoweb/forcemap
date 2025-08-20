@@ -17,12 +17,12 @@ export class DuplicatedKeyError extends AppError {
    * Cria uma nova instância de DuplicatedKeyError
    *
    * @constructor
-   * @param {string} entity - Nome ou descrição da entidade/valor que está duplicado
+   * @param {string} param - Nome ou descrição da entidade/valor que está duplicado
    *
    * @description
    * Inicializa um novo erro de chave duplicada com mensagem
    * padronizada em português e código de status 409 (Conflict).
-   * A mensagem segue o padrão "{entity} já está em uso."
+   * A mensagem segue o padrão "{param} já está em uso."
    * para indicar claramente que o valor fornecido viola uma
    * constraint de unicidade.
    *
@@ -41,12 +41,12 @@ export class DuplicatedKeyError extends AppError {
    * // Resultado: "Ordem de precedência 5 já está em uso." (Status: 409)
    * ```
    *
-   * @throws {TypeError} Se entity não for uma string
+   * @throws {TypeError} Se param não for uma string
    *
    * @since 1.0.0
    */
-  constructor(entity: string) {
-    super(`${entity} já está em uso.`, 409);
+  constructor(param: string) {
+    super(`${param} já está em uso.`, 409);
     this.name = "DuplicatedKeyError";
   }
 }

@@ -46,7 +46,7 @@ export class InvalidParamError extends AppError {
    * @since 1.0.0
    */
   constructor(paramName: string, reason: string) {
-    super(`O campo ${paramName} é inválido: ${reason}`, 422);
+    super(`O campo ${paramName} é inválido: ${reason}.`, 422);
     this.name = "InvalidParamError";
   }
 }

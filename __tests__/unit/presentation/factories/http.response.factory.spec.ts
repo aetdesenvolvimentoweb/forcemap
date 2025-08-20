@@ -30,7 +30,7 @@ describe("HttpResponseFactory", () => {
   });
 
   describe("badRequest", () => {
-    it("should return HTTP 400 Bad Request with error details", () => {
+    it("should return HTTP 422 Bad Request with error details", () => {
       // ARRANGE
       const { sut } = sutInstance;
       const error = new InvalidParamError("Abreviatura", "é obrigatória");
@@ -40,9 +40,9 @@ describe("HttpResponseFactory", () => {
 
       // ASSERT
       expect(response).toEqual({
-        statusCode: 422, // InvalidParamError uses 422
+        statusCode: 422,
         body: {
-          error: "O campo Abreviatura é inválido: é obrigatória",
+          error: "O campo Abreviatura é inválido: é obrigatória.",
         },
       });
     });
