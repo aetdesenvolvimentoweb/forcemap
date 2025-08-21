@@ -4,7 +4,7 @@ import { RouteRegistry } from "@presentation/protocols";
 
 import { adaptExpressRoute } from "@infra/adapters";
 
-import type { Express, Request, Response } from "express";
+import type { Application, Request, Response } from "express";
 
 /**
  * 🚀 MAIN LAYER - Express Route Builder
@@ -21,7 +21,7 @@ import type { Express, Request, Response } from "express";
 
 export class ExpressRouteBuilder {
   constructor(
-    private readonly app: Express,
+    private readonly app: Application,
     private readonly routeRegistry: RouteRegistry,
   ) {}
 
