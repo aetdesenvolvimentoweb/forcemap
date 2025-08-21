@@ -4,7 +4,7 @@ export const militaryRanksPaths: OpenAPIV3.PathsObject = {
   "/military-ranks": {
     get: {
       tags: ["Postos/Graduações"],
-      summary: "Lista todos os postos/graduaçõe",
+      summary: "Lista todos os postos/graduações",
       responses: {
         200: {
           description: "Sucesso",
