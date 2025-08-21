@@ -6,16 +6,6 @@
       "use": "@vercel/node"
     }
   ],
- "rewrites": [
-    {
-      "source": "/api-docs",
-      "destination": "/api/swagger"
-    },
-    {
-      "source": "/api-docs/(.*)",
-      "destination": "/api/swagger"
-    }
-  ],
   "headers": [
     {
       "source": "/api-docs/(.*)",
