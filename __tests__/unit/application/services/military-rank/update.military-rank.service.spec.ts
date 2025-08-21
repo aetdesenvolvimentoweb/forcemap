@@ -141,4 +141,18 @@ describe("UpdateMilitaryRankService", () => {
       sut.update(id, { abbreviation: "SGT", order: 2 }),
     ).rejects.toThrow("Falha no update");
   });
+
+  it("should throw EntityNotFoundError when military rank is not found", async () => {
+    // ARRANGE
+    const { sut, militaryRankRepository } = sutInstance;
+    const id = randomUUID();
+
+    // Mock para simular que a entidade não foi encontrada
+    jest.spyOn(militaryRankRepository, "listById").mockResolvedValue(null);
+
+    // ACT & ASSERT
+    await expect(
+      sut.update(id, { abbreviation: "SGT", order: 2 }),
+    ).rejects.toThrow("Posto/Graduação não encontrado(a) com esse ID.");
+  });
 });
