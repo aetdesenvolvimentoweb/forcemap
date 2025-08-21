@@ -394,7 +394,7 @@ describe("setupApp", () => {
 
       // ASSERT
       // Verifica se todos os handlers foram registrados
-      expect(mockApp.use).toHaveBeenCalledTimes(4); // 404 + error handler + swagger (2 calls)
+      expect(mockApp.use).toHaveBeenCalledTimes(2); // 404 + error handler
       expect(mockSetupMiddlewares).toHaveBeenCalledTimes(1);
       expect(mockSetupRoutes).toHaveBeenCalledTimes(1);
     });
