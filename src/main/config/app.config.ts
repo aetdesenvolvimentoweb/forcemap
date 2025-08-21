@@ -1,5 +1,4 @@
-import express from "express";
-import type { Express } from "express";
+import express, { Express } from "express";
 
 import { RouteRegistry } from "@presentation/protocols";
 
