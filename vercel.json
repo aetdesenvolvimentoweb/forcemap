@@ -9,44 +9,33 @@
   "routes": [
     {
       "src": "/api/v1/(.*)",
-      "dest": "dist/main/server.js"
+      "dest": "dist/main/server.js",
+      "headers": {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS",
+        "Access-Control-Allow-Headers": "X-Requested-With,content-type,Authorization",
+        "Access-Control-Allow-Credentials": "true"
+      }
     },
     {
       "src": "/api-docs",
-      "dest": "dist/main/server.js"
+      "dest": "dist/main/server.js",
+      "headers": {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET,OPTIONS",
+        "Access-Control-Allow-Headers": "X-Requested-With,content-type",
+        "Access-Control-Allow-Credentials": "true"
+      }
     },
     {
       "src": "/api-docs/(.*)",
-      "dest": "dist/main/server.js"
-    }
-  ],
-  "headers": [
-    {
-      "source": "/api-docs/(.*)",
-      "headers": [
-        { "key": "Access-Control-Allow-Origin", "value": "*" },
-        { "key": "Access-Control-Allow-Methods", "value": "GET,OPTIONS" },
-        {
-          "key": "Access-Control-Allow-Headers",
-          "value": "X-Requested-With,content-type"
-        },
-        { "key": "Access-Control-Allow-Credentials", "value": "true" }
-      ]
-    },
-    {
-      "source": "/api/v1/(.*)",
-      "headers": [
-        { "key": "Access-Control-Allow-Origin", "value": "*" },
-        {
-          "key": "Access-Control-Allow-Methods",
-          "value": "GET,POST,PUT,DELETE,OPTIONS"
-        },
-        {
-          "key": "Access-Control-Allow-Headers",
-          "value": "X-Requested-With,content-type,Authorization"
-        },
-        { "key": "Access-Control-Allow-Credentials", "value": "true" }
-      ]
+      "dest": "dist/main/server.js",
+      "headers": {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET,OPTIONS",
+        "Access-Control-Allow-Headers": "X-Requested-With,content-type",
+        "Access-Control-Allow-Credentials": "true"
+      }
     }
   ]
 }
