@@ -43,19 +43,19 @@ export class ExpressRouteBuilder {
       // Aplica no Express baseado no método
       switch (route.method) {
         case "GET":
-          this.app.get(route.path, expressHandler);
+          (this.app as any).get(route.path, expressHandler);
           break;
         case "POST":
-          this.app.post(route.path, expressHandler);
+          (this.app as any).post(route.path, expressHandler);
           break;
         case "PUT":
-          this.app.put(route.path, expressHandler);
+          (this.app as any).put(route.path, expressHandler);
           break;
         case "DELETE":
-          this.app.delete(route.path, expressHandler);
+          (this.app as any).delete(route.path, expressHandler);
           break;
         case "PATCH":
-          this.app.patch(route.path, expressHandler);
+          (this.app as any).patch(route.path, expressHandler);
           break;
         default:
           throw new InvalidParamError(
