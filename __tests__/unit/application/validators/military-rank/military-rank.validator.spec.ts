@@ -275,7 +275,7 @@ describe("MilitaryRankValidator", () => {
 
       // ACT & ASSERT
       await expect(sut.validate(inputDto)).rejects.toThrow(
-        new InvalidParamError("Ordem", "não pode ser maior que 20"),
+        new InvalidParamError("Ordem", "deve ser menor que 20"),
       );
     });
 

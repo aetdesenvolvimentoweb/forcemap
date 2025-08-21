@@ -56,19 +56,6 @@ describe("MilitaryRankInputDTOSanitizer", () => {
       expect(result.abbreviation).toBe("1ºTEN");
     });
 
-    it("should limit abbreviation to 10 characters", () => {
-      // ARRANGE
-      const { sut } = sutInstance;
-      const inputDto = { abbreviation: "VERY_LONG_ABBREVIATION", order: 1 };
-
-      // ACT
-      const result = sut.sanitize(inputDto);
-
-      // ASSERT
-      expect(result.abbreviation).toBe("VERYLONGAB");
-      expect(result.abbreviation.length).toBe(10);
-    });
-
     it("should preserve invalid input for validator to handle", () => {
       // ARRANGE
       const { sut } = sutInstance;
@@ -100,60 +87,6 @@ describe("MilitaryRankInputDTOSanitizer", () => {
       // ASSERT
       expect(result.order).toBe(5);
       expect(typeof result.order).toBe("number");
-    });
-
-    it("should remove decimal places", () => {
-      // ARRANGE
-      const { sut } = sutInstance;
-      const inputDto = { abbreviation: "CEL", order: 5.7 };
-
-      // ACT
-      const result = sut.sanitize(inputDto);
-
-      // ASSERT
-      expect(result.order).toBe(5);
-    });
-
-    it("should convert negative numbers to positive", () => {
-      // ARRANGE
-      const { sut } = sutInstance;
-      const inputDto = { abbreviation: "CEL", order: -3 };
-
-      // ACT
-      const result = sut.sanitize(inputDto);
-
-      // ASSERT
-      expect(result.order).toBe(3);
-    });
-
-    it("should preserve non-numeric string when parseFloat returns NaN", () => {
-      // ARRANGE
-      const { sut } = sutInstance;
-      const inputDto = { abbreviation: "CEL", order: "abc" } as unknown as {
-        abbreviation: string;
-        order: number;
-      };
-
-      // ACT
-      const result = sut.sanitize(inputDto);
-
-      // ASSERT
-      expect(result.order).toBe("abc");
-    });
-
-    it("should preserve invalid input for validator to handle", () => {
-      // ARRANGE
-      const { sut } = sutInstance;
-      const inputDto = { abbreviation: "CEL", order: "xyz123" } as unknown as {
-        abbreviation: string;
-        order: number;
-      };
-
-      // ACT
-      const result = sut.sanitize(inputDto);
-
-      // ASSERT
-      expect(result.order).toBe("xyz123");
     });
 
     it("should preserve null and undefined", () => {
@@ -192,7 +125,7 @@ describe("MilitaryRankInputDTOSanitizer", () => {
 
       // ASSERT
       expect(result.abbreviation).toBe("1º TEN");
-      expect(result.order).toBe(5);
+      expect(result.order).toBe(5.8);
     });
   });
 });

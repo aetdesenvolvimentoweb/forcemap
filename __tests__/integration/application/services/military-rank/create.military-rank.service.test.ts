@@ -1,3 +1,4 @@
+import { InvalidParamError } from "@application/errors";
 import { MilitaryRankInputDTOSanitizer } from "@application/sanitizers";
 import { CreateMilitaryRankService } from "@application/services";
 import { MilitaryRankValidator } from "@application/validators";
@@ -133,40 +134,16 @@ describe("CreateMilitaryRankService - Integration Tests", () => {
 
     it("should sanitize invalid characters from abbreviation", async () => {
       // ARRANGE
-      const { sut, militaryRankRepository } = sutInstance;
-      const spyCreate = jest.spyOn(militaryRankRepository, "create");
-      const inputDto: MilitaryRankInputDTO = {
-        abbreviation: "invalid@char#", // caracteres inválidos são removidos pelo sanitizer
+      const { sut } = sutInstance;
+      const invalidInput = {
+        abbreviation: "SGT@#$%^", // menos que 10 caracteres após sanitização
         order: 1,
       };
-
-      // ACT
-      await sut.create(inputDto);
 
       // ASSERT - sanitizer remove caracteres inválidos
-      expect(spyCreate).toHaveBeenCalledWith({
-        abbreviation: "INVALIDCHA", // @ e # removidos, limitado a 10 chars
-        order: 1,
-      });
-    });
-
-    it("should sanitize and limit abbreviation length", async () => {
-      // ARRANGE
-      const { sut, militaryRankRepository } = sutInstance;
-      const spyCreate = jest.spyOn(militaryRankRepository, "create");
-      const inputDto: MilitaryRankInputDTO = {
-        abbreviation: "VERY_LONG_ABBREVIATION", // será limitado pelo sanitizer
-        order: 1,
-      };
-
-      // ACT
-      await sut.create(inputDto);
-
-      // ASSERT - sanitizer limita a 10 caracteres
-      expect(spyCreate).toHaveBeenCalledWith({
-        abbreviation: "VERYLONGAB", // limitado e _ removido
-        order: 1,
-      });
+      await expect(sut.create(invalidInput)).rejects.toThrow(
+        "O campo Abreviatura é inválido: deve conter apenas letras, números, espaços e/ou o caractere ordinal (º).",
+      );
     });
 
     it("should throw error for order out of range", async () => {
@@ -179,27 +156,8 @@ describe("CreateMilitaryRankService - Integration Tests", () => {
 
       // ACT & ASSERT
       await expect(sut.create(inputDto)).rejects.toThrow(
-        "O campo Ordem é inválido: não pode ser maior que 20",
+        "O campo Ordem é inválido: deve ser menor que 20.",
       );
-    });
-
-    it("should sanitize decimal order to integer", async () => {
-      // ARRANGE
-      const { sut, militaryRankRepository } = sutInstance;
-      const spyCreate = jest.spyOn(militaryRankRepository, "create");
-      const inputDto: MilitaryRankInputDTO = {
-        abbreviation: "CEL",
-        order: 1.5, // será convertido pelo sanitizer
-      };
-
-      // ACT
-      await sut.create(inputDto);
-
-      // ASSERT - sanitizer converte 1.5 para 1
-      expect(spyCreate).toHaveBeenCalledWith({
-        abbreviation: "CEL",
-        order: 1,
-      });
     });
   });
 

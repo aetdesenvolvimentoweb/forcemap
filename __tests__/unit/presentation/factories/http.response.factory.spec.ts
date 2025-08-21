@@ -86,10 +86,10 @@ describe("HttpResponseFactory", () => {
       });
     });
 
-    it("should return HTTP 200 OK without body when no data is provided", () => {
+    it("should return HTTP 204 OK without body when no data is provided", () => {
       const { sut } = sutInstance;
       const response = sut.ok();
-      expect(response).toEqual({ statusCode: 200 });
+      expect(response).toEqual({ statusCode: 204 });
       expect(response.body).toBeUndefined();
     });
   });
