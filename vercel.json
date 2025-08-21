@@ -1,25 +1,10 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "dist/main/index.js",
-      "use": "@vercel/node"
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "functions": {
+    "/api/v1/**/*.js": {
+      "maxDuration": 30
     }
-  ],
-  "routes": [
-    {
-      "src": "/api/v1/(.*)",
-      "dest": "dist/main/index.js"
-    },
-    {
-      "src": "/api-docs",
-      "dest": "dist/main/index.js"
-    },
-    {
-      "src": "/api-docs/(.*)",
-      "dest": "dist/main/index.js"
-    }
-  ],
+  },
   "headers": [
     {
       "source": "/api-docs/(.*)",
