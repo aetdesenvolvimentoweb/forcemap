@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Express } from "express";
 
 import { RouteRegistry } from "@presentation/protocols";
 
@@ -6,9 +6,9 @@ import { setupMiddlewares } from "./middlewares.config";
 import { setupRoutes } from "./routes.config";
 import { setupSwagger } from "./swagger.setup";
 
-const app = express();
+const app: Express = express();
 
-export const setupApp = (routeRegistry: RouteRegistry): express.Express => {
+export const setupApp = (routeRegistry: RouteRegistry): Express => {
   setupMiddlewares(app);
   setupSwagger(app);
   setupRoutes(app, routeRegistry);

@@ -1,6 +1,6 @@
 import express from "express";
 
-import { setupAllRoutes, setupApp } from "./config";
+import { setupAllRoutes } from "./config";
 import { DefaultRouteRegistry } from "./registries";
 
 import type { Express } from "express";
@@ -14,9 +14,6 @@ const bootstrap = (): Express => {
 
   // 2. Registrar todas as rotas usando setup centralizado
   setupAllRoutes(routeRegistry);
-
-  // 3. Setup da aplicação (middlewares, routes via registry, error handlers)
-  setupApp(app, routeRegistry);
 
   return app;
 };
