@@ -8,7 +8,7 @@ export const swaggerConfig: OpenAPIV3.Document = {
   info: {
     title: "ForceMap API",
     description:
-      "API para gerenciamento de força operacional disponível em Organizações Bombeiros Milita",
+      "API para gerenciamento de força operacional disponível em Organizações Bombeiros Militar",
     version: "1.0.1",
     contact: {
       name: "André David dos Santos",
