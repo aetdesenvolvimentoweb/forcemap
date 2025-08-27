@@ -19,3 +19,7 @@ export const serverError = (): HttpResponse => {
 export const created = (): HttpResponse => {
   return { statusCode: 201 };
 };
+
+export const ok = <T>(data: T): HttpResponse => {
+  return { body: { data }, statusCode: 200 };
+};
