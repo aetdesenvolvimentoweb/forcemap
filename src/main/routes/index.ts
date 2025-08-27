@@ -6,6 +6,6 @@ import militaryRankRoutes from "./military-rank.routes";
 const routes = Router();
 
 routes.use(homeRoutes);
-routes.use(militaryRankRoutes);
+routes.use("/military-rank", militaryRankRoutes);
 
 export default routes;
