@@ -3,6 +3,7 @@ import { Request, Response, Router } from "express";
 import { expressRouteAdapter } from "../../infra/adapters";
 import {
   makeCreateMilitaryRankController,
+  makeDeleteMilitaryRankController,
   makeListAllMilitaryRankController,
 } from "../factories/controllers";
 
@@ -21,9 +22,7 @@ militaryRankRoutes.get("/military-rank/:id", (req: Request, res: Response) => {
 });
 militaryRankRoutes.delete(
   "/military-rank/:id",
-  (req: Request, res: Response) => {
-    res.status(200).json({ message: "Pendente de desenvolvimento" });
-  },
+  expressRouteAdapter(makeDeleteMilitaryRankController()),
 );
 militaryRankRoutes.put("/military-rank/:id", (req: Request, res: Response) => {
   res.status(200).json({ message: "Pendente de desenvolvimento" });

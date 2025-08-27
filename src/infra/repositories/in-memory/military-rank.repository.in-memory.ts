@@ -8,7 +8,7 @@ export class MilitaryRankRepositoryInMemory implements MilitaryRankRepository {
   public create = async (data: MilitaryRankInputDTO): Promise<void> => {
     const entity: MilitaryRank = {
       ...data,
-      id: `${Date.now()}-${Math.random()}`,
+      id: crypto.randomUUID(),
     };
     this.items.push(entity);
   };
