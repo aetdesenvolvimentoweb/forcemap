@@ -23,3 +23,7 @@ export const created = (): HttpResponse => {
 export const ok = <T>(data: T): HttpResponse => {
   return { body: { data }, statusCode: 200 };
 };
+
+export const noContent = (): HttpResponse => {
+  return { statusCode: 204 };
+};
