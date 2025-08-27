@@ -25,7 +25,15 @@ export class MilitaryRankRepositoryInMemory implements MilitaryRankRepository {
     return this.items.find((item) => item.order === order) || null;
   };
 
+  public findById = async (id: string): Promise<MilitaryRank | null> => {
+    return this.items.find((item) => item.id === id) || null;
+  };
+
   public listAll = async (): Promise<MilitaryRank[]> => {
     return this.items;
+  };
+
+  public delete = async (id: string): Promise<void> => {
+    this.items = this.items.filter((item) => item.id !== id);
   };
 }
