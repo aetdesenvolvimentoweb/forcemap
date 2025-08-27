@@ -17,6 +17,5 @@
       "src": "/(.*)",
       "dest": "dist/src/index.js"
     }
-  ],
-  "includeFiles": ["dist/**"]
+  ]
 }
