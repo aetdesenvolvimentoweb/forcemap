@@ -1,7 +1,6 @@
-import { LoggerProtocol } from "src/application/protocols";
-import { CreateMilitaryRankService } from "src/application/services";
-import { CreateMilitaryRankUseCase } from "src/domain/use-cases";
-
+import { LoggerProtocol } from "../../../../application/protocols";
+import { CreateMilitaryRankService } from "../../../../application/services";
+import { CreateMilitaryRankUseCase } from "../../../../domain/use-cases";
 import { makeMilitaryRankRepository } from "../../repositories";
 import { makeMilitaryRankInputDTOSanitizer } from "../../sanitizers";
 import { makeMilitaryRankInputDTOValidator } from "../../validators";

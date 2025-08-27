@@ -1,6 +1,6 @@
 import { Request, Response, Router } from "express";
-import { expressRouteAdapter } from "src/infra/adapters";
 
+import { expressRouteAdapter } from "../../infra/adapters";
 import { makeCreateMilitaryRankController } from "../factories/controllers";
 
 const militaryRankRoutes = Router();

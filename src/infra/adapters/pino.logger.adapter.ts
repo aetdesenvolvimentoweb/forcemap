@@ -1,5 +1,6 @@
 import pino from "pino";
-import { LoggerProtocol } from "src/application/protocols";
+
+import { LoggerProtocol } from "../../application/protocols";
 
 export class PinoLoggerAdapter implements LoggerProtocol {
   public logger: pino.Logger;

@@ -1,5 +1,4 @@
-import { AppError } from "src/domain/errors";
-
+import { AppError } from "../../domain/errors";
 import { HttpResponse } from "../protocols";
 import { badRequest, serverError } from "./http.responses";
 

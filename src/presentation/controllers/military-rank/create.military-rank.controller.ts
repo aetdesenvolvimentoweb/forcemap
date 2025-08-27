@@ -1,12 +1,8 @@
-import { LoggerProtocol } from "src/application/protocols";
-import { MilitaryRankInputDTO } from "src/domain/dtos";
-import { CreateMilitaryRankUseCase } from "src/domain/use-cases";
-import {
-  ControllerProtocol,
-  HttpRequest,
-  HttpResponse,
-} from "src/presentation/protocols";
-import { created, emptyRequest, handleError } from "src/presentation/utils";
+import { LoggerProtocol } from "../../../application/protocols";
+import { MilitaryRankInputDTO } from "../../../domain/dtos";
+import { CreateMilitaryRankUseCase } from "../../../domain/use-cases";
+import { ControllerProtocol, HttpRequest, HttpResponse } from "../../protocols";
+import { created, emptyRequest, handleError } from "../../utils";
 
 interface CreateMilitaryRankControllerProps {
   createMilitaryRankService: CreateMilitaryRankUseCase;

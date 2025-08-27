@@ -1,5 +1,5 @@
-import { LoggerProtocol } from "src/application/protocols";
-import { PinoLoggerAdapter } from "src/infra/adapters";
+import { LoggerProtocol } from "../../../application/protocols";
+import { PinoLoggerAdapter } from "../../../infra/adapters";
 
 export const makeLogger = (): LoggerProtocol => {
   return new PinoLoggerAdapter();

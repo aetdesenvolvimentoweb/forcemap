@@ -1,9 +1,9 @@
 import {
   LoggerProtocol,
   MilitaryRankInputDTOValidatorProtocol,
-} from "src/application/protocols";
-import { MilitaryRankInputDTOValidator } from "src/application/validators";
-import { MilitaryRankRepository } from "src/domain/repositories";
+} from "../../../application/protocols";
+import { MilitaryRankInputDTOValidator } from "../../../application/validators";
+import { MilitaryRankRepository } from "../../../domain/repositories";
 
 export const makeMilitaryRankInputDTOValidator = (
   logger: LoggerProtocol,

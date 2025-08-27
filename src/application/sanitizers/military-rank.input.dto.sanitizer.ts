@@ -1,5 +1,4 @@
-import { MilitaryRankInputDTO } from "src/domain/dtos";
-
+import { MilitaryRankInputDTO } from "../../domain/dtos";
 import {
   LoggerProtocol,
   MilitaryRankInputDTOSanitizerProtocol,

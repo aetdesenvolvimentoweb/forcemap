@@ -1,4 +1,4 @@
-import { MilitaryRankInputDTO } from "src/domain/dtos";
+import { MilitaryRankInputDTO } from "../../../domain/dtos";
 
 export interface CreateMilitaryRankUseCase {
   create(data: MilitaryRankInputDTO): Promise<void>;

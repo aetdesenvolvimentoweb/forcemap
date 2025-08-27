@@ -1,5 +1,3 @@
-import "module-alias/register";
-
 import { VercelRequest, VercelResponse } from "@vercel/node";
 
 import app from "./main/server";

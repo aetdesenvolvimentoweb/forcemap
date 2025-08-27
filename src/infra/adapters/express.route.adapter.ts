@@ -1,10 +1,11 @@
 // src/main/adapters/expressRouteAdapter.ts
 import { Request, Response } from "express";
+
 import type {
   ControllerProtocol,
   HttpRequest,
   HttpResponse,
-} from "src/presentation/protocols";
+} from "../../presentation/protocols";
 
 export const expressRouteAdapter = (controller: ControllerProtocol) => {
   return async (req: Request, res: Response): Promise<HttpResponse> => {

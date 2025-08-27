@@ -2,10 +2,9 @@ import {
   DuplicatedKeyError,
   InvalidParamError,
   MissingParamError,
-} from "src/application/errors";
-import { MilitaryRankInputDTO } from "src/domain/dtos";
-import { MilitaryRankRepository } from "src/domain/repositories";
-
+} from "../../application/errors";
+import { MilitaryRankInputDTO } from "../../domain/dtos";
+import { MilitaryRankRepository } from "../../domain/repositories";
 import {
   LoggerProtocol,
   MilitaryRankInputDTOValidatorProtocol,
@@ -51,7 +50,7 @@ export class MilitaryRankInputDTOValidator
       );
     }
 
-    if (!/^[A-Z0-9º ]+$/.test(abbreviation)) {
+    if (!/^[a-zA-Z0-9º ]+$/.test(abbreviation)) {
       throw new InvalidParamError(
         "Abreviatura",
         "deve conter apenas letras, números, espaços e/ou o caractere ordinal (º)",

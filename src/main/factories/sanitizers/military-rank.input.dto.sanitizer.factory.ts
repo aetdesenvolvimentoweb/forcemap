@@ -1,8 +1,8 @@
 import {
   LoggerProtocol,
   MilitaryRankInputDTOSanitizerProtocol,
-} from "src/application/protocols";
-import { MilitaryRankInputDTOSanitizer } from "src/application/sanitizers";
+} from "../../../application/protocols";
+import { MilitaryRankInputDTOSanitizer } from "../../../application/sanitizers";
 
 export const makeMilitaryRankInputDTOSanitizer = (
   logger: LoggerProtocol,
