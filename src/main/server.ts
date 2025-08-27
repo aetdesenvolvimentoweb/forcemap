@@ -11,7 +11,7 @@ if (process.env.NODE_ENV !== "development") {
   const port = 3333;
   const host = "http://localhost";
   app.listen(port, () => {
-    console.log(`Server is running at ${host}:${port}`);
+    console.log(`Server is running at ${host}:${port}/api/v1`);
   });
 }
 
