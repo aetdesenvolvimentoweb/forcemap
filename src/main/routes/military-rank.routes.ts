@@ -9,20 +9,23 @@ import {
 const militaryRankRoutes = Router();
 
 militaryRankRoutes.post(
-  "/",
+  "/military-rank",
   expressRouteAdapter(makeCreateMilitaryRankController()),
 );
 militaryRankRoutes.get(
-  "/",
+  "/military-rank",
   expressRouteAdapter(makeListAllMilitaryRankController()),
 );
-militaryRankRoutes.get("/:id", (req: Request, res: Response) => {
+militaryRankRoutes.get("/military-rank/:id", (req: Request, res: Response) => {
   res.status(200).json({ message: "Pendente de desenvolvimento" });
 });
-militaryRankRoutes.delete("/:id", (req: Request, res: Response) => {
-  res.status(200).json({ message: "Pendente de desenvolvimento" });
-});
-militaryRankRoutes.put("/:id", (req: Request, res: Response) => {
+militaryRankRoutes.delete(
+  "/military-rank/:id",
+  (req: Request, res: Response) => {
+    res.status(200).json({ message: "Pendente de desenvolvimento" });
+  },
+);
+militaryRankRoutes.put("/military-rank/:id", (req: Request, res: Response) => {
   res.status(200).json({ message: "Pendente de desenvolvimento" });
 });
 

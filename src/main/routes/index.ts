@@ -5,7 +5,7 @@ import militaryRankRoutes from "./military-rank.routes";
 
 const routes = Router();
 
-routes.use(homeRoutes);
-routes.use("/military-rank", militaryRankRoutes);
+routes.use("/api/v1", homeRoutes);
+routes.use("/api/v1", militaryRankRoutes);
 
 export default routes;
