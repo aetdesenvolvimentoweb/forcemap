@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && tsc-alias",
     "start": "node -r module-alias/register dist/src/index.js",
     "dev": "tsx -r module-alias/register src/index.ts",
     "format": "prettier --write .",
@@ -50,6 +50,7 @@
     "supertest": "^7.1.4",
     "ts-jest": "^29.4.1",
     "ts-node": "^10.9.2",
+    "tsc-alias": "^1.8.16",
     "tsconfig-paths": "^4.2.0",
     "tsx": "^4.20.5",
     "typescript": "^5.9.2",
