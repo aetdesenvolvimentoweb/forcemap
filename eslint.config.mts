@@ -1,8 +1,8 @@
 import js from "@eslint/js";
-import { defineConfig } from "eslint/config";
 import prettier from "eslint-plugin-prettier";
 import simpleImportSort from "eslint-plugin-simple-import-sort";
 import unusedImports from "eslint-plugin-unused-imports";
+import { defineConfig } from "eslint/config";
 import globals from "globals";
 // importação removida, pois o preset será usado
 import tsParser from "@typescript-eslint/parser";
@@ -10,7 +10,7 @@ import tseslint from "typescript-eslint";
 
 export default defineConfig([
   {
-    files: ["**/*.{js,mjs,cjs,ts,mts,cts}"],
+    files: ["src/**/*.{js,mjs,cjs,ts,mts,cts}"],
     ignores: ["dist/**", "node_modules/**", "coverage/**", "eslint.config.mts"],
     languageOptions: {
       parser: tsParser,

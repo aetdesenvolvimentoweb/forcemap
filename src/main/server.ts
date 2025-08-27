@@ -1,16 +1,11 @@
-import express, { Request, Response, Router } from "express";
+import express from "express";
+
+import routes from "./routes";
 
 const app = express();
 
 app.use(express.json());
-
-const router = Router();
-
-router.get("/", (req: Request, res: Response) => {
-  res.status(200).json({ message: "Hello World" });
-});
-
-app.use(router);
+app.use(routes);
 
 if (process.env.NODE_ENV !== "development") {
   const port = 3333;
