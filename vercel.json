@@ -1,10 +1,5 @@
 {
   "version": 2,
-  "installCommand": "pnpm install",
-  "buildCommand": "pnpm build",
-  "devCommand": "pnpm dev",
-  "outputDirectory": "dist",
-  "framework": "express",
   "routes": [
     {
       "src": "/(.*)",
