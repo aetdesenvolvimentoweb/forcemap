@@ -18,7 +18,7 @@ militaryRankRoutes.get(
   expressRouteAdapter(makeListAllMilitaryRankController()),
 );
 militaryRankRoutes.get("/military-rank/:id", (req: Request, res: Response) => {
-  res.status(200).json({ message: "Pendente de desenvolvimento" });
+  res.status(200).json({ message: "Ainda não desenvolvido" });
 });
 militaryRankRoutes.delete(
   "/military-rank/:id",
