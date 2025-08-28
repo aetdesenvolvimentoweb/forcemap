@@ -1,6 +1,5 @@
-import { MilitaryRankInputDTO } from "src/domain/dtos";
-import { MilitaryRankRepository } from "src/domain/repositories";
-
+import { MilitaryRankInputDTO } from "../../domain/dtos";
+import { MilitaryRankRepository } from "../../domain/repositories";
 import {
   DuplicatedKeyError,
   InvalidParamError,

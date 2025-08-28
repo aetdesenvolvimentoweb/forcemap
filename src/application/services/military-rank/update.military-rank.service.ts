@@ -1,13 +1,13 @@
+import { MilitaryRankInputDTO } from "../../../domain/dtos";
+import { MilitaryRankRepository } from "../../../domain/repositories";
+import { UpdateMilitaryRankUseCase } from "../../../domain/use-cases";
 import {
   IdSanitizerProtocol,
   IdValidatorProtocol,
   LoggerProtocol,
   MilitaryRankInputDTOSanitizerProtocol,
   MilitaryRankInputDTOValidatorProtocol,
-} from "src/application/protocols";
-import { MilitaryRankInputDTO } from "src/domain/dtos";
-import { MilitaryRankRepository } from "src/domain/repositories";
-import { UpdateMilitaryRankUseCase } from "src/domain/use-cases";
+} from "../../protocols";
 
 interface UpdateMilitaryRankServiceProps {
   militaryRankRepository: MilitaryRankRepository;

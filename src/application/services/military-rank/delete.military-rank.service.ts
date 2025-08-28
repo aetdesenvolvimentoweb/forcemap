@@ -1,10 +1,10 @@
+import { MilitaryRankRepository } from "../../../domain/repositories";
+import { DeleteMilitaryRankUseCase } from "../../../domain/use-cases";
 import {
   IdSanitizerProtocol,
   IdValidatorProtocol,
   LoggerProtocol,
-} from "src/application/protocols";
-import { MilitaryRankRepository } from "src/domain/repositories";
-import { DeleteMilitaryRankUseCase } from "src/domain/use-cases";
+} from "../../protocols";
 
 interface DeleteMilitaryRankServiceProps {
   militaryRankRepository: MilitaryRankRepository;

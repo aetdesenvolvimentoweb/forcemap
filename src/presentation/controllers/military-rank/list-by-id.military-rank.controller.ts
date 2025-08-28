@@ -1,6 +1,5 @@
-import { MilitaryRank } from "src/domain/entities";
-
 import { LoggerProtocol } from "../../../application/protocols";
+import { MilitaryRank } from "../../../domain/entities";
 import { ListByIdMilitaryRankUseCase } from "../../../domain/use-cases";
 import { ControllerProtocol, HttpRequest, HttpResponse } from "../../protocols";
 import { emptyRequest, handleError, ok } from "../../utils";

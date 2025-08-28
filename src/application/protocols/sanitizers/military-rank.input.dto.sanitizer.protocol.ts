@@ -1,4 +1,4 @@
-import { MilitaryRankInputDTO } from "src/domain/dtos";
+import { MilitaryRankInputDTO } from "../../../domain/dtos";
 
 export interface MilitaryRankInputDTOSanitizerProtocol {
   sanitize(data: MilitaryRankInputDTO): MilitaryRankInputDTO;

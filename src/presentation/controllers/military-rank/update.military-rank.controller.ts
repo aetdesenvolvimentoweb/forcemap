@@ -1,6 +1,5 @@
-import { MilitaryRankInputDTO } from "src/domain/dtos";
-
 import { LoggerProtocol } from "../../../application/protocols";
+import { MilitaryRankInputDTO } from "../../../domain/dtos";
 import { UpdateMilitaryRankUseCase } from "../../../domain/use-cases";
 import { ControllerProtocol, HttpRequest, HttpResponse } from "../../protocols";
 import { emptyRequest, handleError, noContent } from "../../utils";

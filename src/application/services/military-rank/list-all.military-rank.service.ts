@@ -1,7 +1,7 @@
-import { LoggerProtocol } from "src/application/protocols";
-import { MilitaryRank } from "src/domain/entities";
-import { MilitaryRankRepository } from "src/domain/repositories";
-import { ListAllMilitaryRankUseCase } from "src/domain/use-cases";
+import { MilitaryRank } from "../../../domain/entities";
+import { MilitaryRankRepository } from "../../../domain/repositories";
+import { ListAllMilitaryRankUseCase } from "../../../domain/use-cases";
+import { LoggerProtocol } from "../../protocols";
 
 interface ListAllMilitaryRankServiceProps {
   militaryRankRepository: MilitaryRankRepository;
