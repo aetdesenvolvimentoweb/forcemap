@@ -1,0 +1,9 @@
+.husky/
+.gitignore
+.prettierrc
+commitlint.config.ts
+eslint.config.mts
+jest.config.ts
+jest.e2e.config.ts
+jest.integration.config.ts
+jest.unit.config.ts
