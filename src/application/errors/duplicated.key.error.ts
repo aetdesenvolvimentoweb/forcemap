@@ -1,4 +1,4 @@
-import { AppError } from "../../domain/errors";
+import { AppError } from "src/domain/errors";
 
 export class DuplicatedKeyError extends AppError {
   constructor(param: string) {

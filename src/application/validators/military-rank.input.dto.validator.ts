@@ -1,10 +1,11 @@
+import { MilitaryRankInputDTO } from "src/domain/dtos";
+import { MilitaryRankRepository } from "src/domain/repositories";
+
 import {
   DuplicatedKeyError,
   InvalidParamError,
   MissingParamError,
-} from "../../application/errors";
-import { MilitaryRankInputDTO } from "../../domain/dtos";
-import { MilitaryRankRepository } from "../../domain/repositories";
+} from "../errors";
 import {
   LoggerProtocol,
   MilitaryRankInputDTOValidatorProtocol,

@@ -2,10 +2,10 @@ import {
   LoggerProtocol,
   MilitaryRankInputDTOSanitizerProtocol,
   MilitaryRankInputDTOValidatorProtocol,
-} from "../../../application/protocols";
-import { MilitaryRankInputDTO } from "../../../domain/dtos";
-import { MilitaryRankRepository } from "../../../domain/repositories";
-import { CreateMilitaryRankUseCase } from "../../../domain/use-cases";
+} from "src/application/protocols";
+import { MilitaryRankInputDTO } from "src/domain/dtos";
+import { MilitaryRankRepository } from "src/domain/repositories";
+import { CreateMilitaryRankUseCase } from "src/domain/use-cases";
 
 interface CreateMilitaryRankServiceProps {
   militaryRankRepository: MilitaryRankRepository;

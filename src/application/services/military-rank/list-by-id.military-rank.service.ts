@@ -1,12 +1,11 @@
-import { MilitaryRank } from "src/domain/entities";
-
-import { MilitaryRankRepository } from "../../../domain/repositories";
-import { ListByIdMilitaryRankUseCase } from "../../../domain/use-cases";
 import {
   IdSanitizerProtocol,
   IdValidatorProtocol,
   LoggerProtocol,
-} from "../../protocols";
+} from "src/application/protocols";
+import { MilitaryRank } from "src/domain/entities";
+import { MilitaryRankRepository } from "src/domain/repositories";
+import { ListByIdMilitaryRankUseCase } from "src/domain/use-cases";
 
 interface ListByIdMilitaryRankServiceProps {
   militaryRankRepository: MilitaryRankRepository;
