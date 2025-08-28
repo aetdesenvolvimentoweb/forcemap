@@ -24,12 +24,12 @@ export class CreateMilitaryRankController
         body: request.body,
       });
 
-      if (!request.body || !request.body.data) {
+      if (!request.body) {
         logger.error("Body da requisição vazio, inválido ou sem DTO válido");
         return emptyRequest();
       }
 
-      await createMilitaryRankService.create(request.body.data);
+      await createMilitaryRankService.create(request.body);
 
       logger.info("Posto/graduação criado com sucesso");
       return created();

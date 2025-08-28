@@ -11,9 +11,7 @@ interface DeleteMilitaryRankControllerProps {
 export class DeleteMilitaryRankController implements ControllerProtocol {
   constructor(private readonly props: DeleteMilitaryRankControllerProps) {}
 
-  public async handle(
-    request: HttpRequest & { params: { id: string } },
-  ): Promise<HttpResponse> {
+  public async handle(request: HttpRequest): Promise<HttpResponse> {
     const { deleteMilitaryRankService, logger } = this.props;
 
     try {

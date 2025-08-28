@@ -14,7 +14,7 @@ export class UpdateMilitaryRankController implements ControllerProtocol {
   constructor(private readonly props: UpdateMilitaryRankControllerProps) {}
 
   public async handle(
-    request: HttpRequest<MilitaryRankInputDTO> & { params: { id: string } },
+    request: HttpRequest<MilitaryRankInputDTO>,
   ): Promise<HttpResponse> {
     const { updateMilitaryRankService, logger } = this.props;
 
@@ -26,13 +26,13 @@ export class UpdateMilitaryRankController implements ControllerProtocol {
         return emptyRequest();
       }
 
-      if (!request.body || !request.body.data) {
+      if (!request.body) {
         logger.error("Campos obrigatórios não fornecidos");
         return emptyRequest();
       }
 
       const { id } = request.params;
-      const { data } = request.body;
+      const data = request.body;
 
       await updateMilitaryRankService.update(id, data);
 

@@ -1,15 +1,13 @@
-export interface HttpRequest<T = unknown> {
-  body?: {
-    data?: T;
-  };
-  params?: unknown;
+export interface HttpRequest<REQ = unknown> {
+  body?: REQ;
+  params?: Record<string, string>;
   query?: unknown;
   headers?: unknown;
 }
 
-export interface HttpResponse<T = unknown> {
+export interface HttpResponse<RES = unknown> {
   body?: {
-    data?: T;
+    data?: RES;
     error?: string;
   };
   statusCode: number;
