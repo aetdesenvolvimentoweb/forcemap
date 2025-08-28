@@ -36,4 +36,14 @@ export class MilitaryRankRepositoryInMemory implements MilitaryRankRepository {
   public delete = async (id: string): Promise<void> => {
     this.items = this.items.filter((item) => item.id !== id);
   };
+
+  public update = async (
+    id: string,
+    data: MilitaryRankInputDTO,
+  ): Promise<void> => {
+    const index = this.items.findIndex((item) => item.id === id);
+    if (index !== -1) {
+      this.items[index] = { ...this.items[index], ...data };
+    }
+  };
 }
