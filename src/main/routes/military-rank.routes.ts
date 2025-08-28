@@ -6,6 +6,7 @@ import {
   makeDeleteMilitaryRankController,
   makeListAllMilitaryRankController,
 } from "../factories/controllers";
+import { makeUpdateMilitaryRankController } from "../factories/controllers/military-rank/update.military-rank.controller.factory";
 
 const militaryRankRoutes = Router();
 
@@ -24,8 +25,9 @@ militaryRankRoutes.delete(
   "/military-rank/:id",
   expressRouteAdapter(makeDeleteMilitaryRankController()),
 );
-militaryRankRoutes.put("/military-rank/:id", (req: Request, res: Response) => {
-  res.status(200).json({ message: "Pendente de desenvolvimento" });
-});
+militaryRankRoutes.put(
+  "/military-rank/:id",
+  expressRouteAdapter(makeUpdateMilitaryRankController()),
+);
 
 export default militaryRankRoutes;

@@ -12,10 +12,10 @@ import {
 
 interface UpdateMilitaryRankServiceProps {
   militaryRankRepository: MilitaryRankRepository;
-  IdSanitizer: IdSanitizerProtocol;
-  DataSanitizer: MilitaryRankInputDTOSanitizerProtocol;
-  IdValidator: IdValidatorProtocol;
-  DataValidator: MilitaryRankInputDTOValidatorProtocol;
+  idSanitizer: IdSanitizerProtocol;
+  dataSanitizer: MilitaryRankInputDTOSanitizerProtocol;
+  idValidator: IdValidatorProtocol;
+  dataValidator: MilitaryRankInputDTOValidatorProtocol;
   logger: LoggerProtocol;
 }
 
@@ -34,21 +34,21 @@ export class UpdateMilitaryRankService implements UpdateMilitaryRankUseCase {
   ): Promise<void> => {
     const {
       militaryRankRepository,
-      IdSanitizer,
-      DataSanitizer,
-      IdValidator,
-      DataValidator,
+      idSanitizer,
+      dataSanitizer,
+      idValidator,
+      dataValidator,
     } = this.props;
     this.logger.info("UpdateMilitaryRankService.update called", {
       input: { id, data },
     });
 
     try {
-      const sanitizedId = IdSanitizer.sanitize(id);
+      const sanitizedId = idSanitizer.sanitize(id);
       this.logger.info("Sanitized ID", { sanitizedId });
-      await IdValidator.validate(sanitizedId);
-      const sanitizedData = DataSanitizer.sanitize(data);
-      await DataValidator.validate(sanitizedData);
+      await idValidator.validate(sanitizedId);
+      const sanitizedData = dataSanitizer.sanitize(data);
+      await dataValidator.validate(sanitizedData);
       this.logger.info("Validation passed", { sanitizedId, sanitizedData });
 
       await militaryRankRepository.update(sanitizedId, sanitizedData);
