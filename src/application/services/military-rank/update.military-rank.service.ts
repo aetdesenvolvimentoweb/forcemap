@@ -48,7 +48,7 @@ export class UpdateMilitaryRankService implements UpdateMilitaryRankUseCase {
       this.logger.info("Sanitized ID", { sanitizedId });
       await idValidator.validate(sanitizedId);
       const sanitizedData = dataSanitizer.sanitize(data);
-      await dataValidator.validate(sanitizedData);
+      await dataValidator.validate(sanitizedData, sanitizedId);
       this.logger.info("Validation passed", { sanitizedId, sanitizedData });
 
       await militaryRankRepository.update(sanitizedId, sanitizedData);
