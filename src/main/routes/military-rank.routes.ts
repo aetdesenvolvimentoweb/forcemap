@@ -1,12 +1,13 @@
-import { Request, Response, Router } from "express";
+import { Router } from "express";
 
 import { expressRouteAdapter } from "../../infra/adapters";
 import {
   makeCreateMilitaryRankController,
   makeDeleteMilitaryRankController,
   makeListAllMilitaryRankController,
+  makeListByIdMilitaryRankController,
+  makeUpdateMilitaryRankController,
 } from "../factories/controllers";
-import { makeUpdateMilitaryRankController } from "../factories/controllers/military-rank/update.military-rank.controller.factory";
 
 const militaryRankRoutes = Router();
 
@@ -18,9 +19,10 @@ militaryRankRoutes.get(
   "/military-rank",
   expressRouteAdapter(makeListAllMilitaryRankController()),
 );
-militaryRankRoutes.get("/military-rank/:id", (req: Request, res: Response) => {
-  res.status(200).json({ message: "Ainda não desenvolvido" });
-});
+militaryRankRoutes.get(
+  "/military-rank/:id",
+  expressRouteAdapter(makeListByIdMilitaryRankController()),
+);
 militaryRankRoutes.delete(
   "/military-rank/:id",
   expressRouteAdapter(makeDeleteMilitaryRankController()),
