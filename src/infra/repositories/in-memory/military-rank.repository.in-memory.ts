@@ -13,6 +13,10 @@ export class MilitaryRankRepositoryInMemory implements MilitaryRankRepository {
     this.items.push(entity);
   };
 
+  public delete = async (id: string): Promise<void> => {
+    this.items = this.items.filter((item) => item.id !== id);
+  };
+
   public findByAbbreviation = async (
     abbreviation: string,
   ): Promise<MilitaryRank | null> => {
@@ -21,20 +25,20 @@ export class MilitaryRankRepositoryInMemory implements MilitaryRankRepository {
     );
   };
 
-  public findByOrder = async (order: number): Promise<MilitaryRank | null> => {
-    return this.items.find((item) => item.order === order) || null;
-  };
-
   public findById = async (id: string): Promise<MilitaryRank | null> => {
     return this.items.find((item) => item.id === id) || null;
+  };
+
+  public findByOrder = async (order: number): Promise<MilitaryRank | null> => {
+    return this.items.find((item) => item.order === order) || null;
   };
 
   public listAll = async (): Promise<MilitaryRank[]> => {
     return this.items;
   };
 
-  public delete = async (id: string): Promise<void> => {
-    this.items = this.items.filter((item) => item.id !== id);
+  public listById = async (id: string): Promise<MilitaryRank | null> => {
+    return this.items.find((item) => item.id === id) || null;
   };
 
   public update = async (
