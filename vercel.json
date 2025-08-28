@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "installCommand": "pnpm install",
+  "installCommand": "pnpm install --prod",
   "buildCommand": "pnpm build",
   "devCommand": "pnpm dev",
   "outputDirectory": "dist",
