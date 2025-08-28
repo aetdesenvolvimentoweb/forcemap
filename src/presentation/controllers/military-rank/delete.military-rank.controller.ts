@@ -1,7 +1,7 @@
 import { LoggerProtocol } from "../../../application/protocols";
 import { DeleteMilitaryRankUseCase } from "../../../domain/use-cases";
 import { ControllerProtocol, HttpRequest, HttpResponse } from "../../protocols";
-import { created, emptyRequest, handleError } from "../../utils";
+import { created, emptyRequest, handleError, noContent } from "../../utils";
 
 interface DeleteMilitaryRankControllerProps {
   deleteMilitaryRankService: DeleteMilitaryRankUseCase;
@@ -29,7 +29,7 @@ export class DeleteMilitaryRankController implements ControllerProtocol {
       await deleteMilitaryRankService.delete(id);
 
       logger.info("Posto/graduação deletado com sucesso");
-      return created();
+      return noContent();
     } catch (error: unknown) {
       logger.error("Erro ao deletar posto/graduação", { error });
       return handleError(error);
