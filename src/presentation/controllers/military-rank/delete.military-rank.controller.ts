@@ -1,7 +1,7 @@
 import { LoggerProtocol } from "../../../application/protocols";
 import { DeleteMilitaryRankUseCase } from "../../../domain/use-cases";
 import { ControllerProtocol, HttpRequest, HttpResponse } from "../../protocols";
-import { created, emptyRequest, handleError, noContent } from "../../utils";
+import { emptyRequest, handleError, noContent } from "../../utils";
 
 interface DeleteMilitaryRankControllerProps {
   deleteMilitaryRankService: DeleteMilitaryRankUseCase;
