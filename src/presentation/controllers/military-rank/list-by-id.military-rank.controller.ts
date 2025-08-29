@@ -1,39 +1,45 @@
 import { LoggerProtocol } from "../../../application/protocols";
 import { MilitaryRank } from "../../../domain/entities";
 import { ListByIdMilitaryRankUseCase } from "../../../domain/use-cases";
-import { ControllerProtocol, HttpRequest, HttpResponse } from "../../protocols";
-import { emptyRequest, handleError, ok } from "../../utils";
+import { HttpRequest, HttpResponse } from "../../protocols";
+import { emptyRequest, ok } from "../../utils";
+import { BaseController } from "../base.controller";
 
 interface ListByIdMilitaryRankControllerProps {
   listByIdMilitaryRankService: ListByIdMilitaryRankUseCase;
   logger: LoggerProtocol;
 }
 
-export class ListByIdMilitaryRankController implements ControllerProtocol {
-  constructor(private readonly props: ListByIdMilitaryRankControllerProps) {}
+export class ListByIdMilitaryRankController extends BaseController {
+  constructor(private readonly props: ListByIdMilitaryRankControllerProps) {
+    super(props.logger);
+  }
 
   public async handle(request: HttpRequest): Promise<HttpResponse> {
-    const { listByIdMilitaryRankService, logger } = this.props;
+    const { listByIdMilitaryRankService } = this.props;
 
-    try {
-      logger.info("Recebida requisição para listar posto/graduação por ID");
+    this.logger.info("Recebida requisição para listar posto/graduação por ID", {
+      params: request.params,
+    });
 
-      if (!request.params || !request.params.id) {
-        logger.error("Campos obrigatórios não fornecido");
-        return emptyRequest();
-      }
-
-      const { id } = request.params;
-
-      const militaryRank = (await listByIdMilitaryRankService.listById(
-        id,
-      )) as MilitaryRank;
-
-      logger.info("Posto/graduação encontrado com sucesso");
-      return ok<MilitaryRank>(militaryRank);
-    } catch (error: unknown) {
-      logger.error("Erro ao listar posto/graduação", { error });
-      return handleError(error);
+    const id = this.validateRequiredParam(request, "id");
+    if (!id) {
+      return emptyRequest();
     }
+
+    const result = await this.executeWithErrorHandling(
+      async () => {
+        const militaryRank = await listByIdMilitaryRankService.listById(id);
+        this.logger.info("Posto/graduação encontrado com sucesso", {
+          id,
+          found: !!militaryRank,
+        });
+        return ok<MilitaryRank | null>(militaryRank);
+      },
+      "Erro ao listar posto/graduação",
+      { id },
+    );
+
+    return result as HttpResponse;
   }
 }

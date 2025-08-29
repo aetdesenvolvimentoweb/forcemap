@@ -14,7 +14,6 @@ export const makeDeleteMilitaryRankUseCase = (
 
   return new DeleteMilitaryRankService({
     militaryRankRepository,
-    logger,
     sanitizer,
     validator,
   });

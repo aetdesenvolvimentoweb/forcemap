@@ -1,31 +1,35 @@
 import { LoggerProtocol } from "../../../application/protocols";
 import { MilitaryRank } from "../../../domain/entities";
 import { ListAllMilitaryRankUseCase } from "../../../domain/use-cases";
-import { ControllerProtocol, HttpResponse } from "../../protocols";
-import { handleError, ok } from "../../utils";
+import { HttpResponse } from "../../protocols";
+import { ok } from "../../utils";
+import { BaseController } from "../base.controller";
 
 interface ListAllMilitaryRankControllerProps {
   listAllMilitaryRankService: ListAllMilitaryRankUseCase;
   logger: LoggerProtocol;
 }
 
-export class ListAllMilitaryRankController
-  implements ControllerProtocol<MilitaryRank[]>
-{
-  constructor(private readonly props: ListAllMilitaryRankControllerProps) {}
+export class ListAllMilitaryRankController extends BaseController {
+  constructor(private readonly props: ListAllMilitaryRankControllerProps) {
+    super(props.logger);
+  }
 
-  public async handle(): Promise<HttpResponse | HttpResponse<MilitaryRank[]>> {
-    const { listAllMilitaryRankService, logger } = this.props;
+  public async handle(): Promise<HttpResponse> {
+    const { listAllMilitaryRankService } = this.props;
 
-    try {
-      logger.info("Recebida requisição para listar todos os postos/graduações");
+    this.logger.info(
+      "Recebida requisição para listar todos os postos/graduações",
+    );
+
+    const result = await this.executeWithErrorHandling(async () => {
       const militaryRanks = await listAllMilitaryRankService.listAll();
-
-      logger.info("Postos/graduações listados com sucesso");
+      this.logger.info("Postos/graduações listados com sucesso", {
+        count: militaryRanks.length,
+      });
       return ok<MilitaryRank[]>(militaryRanks);
-    } catch (error: unknown) {
-      logger.error("Erro ao listar postos/graduações", { error });
-      return handleError(error);
-    }
+    }, "Erro ao listar postos/graduações");
+
+    return result as HttpResponse;
   }
 }

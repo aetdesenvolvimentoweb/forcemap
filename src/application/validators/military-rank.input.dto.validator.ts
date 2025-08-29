@@ -1,14 +1,11 @@
 import { MilitaryRankInputDTO } from "../../domain/dtos";
 import { MilitaryRankRepository } from "../../domain/repositories";
-import {
-  DuplicatedKeyError,
-  InvalidParamError,
-  MissingParamError,
-} from "../errors";
+import { DuplicatedKeyError } from "../errors";
 import {
   LoggerProtocol,
   MilitaryRankInputDTOValidatorProtocol,
 } from "../protocols";
+import { ValidationPatterns } from "./common";
 
 interface MilitaryRankInputDTOValidatorProps {
   militaryRankRepository: MilitaryRankRepository;
@@ -29,47 +26,28 @@ export class MilitaryRankInputDTOValidator
   private readonly validateAbbreviationPresence = (
     abbreviation: string,
   ): void => {
-    if (!abbreviation || abbreviation.trim() === "") {
-      throw new MissingParamError("Abreviatura");
-    }
+    ValidationPatterns.validatePresence(abbreviation, "Abreviatura");
   };
 
   private readonly validateOrderPresence = (order: number): void => {
-    if (order === null || order === undefined) {
-      throw new MissingParamError("Ordem");
-    }
+    ValidationPatterns.validatePresence(order, "Ordem");
   };
 
   private readonly validateAbbreviationFormat = (
     abbreviation: string,
   ): void => {
-    if (abbreviation.length > 10) {
-      throw new InvalidParamError(
-        "Abreviatura",
-        "não pode exceder 10 caracteres",
-      );
-    }
+    ValidationPatterns.validateStringLength(abbreviation, 10, "Abreviatura");
 
-    if (!/^[a-zA-Z0-9º ]+$/.test(abbreviation)) {
-      throw new InvalidParamError(
-        "Abreviatura",
-        "deve conter apenas letras, números, espaços e/ou o caractere ordinal (º)",
-      );
-    }
+    ValidationPatterns.validateStringFormat(
+      abbreviation,
+      /^[a-zA-Z0-9º ]+$/,
+      "Abreviatura",
+      "deve conter apenas letras, números, espaços e/ou o caractere ordinal (º)",
+    );
   };
 
   private readonly validateOrderRange = (order: number): void => {
-    if (!Number.isInteger(order)) {
-      throw new InvalidParamError("Ordem", "deve ser um número inteiro");
-    }
-
-    if (order < 1) {
-      throw new InvalidParamError("Ordem", "deve ser maior que 0");
-    }
-
-    if (order > 20) {
-      throw new InvalidParamError("Ordem", "deve ser menor que 20");
-    }
+    ValidationPatterns.validateNumberRange(order, 1, 20, "Ordem");
   };
 
   private readonly validateAbbreviationUniqueness = async (
@@ -122,25 +100,8 @@ export class MilitaryRankInputDTOValidator
     data: MilitaryRankInputDTO,
     idToIgnore?: string,
   ): Promise<void> => {
-    this.logger.info("Validating MilitaryRankInputDTO", {
-      input: data,
-      idToIgnore,
-    });
-    try {
-      this.validateRequiredFields(data);
-      this.validateBusinessRules(data);
-      await this.validateUniqueness(data, idToIgnore);
-      this.logger.info("MilitaryRankInputDTO validated successfully", {
-        input: data,
-        idToIgnore,
-      });
-    } catch (error) {
-      this.logger.error("Validation error in MilitaryRankInputDTO", {
-        input: data,
-        idToIgnore,
-        error,
-      });
-      throw error;
-    }
+    this.validateRequiredFields(data);
+    this.validateBusinessRules(data);
+    await this.validateUniqueness(data, idToIgnore);
   };
 }

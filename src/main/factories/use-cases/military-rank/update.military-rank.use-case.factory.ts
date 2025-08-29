@@ -25,7 +25,6 @@ export const makeUpdateMilitaryRankUseCase = (
 
   return new UpdateMilitaryRankService({
     militaryRankRepository,
-    logger,
     idSanitizer,
     dataSanitizer,
     idValidator,

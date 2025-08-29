@@ -1,45 +1,54 @@
 import { LoggerProtocol } from "../../../application/protocols";
 import { MilitaryRankInputDTO } from "../../../domain/dtos";
 import { UpdateMilitaryRankUseCase } from "../../../domain/use-cases";
-import { ControllerProtocol, HttpRequest, HttpResponse } from "../../protocols";
-import { emptyRequest, handleError, noContent } from "../../utils";
+import { HttpRequest, HttpResponse } from "../../protocols";
+import { emptyRequest, noContent } from "../../utils";
+import { BaseController } from "../base.controller";
 
 interface UpdateMilitaryRankControllerProps {
   updateMilitaryRankService: UpdateMilitaryRankUseCase;
   logger: LoggerProtocol;
 }
 
-export class UpdateMilitaryRankController implements ControllerProtocol {
-  constructor(private readonly props: UpdateMilitaryRankControllerProps) {}
+export class UpdateMilitaryRankController extends BaseController {
+  constructor(private readonly props: UpdateMilitaryRankControllerProps) {
+    super(props.logger);
+  }
 
   public async handle(
     request: HttpRequest<MilitaryRankInputDTO>,
   ): Promise<HttpResponse> {
-    const { updateMilitaryRankService, logger } = this.props;
+    const { updateMilitaryRankService } = this.props;
 
-    try {
-      logger.info("Recebida requisição para atualizar posto/graduação");
+    this.logger.info("Recebida requisição para atualizar posto/graduação", {
+      params: request.params,
+      body: request.body,
+    });
 
-      if (!request.params || !request.params.id) {
-        logger.error("Campo obrigatório não fornecido");
-        return emptyRequest();
-      }
-
-      if (!request.body) {
-        logger.error("Campos obrigatórios não fornecidos");
-        return emptyRequest();
-      }
-
-      const { id } = request.params;
-      const data = request.body;
-
-      await updateMilitaryRankService.update(id, data);
-
-      logger.info("Posto/graduação atualizado com sucesso");
-      return noContent();
-    } catch (error: unknown) {
-      logger.error("Erro ao atualizar posto/graduação", { error });
-      return handleError(error);
+    const id = this.validateRequiredParam(request, "id");
+    if (!id) {
+      return emptyRequest();
     }
+
+    const body = this.validateRequiredBody(request);
+    if (!body) {
+      return emptyRequest();
+    }
+
+    const result = await this.executeWithErrorHandling(
+      async () => {
+        await updateMilitaryRankService.update(id, body);
+        this.logger.info("Posto/graduação atualizado com sucesso", {
+          id,
+          abbreviation: body.abbreviation,
+          order: body.order,
+        });
+        return noContent();
+      },
+      "Erro ao atualizar posto/graduação",
+      { id, data: body },
+    );
+
+    return result as HttpResponse;
   }
 }

@@ -17,7 +17,6 @@ export const makeCreateMilitaryRankUseCase = (
 
   return new CreateMilitaryRankService({
     militaryRankRepository,
-    logger,
     sanitizer,
     validator,
   });

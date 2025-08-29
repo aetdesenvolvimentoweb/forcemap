@@ -14,7 +14,6 @@ export const makeListByIdMilitaryRankUseCase = (
 
   return new ListByIdMilitaryRankService({
     militaryRankRepository,
-    logger,
     sanitizer,
     validator,
   });

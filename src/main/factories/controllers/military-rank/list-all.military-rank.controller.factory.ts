@@ -5,7 +5,7 @@ import { makeListAllMilitaryRankUseCase } from "../../use-cases";
 
 export const makeListAllMilitaryRankController = (): ControllerProtocol => {
   const logger = makeLogger();
-  const listAllMilitaryRankService = makeListAllMilitaryRankUseCase(logger);
+  const listAllMilitaryRankService = makeListAllMilitaryRankUseCase();
 
   return new ListAllMilitaryRankController({
     listAllMilitaryRankService,

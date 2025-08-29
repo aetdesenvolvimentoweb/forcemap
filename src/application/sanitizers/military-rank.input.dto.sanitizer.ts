@@ -32,12 +32,10 @@ export class MilitaryRankInputDTOSanitizer
   public readonly sanitize = (
     data: MilitaryRankInputDTO,
   ): MilitaryRankInputDTO => {
-    this.logger.info("Sanitizing MilitaryRankInputDTO", { input: data });
     const sanitized = {
       abbreviation: this.sanitizeAbbreviation(data.abbreviation),
       order: this.sanitizeOrder(data.order),
     };
-    this.logger.info("Sanitized MilitaryRankInputDTO", { output: sanitized });
     return sanitized;
   };
 }

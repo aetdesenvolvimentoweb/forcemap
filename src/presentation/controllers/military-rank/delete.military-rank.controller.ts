@@ -1,36 +1,39 @@
 import { LoggerProtocol } from "../../../application/protocols";
 import { DeleteMilitaryRankUseCase } from "../../../domain/use-cases";
-import { ControllerProtocol, HttpRequest, HttpResponse } from "../../protocols";
-import { emptyRequest, handleError, noContent } from "../../utils";
+import { HttpRequest, HttpResponse } from "../../protocols";
+import { emptyRequest, noContent } from "../../utils";
+import { BaseController } from "../base.controller";
 
 interface DeleteMilitaryRankControllerProps {
   deleteMilitaryRankService: DeleteMilitaryRankUseCase;
   logger: LoggerProtocol;
 }
 
-export class DeleteMilitaryRankController implements ControllerProtocol {
-  constructor(private readonly props: DeleteMilitaryRankControllerProps) {}
+export class DeleteMilitaryRankController extends BaseController {
+  constructor(private readonly props: DeleteMilitaryRankControllerProps) {
+    super(props.logger);
+  }
 
   public async handle(request: HttpRequest): Promise<HttpResponse> {
-    const { deleteMilitaryRankService, logger } = this.props;
+    const { deleteMilitaryRankService } = this.props;
 
-    try {
-      logger.info("Recebida requisição para deletar posto/graduação");
+    this.logger.info("Recebida requisição para deletar posto/graduação");
 
-      if (!request.params || !request.params.id) {
-        logger.error("Campos obrigatórios não fornecido");
-        return emptyRequest();
-      }
-
-      const { id } = request.params;
-
-      await deleteMilitaryRankService.delete(id);
-
-      logger.info("Posto/graduação deletado com sucesso");
-      return noContent();
-    } catch (error: unknown) {
-      logger.error("Erro ao deletar posto/graduação", { error });
-      return handleError(error);
+    const id = this.validateRequiredParam(request, "id");
+    if (!id) {
+      return emptyRequest();
     }
+
+    const result = await this.executeWithErrorHandling(
+      async () => {
+        await deleteMilitaryRankService.delete(id);
+        this.logger.info("Posto/graduação deletado com sucesso", { id });
+        return noContent();
+      },
+      "Erro ao deletar posto/graduação",
+      { id },
+    );
+
+    return result as HttpResponse;
   }
 }

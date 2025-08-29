@@ -8,7 +8,6 @@ export class IdSanitizer implements IdSanitizerProtocol {
   }
 
   public readonly sanitize = (id: string): string => {
-    this.logger.info("Sanitizing ID", { input: id });
     if (!id || typeof id !== "string") return id;
 
     const sanitized = id
@@ -19,7 +18,6 @@ export class IdSanitizer implements IdSanitizerProtocol {
       .replace(/\/\*/g, "")
       .replace(/\*\//g, "");
 
-    this.logger.info("Sanitized ID", { output: sanitized });
     return sanitized;
   };
 }
