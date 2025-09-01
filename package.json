@@ -1,4 +1,7 @@
 {
+  "name": "forcemap",
+  "version": "1.0.0",
+  "main": "index.ts",
   "scripts": {
     "build": "tsc",
     "start": "node api/index.js",
