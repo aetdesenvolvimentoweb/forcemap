@@ -1,4 +1,4 @@
-import { MilitaryRankRepository } from "../src/domain/repositories";
+import { MilitaryRankRepository } from "../../src/domain/repositories";
 
 export const mockMilitaryRankRepository =
   (): jest.Mocked<MilitaryRankRepository> => ({

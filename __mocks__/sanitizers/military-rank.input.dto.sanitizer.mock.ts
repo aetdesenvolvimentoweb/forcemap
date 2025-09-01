@@ -1,4 +1,4 @@
-import { MilitaryRankInputDTOSanitizerProtocol } from "../src/application/protocols";
+import { MilitaryRankInputDTOSanitizerProtocol } from "../../src/application/protocols";
 
 export const mockMilitaryRankInputDTOSanitizer =
   (): jest.Mocked<MilitaryRankInputDTOSanitizerProtocol> => ({

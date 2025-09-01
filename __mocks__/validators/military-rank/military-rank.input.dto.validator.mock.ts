@@ -1,4 +1,4 @@
-import { MilitaryRankInputDTOValidatorProtocol } from "../src/application/protocols";
+import { MilitaryRankInputDTOValidatorProtocol } from "../../../src/application/protocols";
 
 export const mockMilitaryRankInputDTOValidator =
   (): jest.Mocked<MilitaryRankInputDTOValidatorProtocol> => ({
