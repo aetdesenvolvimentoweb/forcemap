@@ -27,7 +27,9 @@ describe("MilitaryRankInputDTOValidator", () => {
 
     describe("successful validation", () => {
       it("should not throw when all data is valid and unique", async () => {
-        mockedMilitaryRankRepository.findByAbbreviation.mockResolvedValueOnce(null);
+        mockedMilitaryRankRepository.findByAbbreviation.mockResolvedValueOnce(
+          null,
+        );
         mockedMilitaryRankRepository.findByOrder.mockResolvedValueOnce(null);
 
         await expect(sut.validate(validData)).resolves.not.toThrow();
@@ -39,7 +41,9 @@ describe("MilitaryRankInputDTOValidator", () => {
           order: 5,
         };
 
-        mockedMilitaryRankRepository.findByAbbreviation.mockResolvedValueOnce(null);
+        mockedMilitaryRankRepository.findByAbbreviation.mockResolvedValueOnce(
+          null,
+        );
         mockedMilitaryRankRepository.findByOrder.mockResolvedValueOnce(null);
 
         await expect(sut.validate(dataWithSpecialChars)).resolves.not.toThrow();
@@ -51,7 +55,9 @@ describe("MilitaryRankInputDTOValidator", () => {
           order: 1,
         };
 
-        mockedMilitaryRankRepository.findByAbbreviation.mockResolvedValueOnce(null);
+        mockedMilitaryRankRepository.findByAbbreviation.mockResolvedValueOnce(
+          null,
+        );
         mockedMilitaryRankRepository.findByOrder.mockResolvedValueOnce(null);
 
         await expect(sut.validate(minData)).resolves.not.toThrow();
@@ -63,7 +69,9 @@ describe("MilitaryRankInputDTOValidator", () => {
           order: 20,
         };
 
-        mockedMilitaryRankRepository.findByAbbreviation.mockResolvedValueOnce(null);
+        mockedMilitaryRankRepository.findByAbbreviation.mockResolvedValueOnce(
+          null,
+        );
         mockedMilitaryRankRepository.findByOrder.mockResolvedValueOnce(null);
 
         await expect(sut.validate(maxData)).resolves.not.toThrow();
@@ -78,7 +86,7 @@ describe("MilitaryRankInputDTOValidator", () => {
         };
 
         await expect(sut.validate(dataWithNullAbbreviation)).rejects.toThrow(
-          new MissingParamError("Abreviatura")
+          new MissingParamError("Abreviatura"),
         );
       });
 
@@ -88,9 +96,9 @@ describe("MilitaryRankInputDTOValidator", () => {
           order: 10,
         };
 
-        await expect(sut.validate(dataWithUndefinedAbbreviation)).rejects.toThrow(
-          new MissingParamError("Abreviatura")
-        );
+        await expect(
+          sut.validate(dataWithUndefinedAbbreviation),
+        ).rejects.toThrow(new MissingParamError("Abreviatura"));
       });
 
       it("should throw MissingParamError when abbreviation is empty string", async () => {
@@ -100,7 +108,7 @@ describe("MilitaryRankInputDTOValidator", () => {
         };
 
         await expect(sut.validate(dataWithEmptyAbbreviation)).rejects.toThrow(
-          new MissingParamError("Abreviatura")
+          new MissingParamError("Abreviatura"),
         );
       });
 
@@ -110,9 +118,9 @@ describe("MilitaryRankInputDTOValidator", () => {
           order: 10,
         };
 
-        await expect(sut.validate(dataWithWhitespaceAbbreviation)).rejects.toThrow(
-          new MissingParamError("Abreviatura")
-        );
+        await expect(
+          sut.validate(dataWithWhitespaceAbbreviation),
+        ).rejects.toThrow(new MissingParamError("Abreviatura"));
       });
 
       it("should throw MissingParamError when order is null", async () => {
@@ -122,7 +130,7 @@ describe("MilitaryRankInputDTOValidator", () => {
         };
 
         await expect(sut.validate(dataWithNullOrder)).rejects.toThrow(
-          new MissingParamError("Ordem")
+          new MissingParamError("Ordem"),
         );
       });
 
@@ -133,7 +141,7 @@ describe("MilitaryRankInputDTOValidator", () => {
         };
 
         await expect(sut.validate(dataWithUndefinedOrder)).rejects.toThrow(
-          new MissingParamError("Ordem")
+          new MissingParamError("Ordem"),
         );
       });
     });
@@ -146,7 +154,10 @@ describe("MilitaryRankInputDTOValidator", () => {
         };
 
         await expect(sut.validate(dataWithLongAbbreviation)).rejects.toThrow(
-          new InvalidParamError("Abreviatura", "não pode exceder 10 caracteres")
+          new InvalidParamError(
+            "Abreviatura",
+            "não pode exceder 10 caracteres",
+          ),
         );
       });
 
@@ -157,7 +168,10 @@ describe("MilitaryRankInputDTOValidator", () => {
         };
 
         await expect(sut.validate(dataWithInvalidChars)).rejects.toThrow(
-          new InvalidParamError("Abreviatura", "deve conter apenas letras, números, espaços e/ou o caractere ordinal (º)")
+          new InvalidParamError(
+            "Abreviatura",
+            "deve conter apenas letras, números, espaços e/ou o caractere ordinal (º)",
+          ),
         );
       });
 
@@ -168,7 +182,10 @@ describe("MilitaryRankInputDTOValidator", () => {
         };
 
         await expect(sut.validate(dataWithSymbols)).rejects.toThrow(
-          new InvalidParamError("Abreviatura", "deve conter apenas letras, números, espaços e/ou o caractere ordinal (º)")
+          new InvalidParamError(
+            "Abreviatura",
+            "deve conter apenas letras, números, espaços e/ou o caractere ordinal (º)",
+          ),
         );
       });
     });
@@ -181,7 +198,7 @@ describe("MilitaryRankInputDTOValidator", () => {
         };
 
         await expect(sut.validate(dataWithFloatOrder)).rejects.toThrow(
-          new InvalidParamError("Ordem", "deve ser um número inteiro")
+          new InvalidParamError("Ordem", "deve ser um número inteiro"),
         );
       });
 
@@ -192,7 +209,7 @@ describe("MilitaryRankInputDTOValidator", () => {
         };
 
         await expect(sut.validate(dataWithLowOrder)).rejects.toThrow(
-          new InvalidParamError("Ordem", "deve ser maior que 0")
+          new InvalidParamError("Ordem", "deve ser maior que 0"),
         );
       });
 
@@ -203,7 +220,7 @@ describe("MilitaryRankInputDTOValidator", () => {
         };
 
         await expect(sut.validate(dataWithHighOrder)).rejects.toThrow(
-          new InvalidParamError("Ordem", "deve ser menor que 20")
+          new InvalidParamError("Ordem", "deve ser menor que 20"),
         );
       });
 
@@ -214,7 +231,7 @@ describe("MilitaryRankInputDTOValidator", () => {
         };
 
         await expect(sut.validate(dataWithNaNOrder)).rejects.toThrow(
-          new InvalidParamError("Ordem", "deve ser um número inteiro")
+          new InvalidParamError("Ordem", "deve ser um número inteiro"),
         );
       });
     });
@@ -227,10 +244,12 @@ describe("MilitaryRankInputDTOValidator", () => {
           order: 5,
         };
 
-        mockedMilitaryRankRepository.findByAbbreviation.mockResolvedValueOnce(existingMilitaryRank);
+        mockedMilitaryRankRepository.findByAbbreviation.mockResolvedValueOnce(
+          existingMilitaryRank,
+        );
 
         await expect(sut.validate(validData)).rejects.toThrow(
-          new DuplicatedKeyError("Abreviatura")
+          new DuplicatedKeyError("Abreviatura"),
         );
       });
 
@@ -241,11 +260,15 @@ describe("MilitaryRankInputDTOValidator", () => {
           order: 10,
         };
 
-        mockedMilitaryRankRepository.findByAbbreviation.mockResolvedValueOnce(null);
-        mockedMilitaryRankRepository.findByOrder.mockResolvedValueOnce(existingMilitaryRank);
+        mockedMilitaryRankRepository.findByAbbreviation.mockResolvedValueOnce(
+          null,
+        );
+        mockedMilitaryRankRepository.findByOrder.mockResolvedValueOnce(
+          existingMilitaryRank,
+        );
 
         await expect(sut.validate(validData)).rejects.toThrow(
-          new DuplicatedKeyError("Ordem")
+          new DuplicatedKeyError("Ordem"),
         );
       });
 
@@ -256,10 +279,14 @@ describe("MilitaryRankInputDTOValidator", () => {
           order: 5,
         };
 
-        mockedMilitaryRankRepository.findByAbbreviation.mockResolvedValueOnce(existingMilitaryRank);
+        mockedMilitaryRankRepository.findByAbbreviation.mockResolvedValueOnce(
+          existingMilitaryRank,
+        );
         mockedMilitaryRankRepository.findByOrder.mockResolvedValueOnce(null);
 
-        await expect(sut.validate(validData, "ignored-id")).resolves.not.toThrow();
+        await expect(
+          sut.validate(validData, "ignored-id"),
+        ).resolves.not.toThrow();
       });
 
       it("should not throw when order exists but belongs to ignored id", async () => {
@@ -269,10 +296,16 @@ describe("MilitaryRankInputDTOValidator", () => {
           order: 10,
         };
 
-        mockedMilitaryRankRepository.findByAbbreviation.mockResolvedValueOnce(null);
-        mockedMilitaryRankRepository.findByOrder.mockResolvedValueOnce(existingMilitaryRank);
+        mockedMilitaryRankRepository.findByAbbreviation.mockResolvedValueOnce(
+          null,
+        );
+        mockedMilitaryRankRepository.findByOrder.mockResolvedValueOnce(
+          existingMilitaryRank,
+        );
 
-        await expect(sut.validate(validData, "ignored-id")).resolves.not.toThrow();
+        await expect(
+          sut.validate(validData, "ignored-id"),
+        ).resolves.not.toThrow();
       });
 
       it("should throw when abbreviation exists and belongs to different id", async () => {
@@ -282,31 +315,45 @@ describe("MilitaryRankInputDTOValidator", () => {
           order: 5,
         };
 
-        mockedMilitaryRankRepository.findByAbbreviation.mockResolvedValueOnce(existingMilitaryRank);
+        mockedMilitaryRankRepository.findByAbbreviation.mockResolvedValueOnce(
+          existingMilitaryRank,
+        );
 
         await expect(sut.validate(validData, "ignored-id")).rejects.toThrow(
-          new DuplicatedKeyError("Abreviatura")
+          new DuplicatedKeyError("Abreviatura"),
         );
       });
     });
 
     describe("repository interaction", () => {
       it("should call repository methods with correct parameters", async () => {
-        mockedMilitaryRankRepository.findByAbbreviation.mockResolvedValueOnce(null);
+        mockedMilitaryRankRepository.findByAbbreviation.mockResolvedValueOnce(
+          null,
+        );
         mockedMilitaryRankRepository.findByOrder.mockResolvedValueOnce(null);
 
         await sut.validate(validData);
 
-        expect(mockedMilitaryRankRepository.findByAbbreviation).toHaveBeenCalledWith("CEL");
-        expect(mockedMilitaryRankRepository.findByOrder).toHaveBeenCalledWith(10);
-        expect(mockedMilitaryRankRepository.findByAbbreviation).toHaveBeenCalledTimes(1);
-        expect(mockedMilitaryRankRepository.findByOrder).toHaveBeenCalledTimes(1);
+        expect(
+          mockedMilitaryRankRepository.findByAbbreviation,
+        ).toHaveBeenCalledWith("CEL");
+        expect(mockedMilitaryRankRepository.findByOrder).toHaveBeenCalledWith(
+          10,
+        );
+        expect(
+          mockedMilitaryRankRepository.findByAbbreviation,
+        ).toHaveBeenCalledTimes(1);
+        expect(mockedMilitaryRankRepository.findByOrder).toHaveBeenCalledTimes(
+          1,
+        );
       });
 
       it("should propagate repository errors", async () => {
         const repositoryError = new Error("Database connection failed");
-        
-        mockedMilitaryRankRepository.findByAbbreviation.mockRejectedValueOnce(repositoryError);
+
+        mockedMilitaryRankRepository.findByAbbreviation.mockRejectedValueOnce(
+          repositoryError,
+        );
 
         await expect(sut.validate(validData)).rejects.toThrow(repositoryError);
       });
@@ -321,11 +368,13 @@ describe("MilitaryRankInputDTOValidator", () => {
 
         // Should throw MissingParamError, not format error
         await expect(sut.validate(invalidData)).rejects.toThrow(
-          new MissingParamError("Abreviatura")
+          new MissingParamError("Abreviatura"),
         );
 
         // Repository should not be called for uniqueness validation
-        expect(mockedMilitaryRankRepository.findByAbbreviation).not.toHaveBeenCalled();
+        expect(
+          mockedMilitaryRankRepository.findByAbbreviation,
+        ).not.toHaveBeenCalled();
         expect(mockedMilitaryRankRepository.findByOrder).not.toHaveBeenCalled();
       });
 
@@ -337,11 +386,16 @@ describe("MilitaryRankInputDTOValidator", () => {
 
         // Should throw InvalidParamError, not call repository
         await expect(sut.validate(invalidData)).rejects.toThrow(
-          new InvalidParamError("Abreviatura", "deve conter apenas letras, números, espaços e/ou o caractere ordinal (º)")
+          new InvalidParamError(
+            "Abreviatura",
+            "deve conter apenas letras, números, espaços e/ou o caractere ordinal (º)",
+          ),
         );
 
         // Repository should not be called for uniqueness validation
-        expect(mockedMilitaryRankRepository.findByAbbreviation).not.toHaveBeenCalled();
+        expect(
+          mockedMilitaryRankRepository.findByAbbreviation,
+        ).not.toHaveBeenCalled();
         expect(mockedMilitaryRankRepository.findByOrder).not.toHaveBeenCalled();
       });
     });
