@@ -18,7 +18,7 @@ describe("DeleteMilitaryRankService", () => {
     mockedSanitizer = mockIdSanitizer();
     mockedIdValidator = mockIdValidator();
     mockedIdRegisteredValidator = mockMilitaryRankIdRegisteredValidator();
-    
+
     sut = new DeleteMilitaryRankService({
       militaryRankRepository: mockedRepository,
       sanitizer: mockedSanitizer,
@@ -72,7 +72,9 @@ describe("DeleteMilitaryRankService", () => {
 
       await sut.delete(inputId);
 
-      expect(mockedIdRegisteredValidator.validate).toHaveBeenCalledWith(sanitizedId);
+      expect(mockedIdRegisteredValidator.validate).toHaveBeenCalledWith(
+        sanitizedId,
+      );
       expect(mockedIdRegisteredValidator.validate).toHaveBeenCalledTimes(1);
     });
 
@@ -115,7 +117,6 @@ describe("DeleteMilitaryRankService", () => {
       expect(mockedIdRegisteredValidator.validate).not.toHaveBeenCalled();
       expect(mockedRepository.delete).not.toHaveBeenCalled();
     });
-
 
     it("should propagate repository exceptions", async () => {
       const repositoryError = new Error("Database connection failed");
