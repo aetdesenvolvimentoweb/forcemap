@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import { expressRouteAdapter } from "../../../../src/infra/adapters/express.route.adapter";
 import {
   ControllerProtocol,
-  HttpRequest,
   HttpResponse,
 } from "../../../../src/presentation/protocols";
 
@@ -170,6 +169,23 @@ describe("expressRouteAdapter", () => {
       });
     });
 
+    it("should return Express response with correct status and body", async () => {
+      const controllerResponse: HttpResponse = {
+        statusCode: 201,
+        body: { data: { id: "123", message: "created successfully" } },
+      };
+
+      mockController.handle.mockResolvedValueOnce(controllerResponse);
+
+      const adapter = expressRouteAdapter(mockController);
+      await adapter(mockRequest as Request, mockResponse as Response);
+
+      expect(mockStatusFn).toHaveBeenCalledWith(201);
+      expect(mockJsonFn).toHaveBeenCalledWith({
+        data: { id: "123", message: "created successfully" },
+      });
+    });
+
     it("should handle 200 OK responses", async () => {
       const controllerResponse: HttpResponse = {
         statusCode: 200,
@@ -265,6 +281,82 @@ describe("expressRouteAdapter", () => {
       });
     });
 
+    it("should handle empty request", async () => {
+      mockRequest = {
+        body: undefined,
+        params: {},
+        query: {},
+        headers: {},
+      };
+
+      mockController.handle.mockResolvedValueOnce({
+        statusCode: 200,
+        body: { data: "empty request handled" },
+      });
+
+      const adapter = expressRouteAdapter(mockController);
+      await adapter(mockRequest as Request, mockResponse as Response);
+
+      expect(mockController.handle).toHaveBeenCalledWith({
+        body: undefined,
+        params: {},
+        query: {},
+        headers: {},
+      });
+    });
+
+    it("should handle complex nested request data", async () => {
+      const complexRequest = {
+        body: {
+          user: { name: "John", profile: { age: 30, preferences: ["a", "b"] } },
+          metadata: { timestamp: Date.now(), version: "1.0" },
+        },
+        params: { id: "user-123", section: "profile" },
+        query: { include: "details", format: "json", deep: "true" },
+        headers: {
+          authorization: "Bearer complex-token-123",
+          "content-type": "application/json",
+          "x-request-id": "req-456",
+          "user-agent": "MyApp/1.0",
+        },
+      };
+
+      mockRequest = { ...complexRequest };
+      mockController.handle.mockResolvedValueOnce({
+        statusCode: 200,
+        body: { data: { processed: true } },
+      });
+
+      const adapter = expressRouteAdapter(mockController);
+      await adapter(mockRequest as Request, mockResponse as Response);
+
+      expect(mockController.handle).toHaveBeenCalledWith(complexRequest);
+    });
+
+    it("should handle null and undefined values in request", async () => {
+      mockRequest = {
+        body: null,
+        params: undefined as any,
+        query: null as any,
+        headers: undefined as any,
+      };
+
+      mockController.handle.mockResolvedValueOnce({
+        statusCode: 200,
+        body: { data: "handled nulls" },
+      });
+
+      const adapter = expressRouteAdapter(mockController);
+      await adapter(mockRequest as Request, mockResponse as Response);
+
+      expect(mockController.handle).toHaveBeenCalledWith({
+        body: null,
+        params: undefined,
+        query: null,
+        headers: undefined,
+      });
+    });
+
     it("should handle controller throwing errors", async () => {
       mockController.handle.mockRejectedValueOnce(
         new Error("Controller error"),
@@ -275,6 +367,103 @@ describe("expressRouteAdapter", () => {
       await expect(
         adapter(mockRequest as Request, mockResponse as Response),
       ).rejects.toThrow("Controller error");
+    });
+
+    it("should handle async controller execution", async () => {
+      let resolveController: (value: HttpResponse) => void;
+      const controllerPromise = new Promise<HttpResponse>((resolve) => {
+        resolveController = resolve;
+      });
+
+      mockController.handle.mockReturnValueOnce(controllerPromise);
+
+      const adapter = expressRouteAdapter(mockController);
+      const adapterPromise = adapter(
+        mockRequest as Request,
+        mockResponse as Response,
+      );
+
+      // Controller hasn't resolved yet
+      expect(mockStatusFn).not.toHaveBeenCalled();
+
+      // Resolve controller
+      resolveController!({
+        statusCode: 200,
+        body: { data: "async complete" },
+      });
+
+      await adapterPromise;
+
+      expect(mockStatusFn).toHaveBeenCalledWith(200);
+      expect(mockJsonFn).toHaveBeenCalledWith({ data: "async complete" });
+    });
+
+    it("should preserve original request objects", async () => {
+      const originalBody = { name: "test" };
+      const originalParams = { id: "123" };
+
+      mockRequest = {
+        body: originalBody,
+        params: originalParams,
+        query: {},
+        headers: {},
+      };
+
+      mockController.handle.mockResolvedValueOnce({
+        statusCode: 200,
+        body: { data: { success: true } },
+      });
+
+      const adapter = expressRouteAdapter(mockController);
+      await adapter(mockRequest as Request, mockResponse as Response);
+
+      // Original objects should not be modified
+      expect(mockRequest.body).toBe(originalBody);
+      expect(mockRequest.params).toBe(originalParams);
+    });
+
+    it("should handle multiple sequential requests", async () => {
+      const adapter = expressRouteAdapter(mockController);
+
+      mockController.handle
+        .mockResolvedValueOnce({
+          statusCode: 200,
+          body: { data: { request: 1 } },
+        })
+        .mockResolvedValueOnce({
+          statusCode: 201,
+          body: { data: { request: 2 } },
+        })
+        .mockResolvedValueOnce({ statusCode: 204 });
+
+      await adapter(mockRequest as Request, mockResponse as Response);
+      await adapter(mockRequest as Request, mockResponse as Response);
+      await adapter(mockRequest as Request, mockResponse as Response);
+
+      expect(mockController.handle).toHaveBeenCalledTimes(3);
+      expect(mockStatusFn).toHaveBeenNthCalledWith(1, 200);
+      expect(mockStatusFn).toHaveBeenNthCalledWith(2, 201);
+      expect(mockStatusFn).toHaveBeenNthCalledWith(3, 204);
+    });
+
+    it("should return Express response from adapter call", async () => {
+      mockController.handle.mockResolvedValueOnce({
+        statusCode: 200,
+        body: { data: "test" },
+      });
+
+      // Mock the chained return
+      mockStatusFn.mockReturnValue(mockResponse);
+      mockJsonFn.mockReturnValue(mockResponse);
+
+      const adapter = expressRouteAdapter(mockController);
+      const result = await adapter(
+        mockRequest as Request,
+        mockResponse as Response,
+      );
+
+      // The adapter should return the result of res.status().json()
+      expect(result).toBe(mockResponse);
     });
   });
 });
