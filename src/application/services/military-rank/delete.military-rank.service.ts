@@ -19,7 +19,7 @@ export class DeleteMilitaryRankService implements DeleteMilitaryRankUseCase {
     const { militaryRankRepository, sanitizer, validator } = this.props;
 
     const sanitizedId = sanitizer.sanitize(id);
-    await validator.validate(sanitizedId);
+    validator.validate(sanitizedId);
     await militaryRankRepository.delete(sanitizedId);
   };
 }

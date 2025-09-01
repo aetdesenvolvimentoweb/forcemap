@@ -24,7 +24,7 @@ export class FindByIdMilitaryRankService
     const { militaryRankRepository, sanitizer, validator } = this.props;
 
     const sanitizedId = sanitizer.sanitize(id);
-    await validator.validate(sanitizedId);
+    validator.validate(sanitizedId);
     const militaryRank = await militaryRankRepository.findById(sanitizedId);
     return militaryRank;
   };

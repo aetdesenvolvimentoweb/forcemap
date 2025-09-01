@@ -1,7 +1,4 @@
-import {
-  EntityNotFoundError,
-  InvalidParamError,
-} from "../../application/errors";
+import { InvalidParamError } from "../../application/errors";
 import {
   IdValidatorProtocol,
   LoggerProtocol,
@@ -16,8 +13,8 @@ interface UUIDIdValidatorAdapterProps {
 export class UUIDIdValidatorAdapter implements IdValidatorProtocol {
   constructor(private readonly props: UUIDIdValidatorAdapterProps) {}
 
-  public validate = async (id: string): Promise<void> => {
-    const { logger, militaryRankRepository } = this.props;
+  public validate = (id: string): void => {
+    const { logger } = this.props;
 
     logger.info(`Validating ID: ${id}`);
 
@@ -28,12 +25,6 @@ export class UUIDIdValidatorAdapter implements IdValidatorProtocol {
     if (!isValid) {
       logger.error(`Invalid ID format: ${id}`);
       throw new InvalidParamError("ID", "formato UUID inválido");
-    }
-
-    const exists = await militaryRankRepository.findById(id);
-    if (!exists) {
-      logger.error(`ID not found in repository: ${id}`);
-      throw new EntityNotFoundError("Posto/Graduação");
     }
 
     logger.info(`ID ${id} is valid`);

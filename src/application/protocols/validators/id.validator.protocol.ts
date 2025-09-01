@@ -1,3 +1,3 @@
 export interface IdValidatorProtocol {
-  validate(id: string): Promise<void>;
+  validate(id: string): void;
 }
