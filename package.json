@@ -1,7 +1,7 @@
 {
   "scripts": {
     "build": "tsc",
-    "start": "node dist/src/index.js",
+    "start": "node api/index.js",
     "dev": "tsx src/index.ts",
     "format": "prettier --write .",
     "lint": "eslint --fix .",
