@@ -1,5 +1,4 @@
 {
-  "main": "src/index.ts",
   "scripts": {
     "build": "tsc",
     "start": "node dist/src/index.js",
