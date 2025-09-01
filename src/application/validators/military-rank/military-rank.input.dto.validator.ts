@@ -1,27 +1,17 @@
-import { MilitaryRankInputDTO } from "../../domain/dtos";
-import { MilitaryRankRepository } from "../../domain/repositories";
-import { DuplicatedKeyError } from "../errors";
-import {
-  LoggerProtocol,
-  MilitaryRankInputDTOValidatorProtocol,
-} from "../protocols";
-import { ValidationPatterns } from "./common";
+import { MilitaryRankInputDTO } from "../../../domain/dtos";
+import { MilitaryRankRepository } from "../../../domain/repositories";
+import { DuplicatedKeyError } from "../../errors";
+import { MilitaryRankInputDTOValidatorProtocol } from "../../protocols";
+import { ValidationPatterns } from "../common";
 
 interface MilitaryRankInputDTOValidatorProps {
   militaryRankRepository: MilitaryRankRepository;
-  logger: LoggerProtocol;
 }
 
 export class MilitaryRankInputDTOValidator
   implements MilitaryRankInputDTOValidatorProtocol
 {
-  private readonly logger: LoggerProtocol;
-  private readonly props: MilitaryRankInputDTOValidatorProps;
-
-  constructor(props: MilitaryRankInputDTOValidatorProps) {
-    this.props = props;
-    this.logger = props.logger;
-  }
+  constructor(private readonly props: MilitaryRankInputDTOValidatorProps) {}
 
   private readonly validateAbbreviationPresence = (
     abbreviation: string,

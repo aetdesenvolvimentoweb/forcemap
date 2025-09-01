@@ -1,9 +1,8 @@
 import { ListAllMilitaryRankService } from "../../../../application/services";
-import { ListAllMilitaryRankUseCase } from "../../../../domain/use-cases";
 import { makeMilitaryRankRepository } from "../../repositories";
 
-export const makeListAllMilitaryRankUseCase =
-  (): ListAllMilitaryRankUseCase => {
+export const makeListAllMilitaryRankService =
+  (): ListAllMilitaryRankService => {
     const militaryRankRepository = makeMilitaryRankRepository();
 
     return new ListAllMilitaryRankService({

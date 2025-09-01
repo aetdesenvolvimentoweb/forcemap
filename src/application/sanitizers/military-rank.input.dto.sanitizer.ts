@@ -1,18 +1,9 @@
 import { MilitaryRankInputDTO } from "../../domain/dtos";
-import {
-  LoggerProtocol,
-  MilitaryRankInputDTOSanitizerProtocol,
-} from "../protocols";
+import { MilitaryRankInputDTOSanitizerProtocol } from "../protocols";
 
 export class MilitaryRankInputDTOSanitizer
   implements MilitaryRankInputDTOSanitizerProtocol
 {
-  private readonly logger: LoggerProtocol;
-
-  constructor(logger: LoggerProtocol) {
-    this.logger = logger;
-  }
-
   private readonly sanitizeAbbreviation = (abbreviation: string): string => {
     if (!abbreviation || typeof abbreviation !== "string") return abbreviation;
 

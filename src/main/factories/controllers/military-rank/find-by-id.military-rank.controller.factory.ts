@@ -1,11 +1,11 @@
 import { FindByIdMilitaryRankController } from "../../../../presentation/controllers";
 import { ControllerProtocol } from "../../../../presentation/protocols";
 import { makeLogger } from "../../logger";
-import { makeFindByIdMilitaryRankUseCase } from "../../use-cases";
+import { makeFindByIdMilitaryRankService } from "../../services";
 
 export const makeFindByIdMilitaryRankController = (): ControllerProtocol => {
   const logger = makeLogger();
-  const findByIdMilitaryRankService = makeFindByIdMilitaryRankUseCase(logger);
+  const findByIdMilitaryRankService = makeFindByIdMilitaryRankService();
 
   return new FindByIdMilitaryRankController({
     findByIdMilitaryRankService,

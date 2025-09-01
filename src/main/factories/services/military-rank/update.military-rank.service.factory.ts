@@ -1,6 +1,4 @@
-import { LoggerProtocol } from "../../../../application/protocols";
 import { UpdateMilitaryRankService } from "../../../../application/services";
-import { UpdateMilitaryRankUseCase } from "../../../../domain/use-cases";
 import { makeMilitaryRankRepository } from "../../repositories";
 import {
   makeIdSanitizer,
@@ -8,18 +6,19 @@ import {
 } from "../../sanitizers";
 import {
   makeIdValidator,
+  makeMilitaryRankIdRegisteredValidator,
   makeMilitaryRankInputDTOValidator,
 } from "../../validators";
 
-export const makeUpdateMilitaryRankUseCase = (
-  logger: LoggerProtocol,
-): UpdateMilitaryRankUseCase => {
+export const makeUpdateMilitaryRankService = (): UpdateMilitaryRankService => {
   const militaryRankRepository = makeMilitaryRankRepository();
-  const idSanitizer = makeIdSanitizer(logger);
-  const dataSanitizer = makeMilitaryRankInputDTOSanitizer(logger);
-  const idValidator = makeIdValidator(logger, militaryRankRepository);
+  const idSanitizer = makeIdSanitizer();
+  const dataSanitizer = makeMilitaryRankInputDTOSanitizer();
+  const idValidator = makeIdValidator();
+  const idRegisteredValidator = makeMilitaryRankIdRegisteredValidator(
+    militaryRankRepository,
+  );
   const dataValidator = makeMilitaryRankInputDTOValidator(
-    logger,
     militaryRankRepository,
   );
 
@@ -28,6 +27,7 @@ export const makeUpdateMilitaryRankUseCase = (
     idSanitizer,
     dataSanitizer,
     idValidator,
+    idRegisteredValidator,
     dataValidator,
   });
 };

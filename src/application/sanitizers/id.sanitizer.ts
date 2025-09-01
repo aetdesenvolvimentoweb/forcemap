@@ -1,12 +1,6 @@
-import { IdSanitizerProtocol, LoggerProtocol } from "../protocols";
+import { IdSanitizerProtocol } from "../protocols";
 
 export class IdSanitizer implements IdSanitizerProtocol {
-  private readonly logger: LoggerProtocol;
-
-  constructor(logger: LoggerProtocol) {
-    this.logger = logger;
-  }
-
   public readonly sanitize = (id: string): string => {
     if (!id || typeof id !== "string") return id;
 

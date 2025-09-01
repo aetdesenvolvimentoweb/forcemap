@@ -1,4 +1,4 @@
-import { MilitaryRankInputDTO } from "../../../domain/dtos";
+import { MilitaryRankInputDTO } from "../../../../domain/dtos";
 
 export interface MilitaryRankInputDTOValidatorProtocol {
   validate(data: MilitaryRankInputDTO, idToIgnore?: string): Promise<void>;

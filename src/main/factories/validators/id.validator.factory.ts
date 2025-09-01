@@ -1,16 +1,6 @@
-import {
-  IdValidatorProtocol,
-  LoggerProtocol,
-} from "../../../application/protocols";
-import { MilitaryRankRepository } from "../../../domain/repositories";
+import { IdValidatorProtocol } from "../../../application/protocols";
 import { UUIDIdValidatorAdapter } from "../../../infra/adapters";
 
-export const makeIdValidator = (
-  logger: LoggerProtocol,
-  militaryRankRepository: MilitaryRankRepository,
-): IdValidatorProtocol => {
-  return new UUIDIdValidatorAdapter({
-    logger,
-    militaryRankRepository,
-  });
+export const makeIdValidator = (): IdValidatorProtocol => {
+  return new UUIDIdValidatorAdapter();
 };

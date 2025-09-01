@@ -1,19 +1,12 @@
-import { LoggerProtocol } from "../../../../application/protocols";
 import { CreateMilitaryRankService } from "../../../../application/services";
-import { CreateMilitaryRankUseCase } from "../../../../domain/use-cases";
 import { makeMilitaryRankRepository } from "../../repositories";
 import { makeMilitaryRankInputDTOSanitizer } from "../../sanitizers";
 import { makeMilitaryRankInputDTOValidator } from "../../validators";
 
-export const makeCreateMilitaryRankUseCase = (
-  logger: LoggerProtocol,
-): CreateMilitaryRankUseCase => {
+export const makeCreateMilitaryRankService = (): CreateMilitaryRankService => {
   const militaryRankRepository = makeMilitaryRankRepository();
-  const sanitizer = makeMilitaryRankInputDTOSanitizer(logger);
-  const validator = makeMilitaryRankInputDTOValidator(
-    logger,
-    militaryRankRepository,
-  );
+  const sanitizer = makeMilitaryRankInputDTOSanitizer();
+  const validator = makeMilitaryRankInputDTOValidator(militaryRankRepository);
 
   return new CreateMilitaryRankService({
     militaryRankRepository,

@@ -1,11 +1,16 @@
 import { MilitaryRankRepository } from "../../../domain/repositories";
 import { DeleteMilitaryRankUseCase } from "../../../domain/use-cases";
-import { IdSanitizerProtocol, IdValidatorProtocol } from "../../protocols";
+import {
+  IdSanitizerProtocol,
+  IdValidatorProtocol,
+  MilitaryRankIdRegisteredValidatorProtocol,
+} from "../../protocols";
 
 interface DeleteMilitaryRankServiceProps {
   militaryRankRepository: MilitaryRankRepository;
   sanitizer: IdSanitizerProtocol;
-  validator: IdValidatorProtocol;
+  idValidator: IdValidatorProtocol;
+  idRegisteredValidator: MilitaryRankIdRegisteredValidatorProtocol;
 }
 
 export class DeleteMilitaryRankService implements DeleteMilitaryRankUseCase {
@@ -16,10 +21,16 @@ export class DeleteMilitaryRankService implements DeleteMilitaryRankUseCase {
   }
 
   public readonly delete = async (id: string): Promise<void> => {
-    const { militaryRankRepository, sanitizer, validator } = this.props;
+    const {
+      militaryRankRepository,
+      sanitizer,
+      idValidator,
+      idRegisteredValidator,
+    } = this.props;
 
     const sanitizedId = sanitizer.sanitize(id);
-    validator.validate(sanitizedId);
+    idValidator.validate(sanitizedId);
+    idRegisteredValidator.validate(sanitizedId);
     await militaryRankRepository.delete(sanitizedId);
   };
 }

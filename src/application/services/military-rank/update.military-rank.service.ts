@@ -4,6 +4,7 @@ import { UpdateMilitaryRankUseCase } from "../../../domain/use-cases";
 import {
   IdSanitizerProtocol,
   IdValidatorProtocol,
+  MilitaryRankIdRegisteredValidatorProtocol,
   MilitaryRankInputDTOSanitizerProtocol,
   MilitaryRankInputDTOValidatorProtocol,
 } from "../../protocols";
@@ -13,6 +14,7 @@ interface UpdateMilitaryRankServiceProps {
   idSanitizer: IdSanitizerProtocol;
   dataSanitizer: MilitaryRankInputDTOSanitizerProtocol;
   idValidator: IdValidatorProtocol;
+  idRegisteredValidator: MilitaryRankIdRegisteredValidatorProtocol;
   dataValidator: MilitaryRankInputDTOValidatorProtocol;
 }
 
@@ -32,11 +34,13 @@ export class UpdateMilitaryRankService implements UpdateMilitaryRankUseCase {
       idSanitizer,
       dataSanitizer,
       idValidator,
+      idRegisteredValidator,
       dataValidator,
     } = this.props;
 
     const sanitizedId = idSanitizer.sanitize(id);
     idValidator.validate(sanitizedId);
+    idRegisteredValidator.validate(sanitizedId);
     const sanitizedData = dataSanitizer.sanitize(data);
     await dataValidator.validate(sanitizedData, sanitizedId);
     await militaryRankRepository.update(sanitizedId, sanitizedData);
