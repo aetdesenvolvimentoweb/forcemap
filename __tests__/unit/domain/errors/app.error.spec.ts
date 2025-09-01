@@ -49,15 +49,15 @@ describe("AppError", () => {
 
     it("should have statusCode as readonly property", () => {
       const error = new AppError("test");
-      
+
       // TypeScript should prevent this, but let's verify at runtime
       expect(() => {
         (error as any).statusCode = 999;
       }).not.toThrow();
-      
+
       // In JavaScript, the readonly modifier is only enforced by TypeScript
       // The property is still writable at runtime
-      const descriptor = Object.getOwnPropertyDescriptor(error, 'statusCode');
+      const descriptor = Object.getOwnPropertyDescriptor(error, "statusCode");
       expect(descriptor?.writable).toBe(true);
     });
   });
@@ -116,12 +116,12 @@ describe("AppError", () => {
       // Mock Error.captureStackTrace to verify it's called
       const originalCaptureStackTrace = Error.captureStackTrace;
       const mockCaptureStackTrace = jest.fn();
-      
+
       Error.captureStackTrace = mockCaptureStackTrace;
 
       try {
         const error = new AppError("test");
-        
+
         expect(mockCaptureStackTrace).toHaveBeenCalledWith(error, AppError);
         expect(mockCaptureStackTrace).toHaveBeenCalledTimes(1);
       } finally {
@@ -137,7 +137,7 @@ describe("AppError", () => {
 
       try {
         const error = new AppError("test");
-        
+
         // Should not throw and should still have basic properties
         expect(error.message).toBe("test");
         expect(error.statusCode).toBe(400);
@@ -173,7 +173,7 @@ describe("AppError", () => {
       const statusCode = 503;
 
       await expect(
-        Promise.reject(new AppError(message, statusCode))
+        Promise.reject(new AppError(message, statusCode)),
       ).rejects.toMatchObject({
         message,
         statusCode,
@@ -195,7 +195,7 @@ describe("AppError", () => {
       expect(error.message).toBe(message);
       expect(error.name).toBe("AppError");
       expect(error.statusCode).toBe(statusCode);
-      
+
       // The serialized object will have the statusCode since it's an own property
       expect(parsed.statusCode).toBe(statusCode);
     });
