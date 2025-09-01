@@ -37,10 +37,6 @@ export class MilitaryRankRepositoryInMemory implements MilitaryRankRepository {
     return this.items;
   };
 
-  public listById = async (id: string): Promise<MilitaryRank | null> => {
-    return this.items.find((item) => item.id === id) || null;
-  };
-
   public update = async (
     id: string,
     data: MilitaryRankInputDTO,

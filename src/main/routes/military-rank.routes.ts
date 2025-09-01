@@ -4,8 +4,8 @@ import { expressRouteAdapter } from "../../infra/adapters";
 import {
   makeCreateMilitaryRankController,
   makeDeleteMilitaryRankController,
+  makeFindByIdMilitaryRankController,
   makeListAllMilitaryRankController,
-  makeListByIdMilitaryRankController,
   makeUpdateMilitaryRankController,
 } from "../factories/controllers";
 
@@ -21,7 +21,7 @@ militaryRankRoutes.get(
 );
 militaryRankRoutes.get(
   "/military-rank/:id",
-  expressRouteAdapter(makeListByIdMilitaryRankController()),
+  expressRouteAdapter(makeFindByIdMilitaryRankController()),
 );
 militaryRankRoutes.delete(
   "/military-rank/:id",

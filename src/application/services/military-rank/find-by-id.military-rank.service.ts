@@ -1,31 +1,31 @@
 import { MilitaryRank } from "../../../domain/entities";
 import { MilitaryRankRepository } from "../../../domain/repositories";
-import { ListByIdMilitaryRankUseCase } from "../../../domain/use-cases";
+import { FindByIdMilitaryRankUseCase } from "../../../domain/use-cases";
 import { IdSanitizerProtocol, IdValidatorProtocol } from "../../protocols";
 
-interface ListByIdMilitaryRankServiceProps {
+interface FindByIdMilitaryRankServiceProps {
   militaryRankRepository: MilitaryRankRepository;
   sanitizer: IdSanitizerProtocol;
   validator: IdValidatorProtocol;
 }
 
-export class ListByIdMilitaryRankService
-  implements ListByIdMilitaryRankUseCase
+export class FindByIdMilitaryRankService
+  implements FindByIdMilitaryRankUseCase
 {
-  private readonly props: ListByIdMilitaryRankServiceProps;
+  private readonly props: FindByIdMilitaryRankServiceProps;
 
-  constructor(props: ListByIdMilitaryRankServiceProps) {
+  constructor(props: FindByIdMilitaryRankServiceProps) {
     this.props = props;
   }
 
-  public readonly listById = async (
+  public readonly findById = async (
     id: string,
   ): Promise<MilitaryRank | null> => {
     const { militaryRankRepository, sanitizer, validator } = this.props;
 
     const sanitizedId = sanitizer.sanitize(id);
     await validator.validate(sanitizedId);
-    const militaryRank = await militaryRankRepository.listById(sanitizedId);
+    const militaryRank = await militaryRankRepository.findById(sanitizedId);
     return militaryRank;
   };
 }

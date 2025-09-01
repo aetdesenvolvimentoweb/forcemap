@@ -8,6 +8,5 @@ export interface MilitaryRankRepository {
   findById(id: string): Promise<MilitaryRank | null>;
   findByOrder(order: number): Promise<MilitaryRank | null>;
   listAll(): Promise<MilitaryRank[]>;
-  listById(id: string): Promise<MilitaryRank | null>;
   update(id: string, data: MilitaryRankInputDTO): Promise<void>;
 }
