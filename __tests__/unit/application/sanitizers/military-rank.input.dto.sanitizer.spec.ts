@@ -1,4 +1,4 @@
-import { MilitaryRankInputDTOSanitizer } from "../../../../src/application/sanitizers/military-rank.input.dto.sanitizer";
+import { MilitaryRankInputDTOSanitizer } from "../../../../src/application/sanitizers";
 import { MilitaryRankInputDTO } from "../../../../src/domain/dtos";
 
 describe("MilitaryRankInputDTOSanitizer", () => {
