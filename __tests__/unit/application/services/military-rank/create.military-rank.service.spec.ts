@@ -75,16 +75,16 @@ describe("CreateMilitaryRankService", () => {
 
     it("should execute operations in correct order", async () => {
       const executionOrder: string[] = [];
-      
+
       mockedSanitizer.sanitize.mockImplementation(() => {
         executionOrder.push("sanitize");
         return sanitizedData;
       });
-      
+
       mockedValidator.validate.mockImplementation(async () => {
         executionOrder.push("validate");
       });
-      
+
       mockedRepository.create.mockImplementation(async () => {
         executionOrder.push("create");
       });
@@ -106,13 +106,17 @@ describe("CreateMilitaryRankService", () => {
 
       await sut.create(inputData);
 
-      expect(mockedValidator.validate).toHaveBeenCalledWith(differentSanitizedData);
-      expect(mockedRepository.create).toHaveBeenCalledWith(differentSanitizedData);
+      expect(mockedValidator.validate).toHaveBeenCalledWith(
+        differentSanitizedData,
+      );
+      expect(mockedRepository.create).toHaveBeenCalledWith(
+        differentSanitizedData,
+      );
     });
 
     it("should propagate sanitizer exceptions", async () => {
       const sanitizerError = new Error("Sanitization failed");
-      
+
       mockedSanitizer.sanitize.mockImplementation(() => {
         throw sanitizerError;
       });
@@ -125,7 +129,7 @@ describe("CreateMilitaryRankService", () => {
 
     it("should propagate validator exceptions", async () => {
       const validatorError = new Error("Validation failed");
-      
+
       mockedSanitizer.sanitize.mockReturnValueOnce(sanitizedData);
       mockedValidator.validate.mockRejectedValueOnce(validatorError);
 
@@ -138,7 +142,7 @@ describe("CreateMilitaryRankService", () => {
 
     it("should propagate repository exceptions", async () => {
       const repositoryError = new Error("Database connection failed");
-      
+
       mockedSanitizer.sanitize.mockReturnValueOnce(sanitizedData);
       mockedValidator.validate.mockResolvedValueOnce();
       mockedRepository.create.mockRejectedValueOnce(repositoryError);
@@ -156,14 +160,20 @@ describe("CreateMilitaryRankService", () => {
         order: 10,
       };
 
-      mockedSanitizer.sanitize.mockReturnValueOnce(sanitizedWithEmptyAbbreviation);
+      mockedSanitizer.sanitize.mockReturnValueOnce(
+        sanitizedWithEmptyAbbreviation,
+      );
       mockedValidator.validate.mockResolvedValueOnce();
       mockedRepository.create.mockResolvedValueOnce();
 
       await sut.create(inputData);
 
-      expect(mockedValidator.validate).toHaveBeenCalledWith(sanitizedWithEmptyAbbreviation);
-      expect(mockedRepository.create).toHaveBeenCalledWith(sanitizedWithEmptyAbbreviation);
+      expect(mockedValidator.validate).toHaveBeenCalledWith(
+        sanitizedWithEmptyAbbreviation,
+      );
+      expect(mockedRepository.create).toHaveBeenCalledWith(
+        sanitizedWithEmptyAbbreviation,
+      );
     });
 
     it("should handle zero order after sanitization", async () => {
@@ -178,8 +188,12 @@ describe("CreateMilitaryRankService", () => {
 
       await sut.create(inputData);
 
-      expect(mockedValidator.validate).toHaveBeenCalledWith(sanitizedWithZeroOrder);
-      expect(mockedRepository.create).toHaveBeenCalledWith(sanitizedWithZeroOrder);
+      expect(mockedValidator.validate).toHaveBeenCalledWith(
+        sanitizedWithZeroOrder,
+      );
+      expect(mockedRepository.create).toHaveBeenCalledWith(
+        sanitizedWithZeroOrder,
+      );
     });
 
     it("should handle special characters in abbreviation", async () => {
@@ -199,9 +213,15 @@ describe("CreateMilitaryRankService", () => {
 
       await sut.create(inputWithSpecialChars);
 
-      expect(mockedSanitizer.sanitize).toHaveBeenCalledWith(inputWithSpecialChars);
-      expect(mockedValidator.validate).toHaveBeenCalledWith(sanitizedSpecialChars);
-      expect(mockedRepository.create).toHaveBeenCalledWith(sanitizedSpecialChars);
+      expect(mockedSanitizer.sanitize).toHaveBeenCalledWith(
+        inputWithSpecialChars,
+      );
+      expect(mockedValidator.validate).toHaveBeenCalledWith(
+        sanitizedSpecialChars,
+      );
+      expect(mockedRepository.create).toHaveBeenCalledWith(
+        sanitizedSpecialChars,
+      );
     });
 
     it("should not return any value", async () => {
@@ -217,31 +237,30 @@ describe("CreateMilitaryRankService", () => {
     it("should handle concurrent calls independently", async () => {
       const data1: MilitaryRankInputDTO = { abbreviation: "CEL", order: 10 };
       const data2: MilitaryRankInputDTO = { abbreviation: "MAJ", order: 8 };
-      
-      const sanitized1: MilitaryRankInputDTO = { abbreviation: "CEL", order: 10 };
-      const sanitized2: MilitaryRankInputDTO = { abbreviation: "MAJ", order: 8 };
+
+      const sanitized1: MilitaryRankInputDTO = {
+        abbreviation: "CEL",
+        order: 10,
+      };
+      const sanitized2: MilitaryRankInputDTO = {
+        abbreviation: "MAJ",
+        order: 8,
+      };
 
       mockedSanitizer.sanitize
         .mockReturnValueOnce(sanitized1)
         .mockReturnValueOnce(sanitized2);
-      
-      mockedValidator.validate
-        .mockResolvedValueOnce()
-        .mockResolvedValueOnce();
-      
-      mockedRepository.create
-        .mockResolvedValueOnce()
-        .mockResolvedValueOnce();
 
-      await Promise.all([
-        sut.create(data1),
-        sut.create(data2),
-      ]);
+      mockedValidator.validate.mockResolvedValueOnce().mockResolvedValueOnce();
+
+      mockedRepository.create.mockResolvedValueOnce().mockResolvedValueOnce();
+
+      await Promise.all([sut.create(data1), sut.create(data2)]);
 
       expect(mockedSanitizer.sanitize).toHaveBeenCalledTimes(2);
       expect(mockedValidator.validate).toHaveBeenCalledTimes(2);
       expect(mockedRepository.create).toHaveBeenCalledTimes(2);
-      
+
       expect(mockedSanitizer.sanitize).toHaveBeenNthCalledWith(1, data1);
       expect(mockedSanitizer.sanitize).toHaveBeenNthCalledWith(2, data2);
     });
