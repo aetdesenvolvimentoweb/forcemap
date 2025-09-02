@@ -1,6 +1,9 @@
 import { MilitaryInputDTO } from "../../../domain/dtos";
-import { MilitaryRepository } from "../../../domain/repositories";
-import { DuplicatedKeyError } from "../../errors";
+import {
+  MilitaryRankRepository,
+  MilitaryRepository,
+} from "../../../domain/repositories";
+import { DuplicatedKeyError, EntityNotFoundError } from "../../errors";
 import {
   IdValidatorProtocol,
   MilitaryInputDTOValidatorProtocol,
@@ -9,6 +12,7 @@ import { ValidationPatterns } from "../common";
 
 interface MilitaryInputDTOValidatorProps {
   militaryRepository: MilitaryRepository;
+  militaryRankRepository: MilitaryRankRepository;
   idValidator: IdValidatorProtocol;
 }
 
@@ -61,10 +65,19 @@ export class MilitaryInputDTOValidator
     this.validateRgPresence(data.rg);
   };
 
-  private readonly validateBusinessRules = (data: MilitaryInputDTO): void => {
-    const { idValidator } = this.props;
+  private readonly validateBusinessRules = async (
+    data: MilitaryInputDTO,
+  ): Promise<void> => {
+    const { idValidator, militaryRankRepository } = this.props;
 
     idValidator.validate(data.militaryRankId);
+    const militaryRank = await militaryRankRepository.findById(
+      data.militaryRankId,
+    );
+
+    if (!militaryRank) {
+      throw new EntityNotFoundError("Posto/Graduação");
+    }
 
     this.validateNameFormat(data.name);
     this.validateRgRange(data.rg);
@@ -85,7 +98,7 @@ export class MilitaryInputDTOValidator
     idToIgnore?: string,
   ): Promise<void> => {
     this.validateRequiredFields(data);
-    this.validateBusinessRules(data);
+    await this.validateBusinessRules(data);
     await this.validateUniqueness(data, idToIgnore);
   };
 }

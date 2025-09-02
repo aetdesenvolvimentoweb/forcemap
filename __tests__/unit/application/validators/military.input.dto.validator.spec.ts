@@ -1,21 +1,30 @@
-import { MilitaryInputDTOValidator } from "../../../../src/application/validators/military/military.input.dto.validator";
 import {
-  MilitaryInputDTO,
-  MilitaryOutputDTO,
-} from "../../../../src/domain/dtos";
-import { MilitaryRepository } from "../../../../src/domain/repositories";
-import { MilitaryRank } from "../../../../src/domain/entities";
+  mockMilitaryRankRepository,
+  mockMilitaryRepository,
+} from "../../../../__mocks__/repositories";
+import { mockIdValidator } from "../../../../__mocks__/validators/id.validator.mock";
 import {
   DuplicatedKeyError,
   InvalidParamError,
   MissingParamError,
 } from "../../../../src/application/errors";
 import { IdValidatorProtocol } from "../../../../src/application/protocols";
+import { MilitaryInputDTOValidator } from "../../../../src/application/validators/military/military.input.dto.validator";
+import {
+  MilitaryInputDTO,
+  MilitaryOutputDTO,
+} from "../../../../src/domain/dtos";
+import { MilitaryRank } from "../../../../src/domain/entities";
+import {
+  MilitaryRankRepository,
+  MilitaryRepository,
+} from "../../../../src/domain/repositories";
 
 describe("MilitaryInputDTOValidator", () => {
   let sut: MilitaryInputDTOValidator;
-  let mockMilitaryRepository: jest.Mocked<MilitaryRepository>;
-  let mockIdValidator: jest.Mocked<IdValidatorProtocol>;
+  let mockedMilitaryRepository: jest.Mocked<MilitaryRepository>;
+  let mockedMilitaryRankRepository: jest.Mocked<MilitaryRankRepository>;
+  let mockedIdValidator: jest.Mocked<IdValidatorProtocol>;
 
   const validInputData: MilitaryInputDTO = {
     militaryRankId: "123e4567-e89b-12d3-a456-426614174000",
@@ -24,22 +33,14 @@ describe("MilitaryInputDTOValidator", () => {
   };
 
   beforeEach(() => {
-    mockMilitaryRepository = {
-      create: jest.fn(),
-      delete: jest.fn(),
-      findById: jest.fn(),
-      findByRg: jest.fn(),
-      listAll: jest.fn(),
-      update: jest.fn(),
-    };
-
-    mockIdValidator = {
-      validate: jest.fn(),
-    };
+    mockedMilitaryRepository = mockMilitaryRepository();
+    mockedMilitaryRankRepository = mockMilitaryRankRepository();
+    mockedIdValidator = mockIdValidator();
 
     sut = new MilitaryInputDTOValidator({
-      militaryRepository: mockMilitaryRepository,
-      idValidator: mockIdValidator,
+      militaryRepository: mockedMilitaryRepository,
+      militaryRankRepository: mockedMilitaryRankRepository,
+      idValidator: mockedIdValidator,
     });
   });
 
@@ -155,23 +156,34 @@ describe("MilitaryInputDTOValidator", () => {
 
   describe("validate - business rules", () => {
     it("should call id validator for militaryRankId", async () => {
-      mockMilitaryRepository.findByRg.mockResolvedValue(null);
+      mockedMilitaryRepository.findByRg.mockResolvedValue(null);
+      mockedMilitaryRankRepository.findById.mockResolvedValue(
+        {} as MilitaryRank,
+      );
 
       await sut.validate(validInputData);
 
-      expect(mockIdValidator.validate).toHaveBeenCalledWith(
+      expect(mockedIdValidator.validate).toHaveBeenCalledWith(
         validInputData.militaryRankId,
       );
-      expect(mockIdValidator.validate).toHaveBeenCalledTimes(1);
+      expect(mockedIdValidator.validate).toHaveBeenCalledTimes(1);
     });
 
     it("should throw error when id validator fails", async () => {
       const idError = new InvalidParamError("ID", "formato UUID inválido");
-      mockIdValidator.validate.mockImplementation(() => {
+      mockedIdValidator.validate.mockImplementation(() => {
         throw idError;
       });
 
       await expect(sut.validate(validInputData)).rejects.toThrow(idError);
+    });
+
+    it("should throw EntityNotFoundError when militaryRankId does not exist", async () => {
+      mockedMilitaryRankRepository.findById.mockResolvedValue(null);
+
+      await expect(sut.validate(validInputData)).rejects.toThrow(
+        "Posto/Graduação não encontrado(a) com esse ID.",
+      );
     });
 
     it("should throw InvalidParamError when name exceeds 100 characters", async () => {
@@ -180,6 +192,9 @@ describe("MilitaryInputDTOValidator", () => {
         ...validInputData,
         name: longName,
       };
+      mockedMilitaryRankRepository.findById.mockResolvedValue(
+        {} as MilitaryRank,
+      );
 
       await expect(sut.validate(invalidData)).rejects.toThrow(
         InvalidParamError,
@@ -196,7 +211,10 @@ describe("MilitaryInputDTOValidator", () => {
         name: maxName,
       };
 
-      mockMilitaryRepository.findByRg.mockResolvedValue(null);
+      mockedMilitaryRepository.findByRg.mockResolvedValue(null);
+      mockedMilitaryRankRepository.findById.mockResolvedValue(
+        {} as MilitaryRank,
+      );
 
       await expect(sut.validate(validData)).resolves.not.toThrow();
     });
@@ -206,6 +224,9 @@ describe("MilitaryInputDTOValidator", () => {
         ...validInputData,
         name: "Joao Silva",
       };
+      mockedMilitaryRankRepository.findById.mockResolvedValue(
+        {} as MilitaryRank,
+      );
 
       await expect(sut.validate(invalidData)).rejects.toThrow(
         InvalidParamError,
@@ -220,6 +241,9 @@ describe("MilitaryInputDTOValidator", () => {
         ...validInputData,
         name: "Joao123",
       };
+      mockedMilitaryRankRepository.findById.mockResolvedValue(
+        {} as MilitaryRank,
+      );
 
       await expect(sut.validate(invalidData)).rejects.toThrow(
         InvalidParamError,
@@ -231,6 +255,9 @@ describe("MilitaryInputDTOValidator", () => {
         ...validInputData,
         name: "Joao@Silva",
       };
+      mockedMilitaryRankRepository.findById.mockResolvedValue(
+        {} as MilitaryRank,
+      );
 
       await expect(sut.validate(invalidData)).rejects.toThrow(
         InvalidParamError,
@@ -243,7 +270,10 @@ describe("MilitaryInputDTOValidator", () => {
         name: "JoaoSilva",
       };
 
-      mockMilitaryRepository.findByRg.mockResolvedValue(null);
+      mockedMilitaryRepository.findByRg.mockResolvedValue(null);
+      mockedMilitaryRankRepository.findById.mockResolvedValue(
+        {} as MilitaryRank,
+      );
 
       await expect(sut.validate(validData)).resolves.not.toThrow();
     });
@@ -253,6 +283,9 @@ describe("MilitaryInputDTOValidator", () => {
         ...validInputData,
         rg: 123.45,
       };
+      mockedMilitaryRankRepository.findById.mockResolvedValue(
+        {} as MilitaryRank,
+      );
 
       await expect(sut.validate(invalidData)).rejects.toThrow(
         InvalidParamError,
@@ -267,6 +300,9 @@ describe("MilitaryInputDTOValidator", () => {
         ...validInputData,
         rg: 0,
       };
+      mockedMilitaryRankRepository.findById.mockResolvedValue(
+        {} as MilitaryRank,
+      );
 
       await expect(sut.validate(invalidData)).rejects.toThrow(
         InvalidParamError,
@@ -281,6 +317,9 @@ describe("MilitaryInputDTOValidator", () => {
         ...validInputData,
         rg: 10000,
       };
+      mockedMilitaryRankRepository.findById.mockResolvedValue(
+        {} as MilitaryRank,
+      );
 
       await expect(sut.validate(invalidData)).rejects.toThrow(
         InvalidParamError,
@@ -296,7 +335,10 @@ describe("MilitaryInputDTOValidator", () => {
         rg: 1,
       };
 
-      mockMilitaryRepository.findByRg.mockResolvedValue(null);
+      mockedMilitaryRepository.findByRg.mockResolvedValue(null);
+      mockedMilitaryRankRepository.findById.mockResolvedValue(
+        {} as MilitaryRank,
+      );
 
       await expect(sut.validate(validData)).resolves.not.toThrow();
     });
@@ -307,7 +349,10 @@ describe("MilitaryInputDTOValidator", () => {
         rg: 9999,
       };
 
-      mockMilitaryRepository.findByRg.mockResolvedValue(null);
+      mockedMilitaryRepository.findByRg.mockResolvedValue(null);
+      mockedMilitaryRankRepository.findById.mockResolvedValue(
+        {} as MilitaryRank,
+      );
 
       await expect(sut.validate(validData)).resolves.not.toThrow();
     });
@@ -323,7 +368,10 @@ describe("MilitaryInputDTOValidator", () => {
         militaryRank: {} as MilitaryRank,
       };
 
-      mockMilitaryRepository.findByRg.mockResolvedValue(existingMilitary);
+      mockedMilitaryRepository.findByRg.mockResolvedValue(existingMilitary);
+      mockedMilitaryRankRepository.findById.mockResolvedValue(
+        {} as MilitaryRank,
+      );
 
       await expect(sut.validate(validInputData)).rejects.toThrow(
         DuplicatedKeyError,
@@ -332,7 +380,10 @@ describe("MilitaryInputDTOValidator", () => {
     });
 
     it("should not throw when rg does not exist for create", async () => {
-      mockMilitaryRepository.findByRg.mockResolvedValue(null);
+      mockedMilitaryRepository.findByRg.mockResolvedValue(null);
+      mockedMilitaryRankRepository.findById.mockResolvedValue(
+        {} as MilitaryRank,
+      );
 
       await expect(sut.validate(validInputData)).resolves.not.toThrow();
     });
@@ -346,7 +397,10 @@ describe("MilitaryInputDTOValidator", () => {
         militaryRank: {} as MilitaryRank,
       };
 
-      mockMilitaryRepository.findByRg.mockResolvedValue(existingMilitary);
+      mockedMilitaryRepository.findByRg.mockResolvedValue(existingMilitary);
+      mockedMilitaryRankRepository.findById.mockResolvedValue(
+        {} as MilitaryRank,
+      );
 
       const idToIgnore = "current-military-id";
       await expect(sut.validate(validInputData, idToIgnore)).rejects.toThrow(
@@ -363,7 +417,10 @@ describe("MilitaryInputDTOValidator", () => {
         militaryRank: {} as MilitaryRank,
       };
 
-      mockMilitaryRepository.findByRg.mockResolvedValue(existingMilitary);
+      mockedMilitaryRepository.findByRg.mockResolvedValue(existingMilitary);
+      mockedMilitaryRankRepository.findById.mockResolvedValue(
+        {} as MilitaryRank,
+      );
 
       const idToIgnore = "same-military-id";
       await expect(
@@ -372,27 +429,33 @@ describe("MilitaryInputDTOValidator", () => {
     });
 
     it("should call findByRg with correct rg", async () => {
-      mockMilitaryRepository.findByRg.mockResolvedValue(null);
+      mockedMilitaryRepository.findByRg.mockResolvedValue(null);
+      mockedMilitaryRankRepository.findById.mockResolvedValue(
+        {} as MilitaryRank,
+      );
 
       await sut.validate(validInputData);
 
-      expect(mockMilitaryRepository.findByRg).toHaveBeenCalledWith(
+      expect(mockedMilitaryRepository.findByRg).toHaveBeenCalledWith(
         validInputData.rg,
       );
-      expect(mockMilitaryRepository.findByRg).toHaveBeenCalledTimes(1);
+      expect(mockedMilitaryRepository.findByRg).toHaveBeenCalledTimes(1);
     });
   });
 
   describe("validate - complete validation flow", () => {
     it("should pass all validations for valid data", async () => {
-      mockMilitaryRepository.findByRg.mockResolvedValue(null);
+      mockedMilitaryRepository.findByRg.mockResolvedValue(null);
+      mockedMilitaryRankRepository.findById.mockResolvedValue(
+        {} as MilitaryRank,
+      );
 
       await expect(sut.validate(validInputData)).resolves.not.toThrow();
 
-      expect(mockIdValidator.validate).toHaveBeenCalledWith(
+      expect(mockedIdValidator.validate).toHaveBeenCalledWith(
         validInputData.militaryRankId,
       );
-      expect(mockMilitaryRepository.findByRg).toHaveBeenCalledWith(
+      expect(mockedMilitaryRepository.findByRg).toHaveBeenCalledWith(
         validInputData.rg,
       );
     });
@@ -404,7 +467,7 @@ describe("MilitaryInputDTOValidator", () => {
       };
 
       // Mock the repository to return an existing military (should not reach this)
-      mockMilitaryRepository.findByRg.mockResolvedValue({
+      mockedMilitaryRepository.findByRg.mockResolvedValue({
         id: "existing-id",
         rg: validInputData.rg,
         name: "Existing",
@@ -417,7 +480,7 @@ describe("MilitaryInputDTOValidator", () => {
       );
 
       // Repository should not be called if required fields fail
-      expect(mockMilitaryRepository.findByRg).not.toHaveBeenCalled();
+      expect(mockedMilitaryRepository.findByRg).not.toHaveBeenCalled();
     });
 
     it("should validate business rules before uniqueness", async () => {
@@ -426,7 +489,10 @@ describe("MilitaryInputDTOValidator", () => {
         rg: 0, // Invalid range
       };
 
-      mockMilitaryRepository.findByRg.mockResolvedValue(null);
+      mockedMilitaryRepository.findByRg.mockResolvedValue(null);
+      mockedMilitaryRankRepository.findById.mockResolvedValue(
+        {} as MilitaryRank,
+      );
 
       await expect(sut.validate(invalidData)).rejects.toThrow(
         InvalidParamError,
@@ -436,12 +502,15 @@ describe("MilitaryInputDTOValidator", () => {
       );
 
       // Repository should not be called if business rules fail
-      expect(mockMilitaryRepository.findByRg).not.toHaveBeenCalled();
+      expect(mockedMilitaryRepository.findByRg).not.toHaveBeenCalled();
     });
 
     it("should handle repository error during uniqueness validation", async () => {
       const repositoryError = new Error("Database connection failed");
-      mockMilitaryRepository.findByRg.mockRejectedValue(repositoryError);
+      mockedMilitaryRepository.findByRg.mockRejectedValue(repositoryError);
+      mockedMilitaryRankRepository.findById.mockResolvedValue(
+        {} as MilitaryRank,
+      );
 
       await expect(sut.validate(validInputData)).rejects.toThrow(
         repositoryError,
@@ -469,7 +538,10 @@ describe("MilitaryInputDTOValidator", () => {
         name: "A",
       };
 
-      mockMilitaryRepository.findByRg.mockResolvedValue(null);
+      mockedMilitaryRepository.findByRg.mockResolvedValue(null);
+      mockedMilitaryRankRepository.findById.mockResolvedValue(
+        {} as MilitaryRank,
+      );
 
       await expect(sut.validate(validData)).resolves.not.toThrow();
     });
@@ -480,7 +552,10 @@ describe("MilitaryInputDTOValidator", () => {
         rg: 9999,
       };
 
-      mockMilitaryRepository.findByRg.mockResolvedValue(null);
+      mockedMilitaryRepository.findByRg.mockResolvedValue(null);
+      mockedMilitaryRankRepository.findById.mockResolvedValue(
+        {} as MilitaryRank,
+      );
 
       await expect(sut.validate(validData)).resolves.not.toThrow();
     });
@@ -491,24 +566,33 @@ describe("MilitaryInputDTOValidator", () => {
         rg: 1,
       };
 
-      mockMilitaryRepository.findByRg.mockResolvedValue(null);
+      mockedMilitaryRepository.findByRg.mockResolvedValue(null);
+      mockedMilitaryRankRepository.findById.mockResolvedValue(
+        {} as MilitaryRank,
+      );
 
       await expect(sut.validate(validData)).resolves.not.toThrow();
     });
 
     it("should handle repository returning undefined", async () => {
-      mockMilitaryRepository.findByRg.mockResolvedValue(undefined as any);
+      mockedMilitaryRepository.findByRg.mockResolvedValue(undefined as any);
+      mockedMilitaryRankRepository.findById.mockResolvedValue(
+        {} as MilitaryRank,
+      );
 
       await expect(sut.validate(validInputData)).resolves.not.toThrow();
     });
 
     it("should validate all dependencies are called", async () => {
-      mockMilitaryRepository.findByRg.mockResolvedValue(null);
+      mockedMilitaryRepository.findByRg.mockResolvedValue(null);
+      mockedMilitaryRankRepository.findById.mockResolvedValue(
+        {} as MilitaryRank,
+      );
 
       await sut.validate(validInputData);
 
-      expect(mockIdValidator.validate).toHaveBeenCalled();
-      expect(mockMilitaryRepository.findByRg).toHaveBeenCalled();
+      expect(mockedIdValidator.validate).toHaveBeenCalled();
+      expect(mockedMilitaryRepository.findByRg).toHaveBeenCalled();
     });
   });
 });
