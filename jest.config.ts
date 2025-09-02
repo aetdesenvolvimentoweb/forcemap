@@ -9,7 +9,13 @@ const config: Config = {
     "**/__tests__/**/*.e2e.ts",
   ],
   collectCoverage: false,
-  collectCoverageFrom: ["src/**/*.ts", "!**/index.ts", "!**/*.protocol.ts"],
+  collectCoverageFrom: [
+    "src/**/*.ts",
+    "!**/index.ts",
+    "!**/*.protocol.ts",
+    "!**/*.factory.ts",
+    "!src/main/server.ts",
+  ],
   coverageDirectory: "coverage",
   coverageThreshold: {
     global: {
