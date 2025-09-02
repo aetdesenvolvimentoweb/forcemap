@@ -27,7 +27,7 @@ const config: Config = {
   },
   testFailureExitCode: 1,
   passWithNoTests: true,
-  silent: true,
+  silent: false,
   verbose: false,
   transform: {
     "^.+\\.ts$": [

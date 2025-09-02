@@ -1,25 +1,19 @@
-import { MilitaryIdRegisteredValidator } from "../../../../src/application/validators/military/military.id.registered.validator";
-import { MilitaryRepository } from "../../../../src/domain/repositories";
+import { mockMilitaryRepository } from "../../../../__mocks__/repositories";
+import { EntityNotFoundError } from "../../../../src/application/errors";
+import { MilitaryIdRegisteredValidator } from "../../../../src/application/validators";
 import { MilitaryOutputDTO } from "../../../../src/domain/dtos";
 import { MilitaryRank } from "../../../../src/domain/entities";
-import { EntityNotFoundError } from "../../../../src/application/errors";
+import { MilitaryRepository } from "../../../../src/domain/repositories";
 
 describe("MilitaryIdRegisteredValidator", () => {
   let sut: MilitaryIdRegisteredValidator;
-  let mockMilitaryRepository: jest.Mocked<MilitaryRepository>;
+  let mockedMilitaryRepository: jest.Mocked<MilitaryRepository>;
 
   beforeEach(() => {
-    mockMilitaryRepository = {
-      create: jest.fn(),
-      delete: jest.fn(),
-      findById: jest.fn(),
-      findByRg: jest.fn(),
-      listAll: jest.fn(),
-      update: jest.fn(),
-    };
+    mockedMilitaryRepository = mockMilitaryRepository();
 
     sut = new MilitaryIdRegisteredValidator({
-      militaryRepository: mockMilitaryRepository,
+      militaryRepository: mockedMilitaryRepository,
     });
   });
 
@@ -47,16 +41,16 @@ describe("MilitaryIdRegisteredValidator", () => {
         } as MilitaryRank,
       };
 
-      mockMilitaryRepository.findById.mockResolvedValue(existingMilitary);
+      mockedMilitaryRepository.findById.mockResolvedValue(existingMilitary);
 
       await expect(sut.validate(validId)).resolves.not.toThrow();
-      expect(mockMilitaryRepository.findById).toHaveBeenCalledWith(validId);
-      expect(mockMilitaryRepository.findById).toHaveBeenCalledTimes(1);
+      expect(mockedMilitaryRepository.findById).toHaveBeenCalledWith(validId);
+      expect(mockedMilitaryRepository.findById).toHaveBeenCalledTimes(1);
     });
 
     it("should throw EntityNotFoundError when military does not exist", async () => {
       const nonExistentId = "non-existent-id";
-      mockMilitaryRepository.findById.mockResolvedValue(null);
+      mockedMilitaryRepository.findById.mockResolvedValue(null);
 
       await expect(sut.validate(nonExistentId)).rejects.toThrow(
         EntityNotFoundError,
@@ -65,22 +59,22 @@ describe("MilitaryIdRegisteredValidator", () => {
         "Militar não encontrado(a) com esse ID.",
       );
 
-      expect(mockMilitaryRepository.findById).toHaveBeenCalledWith(
+      expect(mockedMilitaryRepository.findById).toHaveBeenCalledWith(
         nonExistentId,
       );
-      expect(mockMilitaryRepository.findById).toHaveBeenCalledTimes(2);
+      expect(mockedMilitaryRepository.findById).toHaveBeenCalledTimes(2);
     });
 
     it("should throw EntityNotFoundError when repository returns undefined", async () => {
-      mockMilitaryRepository.findById.mockResolvedValue(undefined as any);
+      mockedMilitaryRepository.findById.mockResolvedValue(undefined as any);
 
       await expect(sut.validate(validId)).rejects.toThrow(EntityNotFoundError);
-      expect(mockMilitaryRepository.findById).toHaveBeenCalledWith(validId);
+      expect(mockedMilitaryRepository.findById).toHaveBeenCalledWith(validId);
     });
 
     it("should call repository findById with correct id parameter", async () => {
       const testId = "test-military-id";
-      mockMilitaryRepository.findById.mockResolvedValue({
+      mockedMilitaryRepository.findById.mockResolvedValue({
         id: testId,
         name: "Test Military",
         rg: 9999,
@@ -90,16 +84,16 @@ describe("MilitaryIdRegisteredValidator", () => {
 
       await sut.validate(testId);
 
-      expect(mockMilitaryRepository.findById).toHaveBeenCalledWith(testId);
-      expect(mockMilitaryRepository.findById).toHaveBeenCalledTimes(1);
+      expect(mockedMilitaryRepository.findById).toHaveBeenCalledWith(testId);
+      expect(mockedMilitaryRepository.findById).toHaveBeenCalledTimes(1);
     });
 
     it("should handle repository error", async () => {
       const repositoryError = new Error("Database connection failed");
-      mockMilitaryRepository.findById.mockRejectedValue(repositoryError);
+      mockedMilitaryRepository.findById.mockRejectedValue(repositoryError);
 
       await expect(sut.validate(validId)).rejects.toThrow(repositoryError);
-      expect(mockMilitaryRepository.findById).toHaveBeenCalledWith(validId);
+      expect(mockedMilitaryRepository.findById).toHaveBeenCalledWith(validId);
     });
 
     it("should validate different military IDs independently", async () => {
@@ -123,7 +117,7 @@ describe("MilitaryIdRegisteredValidator", () => {
         militaryRank: {} as MilitaryRank,
       };
 
-      mockMilitaryRepository.findById
+      mockedMilitaryRepository.findById
         .mockResolvedValueOnce(military1)
         .mockResolvedValueOnce(military2)
         .mockResolvedValueOnce(null);
@@ -132,40 +126,40 @@ describe("MilitaryIdRegisteredValidator", () => {
       await expect(sut.validate(id2)).resolves.not.toThrow();
       await expect(sut.validate(id3)).rejects.toThrow(EntityNotFoundError);
 
-      expect(mockMilitaryRepository.findById).toHaveBeenNthCalledWith(1, id1);
-      expect(mockMilitaryRepository.findById).toHaveBeenNthCalledWith(2, id2);
-      expect(mockMilitaryRepository.findById).toHaveBeenNthCalledWith(3, id3);
-      expect(mockMilitaryRepository.findById).toHaveBeenCalledTimes(3);
+      expect(mockedMilitaryRepository.findById).toHaveBeenNthCalledWith(1, id1);
+      expect(mockedMilitaryRepository.findById).toHaveBeenNthCalledWith(2, id2);
+      expect(mockedMilitaryRepository.findById).toHaveBeenNthCalledWith(3, id3);
+      expect(mockedMilitaryRepository.findById).toHaveBeenCalledTimes(3);
     });
 
     it("should handle empty string ID", async () => {
       const emptyId = "";
-      mockMilitaryRepository.findById.mockResolvedValue(null);
+      mockedMilitaryRepository.findById.mockResolvedValue(null);
 
       await expect(sut.validate(emptyId)).rejects.toThrow(EntityNotFoundError);
-      expect(mockMilitaryRepository.findById).toHaveBeenCalledWith(emptyId);
+      expect(mockedMilitaryRepository.findById).toHaveBeenCalledWith(emptyId);
     });
 
     it("should handle whitespace-only ID", async () => {
       const whitespaceId = "   ";
-      mockMilitaryRepository.findById.mockResolvedValue(null);
+      mockedMilitaryRepository.findById.mockResolvedValue(null);
 
       await expect(sut.validate(whitespaceId)).rejects.toThrow(
         EntityNotFoundError,
       );
-      expect(mockMilitaryRepository.findById).toHaveBeenCalledWith(
+      expect(mockedMilitaryRepository.findById).toHaveBeenCalledWith(
         whitespaceId,
       );
     });
 
     it("should handle special characters in ID", async () => {
       const specialId = "military@#$%^&*()";
-      mockMilitaryRepository.findById.mockResolvedValue(null);
+      mockedMilitaryRepository.findById.mockResolvedValue(null);
 
       await expect(sut.validate(specialId)).rejects.toThrow(
         EntityNotFoundError,
       );
-      expect(mockMilitaryRepository.findById).toHaveBeenCalledWith(specialId);
+      expect(mockedMilitaryRepository.findById).toHaveBeenCalledWith(specialId);
     });
 
     it("should validate same ID multiple times", async () => {
@@ -178,32 +172,32 @@ describe("MilitaryIdRegisteredValidator", () => {
         militaryRank: {} as MilitaryRank,
       };
 
-      mockMilitaryRepository.findById.mockResolvedValue(military);
+      mockedMilitaryRepository.findById.mockResolvedValue(military);
 
       await expect(sut.validate(testId)).resolves.not.toThrow();
       await expect(sut.validate(testId)).resolves.not.toThrow();
       await expect(sut.validate(testId)).resolves.not.toThrow();
 
-      expect(mockMilitaryRepository.findById).toHaveBeenCalledTimes(3);
-      expect(mockMilitaryRepository.findById).toHaveBeenCalledWith(testId);
+      expect(mockedMilitaryRepository.findById).toHaveBeenCalledTimes(3);
+      expect(mockedMilitaryRepository.findById).toHaveBeenCalledWith(testId);
     });
 
     it("should handle null ID parameter", async () => {
-      mockMilitaryRepository.findById.mockResolvedValue(null);
+      mockedMilitaryRepository.findById.mockResolvedValue(null);
 
       await expect(sut.validate(null as any)).rejects.toThrow(
         EntityNotFoundError,
       );
-      expect(mockMilitaryRepository.findById).toHaveBeenCalledWith(null);
+      expect(mockedMilitaryRepository.findById).toHaveBeenCalledWith(null);
     });
 
     it("should handle undefined ID parameter", async () => {
-      mockMilitaryRepository.findById.mockResolvedValue(null);
+      mockedMilitaryRepository.findById.mockResolvedValue(null);
 
       await expect(sut.validate(undefined as any)).rejects.toThrow(
         EntityNotFoundError,
       );
-      expect(mockMilitaryRepository.findById).toHaveBeenCalledWith(undefined);
+      expect(mockedMilitaryRepository.findById).toHaveBeenCalledWith(undefined);
     });
 
     it("should preserve military object structure from repository", async () => {
@@ -220,11 +214,11 @@ describe("MilitaryIdRegisteredValidator", () => {
         } as MilitaryRank,
       };
 
-      mockMilitaryRepository.findById.mockResolvedValue(complexMilitary);
+      mockedMilitaryRepository.findById.mockResolvedValue(complexMilitary);
 
       await expect(sut.validate(validId)).resolves.not.toThrow();
 
-      const repositoryCall = mockMilitaryRepository.findById.mock.calls[0];
+      const repositoryCall = mockedMilitaryRepository.findById.mock.calls[0];
       expect(repositoryCall[0]).toBe(validId);
     });
 
@@ -242,7 +236,7 @@ describe("MilitaryIdRegisteredValidator", () => {
         resolvePromise = resolve;
       });
 
-      mockMilitaryRepository.findById.mockReturnValue(delayedPromise);
+      mockedMilitaryRepository.findById.mockReturnValue(delayedPromise);
 
       const validationPromise = sut.validate(validId);
 
@@ -259,11 +253,11 @@ describe("MilitaryIdRegisteredValidator", () => {
       resolvePromise!(asyncMilitary);
 
       await expect(validationPromise).resolves.not.toThrow();
-      expect(mockMilitaryRepository.findById).toHaveBeenCalledWith(validId);
+      expect(mockedMilitaryRepository.findById).toHaveBeenCalledWith(validId);
     });
 
     it("should check correct error properties", async () => {
-      mockMilitaryRepository.findById.mockResolvedValue(null);
+      mockedMilitaryRepository.findById.mockResolvedValue(null);
 
       try {
         await sut.validate("non-existent-id");

@@ -30,7 +30,7 @@ export class DeleteMilitaryService implements DeleteMilitaryUseCase {
 
     const sanitizedId = sanitizer.sanitize(id);
     idValidator.validate(sanitizedId);
-    idRegisteredValidator.validate(sanitizedId);
+    await idRegisteredValidator.validate(sanitizedId);
     await militaryRepository.delete(sanitizedId);
   };
 }

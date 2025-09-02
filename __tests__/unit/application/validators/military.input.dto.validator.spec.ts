@@ -2,14 +2,14 @@ import {
   mockMilitaryRankRepository,
   mockMilitaryRepository,
 } from "../../../../__mocks__/repositories";
-import { mockIdValidator } from "../../../../__mocks__/validators/id.validator.mock";
+import { mockIdValidator } from "../../../../__mocks__/validators";
 import {
   DuplicatedKeyError,
   InvalidParamError,
   MissingParamError,
 } from "../../../../src/application/errors";
 import { IdValidatorProtocol } from "../../../../src/application/protocols";
-import { MilitaryInputDTOValidator } from "../../../../src/application/validators/military/military.input.dto.validator";
+import { MilitaryInputDTOValidator } from "../../../../src/application/validators";
 import {
   MilitaryInputDTO,
   MilitaryOutputDTO,
