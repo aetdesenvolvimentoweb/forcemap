@@ -4,6 +4,7 @@ import {
   IdSanitizerProtocol,
   IdValidatorProtocol,
   MilitaryRankIdRegisteredValidatorProtocol,
+  MilitaryRankInUseValidatorProtocol,
 } from "../../protocols";
 
 interface DeleteMilitaryRankServiceProps {
@@ -11,6 +12,7 @@ interface DeleteMilitaryRankServiceProps {
   sanitizer: IdSanitizerProtocol;
   idValidator: IdValidatorProtocol;
   idRegisteredValidator: MilitaryRankIdRegisteredValidatorProtocol;
+  inUseValidator: MilitaryRankInUseValidatorProtocol;
 }
 
 export class DeleteMilitaryRankService implements DeleteMilitaryRankUseCase {
@@ -26,11 +28,13 @@ export class DeleteMilitaryRankService implements DeleteMilitaryRankUseCase {
       sanitizer,
       idValidator,
       idRegisteredValidator,
+      inUseValidator,
     } = this.props;
 
     const sanitizedId = sanitizer.sanitize(id);
     idValidator.validate(sanitizedId);
-    idRegisteredValidator.validate(sanitizedId);
+    await idRegisteredValidator.validate(sanitizedId);
+    await inUseValidator.validate(sanitizedId);
     await militaryRankRepository.delete(sanitizedId);
   };
 }

@@ -12,23 +12,23 @@ import {
 const militaryRoutes = Router();
 
 militaryRoutes.post(
-  "/military-",
+  "/military",
   expressRouteAdapter(makeCreateMilitaryController()),
 );
 militaryRoutes.get(
-  "/military-",
+  "/military",
   expressRouteAdapter(makeListAllMilitaryController()),
 );
 militaryRoutes.get(
-  "/military-/:id",
+  "/military/:id",
   expressRouteAdapter(makeFindByIdMilitaryController()),
 );
 militaryRoutes.delete(
-  "/military-/:id",
+  "/military/:id",
   expressRouteAdapter(makeDeleteMilitaryController()),
 );
 militaryRoutes.put(
-  "/military-/:id",
+  "/military/:id",
   expressRouteAdapter(makeUpdateMilitaryController()),
 );
 
