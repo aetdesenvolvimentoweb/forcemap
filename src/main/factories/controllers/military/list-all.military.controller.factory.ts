@@ -1,14 +1,14 @@
-import { ListAllMilitaryRankController } from "../../../../presentation/controllers";
+import { ListAllMilitaryController } from "../../../../presentation/controllers";
 import { ControllerProtocol } from "../../../../presentation/protocols";
 import { makeLogger } from "../../logger";
-import { makeListAllMilitaryRankService } from "../../services";
+import { makeListAllMilitaryService } from "../../services";
 
-export const makeListAllMilitaryRankController = (): ControllerProtocol => {
+export const makeListAllMilitaryController = (): ControllerProtocol => {
   const logger = makeLogger();
-  const listAllMilitaryRankService = makeListAllMilitaryRankService();
+  const listAllMilitaryService = makeListAllMilitaryService();
 
-  return new ListAllMilitaryRankController({
-    listAllMilitaryRankService,
+  return new ListAllMilitaryController({
+    listAllMilitaryService,
     logger,
   });
 };

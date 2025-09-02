@@ -1,14 +1,14 @@
-import { CreateMilitaryRankController } from "../../../../presentation/controllers";
+import { CreateMilitaryController } from "../../../../presentation/controllers";
 import { ControllerProtocol } from "../../../../presentation/protocols";
 import { makeLogger } from "../../logger";
-import { makeCreateMilitaryRankService } from "../../services";
+import { makeCreateMilitaryService } from "../../services";
 
-export const makeCreateMilitaryRankController = (): ControllerProtocol => {
+export const makeCreateMilitaryController = (): ControllerProtocol => {
   const logger = makeLogger();
-  const createMilitaryRankService = makeCreateMilitaryRankService();
+  const createMilitaryService = makeCreateMilitaryService();
 
-  return new CreateMilitaryRankController({
-    createMilitaryRankService,
+  return new CreateMilitaryController({
+    createMilitaryService,
     logger,
   });
 };

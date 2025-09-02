@@ -1,14 +1,14 @@
-import { FindByIdMilitaryRankController } from "../../../../presentation/controllers";
+import { FindByIdMilitaryController } from "../../../../presentation/controllers";
 import { ControllerProtocol } from "../../../../presentation/protocols";
 import { makeLogger } from "../../logger";
-import { makeFindByIdMilitaryRankService } from "../../services";
+import { makeFindByIdMilitaryService } from "../../services";
 
-export const makeFindByIdMilitaryRankController = (): ControllerProtocol => {
+export const makeFindByIdMilitaryController = (): ControllerProtocol => {
   const logger = makeLogger();
-  const findByIdMilitaryRankService = makeFindByIdMilitaryRankService();
+  const findByIdMilitaryService = makeFindByIdMilitaryService();
 
-  return new FindByIdMilitaryRankController({
-    findByIdMilitaryRankService,
+  return new FindByIdMilitaryController({
+    findByIdMilitaryService,
     logger,
   });
 };
