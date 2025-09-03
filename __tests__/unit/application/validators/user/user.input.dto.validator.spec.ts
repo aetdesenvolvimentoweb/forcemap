@@ -356,6 +356,34 @@ describe("UserInputDTOValidator", () => {
           new DuplicatedKeyError("Militar"),
         );
       });
+
+      it("should throw DuplicatedKeyError when military is used by different user in update scenario", async () => {
+        const existingUser = {
+          id: "different-user-id",
+          role: UserRole.ADMIN,
+          military: {
+            id: validInputData.militaryId,
+            name: "Another User",
+            rg: 9999,
+            militaryRankId: "rank-id",
+            militaryRank: {
+              id: "rank-id",
+              abbreviation: "SGT",
+              order: 5,
+            },
+          },
+        };
+
+        const idToIgnore = "user-being-updated-id"; // Different from existingUser.id
+
+        // Reset the mock to return existing user instead of null
+        mockedUserRepository.findByMilitaryId.mockReset();
+        mockedUserRepository.findByMilitaryId.mockResolvedValue(existingUser);
+
+        await expect(sut.validate(validInputData, idToIgnore)).rejects.toThrow(
+          new DuplicatedKeyError("Militar"),
+        );
+      });
     });
 
     describe("Update validation with idToIgnore", () => {
