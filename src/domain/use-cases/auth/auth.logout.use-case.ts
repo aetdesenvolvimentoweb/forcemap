@@ -1,3 +1,3 @@
 export interface AuthLogoutUseCase {
-  logout(): Promise<void>;
+  logout(userId: string): Promise<void>;
 }
