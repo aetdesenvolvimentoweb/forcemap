@@ -6,7 +6,7 @@ import { VehicleInputDTOValidatorProtocol } from "../../protocols";
 import { ValidationPatterns } from "../common";
 
 interface VehicleInputDTOValidatorProps {
-  VehicleRepository: VehicleRepository;
+  vehicleRepository: VehicleRepository;
 }
 
 export class VehicleInputDTOValidator
@@ -58,7 +58,7 @@ export class VehicleInputDTOValidator
     name: string,
     idToIgnore?: string,
   ): Promise<void> => {
-    const exists = await this.props.VehicleRepository.findByName(name);
+    const exists = await this.props.vehicleRepository.findByName(name);
     if (exists && (!idToIgnore || exists.id !== idToIgnore)) {
       throw new DuplicatedKeyError("Nome");
     }

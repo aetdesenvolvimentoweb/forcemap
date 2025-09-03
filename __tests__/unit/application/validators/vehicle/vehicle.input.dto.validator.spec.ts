@@ -15,7 +15,7 @@ describe("VehicleInputDTOValidator", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     sut = new VehicleInputDTOValidator({
-      VehicleRepository: mockedVehicleRepository,
+      vehicleRepository: mockedVehicleRepository,
     });
   });
 
