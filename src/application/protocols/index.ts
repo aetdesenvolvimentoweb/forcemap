@@ -1,3 +1,4 @@
 export * from "./logger.protocol";
+export * from "./password.hasher.protocol";
 export * from "./sanitizers";
 export * from "./validators";

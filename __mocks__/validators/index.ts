@@ -1,3 +1,4 @@
+export * from "./auth";
 export * from "./id.validator.mock";
 export * from "./military";
 export * from "./military-rank";
