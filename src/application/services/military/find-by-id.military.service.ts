@@ -1,5 +1,4 @@
-import { MilitaryOutputDTO } from "src/domain/dtos";
-
+import { MilitaryOutputDTO } from "../../../domain/dtos";
 import { MilitaryRepository } from "../../../domain/repositories";
 import { FindByIdMilitaryUseCase } from "../../../domain/use-cases";
 import {
