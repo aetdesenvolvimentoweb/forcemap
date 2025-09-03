@@ -27,7 +27,7 @@ export class FindByIdVehicleService implements FindByIdVehicleUseCase {
 
     const sanitizedId = sanitizer.sanitize(id);
     idValidator.validate(sanitizedId);
-    idRegisteredValidator.validate(sanitizedId);
+    await idRegisteredValidator.validate(sanitizedId);
     const vehicle = await vehicleRepository.findById(sanitizedId);
     return vehicle;
   };

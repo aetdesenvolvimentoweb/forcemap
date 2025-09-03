@@ -35,7 +35,7 @@ export class FindByIdMilitaryRankService
 
     const sanitizedId = sanitizer.sanitize(id);
     idValidator.validate(sanitizedId);
-    idRegisteredValidator.validate(sanitizedId);
+    await idRegisteredValidator.validate(sanitizedId);
     const militaryRank = await militaryRankRepository.findById(sanitizedId);
     return militaryRank;
   };

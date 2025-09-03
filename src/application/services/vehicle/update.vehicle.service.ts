@@ -40,7 +40,7 @@ export class UpdateVehicleService implements UpdateVehicleUseCase {
 
     const sanitizedId = idSanitizer.sanitize(id);
     idValidator.validate(sanitizedId);
-    idRegisteredValidator.validate(sanitizedId);
+    await idRegisteredValidator.validate(sanitizedId);
     const sanitizedData = dataSanitizer.sanitize(data);
     await dataValidator.validate(sanitizedData, sanitizedId);
     await vehicleRepository.update(sanitizedId, sanitizedData);
