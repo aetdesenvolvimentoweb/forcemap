@@ -1,5 +1,5 @@
 import { Vehicle } from "../../entities";
 
-export interface ListAllVehiclesUseCase {
+export interface ListAllVehicleUseCase {
   listAll(): Promise<Vehicle[]>;
 }
