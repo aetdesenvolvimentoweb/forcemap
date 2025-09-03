@@ -1,18 +1,17 @@
+import { mockIdSanitizer } from "../../../../__mocks__/sanitizers";
 import { IdSanitizerProtocol } from "../../../../src/application/protocols";
 import { MilitaryInputDTOSanitizer } from "../../../../src/application/sanitizers/military.input.dto.sanitizer";
 import { MilitaryInputDTO } from "../../../../src/domain/dtos";
 
 describe("MilitaryInputDTOSanitizer", () => {
   let sut: MilitaryInputDTOSanitizer;
-  let mockIdSanitizer: jest.Mocked<IdSanitizerProtocol>;
+  let mockedIdSanitizer: jest.Mocked<IdSanitizerProtocol>;
 
   beforeEach(() => {
-    mockIdSanitizer = {
-      sanitize: jest.fn(),
-    };
+    mockedIdSanitizer = mockIdSanitizer();
 
     sut = new MilitaryInputDTOSanitizer({
-      idSanitizer: mockIdSanitizer,
+      idSanitizer: mockedIdSanitizer,
     });
   });
 
@@ -32,7 +31,7 @@ describe("MilitaryInputDTOSanitizer", () => {
       };
 
       const sanitizedId = "sanitized-id";
-      mockIdSanitizer.sanitize.mockReturnValue(sanitizedId);
+      mockedIdSanitizer.sanitize.mockReturnValue(sanitizedId);
 
       const result = sut.sanitize(inputData);
 
@@ -41,10 +40,10 @@ describe("MilitaryInputDTOSanitizer", () => {
         name: "João da Silva",
         rg: 12345678,
       });
-      expect(mockIdSanitizer.sanitize).toHaveBeenCalledWith(
+      expect(mockedIdSanitizer.sanitize).toHaveBeenCalledWith(
         inputData.militaryRankId,
       );
-      expect(mockIdSanitizer.sanitize).toHaveBeenCalledTimes(1);
+      expect(mockedIdSanitizer.sanitize).toHaveBeenCalledTimes(1);
     });
 
     it("should sanitize name by trimming whitespace", () => {
@@ -54,7 +53,7 @@ describe("MilitaryInputDTOSanitizer", () => {
         rg: 98765432,
       };
 
-      mockIdSanitizer.sanitize.mockReturnValue("sanitized-id");
+      mockedIdSanitizer.sanitize.mockReturnValue("sanitized-id");
 
       const result = sut.sanitize(inputData);
 
@@ -68,7 +67,7 @@ describe("MilitaryInputDTOSanitizer", () => {
         rg: 11111111,
       };
 
-      mockIdSanitizer.sanitize.mockReturnValue("sanitized-id");
+      mockedIdSanitizer.sanitize.mockReturnValue("sanitized-id");
 
       const result = sut.sanitize(inputData);
 
@@ -82,7 +81,7 @@ describe("MilitaryInputDTOSanitizer", () => {
         rg: 22222222,
       };
 
-      mockIdSanitizer.sanitize.mockReturnValue("sanitized-id");
+      mockedIdSanitizer.sanitize.mockReturnValue("sanitized-id");
 
       const result = sut.sanitize(inputData);
 
@@ -96,7 +95,7 @@ describe("MilitaryInputDTOSanitizer", () => {
         rg: 33333333,
       };
 
-      mockIdSanitizer.sanitize.mockReturnValue("sanitized-id");
+      mockedIdSanitizer.sanitize.mockReturnValue("sanitized-id");
 
       const result = sut.sanitize(inputData);
 
@@ -110,7 +109,7 @@ describe("MilitaryInputDTOSanitizer", () => {
         rg: 44444444,
       };
 
-      mockIdSanitizer.sanitize.mockReturnValue("sanitized-id");
+      mockedIdSanitizer.sanitize.mockReturnValue("sanitized-id");
 
       const result = sut.sanitize(inputData);
 
@@ -124,7 +123,7 @@ describe("MilitaryInputDTOSanitizer", () => {
         rg: 55555555,
       };
 
-      mockIdSanitizer.sanitize.mockReturnValue("sanitized-id");
+      mockedIdSanitizer.sanitize.mockReturnValue("sanitized-id");
 
       const result = sut.sanitize(inputData);
 
@@ -138,7 +137,7 @@ describe("MilitaryInputDTOSanitizer", () => {
         rg: 66666666,
       };
 
-      mockIdSanitizer.sanitize.mockReturnValue("sanitized-id");
+      mockedIdSanitizer.sanitize.mockReturnValue("sanitized-id");
 
       const result = sut.sanitize(inputData);
 
@@ -152,7 +151,7 @@ describe("MilitaryInputDTOSanitizer", () => {
         rg: 77777777,
       };
 
-      mockIdSanitizer.sanitize.mockReturnValue("sanitized-id");
+      mockedIdSanitizer.sanitize.mockReturnValue("sanitized-id");
 
       const result = sut.sanitize(inputData);
 
@@ -166,7 +165,7 @@ describe("MilitaryInputDTOSanitizer", () => {
         rg: 88888888,
       };
 
-      mockIdSanitizer.sanitize.mockReturnValue("sanitized-id");
+      mockedIdSanitizer.sanitize.mockReturnValue("sanitized-id");
 
       const result = sut.sanitize(inputData);
 
@@ -180,7 +179,7 @@ describe("MilitaryInputDTOSanitizer", () => {
         rg: "123456789" as any,
       };
 
-      mockIdSanitizer.sanitize.mockReturnValue("sanitized-id");
+      mockedIdSanitizer.sanitize.mockReturnValue("sanitized-id");
 
       const result = sut.sanitize(inputData);
 
@@ -195,7 +194,7 @@ describe("MilitaryInputDTOSanitizer", () => {
         rg: "987654321.0" as any,
       };
 
-      mockIdSanitizer.sanitize.mockReturnValue("sanitized-id");
+      mockedIdSanitizer.sanitize.mockReturnValue("sanitized-id");
 
       const result = sut.sanitize(inputData);
 
@@ -209,7 +208,7 @@ describe("MilitaryInputDTOSanitizer", () => {
         rg: 456789123,
       };
 
-      mockIdSanitizer.sanitize.mockReturnValue("sanitized-id");
+      mockedIdSanitizer.sanitize.mockReturnValue("sanitized-id");
 
       const result = sut.sanitize(inputData);
 
@@ -224,7 +223,7 @@ describe("MilitaryInputDTOSanitizer", () => {
         rg: 0,
       };
 
-      mockIdSanitizer.sanitize.mockReturnValue("sanitized-id");
+      mockedIdSanitizer.sanitize.mockReturnValue("sanitized-id");
 
       const result = sut.sanitize(inputData);
 
@@ -238,7 +237,7 @@ describe("MilitaryInputDTOSanitizer", () => {
         rg: -123456,
       };
 
-      mockIdSanitizer.sanitize.mockReturnValue("sanitized-id");
+      mockedIdSanitizer.sanitize.mockReturnValue("sanitized-id");
 
       const result = sut.sanitize(inputData);
 
@@ -253,12 +252,12 @@ describe("MilitaryInputDTOSanitizer", () => {
       };
 
       const cleanId = "clean-id";
-      mockIdSanitizer.sanitize.mockReturnValue(cleanId);
+      mockedIdSanitizer.sanitize.mockReturnValue(cleanId);
 
       const result = sut.sanitize(inputData);
 
       expect(result.militaryRankId).toBe(cleanId);
-      expect(mockIdSanitizer.sanitize).toHaveBeenCalledWith(
+      expect(mockedIdSanitizer.sanitize).toHaveBeenCalledWith(
         " dirty-id-with-spaces ",
       );
     });
@@ -271,7 +270,7 @@ describe("MilitaryInputDTOSanitizer", () => {
       };
 
       const sanitizedId = "clean-uuid";
-      mockIdSanitizer.sanitize.mockReturnValue(sanitizedId);
+      mockedIdSanitizer.sanitize.mockReturnValue(sanitizedId);
 
       const result = sut.sanitize(inputData);
 
@@ -289,7 +288,7 @@ describe("MilitaryInputDTOSanitizer", () => {
         rg: 11111111,
       };
 
-      mockIdSanitizer.sanitize.mockReturnValue("sanitized-id-123");
+      mockedIdSanitizer.sanitize.mockReturnValue("sanitized-id-123");
 
       const result = sut.sanitize(inputData);
 
@@ -306,7 +305,7 @@ describe("MilitaryInputDTOSanitizer", () => {
         rg: "not-a-number" as any,
       };
 
-      mockIdSanitizer.sanitize.mockReturnValue("sanitized-id");
+      mockedIdSanitizer.sanitize.mockReturnValue("sanitized-id");
 
       const result = sut.sanitize(inputData);
 
@@ -320,7 +319,7 @@ describe("MilitaryInputDTOSanitizer", () => {
         rg: 123.45,
       };
 
-      mockIdSanitizer.sanitize.mockReturnValue("sanitized-id");
+      mockedIdSanitizer.sanitize.mockReturnValue("sanitized-id");
 
       const result = sut.sanitize(inputData);
 
@@ -334,13 +333,13 @@ describe("MilitaryInputDTOSanitizer", () => {
         rg: 12345678,
       };
 
-      mockIdSanitizer.sanitize.mockReturnValue("clean-id");
+      mockedIdSanitizer.sanitize.mockReturnValue("clean-id");
 
       sut.sanitize(inputData);
       sut.sanitize(inputData);
       sut.sanitize(inputData);
 
-      expect(mockIdSanitizer.sanitize).toHaveBeenCalledTimes(3);
+      expect(mockedIdSanitizer.sanitize).toHaveBeenCalledTimes(3);
     });
 
     it("should not modify original input data", () => {
@@ -351,7 +350,7 @@ describe("MilitaryInputDTOSanitizer", () => {
       };
 
       const inputData = { ...originalData };
-      mockIdSanitizer.sanitize.mockReturnValue("clean-id");
+      mockedIdSanitizer.sanitize.mockReturnValue("clean-id");
 
       sut.sanitize(inputData);
 
