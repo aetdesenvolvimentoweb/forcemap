@@ -43,7 +43,10 @@ export class UserInputDTOValidator implements UserInputDTOValidatorProtocol {
   };
 
   private readonly validatePasswordFormat = (password: string): void => {
-    ValidationPatterns.validateStringLength(password, 8, "Senha");
+    // Valida tamanho mínimo
+    if (password.length < 8) {
+      throw new InvalidParamError("Senha", "deve ter pelo menos 8 caracteres");
+    }
 
     // Valida se tem pelo menos 1 maiúscula
     if (!/[A-Z]/.test(password)) {
@@ -78,8 +81,9 @@ export class UserInputDTOValidator implements UserInputDTOValidatorProtocol {
     militaryId: string,
     idToIgnore?: string,
   ): Promise<void> => {
-    const exists = await this.props.militaryRepository.findById(militaryId);
-    if (exists && (!idToIgnore || exists.id !== idToIgnore)) {
+    const existingUser =
+      await this.props.userRepository.findByMilitaryId(militaryId);
+    if (existingUser && (!idToIgnore || existingUser.id !== idToIgnore)) {
       throw new DuplicatedKeyError("Militar");
     }
   };

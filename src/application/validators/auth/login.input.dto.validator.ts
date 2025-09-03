@@ -23,7 +23,10 @@ export class LoginInputDTOValidator implements LoginInputDTOValidatorProtocol {
   };
 
   private readonly validatePasswordFormat = (password: string): void => {
-    ValidationPatterns.validateStringLength(password, 8, "Senha");
+    // Valida tamanho mínimo
+    if (password.length < 8) {
+      throw new InvalidParamError("Senha", "deve ter pelo menos 8 caracteres");
+    }
 
     // Valida se tem pelo menos 1 maiúscula
     if (!/[A-Z]/.test(password)) {
