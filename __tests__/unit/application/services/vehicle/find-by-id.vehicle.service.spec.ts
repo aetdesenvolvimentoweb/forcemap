@@ -1,8 +1,8 @@
 import {
-  mockVehicleRepository,
   mockIdSanitizer,
   mockIdValidator,
   mockVehicleIdRegisteredValidator,
+  mockVehicleRepository,
 } from "../../../../../__mocks__";
 import { FindByIdVehicleService } from "../../../../../src/application/services/vehicle/find-by-id.vehicle.service";
 import { Vehicle, VehicleSituation } from "../../../../../src/domain/entities";

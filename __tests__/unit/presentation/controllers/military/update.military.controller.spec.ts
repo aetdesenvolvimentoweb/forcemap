@@ -1,15 +1,15 @@
 import {
-  mockUpdateMilitaryService,
   mockLogger,
+  mockUpdateMilitaryService,
 } from "../../../../../__mocks__";
-import { UpdateMilitaryController } from "../../../../../src/presentation/controllers";
-import { MilitaryInputDTO } from "../../../../../src/domain/dtos";
-import { HttpRequest } from "../../../../../src/presentation/protocols";
 import {
+  DuplicatedKeyError,
   EntityNotFoundError,
   InvalidParamError,
-  DuplicatedKeyError,
 } from "../../../../../src/application/errors";
+import { MilitaryInputDTO } from "../../../../../src/domain/dtos";
+import { UpdateMilitaryController } from "../../../../../src/presentation/controllers";
+import { HttpRequest } from "../../../../../src/presentation/protocols";
 
 describe("UpdateMilitaryController", () => {
   let sut: UpdateMilitaryController;

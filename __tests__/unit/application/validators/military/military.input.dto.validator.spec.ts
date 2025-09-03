@@ -1,24 +1,24 @@
 import {
   mockMilitaryRankRepository,
   mockMilitaryRepository,
-} from "../../../../__mocks__/repositories";
-import { mockIdValidator } from "../../../../__mocks__/validators";
+} from "../../../../../__mocks__/repositories";
+import { mockIdValidator } from "../../../../../__mocks__/validators";
 import {
   DuplicatedKeyError,
   InvalidParamError,
   MissingParamError,
-} from "../../../../src/application/errors";
-import { IdValidatorProtocol } from "../../../../src/application/protocols";
-import { MilitaryInputDTOValidator } from "../../../../src/application/validators";
+} from "../../../../../src/application/errors";
+import { IdValidatorProtocol } from "../../../../../src/application/protocols";
+import { MilitaryInputDTOValidator } from "../../../../../src/application/validators";
 import {
   MilitaryInputDTO,
   MilitaryOutputDTO,
-} from "../../../../src/domain/dtos";
-import { MilitaryRank } from "../../../../src/domain/entities";
+} from "../../../../../src/domain/dtos";
+import { MilitaryRank } from "../../../../../src/domain/entities";
 import {
   MilitaryRankRepository,
   MilitaryRepository,
-} from "../../../../src/domain/repositories";
+} from "../../../../../src/domain/repositories";
 
 describe("MilitaryInputDTOValidator", () => {
   let sut: MilitaryInputDTOValidator;

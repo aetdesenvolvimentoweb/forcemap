@@ -2,13 +2,13 @@ import {
   mockFindByIdVehicleService,
   mockLogger,
 } from "../../../../../__mocks__";
-import { FindByIdVehicleController } from "../../../../../src/presentation/controllers";
-import { Vehicle, VehicleSituation } from "../../../../../src/domain/entities";
-import { HttpRequest } from "../../../../../src/presentation/protocols";
 import {
   EntityNotFoundError,
   InvalidParamError,
 } from "../../../../../src/application/errors";
+import { Vehicle, VehicleSituation } from "../../../../../src/domain/entities";
+import { FindByIdVehicleController } from "../../../../../src/presentation/controllers";
+import { HttpRequest } from "../../../../../src/presentation/protocols";
 
 describe("FindByIdVehicleController", () => {
   let sut: FindByIdVehicleController;

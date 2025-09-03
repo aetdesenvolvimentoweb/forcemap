@@ -1,9 +1,9 @@
-import { mockMilitaryRepository } from "../../../../__mocks__/repositories";
-import { EntityNotFoundError } from "../../../../src/application/errors";
-import { MilitaryIdRegisteredValidator } from "../../../../src/application/validators";
-import { MilitaryOutputDTO } from "../../../../src/domain/dtos";
-import { MilitaryRank } from "../../../../src/domain/entities";
-import { MilitaryRepository } from "../../../../src/domain/repositories";
+import { mockMilitaryRepository } from "../../../../../__mocks__/repositories";
+import { EntityNotFoundError } from "../../../../../src/application/errors";
+import { MilitaryIdRegisteredValidator } from "../../../../../src/application/validators";
+import { MilitaryOutputDTO } from "../../../../../src/domain/dtos";
+import { MilitaryRank } from "../../../../../src/domain/entities";
+import { MilitaryRepository } from "../../../../../src/domain/repositories";
 
 describe("MilitaryIdRegisteredValidator", () => {
   let sut: MilitaryIdRegisteredValidator;

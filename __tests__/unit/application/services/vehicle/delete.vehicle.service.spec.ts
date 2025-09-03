@@ -1,8 +1,8 @@
 import {
-  mockVehicleRepository,
   mockIdSanitizer,
   mockIdValidator,
   mockVehicleIdRegisteredValidator,
+  mockVehicleRepository,
 } from "../../../../../__mocks__";
 import { DeleteVehicleService } from "../../../../../src/application/services/vehicle/delete.vehicle.service";
 

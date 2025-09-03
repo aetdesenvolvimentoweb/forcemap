@@ -1,10 +1,10 @@
 import {
-  mockMilitaryRepository,
   mockIdSanitizer,
-  mockMilitaryInputDTOSanitizer,
   mockIdValidator,
   mockMilitaryIdRegisteredValidator,
+  mockMilitaryInputDTOSanitizer,
   mockMilitaryInputDTOValidator,
+  mockMilitaryRepository,
 } from "../../../../../__mocks__";
 import { UpdateMilitaryService } from "../../../../../src/application/services";
 import { MilitaryInputDTO } from "../../../../../src/domain/dtos";

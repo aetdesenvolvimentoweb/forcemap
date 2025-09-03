@@ -1,5 +1,3 @@
-import { Router } from "express";
-
 // Mock the adapter
 const mockExpressRouteAdapter = jest.fn();
 jest.mock("../../../../src/infra/adapters", () => ({

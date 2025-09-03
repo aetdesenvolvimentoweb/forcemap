@@ -2,13 +2,13 @@ import {
   mockCreateMilitaryRankService,
   mockLogger,
 } from "../../../../../__mocks__";
-import { CreateMilitaryRankController } from "../../../../../src/presentation/controllers";
-import { MilitaryRankInputDTO } from "../../../../../src/domain/dtos";
-import { HttpRequest } from "../../../../../src/presentation/protocols";
 import {
   DuplicatedKeyError,
   InvalidParamError,
 } from "../../../../../src/application/errors";
+import { MilitaryRankInputDTO } from "../../../../../src/domain/dtos";
+import { CreateMilitaryRankController } from "../../../../../src/presentation/controllers";
+import { HttpRequest } from "../../../../../src/presentation/protocols";
 
 describe("CreateMilitaryRankController", () => {
   let sut: CreateMilitaryRankController;

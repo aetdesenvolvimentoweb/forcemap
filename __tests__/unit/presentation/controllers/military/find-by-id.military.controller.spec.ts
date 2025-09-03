@@ -2,10 +2,10 @@ import {
   mockFindByIdMilitaryService,
   mockLogger,
 } from "../../../../../__mocks__";
-import { FindByIdMilitaryController } from "../../../../../src/presentation/controllers";
-import { MilitaryOutputDTO } from "../../../../../src/domain/dtos";
-import { HttpRequest } from "../../../../../src/presentation/protocols";
 import { EntityNotFoundError } from "../../../../../src/application/errors";
+import { MilitaryOutputDTO } from "../../../../../src/domain/dtos";
+import { FindByIdMilitaryController } from "../../../../../src/presentation/controllers";
+import { HttpRequest } from "../../../../../src/presentation/protocols";
 
 describe("FindByIdMilitaryController", () => {
   let sut: FindByIdMilitaryController;

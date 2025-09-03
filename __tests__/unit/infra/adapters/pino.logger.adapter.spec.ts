@@ -1,4 +1,5 @@
 import pino from "pino";
+
 import { PinoLoggerAdapter } from "../../../../src/infra/adapters/pino.logger.adapter";
 
 // Create mock logger instance

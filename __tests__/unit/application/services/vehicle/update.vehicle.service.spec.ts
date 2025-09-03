@@ -1,10 +1,10 @@
 import {
-  mockVehicleRepository,
   mockIdSanitizer,
-  mockVehicleInputDTOSanitizer,
   mockIdValidator,
   mockVehicleIdRegisteredValidator,
+  mockVehicleInputDTOSanitizer,
   mockVehicleInputDTOValidator,
+  mockVehicleRepository,
 } from "../../../../../__mocks__";
 import { UpdateVehicleService } from "../../../../../src/application/services/vehicle/update.vehicle.service";
 import { VehicleInputDTO } from "../../../../../src/domain/dtos";

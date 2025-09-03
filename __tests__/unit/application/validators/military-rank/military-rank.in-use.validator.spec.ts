@@ -1,7 +1,7 @@
-import { MilitaryRankInUseValidator } from "../../../../../src/application/validators";
 import { ResourceInUseError } from "../../../../../src/application/errors";
-import { MilitaryRepository } from "../../../../../src/domain/repositories";
+import { MilitaryRankInUseValidator } from "../../../../../src/application/validators";
 import { MilitaryOutputDTO } from "../../../../../src/domain/dtos";
+import { MilitaryRepository } from "../../../../../src/domain/repositories";
 
 const makeMilitaryRepositoryMock = (): jest.Mocked<MilitaryRepository> => ({
   create: jest.fn(),

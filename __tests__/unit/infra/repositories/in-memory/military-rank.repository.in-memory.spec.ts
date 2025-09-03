@@ -1,6 +1,5 @@
-import { MilitaryRankRepositoryInMemory } from "../../../../../src/infra/repositories/in-memory";
 import { MilitaryRankInputDTO } from "../../../../../src/domain/dtos";
-import { MilitaryRank } from "../../../../../src/domain/entities";
+import { MilitaryRankRepositoryInMemory } from "../../../../../src/infra/repositories/in-memory";
 
 describe("MilitaryRankRepositoryInMemory", () => {
   let sut: MilitaryRankRepositoryInMemory;

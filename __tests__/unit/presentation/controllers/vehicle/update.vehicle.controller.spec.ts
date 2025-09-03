@@ -1,12 +1,12 @@
-import { mockUpdateVehicleService, mockLogger } from "../../../../../__mocks__";
-import { UpdateVehicleController } from "../../../../../src/presentation/controllers";
-import { VehicleInputDTO } from "../../../../../src/domain/dtos";
-import { VehicleSituation } from "../../../../../src/domain/entities";
-import { HttpRequest } from "../../../../../src/presentation/protocols";
+import { mockLogger, mockUpdateVehicleService } from "../../../../../__mocks__";
 import {
   EntityNotFoundError,
   InvalidParamError,
 } from "../../../../../src/application/errors";
+import { VehicleInputDTO } from "../../../../../src/domain/dtos";
+import { VehicleSituation } from "../../../../../src/domain/entities";
+import { UpdateVehicleController } from "../../../../../src/presentation/controllers";
+import { HttpRequest } from "../../../../../src/presentation/protocols";
 
 describe("UpdateVehicleController", () => {
   let sut: UpdateVehicleController;

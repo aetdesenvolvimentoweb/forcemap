@@ -1,12 +1,12 @@
 import { mockCreateVehicleService, mockLogger } from "../../../../../__mocks__";
-import { CreateVehicleController } from "../../../../../src/presentation/controllers";
-import { VehicleInputDTO } from "../../../../../src/domain/dtos";
-import { VehicleSituation } from "../../../../../src/domain/entities";
-import { HttpRequest } from "../../../../../src/presentation/protocols";
 import {
   DuplicatedKeyError,
   InvalidParamError,
 } from "../../../../../src/application/errors";
+import { VehicleInputDTO } from "../../../../../src/domain/dtos";
+import { VehicleSituation } from "../../../../../src/domain/entities";
+import { CreateVehicleController } from "../../../../../src/presentation/controllers";
+import { HttpRequest } from "../../../../../src/presentation/protocols";
 
 describe("CreateVehicleController", () => {
   let sut: CreateVehicleController;

@@ -1,11 +1,11 @@
 import { mockDeleteVehicleService, mockLogger } from "../../../../../__mocks__";
-import { DeleteVehicleController } from "../../../../../src/presentation/controllers";
-import { HttpRequest } from "../../../../../src/presentation/protocols";
 import {
   EntityNotFoundError,
   InvalidParamError,
   ResourceInUseError,
 } from "../../../../../src/application/errors";
+import { DeleteVehicleController } from "../../../../../src/presentation/controllers";
+import { HttpRequest } from "../../../../../src/presentation/protocols";
 
 describe("DeleteVehicleController", () => {
   let sut: DeleteVehicleController;

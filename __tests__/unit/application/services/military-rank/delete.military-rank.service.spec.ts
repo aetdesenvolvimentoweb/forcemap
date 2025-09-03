@@ -1,9 +1,9 @@
 import {
-  mockMilitaryRankRepository,
   mockIdSanitizer,
   mockIdValidator,
   mockMilitaryRankIdRegisteredValidator,
   mockMilitaryRankInUseValidator,
+  mockMilitaryRankRepository,
 } from "../../../../../__mocks__";
 import { DeleteMilitaryRankService } from "../../../../../src/application/services";
 

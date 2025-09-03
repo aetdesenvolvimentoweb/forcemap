@@ -2,9 +2,9 @@ import {
   mockDeleteMilitaryService,
   mockLogger,
 } from "../../../../../__mocks__";
+import { EntityNotFoundError } from "../../../../../src/application/errors";
 import { DeleteMilitaryController } from "../../../../../src/presentation/controllers";
 import { HttpRequest } from "../../../../../src/presentation/protocols";
-import { EntityNotFoundError } from "../../../../../src/application/errors";
 
 describe("DeleteMilitaryController", () => {
   let sut: DeleteMilitaryController;

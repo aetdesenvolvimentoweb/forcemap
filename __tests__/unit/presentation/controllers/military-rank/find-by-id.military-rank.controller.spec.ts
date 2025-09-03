@@ -2,13 +2,10 @@ import {
   mockFindByIdMilitaryRankService,
   mockLogger,
 } from "../../../../../__mocks__";
-import { FindByIdMilitaryRankController } from "../../../../../src/presentation/controllers";
+import { InvalidParamError } from "../../../../../src/application/errors";
 import { MilitaryRank } from "../../../../../src/domain/entities";
+import { FindByIdMilitaryRankController } from "../../../../../src/presentation/controllers";
 import { HttpRequest } from "../../../../../src/presentation/protocols";
-import {
-  EntityNotFoundError,
-  InvalidParamError,
-} from "../../../../../src/application/errors";
 
 describe("FindByIdMilitaryRankController", () => {
   let sut: FindByIdMilitaryRankController;

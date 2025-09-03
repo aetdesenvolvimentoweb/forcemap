@@ -1,8 +1,8 @@
 import {
-  mockMilitaryRankRepository,
   mockIdSanitizer,
   mockIdValidator,
   mockMilitaryRankIdRegisteredValidator,
+  mockMilitaryRankRepository,
 } from "../../../../../__mocks__";
 import { FindByIdMilitaryRankService } from "../../../../../src/application/services";
 import { MilitaryRank } from "../../../../../src/domain/entities";

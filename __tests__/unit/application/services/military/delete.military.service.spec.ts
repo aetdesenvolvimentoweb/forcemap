@@ -1,8 +1,8 @@
 import {
-  mockMilitaryRepository,
   mockIdSanitizer,
   mockIdValidator,
   mockMilitaryIdRegisteredValidator,
+  mockMilitaryRepository,
 } from "../../../../../__mocks__";
 import { DeleteMilitaryService } from "../../../../../src/application/services";
 

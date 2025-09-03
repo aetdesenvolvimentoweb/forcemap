@@ -1,7 +1,7 @@
 import {
-  mockMilitaryRankRepository,
   mockMilitaryRankInputDTOSanitizer,
   mockMilitaryRankInputDTOValidator,
+  mockMilitaryRankRepository,
 } from "../../../../../__mocks__";
 import { CreateMilitaryRankService } from "../../../../../src/application/services";
 import { MilitaryRankInputDTO } from "../../../../../src/domain/dtos";

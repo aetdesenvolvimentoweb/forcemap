@@ -1,6 +1,6 @@
+import { IdSanitizerProtocol } from "../../../../src/application/protocols";
 import { MilitaryInputDTOSanitizer } from "../../../../src/application/sanitizers/military.input.dto.sanitizer";
 import { MilitaryInputDTO } from "../../../../src/domain/dtos";
-import { IdSanitizerProtocol } from "../../../../src/application/protocols";
 
 describe("MilitaryInputDTOSanitizer", () => {
   let sut: MilitaryInputDTOSanitizer;

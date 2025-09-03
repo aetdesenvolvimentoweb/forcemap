@@ -3,6 +3,7 @@ dist/
 coverage/
 .vercel/
 .claude/
+.vscode/
 
 .env
 pnpm-lock.yaml

@@ -2,9 +2,9 @@ import {
   mockListAllMilitaryService,
   mockLogger,
 } from "../../../../../__mocks__";
-import { ListAllMilitaryController } from "../../../../../src/presentation/controllers";
-import { MilitaryOutputDTO } from "../../../../../src/domain/dtos";
 import { EntityNotFoundError } from "../../../../../src/application/errors";
+import { MilitaryOutputDTO } from "../../../../../src/domain/dtos";
+import { ListAllMilitaryController } from "../../../../../src/presentation/controllers";
 
 describe("ListAllMilitaryController", () => {
   let sut: ListAllMilitaryController;

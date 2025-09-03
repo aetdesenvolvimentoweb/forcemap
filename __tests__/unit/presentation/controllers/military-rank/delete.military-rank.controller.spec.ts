@@ -2,12 +2,12 @@ import {
   mockDeleteMilitaryRankService,
   mockLogger,
 } from "../../../../../__mocks__";
-import { DeleteMilitaryRankController } from "../../../../../src/presentation/controllers";
-import { HttpRequest } from "../../../../../src/presentation/protocols";
 import {
   EntityNotFoundError,
   InvalidParamError,
 } from "../../../../../src/application/errors";
+import { DeleteMilitaryRankController } from "../../../../../src/presentation/controllers";
+import { HttpRequest } from "../../../../../src/presentation/protocols";
 
 describe("DeleteMilitaryRankController", () => {
   let sut: DeleteMilitaryRankController;

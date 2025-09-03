@@ -1,5 +1,3 @@
-import { VehicleInputDTO } from "../../src/domain/dtos";
-import { Vehicle } from "../../src/domain/entities";
 import {
   CreateVehicleUseCase,
   DeleteVehicleUseCase,

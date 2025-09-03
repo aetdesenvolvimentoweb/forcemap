@@ -2,8 +2,8 @@ import {
   mockListAllMilitaryRankService,
   mockLogger,
 } from "../../../../../__mocks__";
-import { ListAllMilitaryRankController } from "../../../../../src/presentation/controllers";
 import { MilitaryRank } from "../../../../../src/domain/entities";
+import { ListAllMilitaryRankController } from "../../../../../src/presentation/controllers";
 
 describe("ListAllMilitaryRankController", () => {
   let sut: ListAllMilitaryRankController;

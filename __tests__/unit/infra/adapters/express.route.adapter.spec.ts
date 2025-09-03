@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+
 import { expressRouteAdapter } from "../../../../src/infra/adapters/express.route.adapter";
 import {
   ControllerProtocol,

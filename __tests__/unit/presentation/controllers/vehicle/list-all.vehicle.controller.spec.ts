@@ -2,8 +2,8 @@ import {
   mockListAllVehicleService,
   mockLogger,
 } from "../../../../../__mocks__";
-import { ListAllVehicleController } from "../../../../../src/presentation/controllers";
 import { Vehicle, VehicleSituation } from "../../../../../src/domain/entities";
+import { ListAllVehicleController } from "../../../../../src/presentation/controllers";
 
 describe("ListAllVehicleController", () => {
   let sut: ListAllVehicleController;

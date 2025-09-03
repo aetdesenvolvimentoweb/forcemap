@@ -1,5 +1,5 @@
-import { UUIDIdValidatorAdapter } from "../../../../src/infra/adapters/uuid.id.validator.adapter";
 import { InvalidParamError } from "../../../../src/application/errors";
+import { UUIDIdValidatorAdapter } from "../../../../src/infra/adapters/uuid.id.validator.adapter";
 
 describe("UUIDIdValidatorAdapter", () => {
   let sut: UUIDIdValidatorAdapter;

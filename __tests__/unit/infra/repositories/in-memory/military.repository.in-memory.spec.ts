@@ -1,11 +1,8 @@
-import { MilitaryRepositoryInMemory } from "../../../../../src/infra/repositories/in-memory";
-import {
-  MilitaryInputDTO,
-  MilitaryOutputDTO,
-} from "../../../../../src/domain/dtos";
-import { Military, MilitaryRank } from "../../../../../src/domain/entities";
-import { MilitaryRankRepository } from "../../../../../src/domain/repositories";
 import { EntityNotFoundError } from "../../../../../src/application/errors";
+import { MilitaryInputDTO } from "../../../../../src/domain/dtos";
+import { MilitaryRank } from "../../../../../src/domain/entities";
+import { MilitaryRankRepository } from "../../../../../src/domain/repositories";
+import { MilitaryRepositoryInMemory } from "../../../../../src/infra/repositories/in-memory";
 
 const makeMilitaryRankRepositoryMock =
   (): jest.Mocked<MilitaryRankRepository> => ({
