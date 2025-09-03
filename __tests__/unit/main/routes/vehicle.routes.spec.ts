@@ -1,7 +1,7 @@
 // Mock the adapter
-const mockExpressRouteAdapter = jest.fn();
+const mockVehicleExpressRouteAdapter = jest.fn();
 jest.mock("../../../../src/infra/adapters", () => ({
-  expressRouteAdapter: mockExpressRouteAdapter,
+  expressRouteAdapter: mockVehicleExpressRouteAdapter,
 }));
 
 // Mock the factory functions
@@ -20,16 +20,16 @@ jest.mock("../../../../src/main/factories/controllers", () => ({
 }));
 
 // Mock Express Router
-const mockRouterMethods = {
+const mockVehicleRouterMethods = {
   post: jest.fn(),
   get: jest.fn(),
   delete: jest.fn(),
   put: jest.fn(),
 };
 
-const mockRouter = jest.fn(() => mockRouterMethods);
+const mockVehicleRouter = jest.fn(() => mockVehicleRouterMethods);
 jest.mock("express", () => ({
-  Router: mockRouter,
+  Router: mockVehicleRouter,
 }));
 
 describe("vehicleRoutes", () => {
@@ -56,7 +56,7 @@ describe("vehicleRoutes", () => {
     mockMakeUpdateVehicleController.mockReturnValue(mockUpdateController);
 
     // Mock expressRouteAdapter to return different adapters
-    mockExpressRouteAdapter
+    mockVehicleExpressRouteAdapter
       .mockReturnValueOnce(mockCreateAdapter)
       .mockReturnValueOnce(mockListAllAdapter)
       .mockReturnValueOnce(mockFindByIdAdapter)
@@ -70,10 +70,10 @@ describe("vehicleRoutes", () => {
       require("../../../../src/main/routes/vehicle.routes");
 
       expect(mockMakeCreateVehicleController).toHaveBeenCalledTimes(1);
-      expect(mockExpressRouteAdapter).toHaveBeenCalledWith(
+      expect(mockVehicleExpressRouteAdapter).toHaveBeenCalledWith(
         mockCreateController,
       );
-      expect(mockRouterMethods.post).toHaveBeenCalledWith(
+      expect(mockVehicleRouterMethods.post).toHaveBeenCalledWith(
         "/vehicle",
         mockCreateAdapter,
       );
@@ -85,10 +85,10 @@ describe("vehicleRoutes", () => {
       require("../../../../src/main/routes/vehicle.routes");
 
       expect(mockMakeListAllVehicleController).toHaveBeenCalledTimes(1);
-      expect(mockExpressRouteAdapter).toHaveBeenCalledWith(
+      expect(mockVehicleExpressRouteAdapter).toHaveBeenCalledWith(
         mockListAllController,
       );
-      expect(mockRouterMethods.get).toHaveBeenCalledWith(
+      expect(mockVehicleRouterMethods.get).toHaveBeenCalledWith(
         "/vehicle",
         mockListAllAdapter,
       );
@@ -99,10 +99,10 @@ describe("vehicleRoutes", () => {
       require("../../../../src/main/routes/vehicle.routes");
 
       expect(mockMakeFindByIdVehicleController).toHaveBeenCalledTimes(1);
-      expect(mockExpressRouteAdapter).toHaveBeenCalledWith(
+      expect(mockVehicleExpressRouteAdapter).toHaveBeenCalledWith(
         mockFindByIdController,
       );
-      expect(mockRouterMethods.get).toHaveBeenCalledWith(
+      expect(mockVehicleRouterMethods.get).toHaveBeenCalledWith(
         "/vehicle/:id",
         mockFindByIdAdapter,
       );
@@ -113,10 +113,10 @@ describe("vehicleRoutes", () => {
       require("../../../../src/main/routes/vehicle.routes");
 
       expect(mockMakeDeleteVehicleController).toHaveBeenCalledTimes(1);
-      expect(mockExpressRouteAdapter).toHaveBeenCalledWith(
+      expect(mockVehicleExpressRouteAdapter).toHaveBeenCalledWith(
         mockDeleteController,
       );
-      expect(mockRouterMethods.delete).toHaveBeenCalledWith(
+      expect(mockVehicleRouterMethods.delete).toHaveBeenCalledWith(
         "/vehicle/:id",
         mockDeleteAdapter,
       );
@@ -127,10 +127,10 @@ describe("vehicleRoutes", () => {
       require("../../../../src/main/routes/vehicle.routes");
 
       expect(mockMakeUpdateVehicleController).toHaveBeenCalledTimes(1);
-      expect(mockExpressRouteAdapter).toHaveBeenCalledWith(
+      expect(mockVehicleExpressRouteAdapter).toHaveBeenCalledWith(
         mockUpdateController,
       );
-      expect(mockRouterMethods.put).toHaveBeenCalledWith(
+      expect(mockVehicleRouterMethods.put).toHaveBeenCalledWith(
         "/vehicle/:id",
         mockUpdateAdapter,
       );
@@ -142,33 +142,33 @@ describe("vehicleRoutes", () => {
       jest.resetModules();
       require("../../../../src/main/routes/vehicle.routes");
 
-      expect(mockRouterMethods.post).toHaveBeenCalledTimes(1);
-      expect(mockRouterMethods.get).toHaveBeenCalledTimes(2);
-      expect(mockRouterMethods.delete).toHaveBeenCalledTimes(1);
-      expect(mockRouterMethods.put).toHaveBeenCalledTimes(1);
+      expect(mockVehicleRouterMethods.post).toHaveBeenCalledTimes(1);
+      expect(mockVehicleRouterMethods.get).toHaveBeenCalledTimes(2);
+      expect(mockVehicleRouterMethods.delete).toHaveBeenCalledTimes(1);
+      expect(mockVehicleRouterMethods.put).toHaveBeenCalledTimes(1);
     });
 
     it("should use correct paths for each route", () => {
       jest.resetModules();
       require("../../../../src/main/routes/vehicle.routes");
 
-      expect(mockRouterMethods.post).toHaveBeenCalledWith(
+      expect(mockVehicleRouterMethods.post).toHaveBeenCalledWith(
         "/vehicle",
         expect.any(Function),
       );
-      expect(mockRouterMethods.get).toHaveBeenCalledWith(
+      expect(mockVehicleRouterMethods.get).toHaveBeenCalledWith(
         "/vehicle",
         expect.any(Function),
       );
-      expect(mockRouterMethods.get).toHaveBeenCalledWith(
+      expect(mockVehicleRouterMethods.get).toHaveBeenCalledWith(
         "/vehicle/:id",
         expect.any(Function),
       );
-      expect(mockRouterMethods.delete).toHaveBeenCalledWith(
+      expect(mockVehicleRouterMethods.delete).toHaveBeenCalledWith(
         "/vehicle/:id",
         expect.any(Function),
       );
-      expect(mockRouterMethods.put).toHaveBeenCalledWith(
+      expect(mockVehicleRouterMethods.put).toHaveBeenCalledWith(
         "/vehicle/:id",
         expect.any(Function),
       );
@@ -180,20 +180,20 @@ describe("vehicleRoutes", () => {
       jest.resetModules();
       require("../../../../src/main/routes/vehicle.routes");
 
-      expect(mockExpressRouteAdapter).toHaveBeenCalledTimes(5);
-      expect(mockExpressRouteAdapter).toHaveBeenCalledWith(
+      expect(mockVehicleExpressRouteAdapter).toHaveBeenCalledTimes(5);
+      expect(mockVehicleExpressRouteAdapter).toHaveBeenCalledWith(
         mockCreateController,
       );
-      expect(mockExpressRouteAdapter).toHaveBeenCalledWith(
+      expect(mockVehicleExpressRouteAdapter).toHaveBeenCalledWith(
         mockListAllController,
       );
-      expect(mockExpressRouteAdapter).toHaveBeenCalledWith(
+      expect(mockVehicleExpressRouteAdapter).toHaveBeenCalledWith(
         mockFindByIdController,
       );
-      expect(mockExpressRouteAdapter).toHaveBeenCalledWith(
+      expect(mockVehicleExpressRouteAdapter).toHaveBeenCalledWith(
         mockDeleteController,
       );
-      expect(mockExpressRouteAdapter).toHaveBeenCalledWith(
+      expect(mockVehicleExpressRouteAdapter).toHaveBeenCalledWith(
         mockUpdateController,
       );
     });
@@ -202,23 +202,23 @@ describe("vehicleRoutes", () => {
       jest.resetModules();
       require("../../../../src/main/routes/vehicle.routes");
 
-      expect(mockRouterMethods.post).toHaveBeenCalledWith(
+      expect(mockVehicleRouterMethods.post).toHaveBeenCalledWith(
         "/vehicle",
         mockCreateAdapter,
       );
-      expect(mockRouterMethods.get).toHaveBeenCalledWith(
+      expect(mockVehicleRouterMethods.get).toHaveBeenCalledWith(
         "/vehicle",
         mockListAllAdapter,
       );
-      expect(mockRouterMethods.get).toHaveBeenCalledWith(
+      expect(mockVehicleRouterMethods.get).toHaveBeenCalledWith(
         "/vehicle/:id",
         mockFindByIdAdapter,
       );
-      expect(mockRouterMethods.delete).toHaveBeenCalledWith(
+      expect(mockVehicleRouterMethods.delete).toHaveBeenCalledWith(
         "/vehicle/:id",
         mockDeleteAdapter,
       );
-      expect(mockRouterMethods.put).toHaveBeenCalledWith(
+      expect(mockVehicleRouterMethods.put).toHaveBeenCalledWith(
         "/vehicle/:id",
         mockUpdateAdapter,
       );
@@ -254,8 +254,8 @@ describe("vehicleRoutes", () => {
       jest.resetModules();
       require("../../../../src/main/routes/vehicle.routes");
 
-      expect(mockRouter).toHaveBeenCalledTimes(1);
-      expect(mockRouter).toHaveBeenCalledWith();
+      expect(mockVehicleRouter).toHaveBeenCalledTimes(1);
+      expect(mockVehicleRouter).toHaveBeenCalledWith();
     });
   });
 
@@ -265,10 +265,10 @@ describe("vehicleRoutes", () => {
       require("../../../../src/main/routes/vehicle.routes");
 
       // Verify all CRUD operations are configured
-      const postCalls = mockRouterMethods.post.mock.calls;
-      const getCalls = mockRouterMethods.get.mock.calls;
-      const deleteCalls = mockRouterMethods.delete.mock.calls;
-      const putCalls = mockRouterMethods.put.mock.calls;
+      const postCalls = mockVehicleRouterMethods.post.mock.calls;
+      const getCalls = mockVehicleRouterMethods.get.mock.calls;
+      const deleteCalls = mockVehicleRouterMethods.delete.mock.calls;
+      const putCalls = mockVehicleRouterMethods.put.mock.calls;
 
       expect(postCalls).toHaveLength(1); // CREATE
       expect(getCalls).toHaveLength(2); // READ (list all + find by id)
@@ -297,7 +297,9 @@ describe("vehicleRoutes", () => {
 
       routes.forEach(({ method, path }) => {
         expect(
-          mockRouterMethods[method as keyof typeof mockRouterMethods],
+          mockVehicleRouterMethods[
+            method as keyof typeof mockVehicleRouterMethods
+          ],
         ).toHaveBeenCalledWith(path, expect.any(Function));
       });
     });
