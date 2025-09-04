@@ -1,4 +1,4 @@
-import { mockMilitaryRepository } from "../../../../../__mocks__/repositories/military.repository.mock";
+import { mockMilitaryRepository } from "../../../../../__mocks__/repositories";
 import { EntityNotFoundError } from "../../../../../src/application/errors";
 import { UserInputDTO } from "../../../../../src/domain/dtos";
 import {
@@ -7,7 +7,7 @@ import {
   UserRole,
 } from "../../../../../src/domain/entities";
 import { MilitaryRepository } from "../../../../../src/domain/repositories";
-import { UserRepositoryInMemory } from "../../../../../src/infra/repositories/in-memory";
+import { UserRepositoryInMemory } from "../../../../../src/infra/repositories";
 
 describe("UserRepositoryInMemory", () => {
   let sut: UserRepositoryInMemory;
