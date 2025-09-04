@@ -2,7 +2,6 @@ import { EntityNotFoundError } from "../../../application/errors";
 import { UserInputDTO, UserOutputDTO } from "../../../domain/dtos";
 import { User } from "../../../domain/entities";
 import {
-  MilitaryRankRepository,
   MilitaryRepository,
   UserRepository,
 } from "../../../domain/repositories";
@@ -10,10 +9,7 @@ import {
 export class UserRepositoryInMemory implements UserRepository {
   private items: User[] = [];
 
-  constructor(
-    private readonly militaryRankRepository: MilitaryRankRepository,
-    private readonly militaryRepository: MilitaryRepository,
-  ) {}
+  constructor(private readonly militaryRepository: MilitaryRepository) {}
 
   private mapperUser = async (user: User): Promise<UserOutputDTO> => {
     const military = await this.militaryRepository.findById(user.militaryId);
@@ -23,7 +19,8 @@ export class UserRepositoryInMemory implements UserRepository {
     }
 
     return {
-      ...user,
+      id: user.id,
+      role: user.role,
       military,
     };
   };
