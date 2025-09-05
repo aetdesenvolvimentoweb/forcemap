@@ -1,25 +1,25 @@
 import {
   InvalidParamError,
   MissingParamError,
-} from "../../../../../src/application/errors";
-import { LoginInputDTOValidator } from "../../../../../src/application/validators";
-import { LoginInputDTO } from "../../../../../src/domain/dtos";
+} from "../../../../src/application/errors";
+import { UserCredentialsInputDTOValidator } from "../../../../src/application/validators/user-credentials.input.dto.validator";
+import { UserCredentialsInputDTO } from "../../../../src/domain/dtos";
 
-describe("LoginInputDTOValidator", () => {
-  let sut: LoginInputDTOValidator;
+describe("UserCredentialsInputDTOValidator", () => {
+  let sut: UserCredentialsInputDTOValidator;
 
-  const validInputData: LoginInputDTO = {
+  const validInputData: UserCredentialsInputDTO = {
     rg: 1234,
     password: "ValidPass@123",
   };
 
   beforeEach(() => {
-    sut = new LoginInputDTOValidator();
+    sut = new UserCredentialsInputDTOValidator();
   });
 
   describe("constructor", () => {
     it("should create instance correctly", () => {
-      expect(sut).toBeInstanceOf(LoginInputDTOValidator);
+      expect(sut).toBeInstanceOf(UserCredentialsInputDTOValidator);
       expect(sut.validate).toBeDefined();
     });
   });
@@ -31,7 +31,7 @@ describe("LoginInputDTOValidator", () => {
 
     describe("RG validation", () => {
       it("should throw MissingParamError when rg is null", () => {
-        const inputData: LoginInputDTO = {
+        const inputData: UserCredentialsInputDTO = {
           ...validInputData,
           rg: null as any,
         };
@@ -42,7 +42,7 @@ describe("LoginInputDTOValidator", () => {
       });
 
       it("should throw MissingParamError when rg is undefined", () => {
-        const inputData: LoginInputDTO = {
+        const inputData: UserCredentialsInputDTO = {
           ...validInputData,
           rg: undefined as any,
         };
@@ -53,7 +53,7 @@ describe("LoginInputDTOValidator", () => {
       });
 
       it("should throw InvalidParamError when rg is NaN", () => {
-        const inputData: LoginInputDTO = {
+        const inputData: UserCredentialsInputDTO = {
           ...validInputData,
           rg: NaN,
         };
@@ -64,7 +64,7 @@ describe("LoginInputDTOValidator", () => {
       });
 
       it("should throw InvalidParamError when rg is not a number", () => {
-        const inputData: LoginInputDTO = {
+        const inputData: UserCredentialsInputDTO = {
           ...validInputData,
           rg: "123" as any,
         };
@@ -75,7 +75,7 @@ describe("LoginInputDTOValidator", () => {
       });
 
       it("should throw InvalidParamError when rg is zero", () => {
-        const inputData: LoginInputDTO = {
+        const inputData: UserCredentialsInputDTO = {
           ...validInputData,
           rg: 0,
         };
@@ -86,7 +86,7 @@ describe("LoginInputDTOValidator", () => {
       });
 
       it("should throw InvalidParamError when rg is negative", () => {
-        const inputData: LoginInputDTO = {
+        const inputData: UserCredentialsInputDTO = {
           ...validInputData,
           rg: -123,
         };
@@ -97,7 +97,7 @@ describe("LoginInputDTOValidator", () => {
       });
 
       it("should throw InvalidParamError when rg is greater than 10000", () => {
-        const inputData: LoginInputDTO = {
+        const inputData: UserCredentialsInputDTO = {
           ...validInputData,
           rg: 10001,
         };
@@ -108,7 +108,7 @@ describe("LoginInputDTOValidator", () => {
       });
 
       it("should validate successfully when rg is 1", () => {
-        const inputData: LoginInputDTO = {
+        const inputData: UserCredentialsInputDTO = {
           ...validInputData,
           rg: 1,
         };
@@ -117,7 +117,7 @@ describe("LoginInputDTOValidator", () => {
       });
 
       it("should validate successfully when rg is 10000", () => {
-        const inputData: LoginInputDTO = {
+        const inputData: UserCredentialsInputDTO = {
           ...validInputData,
           rg: 10000,
         };
@@ -128,7 +128,7 @@ describe("LoginInputDTOValidator", () => {
 
     describe("Password validation", () => {
       it("should throw MissingParamError when password is null", () => {
-        const inputData: LoginInputDTO = {
+        const inputData: UserCredentialsInputDTO = {
           ...validInputData,
           password: null as any,
         };
@@ -139,7 +139,7 @@ describe("LoginInputDTOValidator", () => {
       });
 
       it("should throw MissingParamError when password is undefined", () => {
-        const inputData: LoginInputDTO = {
+        const inputData: UserCredentialsInputDTO = {
           ...validInputData,
           password: undefined as any,
         };
@@ -150,7 +150,7 @@ describe("LoginInputDTOValidator", () => {
       });
 
       it("should throw MissingParamError when password is empty string", () => {
-        const inputData: LoginInputDTO = {
+        const inputData: UserCredentialsInputDTO = {
           ...validInputData,
           password: "",
         };
@@ -161,7 +161,7 @@ describe("LoginInputDTOValidator", () => {
       });
 
       it("should throw InvalidParamError when password is shorter than 8 characters", () => {
-        const inputData: LoginInputDTO = {
+        const inputData: UserCredentialsInputDTO = {
           ...validInputData,
           password: "Pass@1",
         };
@@ -172,7 +172,7 @@ describe("LoginInputDTOValidator", () => {
       });
 
       it("should throw InvalidParamError when password has no uppercase letter", () => {
-        const inputData: LoginInputDTO = {
+        const inputData: UserCredentialsInputDTO = {
           ...validInputData,
           password: "validpass@123",
         };
@@ -186,7 +186,7 @@ describe("LoginInputDTOValidator", () => {
       });
 
       it("should throw InvalidParamError when password has no lowercase letter", () => {
-        const inputData: LoginInputDTO = {
+        const inputData: UserCredentialsInputDTO = {
           ...validInputData,
           password: "VALIDPASS@123",
         };
@@ -200,7 +200,7 @@ describe("LoginInputDTOValidator", () => {
       });
 
       it("should throw InvalidParamError when password has no number", () => {
-        const inputData: LoginInputDTO = {
+        const inputData: UserCredentialsInputDTO = {
           ...validInputData,
           password: "ValidPass@",
         };
@@ -211,7 +211,7 @@ describe("LoginInputDTOValidator", () => {
       });
 
       it("should throw InvalidParamError when password has no special character", () => {
-        const inputData: LoginInputDTO = {
+        const inputData: UserCredentialsInputDTO = {
           ...validInputData,
           password: "ValidPass123",
         };
@@ -228,7 +228,7 @@ describe("LoginInputDTOValidator", () => {
         const specialChars = "!@#$%^&*()_+=[]{}';:\"\\|,.<>/?-";
 
         for (const char of specialChars) {
-          const inputData: LoginInputDTO = {
+          const inputData: UserCredentialsInputDTO = {
             ...validInputData,
             password: `ValidPass${char}123`,
           };
@@ -246,7 +246,7 @@ describe("LoginInputDTOValidator", () => {
         ];
 
         validPasswords.forEach((password) => {
-          const inputData: LoginInputDTO = {
+          const inputData: UserCredentialsInputDTO = {
             ...validInputData,
             password,
           };
@@ -258,7 +258,7 @@ describe("LoginInputDTOValidator", () => {
 
     describe("Combined validation", () => {
       it("should throw first validation error when multiple fields are invalid", () => {
-        const inputData: LoginInputDTO = {
+        const inputData: UserCredentialsInputDTO = {
           rg: null as any,
           password: "",
         };
@@ -269,7 +269,7 @@ describe("LoginInputDTOValidator", () => {
       });
 
       it("should throw password error after RG validation passes", () => {
-        const inputData: LoginInputDTO = {
+        const inputData: UserCredentialsInputDTO = {
           rg: 1234,
           password: "weak",
         };

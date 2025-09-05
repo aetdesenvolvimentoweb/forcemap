@@ -1,23 +1,23 @@
-import { LoginInputDTOSanitizer } from "../../../../src/application/sanitizers/login.input.dto.sanitizer";
-import { LoginInputDTO } from "../../../../src/domain/dtos";
+import { UserCredentialsInputDTOSanitizer } from "../../../../src/application/sanitizers/user-credentials.input.dto.sanitizer";
+import { UserCredentialsInputDTO } from "../../../../src/domain/dtos";
 
-describe("LoginInputDTOSanitizer", () => {
-  let sut: LoginInputDTOSanitizer;
+describe("UserCredentialsInputDTOSanitizer", () => {
+  let sut: UserCredentialsInputDTOSanitizer;
 
   beforeEach(() => {
-    sut = new LoginInputDTOSanitizer();
+    sut = new UserCredentialsInputDTOSanitizer();
   });
 
   describe("constructor", () => {
     it("should create instance", () => {
-      expect(sut).toBeInstanceOf(LoginInputDTOSanitizer);
+      expect(sut).toBeInstanceOf(UserCredentialsInputDTOSanitizer);
       expect(sut.sanitize).toBeDefined();
     });
   });
 
   describe("sanitize", () => {
     it("should sanitize all fields in login input data", () => {
-      const inputData: LoginInputDTO = {
+      const inputData: UserCredentialsInputDTO = {
         rg: 12345,
         password: "  MyPass@123  ",
       };
@@ -31,7 +31,7 @@ describe("LoginInputDTOSanitizer", () => {
     });
 
     it("should sanitize RG when it's a string number", () => {
-      const inputData: LoginInputDTO = {
+      const inputData: UserCredentialsInputDTO = {
         rg: "98765" as any,
         password: "ValidPass@123",
       };
@@ -43,7 +43,7 @@ describe("LoginInputDTOSanitizer", () => {
     });
 
     it("should sanitize RG when it's a string decimal", () => {
-      const inputData: LoginInputDTO = {
+      const inputData: UserCredentialsInputDTO = {
         rg: "12345.0" as any,
         password: "ValidPass@123",
       };
@@ -54,7 +54,7 @@ describe("LoginInputDTOSanitizer", () => {
     });
 
     it("should keep RG as number when already a number", () => {
-      const inputData: LoginInputDTO = {
+      const inputData: UserCredentialsInputDTO = {
         rg: 54321,
         password: "ValidPass@123",
       };
@@ -66,7 +66,7 @@ describe("LoginInputDTOSanitizer", () => {
     });
 
     it("should handle RG as zero", () => {
-      const inputData: LoginInputDTO = {
+      const inputData: UserCredentialsInputDTO = {
         rg: 0,
         password: "ValidPass@123",
       };
@@ -77,7 +77,7 @@ describe("LoginInputDTOSanitizer", () => {
     });
 
     it("should handle negative RG", () => {
-      const inputData: LoginInputDTO = {
+      const inputData: UserCredentialsInputDTO = {
         rg: -123,
         password: "ValidPass@123",
       };
@@ -88,7 +88,7 @@ describe("LoginInputDTOSanitizer", () => {
     });
 
     it("should handle NaN RG from parseFloat", () => {
-      const inputData: LoginInputDTO = {
+      const inputData: UserCredentialsInputDTO = {
         rg: "not-a-number" as any,
         password: "ValidPass@123",
       };
@@ -99,7 +99,7 @@ describe("LoginInputDTOSanitizer", () => {
     });
 
     it("should handle float RG correctly", () => {
-      const inputData: LoginInputDTO = {
+      const inputData: UserCredentialsInputDTO = {
         rg: 123.45,
         password: "ValidPass@123",
       };
@@ -110,7 +110,7 @@ describe("LoginInputDTOSanitizer", () => {
     });
 
     it("should sanitize password by trimming whitespace", () => {
-      const inputData: LoginInputDTO = {
+      const inputData: UserCredentialsInputDTO = {
         rg: 12345,
         password: "   MyPassword@123   ",
       };
@@ -121,7 +121,7 @@ describe("LoginInputDTOSanitizer", () => {
     });
 
     it("should sanitize password by removing control characters", () => {
-      const inputData: LoginInputDTO = {
+      const inputData: UserCredentialsInputDTO = {
         rg: 12345,
         password: "MyPass@123\u0001\u0002\u001f\u007f",
       };
@@ -132,7 +132,7 @@ describe("LoginInputDTOSanitizer", () => {
     });
 
     it("should sanitize password by removing null bytes", () => {
-      const inputData: LoginInputDTO = {
+      const inputData: UserCredentialsInputDTO = {
         rg: 12345,
         password: "MyPass@123\u0000test",
       };
@@ -143,7 +143,7 @@ describe("LoginInputDTOSanitizer", () => {
     });
 
     it("should preserve special characters in password", () => {
-      const inputData: LoginInputDTO = {
+      const inputData: UserCredentialsInputDTO = {
         rg: 12345,
         password: "MyP@ss#123!$%^&*()_+-=[]{}|;':\",./<>?",
       };
@@ -154,7 +154,7 @@ describe("LoginInputDTOSanitizer", () => {
     });
 
     it("should handle empty password", () => {
-      const inputData: LoginInputDTO = {
+      const inputData: UserCredentialsInputDTO = {
         rg: 12345,
         password: "",
       };
@@ -165,7 +165,7 @@ describe("LoginInputDTOSanitizer", () => {
     });
 
     it("should handle null password", () => {
-      const inputData: LoginInputDTO = {
+      const inputData: UserCredentialsInputDTO = {
         rg: 12345,
         password: null as any,
       };
@@ -176,7 +176,7 @@ describe("LoginInputDTOSanitizer", () => {
     });
 
     it("should handle undefined password", () => {
-      const inputData: LoginInputDTO = {
+      const inputData: UserCredentialsInputDTO = {
         rg: 12345,
         password: undefined as any,
       };
@@ -187,7 +187,7 @@ describe("LoginInputDTOSanitizer", () => {
     });
 
     it("should handle non-string password", () => {
-      const inputData: LoginInputDTO = {
+      const inputData: UserCredentialsInputDTO = {
         rg: 12345,
         password: 12345 as any,
       };
@@ -198,7 +198,7 @@ describe("LoginInputDTOSanitizer", () => {
     });
 
     it("should handle complex sanitization scenario", () => {
-      const inputData: LoginInputDTO = {
+      const inputData: UserCredentialsInputDTO = {
         rg: "9876.5" as any,
         password: "  MyP@ss#123\u0001\u0000test  ",
       };
@@ -212,7 +212,7 @@ describe("LoginInputDTOSanitizer", () => {
     });
 
     it("should preserve object structure", () => {
-      const inputData: LoginInputDTO = {
+      const inputData: UserCredentialsInputDTO = {
         rg: 12345,
         password: "ValidPass@123",
       };
@@ -225,7 +225,7 @@ describe("LoginInputDTOSanitizer", () => {
     });
 
     it("should not modify original input data", () => {
-      const originalData: LoginInputDTO = {
+      const originalData: UserCredentialsInputDTO = {
         rg: 12345,
         password: "  Original Password  ",
       };
@@ -239,7 +239,7 @@ describe("LoginInputDTOSanitizer", () => {
     });
 
     it("should handle multiple calls consistently", () => {
-      const inputData: LoginInputDTO = {
+      const inputData: UserCredentialsInputDTO = {
         rg: "54321" as any,
         password: "  TestPass@123  ",
       };
@@ -253,7 +253,7 @@ describe("LoginInputDTOSanitizer", () => {
     });
 
     it("should remove only dangerous control characters but preserve valid characters", () => {
-      const inputData: LoginInputDTO = {
+      const inputData: UserCredentialsInputDTO = {
         rg: 12345,
         password: "Pass@123\ttab\nnewline\rcarriage",
       };
@@ -265,7 +265,7 @@ describe("LoginInputDTOSanitizer", () => {
     });
 
     it("should handle password with only whitespace", () => {
-      const inputData: LoginInputDTO = {
+      const inputData: UserCredentialsInputDTO = {
         rg: 12345,
         password: "   \t\n\r   ",
       };
@@ -287,7 +287,7 @@ describe("LoginInputDTOSanitizer", () => {
       ];
 
       testCases.forEach(({ input, expected }) => {
-        const inputData: LoginInputDTO = {
+        const inputData: UserCredentialsInputDTO = {
           rg: input,
           password: "ValidPass@123",
         };

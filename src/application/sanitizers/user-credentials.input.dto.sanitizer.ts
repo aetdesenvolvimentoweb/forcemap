@@ -1,7 +1,9 @@
-import { LoginInputDTO } from "../../domain/dtos";
-import { LoginInputDTOSanitizerProtocol } from "../protocols";
+import { UserCredentialsInputDTO } from "../../domain/dtos";
+import { UserCredentialsInputDTOSanitizerProtocol } from "../protocols";
 
-export class LoginInputDTOSanitizer implements LoginInputDTOSanitizerProtocol {
+export class UserCredentialsInputDTOSanitizer
+  implements UserCredentialsInputDTOSanitizerProtocol
+{
   private readonly sanitizeRg = (rg: number): number => {
     return typeof rg === "string" ? parseFloat(rg) : rg;
   };
@@ -21,7 +23,9 @@ export class LoginInputDTOSanitizer implements LoginInputDTOSanitizerProtocol {
     //foi preciso desativar as regras do eslint acima para garantir que caracteres maliciosos não sejam usados contra a aplicação.
   };
 
-  public readonly sanitize = (data: LoginInputDTO): LoginInputDTO => {
+  public readonly sanitize = (
+    data: UserCredentialsInputDTO,
+  ): UserCredentialsInputDTO => {
     const sanitized = {
       rg: this.sanitizeRg(data.rg),
       password: this.sanitizePassword(data.password),

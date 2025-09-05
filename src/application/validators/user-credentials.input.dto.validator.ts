@@ -1,9 +1,11 @@
-import { LoginInputDTO } from "../../../domain/dtos";
-import { InvalidParamError } from "../../errors";
-import { LoginInputDTOValidatorProtocol } from "../../protocols";
-import { ValidationPatterns } from "../common";
+import { UserCredentialsInputDTO } from "../../domain/dtos";
+import { InvalidParamError } from "../errors";
+import { UserCredentialsInputDTOValidatorProtocol } from "../protocols";
+import { ValidationPatterns } from "./common";
 
-export class LoginInputDTOValidator implements LoginInputDTOValidatorProtocol {
+export class UserCredentialsInputDTOValidator
+  implements UserCredentialsInputDTOValidatorProtocol
+{
   private readonly validateRgPresence = (rg: number): void => {
     ValidationPatterns.validatePresence(rg, "RG");
   };
@@ -58,17 +60,19 @@ export class LoginInputDTOValidator implements LoginInputDTOValidatorProtocol {
     }
   };
 
-  private readonly validateRequiredFields = (data: LoginInputDTO): void => {
+  private readonly validateRequiredFields = (
+    data: UserCredentialsInputDTO,
+  ): void => {
     this.validateRgPresence(data.rg);
     this.validatePasswordPresence(data.password);
   };
 
-  private readonly validateFormats = (data: LoginInputDTO): void => {
+  private readonly validateFormats = (data: UserCredentialsInputDTO): void => {
     this.validateRgFormat(data.rg);
     this.validatePasswordFormat(data.password);
   };
 
-  public readonly validate = (data: LoginInputDTO): void => {
+  public readonly validate = (data: UserCredentialsInputDTO): void => {
     this.validateRequiredFields(data);
     this.validateFormats(data);
   };
