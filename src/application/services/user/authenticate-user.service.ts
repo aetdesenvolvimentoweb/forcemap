@@ -3,10 +3,10 @@ import {
   UserCredentialsInputDTO,
 } from "../../../domain/dtos";
 import {
-  AuthenticateUserUseCase,
-  FindByMilitaryIdWithPasswordUserUseCase,
-  FindByRgMilitaryUseCase,
-} from "../../../domain/use-cases";
+  MilitaryRepository,
+  UserRepository,
+} from "../../../domain/repositories";
+import { AuthenticateUserUseCase } from "../../../domain/use-cases";
 import { NotAuthorizedError } from "../../errors";
 import {
   PasswordHasherProtocol,
@@ -15,8 +15,8 @@ import {
 } from "../../protocols";
 
 interface AuthenticateUserServiceProps {
-  findMilitaryByRg: FindByRgMilitaryUseCase;
-  findUserByMilitaryIdWithPassword: FindByMilitaryIdWithPasswordUserUseCase;
+  militaryRepository: MilitaryRepository;
+  userRepository: UserRepository;
   sanitizer: UserCredentialsInputDTOSanitizerProtocol;
   validator: UserCredentialsInputDTOValidatorProtocol;
   passwordHasher: PasswordHasherProtocol;
@@ -33,8 +33,8 @@ export class AuthenticateUserService implements AuthenticateUserUseCase {
     credentials: UserCredentialsInputDTO,
   ): Promise<UserAuthenticatedDTO | null> => {
     const {
-      findMilitaryByRg,
-      findUserByMilitaryIdWithPassword,
+      militaryRepository,
+      userRepository,
       sanitizer,
       validator,
       passwordHasher,
@@ -45,16 +45,13 @@ export class AuthenticateUserService implements AuthenticateUserUseCase {
     validator.validate(sanitizedCredentials);
 
     // Find military by RG
-    const military = await findMilitaryByRg.findByRg(sanitizedCredentials.rg);
+    const military = await militaryRepository.findByRg(sanitizedCredentials.rg);
     if (!military) {
       throw new NotAuthorizedError();
     }
 
     // Find user by military ID with password
-    const user =
-      await findUserByMilitaryIdWithPassword.findByMilitaryIdWithPassword(
-        military.id,
-      );
+    const user = await userRepository.findByMilitaryIdWithPassword(military.id);
     if (!user) {
       throw new NotAuthorizedError();
     }

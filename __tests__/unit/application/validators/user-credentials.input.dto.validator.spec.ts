@@ -2,7 +2,7 @@ import {
   InvalidParamError,
   MissingParamError,
 } from "../../../../src/application/errors";
-import { UserCredentialsInputDTOValidator } from "../../../../src/application/validators/user-credentials.input.dto.validator";
+import { UserCredentialsInputDTOValidator } from "../../../../src/application/validators";
 import { UserCredentialsInputDTO } from "../../../../src/domain/dtos";
 
 describe("UserCredentialsInputDTOValidator", () => {

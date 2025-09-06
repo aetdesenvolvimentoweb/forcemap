@@ -1,7 +1,7 @@
-import { UserCredentialsInputDTO } from "../../domain/dtos";
-import { InvalidParamError } from "../errors";
-import { UserCredentialsInputDTOValidatorProtocol } from "../protocols";
-import { ValidationPatterns } from "./common";
+import { UserCredentialsInputDTO } from "../../../domain/dtos";
+import { InvalidParamError } from "../../errors";
+import { UserCredentialsInputDTOValidatorProtocol } from "../../protocols";
+import { ValidationPatterns } from "../common";
 
 export class UserCredentialsInputDTOValidator
   implements UserCredentialsInputDTOValidatorProtocol

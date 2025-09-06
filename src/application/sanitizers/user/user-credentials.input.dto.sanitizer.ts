@@ -1,5 +1,5 @@
-import { UserCredentialsInputDTO } from "../../domain/dtos";
-import { UserCredentialsInputDTOSanitizerProtocol } from "../protocols";
+import { UserCredentialsInputDTO } from "../../../domain/dtos";
+import { UserCredentialsInputDTOSanitizerProtocol } from "../../protocols";
 
 export class UserCredentialsInputDTOSanitizer
   implements UserCredentialsInputDTOSanitizerProtocol

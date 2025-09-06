@@ -1,4 +1,5 @@
 echo "Executando validações de formatação, lint e TypeScript antes do commit..."
+pnpm tsc --noEmit
 pnpm lint-staged
 echo "Executando testes automatizados nas alterações realizadas..."
 pnpm test:staged

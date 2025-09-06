@@ -1,21 +1,23 @@
 import {
+  mockMilitaryRepository,
   mockPasswordHasher,
   mockUserCredentialsInputDTOSanitizer,
   mockUserCredentialsInputDTOValidator,
+  mockUserRepository,
 } from "../../../../../__mocks__";
 import { NotAuthorizedError } from "../../../../../src/application/errors";
 import { AuthenticateUserService } from "../../../../../src/application/services";
 import { UserCredentialsInputDTO } from "../../../../../src/domain/dtos";
 import { UserRole } from "../../../../../src/domain/entities";
 import {
-  FindByMilitaryIdWithPasswordUserUseCase,
-  FindByRgMilitaryUseCase,
-} from "../../../../../src/domain/use-cases";
+  MilitaryRepository,
+  UserRepository,
+} from "../../../../../src/domain/repositories";
 
 describe("AuthenticateUserService", () => {
   let sut: AuthenticateUserService;
-  let mockedFindMilitaryByRg: jest.Mocked<FindByRgMilitaryUseCase>;
-  let mockedFindUserByMilitaryIdWithPassword: jest.Mocked<FindByMilitaryIdWithPasswordUserUseCase>;
+  let mockedMilitaryRepository: jest.Mocked<MilitaryRepository>;
+  let mockedUserRepository: jest.Mocked<UserRepository>;
   let mockedSanitizer = mockUserCredentialsInputDTOSanitizer();
   let mockedValidator = mockUserCredentialsInputDTOValidator();
   let mockedPasswordHasher = mockPasswordHasher();
@@ -23,17 +25,12 @@ describe("AuthenticateUserService", () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    mockedFindMilitaryByRg = {
-      findByRg: jest.fn(),
-    };
-
-    mockedFindUserByMilitaryIdWithPassword = {
-      findByMilitaryIdWithPassword: jest.fn(),
-    };
+    mockedMilitaryRepository = mockMilitaryRepository();
+    mockedUserRepository = mockUserRepository();
 
     sut = new AuthenticateUserService({
-      findMilitaryByRg: mockedFindMilitaryByRg,
-      findUserByMilitaryIdWithPassword: mockedFindUserByMilitaryIdWithPassword,
+      militaryRepository: mockedMilitaryRepository,
+      userRepository: mockedUserRepository,
       sanitizer: mockedSanitizer,
       validator: mockedValidator,
       passwordHasher: mockedPasswordHasher,
@@ -77,8 +74,8 @@ describe("AuthenticateUserService", () => {
 
     it("should authenticate user successfully with valid credentials", async () => {
       // Arrange
-      mockedFindMilitaryByRg.findByRg.mockResolvedValue(mockMilitary);
-      mockedFindUserByMilitaryIdWithPassword.findByMilitaryIdWithPassword.mockResolvedValue(
+      mockedMilitaryRepository.findByRg.mockResolvedValue(mockMilitary);
+      mockedUserRepository.findByMilitaryIdWithPassword.mockResolvedValue(
         mockUser,
       );
       mockedPasswordHasher.compare.mockResolvedValue(true);
@@ -97,9 +94,9 @@ describe("AuthenticateUserService", () => {
       expect(mockedValidator.validate).toHaveBeenCalledWith(
         sanitizedCredentials,
       );
-      expect(mockedFindMilitaryByRg.findByRg).toHaveBeenCalledWith(1234);
+      expect(mockedMilitaryRepository.findByRg).toHaveBeenCalledWith(1234);
       expect(
-        mockedFindUserByMilitaryIdWithPassword.findByMilitaryIdWithPassword,
+        mockedUserRepository.findByMilitaryIdWithPassword,
       ).toHaveBeenCalledWith("military-id-123");
       expect(mockedPasswordHasher.compare).toHaveBeenCalledWith(
         "ValidPass@123",
@@ -109,7 +106,7 @@ describe("AuthenticateUserService", () => {
 
     it("should throw NotAuthorizedError when military not found", async () => {
       // Arrange
-      mockedFindMilitaryByRg.findByRg.mockResolvedValue(null);
+      mockedMilitaryRepository.findByRg.mockResolvedValue(null);
 
       // Act & Assert
       await expect(sut.authenticate(inputCredentials)).rejects.toThrow(
@@ -120,19 +117,17 @@ describe("AuthenticateUserService", () => {
       expect(mockedValidator.validate).toHaveBeenCalledWith(
         sanitizedCredentials,
       );
-      expect(mockedFindMilitaryByRg.findByRg).toHaveBeenCalledWith(1234);
+      expect(mockedMilitaryRepository.findByRg).toHaveBeenCalledWith(1234);
       expect(
-        mockedFindUserByMilitaryIdWithPassword.findByMilitaryIdWithPassword,
+        mockedUserRepository.findByMilitaryIdWithPassword,
       ).not.toHaveBeenCalled();
       expect(mockedPasswordHasher.compare).not.toHaveBeenCalled();
     });
 
     it("should throw NotAuthorizedError when user not found", async () => {
       // Arrange
-      mockedFindMilitaryByRg.findByRg.mockResolvedValue(mockMilitary);
-      mockedFindUserByMilitaryIdWithPassword.findByMilitaryIdWithPassword.mockResolvedValue(
-        null,
-      );
+      mockedMilitaryRepository.findByRg.mockResolvedValue(mockMilitary);
+      mockedUserRepository.findByMilitaryIdWithPassword.mockResolvedValue(null);
 
       // Act & Assert
       await expect(sut.authenticate(inputCredentials)).rejects.toThrow(
@@ -143,17 +138,17 @@ describe("AuthenticateUserService", () => {
       expect(mockedValidator.validate).toHaveBeenCalledWith(
         sanitizedCredentials,
       );
-      expect(mockedFindMilitaryByRg.findByRg).toHaveBeenCalledWith(1234);
+      expect(mockedMilitaryRepository.findByRg).toHaveBeenCalledWith(1234);
       expect(
-        mockedFindUserByMilitaryIdWithPassword.findByMilitaryIdWithPassword,
+        mockedUserRepository.findByMilitaryIdWithPassword,
       ).toHaveBeenCalledWith("military-id-123");
       expect(mockedPasswordHasher.compare).not.toHaveBeenCalled();
     });
 
     it("should throw NotAuthorizedError when password is invalid", async () => {
       // Arrange
-      mockedFindMilitaryByRg.findByRg.mockResolvedValue(mockMilitary);
-      mockedFindUserByMilitaryIdWithPassword.findByMilitaryIdWithPassword.mockResolvedValue(
+      mockedMilitaryRepository.findByRg.mockResolvedValue(mockMilitary);
+      mockedUserRepository.findByMilitaryIdWithPassword.mockResolvedValue(
         mockUser,
       );
       mockedPasswordHasher.compare.mockResolvedValue(false);
@@ -167,9 +162,9 @@ describe("AuthenticateUserService", () => {
       expect(mockedValidator.validate).toHaveBeenCalledWith(
         sanitizedCredentials,
       );
-      expect(mockedFindMilitaryByRg.findByRg).toHaveBeenCalledWith(1234);
+      expect(mockedMilitaryRepository.findByRg).toHaveBeenCalledWith(1234);
       expect(
-        mockedFindUserByMilitaryIdWithPassword.findByMilitaryIdWithPassword,
+        mockedUserRepository.findByMilitaryIdWithPassword,
       ).toHaveBeenCalledWith("military-id-123");
       expect(mockedPasswordHasher.compare).toHaveBeenCalledWith(
         "ValidPass@123",
@@ -179,12 +174,12 @@ describe("AuthenticateUserService", () => {
 
     it("should call sanitizer and validator with correct parameters", async () => {
       // Arrange
-      mockedFindMilitaryByRg.findByRg.mockResolvedValue(null);
+      mockedMilitaryRepository.findByRg.mockResolvedValue(null);
 
       // Act
       try {
         await sut.authenticate(inputCredentials);
-      } catch (error) {
+      } catch {
         // Expected to throw
       }
 
@@ -208,10 +203,10 @@ describe("AuthenticateUserService", () => {
         },
       };
 
-      mockedFindMilitaryByRg.findByRg.mockResolvedValue(
+      mockedMilitaryRepository.findByRg.mockResolvedValue(
         mockMilitaryWithoutRank,
       );
-      mockedFindUserByMilitaryIdWithPassword.findByMilitaryIdWithPassword.mockResolvedValue(
+      mockedUserRepository.findByMilitaryIdWithPassword.mockResolvedValue(
         mockUser,
       );
       mockedPasswordHasher.compare.mockResolvedValue(true);

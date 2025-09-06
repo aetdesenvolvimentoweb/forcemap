@@ -1,6 +1,6 @@
 import { mockIdSanitizer } from "../../../../__mocks__/sanitizers";
 import { IdSanitizerProtocol } from "../../../../src/application/protocols";
-import { UserInputDTOSanitizer } from "../../../../src/application/sanitizers/user.input.dto.sanitizer";
+import { UserInputDTOSanitizer } from "../../../../src/application/sanitizers";
 import { UserInputDTO } from "../../../../src/domain/dtos";
 import { UserRole } from "../../../../src/domain/entities";
 

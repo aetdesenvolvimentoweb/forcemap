@@ -1,9 +1,9 @@
-import { UserInputDTO } from "../../domain/dtos";
-import { UserRole } from "../../domain/entities";
+import { UserInputDTO } from "../../../domain/dtos";
+import { UserRole } from "../../../domain/entities";
 import {
   IdSanitizerProtocol,
   UserInputDTOSanitizerProtocol,
-} from "../protocols";
+} from "../../protocols";
 
 interface UserInputDTOSanitizerProps {
   idSanitizer: IdSanitizerProtocol;

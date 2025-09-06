@@ -1,4 +1,4 @@
-import { UserCredentialsInputDTOSanitizer } from "../../../../src/application/sanitizers/user-credentials.input.dto.sanitizer";
+import { UserCredentialsInputDTOSanitizer } from "../../../../src/application/sanitizers";
 import { UserCredentialsInputDTO } from "../../../../src/domain/dtos";
 
 describe("UserCredentialsInputDTOSanitizer", () => {

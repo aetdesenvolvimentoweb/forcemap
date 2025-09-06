@@ -1,4 +1,3 @@
 {
-  "*.{ts,js,json}": ["pnpm format", "pnpm lint"],
-  "*.ts": ["tsc --noEmit"]
+  "*.{ts,js,json}": ["pnpm format", "pnpm lint"]
 }
