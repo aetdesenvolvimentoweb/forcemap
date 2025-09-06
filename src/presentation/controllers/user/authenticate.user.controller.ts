@@ -22,6 +22,7 @@ export class AuthenticateUserController extends BaseController {
 
     this.logger.info("Recebida requisição para autenticar usuário", {
       rg: request.body?.rg,
+      password: "senha oculta",
     });
 
     const body = this.validateRequiredBody(request);

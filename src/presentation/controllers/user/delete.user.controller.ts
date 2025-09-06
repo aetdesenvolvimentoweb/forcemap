@@ -17,7 +17,7 @@ export class DeleteUserController extends BaseController {
   public async handle(request: HttpRequest): Promise<HttpResponse> {
     const { deleteUserService } = this.props;
 
-    this.logger.info("Recebida requisição para deletar militar");
+    this.logger.info("Recebida requisição para deletar usuário");
 
     const id = this.validateRequiredParam(request, "id");
     if (!id) {
@@ -27,10 +27,10 @@ export class DeleteUserController extends BaseController {
     const result = await this.executeWithErrorHandling(
       async () => {
         await deleteUserService.delete(id);
-        this.logger.info("Militar deletado com sucesso", { id });
+        this.logger.info("Usuário deletado com sucesso", { id });
         return noContent();
       },
-      "Erro ao deletar militar",
+      "Erro ao deletar usuário",
       { id },
     );
 

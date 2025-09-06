@@ -20,9 +20,13 @@ export class UpdateUserController extends BaseController {
   ): Promise<HttpResponse> {
     const { updateUserService } = this.props;
 
-    this.logger.info("Recebida requisição para atualizar militar", {
+    this.logger.info("Recebida requisição para atualizar usuário", {
       params: request.params,
-      body: request.body,
+      body: {
+        rg: request.body?.militaryId,
+        role: request.body?.role,
+        password: "senha oculta",
+      },
     });
 
     const id = this.validateRequiredParam(request, "id");

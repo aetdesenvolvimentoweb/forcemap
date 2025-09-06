@@ -18,7 +18,7 @@ export class ListAllUserController extends BaseController {
   public async handle(): Promise<HttpResponse> {
     const { listAllUserService } = this.props;
 
-    this.logger.info("Recebida requisição para listar todos os militares");
+    this.logger.info("Recebida requisição para listar todos os usuários");
 
     const result = await this.executeWithErrorHandling(async () => {
       const users = await listAllUserService.listAll();

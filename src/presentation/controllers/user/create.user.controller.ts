@@ -20,8 +20,12 @@ export class CreateUserController extends BaseController {
   ): Promise<HttpResponse> {
     const { createUserService } = this.props;
 
-    this.logger.info("Recebida requisição para criar militar", {
-      body: request.body,
+    this.logger.info("Recebida requisição para criar usuário", {
+      body: {
+        militaryId: request.body?.militaryId,
+        role: request.body?.role,
+        password: "senha oculta",
+      },
     });
 
     const body = this.validateRequiredBody(request);
@@ -32,14 +36,14 @@ export class CreateUserController extends BaseController {
     const result = await this.executeWithErrorHandling(
       async () => {
         await createUserService.create(body);
-        this.logger.info("Militar criado com sucesso", {
+        this.logger.info("Usuário criado com sucesso", {
           militaryId: body.militaryId,
           role: body.role,
           password: "senha oculta",
         });
         return created();
       },
-      "Erro ao criar militar",
+      "Erro ao criar usuário",
       body,
     );
 
