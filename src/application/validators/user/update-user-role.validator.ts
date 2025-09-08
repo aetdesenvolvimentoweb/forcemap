@@ -1,9 +1,11 @@
 import { UserRole } from "../../../domain/entities";
 import { InvalidParamError } from "../../errors";
-import { UserRoleValidatorProtocol } from "../../protocols";
+import { UpdateUserRoleValidatorProtocol } from "../../protocols";
 import { ValidationPatterns } from "../common";
 
-export class UserRoleValidator implements UserRoleValidatorProtocol {
+export class UpdateUserRoleValidator
+  implements UpdateUserRoleValidatorProtocol
+{
   private readonly validateUserRolePresence = (userRole: UserRole): void => {
     ValidationPatterns.validatePresence(userRole, "Função do Usuário");
   };

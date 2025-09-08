@@ -1,7 +1,9 @@
-import { UserRoleSanitizerProtocol } from "../../../application/protocols";
+import { UpdateUserRoleSanitizerProtocol } from "../../../application/protocols";
 import { UserRole } from "../../../domain/entities";
 
-export class UserRoleSanitizer implements UserRoleSanitizerProtocol {
+export class UpdateUserRoleSanitizer
+  implements UpdateUserRoleSanitizerProtocol
+{
   private readonly sanitizeUserRole = (role: UserRole): UserRole => {
     if (!role || typeof role !== "string") return role;
 

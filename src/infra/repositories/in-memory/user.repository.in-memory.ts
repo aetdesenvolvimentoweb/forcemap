@@ -83,13 +83,6 @@ export class UserRepositoryInMemory implements UserRepository {
     return usersMapped;
   };
 
-  public update = async (id: string, data: UserInputDTO): Promise<void> => {
-    const index = this.items.findIndex((item) => item.id === id);
-    if (index !== -1) {
-      this.items[index] = { ...this.items[index], ...data };
-    }
-  };
-
   public updateUserPassword = async (
     id: string,
     data: UpdateUserInputDTO,

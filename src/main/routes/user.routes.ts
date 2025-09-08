@@ -6,7 +6,6 @@ import {
   makeDeleteUserController,
   makeFindByIdUserController,
   makeListAllUserController,
-  makeUpdateUserController,
   makeUpdateUserPasswordController,
   makeUpdateUserRoleController,
 } from "../factories/controllers";
@@ -17,9 +16,8 @@ userRoutes.post("/user", expressRouteAdapter(makeCreateUserController()));
 userRoutes.get("/user", expressRouteAdapter(makeListAllUserController()));
 userRoutes.get("/user/:id", expressRouteAdapter(makeFindByIdUserController()));
 userRoutes.delete("/user/:id", expressRouteAdapter(makeDeleteUserController()));
-userRoutes.put("/user/:id", expressRouteAdapter(makeUpdateUserController()));
 userRoutes.patch(
-  "/user/:userId",
+  "/user/:id",
   expressRouteAdapter(makeUpdateUserRoleController()),
 );
 userRoutes.patch(

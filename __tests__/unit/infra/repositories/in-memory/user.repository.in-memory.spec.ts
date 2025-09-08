@@ -480,131 +480,6 @@ describe("UserRepositoryInMemory", () => {
     });
   });
 
-  describe("update", () => {
-    let userId: string;
-
-    beforeEach(async () => {
-      militaryRepository.findById.mockResolvedValue({
-        ...mockMilitary,
-        militaryRank: mockMilitaryRank,
-      });
-      await sut.create({
-        militaryId: "military-id",
-        role: UserRole.BOMBEIRO,
-        password: "hashedPassword",
-      });
-      const items = await sut.listAll();
-      userId = items[0].id;
-    });
-
-    it("should update existing user", async () => {
-      const updateData: UserInputDTO = {
-        militaryId: "new-military-id",
-        role: UserRole.ADMIN,
-        password: "newHashedPassword",
-      };
-
-      const newMockMilitary: Military = {
-        id: "new-military-id",
-        militaryRankId: "rank-id",
-        rg: 999999,
-        name: "João Silva Atualizado",
-      };
-
-      militaryRepository.findById.mockImplementation((id) => {
-        if (id === "new-military-id")
-          return Promise.resolve({
-            ...newMockMilitary,
-            militaryRank: mockMilitaryRank,
-          });
-        return Promise.resolve({
-          ...mockMilitary,
-          militaryRank: mockMilitaryRank,
-        });
-      });
-
-      await sut.update(userId, updateData);
-
-      const result = await sut.findById(userId);
-      expect(result).not.toBeNull();
-      expect(result?.military.id).toBe("new-military-id");
-      expect(result?.role).toBe(UserRole.ADMIN);
-      expect(result?.military).toEqual({
-        ...newMockMilitary,
-        militaryRank: mockMilitaryRank,
-      });
-      expect(result?.id).toBe(userId);
-    });
-
-    it("should partially update user", async () => {
-      const updateData = { role: UserRole.ADMIN };
-
-      await sut.update(userId, updateData as UserInputDTO);
-
-      const result = await sut.findById(userId);
-      expect(result).not.toBeNull();
-      expect(result?.role).toBe(UserRole.ADMIN);
-      expect(result?.military.id).toBe("military-id");
-      expect(result?.id).toBe(userId);
-    });
-
-    it("should handle update of non-existent id gracefully", async () => {
-      const updateData: UserInputDTO = {
-        militaryId: "military-id",
-        role: UserRole.ADMIN,
-        password: "newPassword",
-      };
-
-      await sut.update("non-existent-id", updateData);
-
-      const allItems = await sut.listAll();
-      expect(allItems).toHaveLength(1);
-      expect(allItems[0].role).toBe(UserRole.BOMBEIRO);
-    });
-
-    it("should not affect other users when updating", async () => {
-      const mockMilitary2: Military = {
-        id: "military-id-2",
-        militaryRankId: "rank-id",
-        rg: 654321,
-        name: "Maria Santos",
-      };
-
-      militaryRepository.findById.mockImplementation((id) => {
-        if (id === "military-id")
-          return Promise.resolve({
-            ...mockMilitary,
-            militaryRank: mockMilitaryRank,
-          });
-        if (id === "military-id-2")
-          return Promise.resolve({
-            ...mockMilitary2,
-            militaryRank: mockMilitaryRank,
-          });
-        return Promise.resolve(null);
-      });
-
-      await sut.create({
-        militaryId: "military-id-2",
-        role: UserRole.CHEFE,
-        password: "password2",
-      });
-
-      const allItems = await sut.listAll();
-      const secondId = allItems[1].id;
-
-      await sut.update(userId, {
-        militaryId: "military-id",
-        role: UserRole.ADMIN,
-        password: "updatedPassword",
-      });
-
-      const secondItem = await sut.findById(secondId);
-      expect(secondItem?.role).toBe(UserRole.CHEFE);
-      expect(secondItem?.military.id).toBe("military-id-2");
-    });
-  });
-
   describe("mapperUser", () => {
     it("should map user with military data correctly", async () => {
       militaryRepository.findById.mockResolvedValue({
@@ -673,15 +548,6 @@ describe("UserRepositoryInMemory", () => {
         await sut.findByMilitaryIdWithPassword("military-id");
       expect(foundByMilitaryIdWithPassword).not.toBeNull();
       expect(foundByMilitaryIdWithPassword?.password).toBe("hashedPassword");
-
-      // Update
-      await sut.update(userId, {
-        militaryId: "military-id",
-        role: UserRole.ADMIN,
-        password: "newHashedPassword",
-      });
-      const updatedItem = await sut.findById(userId);
-      expect(updatedItem?.role).toBe(UserRole.ADMIN);
 
       // Delete
       await sut.delete(userId);
@@ -787,22 +653,15 @@ describe("UserRepositoryInMemory", () => {
         (item) => item.military.id === "military-id",
       )?.id;
 
-      // Update and verify
-      await sut.update(userJoaoId!, {
-        militaryId: "military-id",
-        role: UserRole.ADMIN,
-        password: "newPass1",
-      });
-
       // Verify all access methods return consistent data
       const byId = await sut.findById(userJoaoId!);
       const byMilitaryId = await sut.findByMilitaryId("military-id");
       const all = await sut.listAll();
 
-      expect(byId?.role).toBe(UserRole.ADMIN);
-      expect(byMilitaryId?.role).toBe(UserRole.ADMIN);
+      expect(byId?.role).toBe(UserRole.BOMBEIRO);
+      expect(byMilitaryId?.role).toBe(UserRole.BOMBEIRO);
       expect(all.find((item) => item.id === userJoaoId)?.role).toBe(
-        UserRole.ADMIN,
+        UserRole.BOMBEIRO,
       );
     });
 

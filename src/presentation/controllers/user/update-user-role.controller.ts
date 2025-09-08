@@ -27,8 +27,8 @@ export class UpdateUserRoleController extends BaseController {
       },
     });
 
-    const userId = this.validateRequiredParam(request, "userId");
-    if (!userId) {
+    const id = this.validateRequiredParam(request, "ID");
+    if (!id) {
       return emptyRequest();
     }
 
@@ -39,15 +39,15 @@ export class UpdateUserRoleController extends BaseController {
 
     const result = await this.executeWithErrorHandling(
       async () => {
-        await updateUserRoleService.updateUserRole(userId, body.userRole);
+        await updateUserRoleService.updateUserRole(id, body.userRole);
         this.logger.info("Função do usuário atualizada com sucesso", {
-          userId,
+          id,
           userRole: body.userRole,
         });
         return noContent();
       },
       "Erro ao atualizar função do usuário",
-      { userId, data: body },
+      { id, data: body },
     );
 
     return result as HttpResponse;

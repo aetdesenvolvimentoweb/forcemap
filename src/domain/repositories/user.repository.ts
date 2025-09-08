@@ -8,7 +8,6 @@ export interface UserRepository {
   findByMilitaryId(militaryId: string): Promise<UserOutputDTO | null>;
   findByMilitaryIdWithPassword(militaryId: string): Promise<User | null>;
   listAll(): Promise<UserOutputDTO[]>;
-  update(id: string, data: UserInputDTO): Promise<void>;
   updateUserRole(id: string, role: UserRole): Promise<void>;
   updateUserPassword(id: string, data: UpdateUserInputDTO): Promise<void>;
 }

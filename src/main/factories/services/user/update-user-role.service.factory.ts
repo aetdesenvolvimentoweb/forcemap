@@ -13,15 +13,15 @@ export const makeUpdateUserRoleService = (): UpdateUserRoleService => {
   const idSanitizer = makeIdSanitizer();
   const idValidator = makeIdValidator();
   const idRegisteredValidator = makeUserIdRegisteredValidator(userRepository);
-  const userRoleSanitizer = makeUserRoleSanitizer();
-  const userRoleValidator = makeUserRoleValidator();
+  const updateUserRoleSanitizer = makeUserRoleSanitizer();
+  const updateUserRoleValidator = makeUserRoleValidator();
 
   return new UpdateUserRoleService({
     idRegisteredValidator,
     idSanitizer,
     idValidator,
     userRepository,
-    userRoleSanitizer,
-    userRoleValidator,
+    updateUserRoleSanitizer,
+    updateUserRoleValidator,
   });
 };

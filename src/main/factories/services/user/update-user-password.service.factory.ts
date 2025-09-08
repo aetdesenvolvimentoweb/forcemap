@@ -1,5 +1,4 @@
-import { UpdateUserPasswordService } from "src/application/services/user/update.user-password.service";
-
+import { UpdateUserPasswordService } from "../../../../application/services";
 import { makePasswordHasher } from "../../hasher";
 import { makeMilitaryRepository, makeUserRepository } from "../../repositories";
 import {

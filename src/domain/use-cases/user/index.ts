@@ -4,6 +4,5 @@ export * from "./delete.user.use-case";
 export * from "./find-by-id.user.use-case";
 export * from "./find-by-military-id-with-password.user.use-case";
 export * from "./list-all.user.use-case";
-export * from "./update.user.use-case";
-export * from "./update.user-role.use-case";
 export * from "./update-user-password.use-case";
+export * from "./update-user-role.use-case";

@@ -1,8 +1,7 @@
-import { EntityNotFoundError, InvalidParamError } from "src/application/errors";
-import { UpdateUserInputDTO } from "src/domain/dtos";
-
+import { UpdateUserInputDTO } from "../../../domain/dtos";
 import { UserRepository } from "../../../domain/repositories";
 import { UpdateUserPasswordUseCase } from "../../../domain/use-cases";
+import { EntityNotFoundError, InvalidParamError } from "../../errors";
 import {
   IdSanitizerProtocol,
   IdValidatorProtocol,

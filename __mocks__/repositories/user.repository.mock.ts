@@ -7,7 +7,6 @@ export const mockUserRepository = (): jest.Mocked<UserRepository> => ({
   findByMilitaryId: jest.fn(),
   findByMilitaryIdWithPassword: jest.fn(),
   listAll: jest.fn(),
-  update: jest.fn(),
   updateUserPassword: jest.fn(),
   updateUserRole: jest.fn(),
 });
