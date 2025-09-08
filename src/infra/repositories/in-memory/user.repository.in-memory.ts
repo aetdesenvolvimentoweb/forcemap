@@ -1,6 +1,10 @@
 import { EntityNotFoundError } from "../../../application/errors";
-import { UserInputDTO, UserOutputDTO } from "../../../domain/dtos";
-import { User } from "../../../domain/entities";
+import {
+  UpdateUserInputDTO,
+  UserInputDTO,
+  UserOutputDTO,
+} from "../../../domain/dtos";
+import { User, UserRole } from "../../../domain/entities";
 import {
   MilitaryRepository,
   UserRepository,
@@ -20,8 +24,8 @@ export class UserRepositoryInMemory implements UserRepository {
 
     return {
       id: user.id,
-      role: user.role,
       military,
+      role: user.role,
     };
   };
 
@@ -83,6 +87,23 @@ export class UserRepositoryInMemory implements UserRepository {
     const index = this.items.findIndex((item) => item.id === id);
     if (index !== -1) {
       this.items[index] = { ...this.items[index], ...data };
+    }
+  };
+
+  public updateUserPassword = async (
+    id: string,
+    data: UpdateUserInputDTO,
+  ): Promise<void> => {
+    const index = this.items.findIndex((item) => item.id === id);
+    if (index !== -1) {
+      this.items[index].password = data.newPassword;
+    }
+  };
+
+  public updateUserRole = async (id: string, role: UserRole): Promise<void> => {
+    const index = this.items.findIndex((item) => item.id === id);
+    if (index !== -1) {
+      this.items[index].role = role;
     }
   };
 }

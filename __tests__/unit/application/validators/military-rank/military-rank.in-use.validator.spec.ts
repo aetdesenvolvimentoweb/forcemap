@@ -18,7 +18,6 @@ describe("MilitaryRankInUseValidator", () => {
 
   const mockMilitary: MilitaryOutputDTO = {
     id: "military-id",
-    militaryRankId: "rank-id",
     militaryRank: {
       id: "rank-id",
       abbreviation: "CEL",
@@ -56,7 +55,10 @@ describe("MilitaryRankInUseValidator", () => {
     it("should not throw error when military rank is not used by any military", async () => {
       const militaryWithDifferentRank = {
         ...mockMilitary,
-        militaryRankId: "different-rank-id",
+        militaryRank: {
+          ...mockMilitary.militaryRank,
+          id: "different-rank-id",
+        },
       };
       militaryRepository.listAll.mockResolvedValue([militaryWithDifferentRank]);
 
@@ -68,12 +70,18 @@ describe("MilitaryRankInUseValidator", () => {
       const militaryWithDifferentRank = {
         ...mockMilitary,
         id: "military-2",
-        militaryRankId: "different-rank-id",
+        militaryRank: {
+          ...mockMilitary.militaryRank,
+          id: "different-rank-id",
+        },
       };
       const militaryWithTargetRank = {
         ...mockMilitary,
         id: "military-3",
-        militaryRankId: "rank-id",
+        militaryRank: {
+          ...mockMilitary.militaryRank,
+          id: "rank-id",
+        },
       };
 
       militaryRepository.listAll.mockResolvedValue([

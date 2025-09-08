@@ -384,7 +384,7 @@ describe("MilitaryRepositoryInMemory", () => {
       expect(result).not.toBeNull();
       expect(result?.name).toBe("João Silva Atualizado");
       expect(result?.rg).toBe(999999);
-      expect(result?.militaryRankId).toBe("new-rank-id");
+      expect(result?.militaryRank.id).toBe("new-rank-id");
       expect(result?.militaryRank).toEqual(newMockRank);
       expect(result?.id).toBe(militaryId);
     });
@@ -398,7 +398,7 @@ describe("MilitaryRepositoryInMemory", () => {
       expect(result).not.toBeNull();
       expect(result?.name).toBe("Nome Parcial");
       expect(result?.rg).toBe(123456);
-      expect(result?.militaryRankId).toBe("rank-id");
+      expect(result?.militaryRank.id).toBe("rank-id");
       expect(result?.id).toBe(militaryId);
     });
 
@@ -450,7 +450,6 @@ describe("MilitaryRepositoryInMemory", () => {
       const result = await sut.listAll();
       expect(result[0]).toEqual({
         id: expect.any(String),
-        militaryRankId: "rank-id",
         militaryRank: mockMilitaryRank,
         rg: 123456,
         name: "João Silva",

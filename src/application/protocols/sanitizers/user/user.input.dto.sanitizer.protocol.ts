@@ -1,4 +1,4 @@
-import { UserInputDTO } from "../../../domain/dtos";
+import { UserInputDTO } from "../../../../domain/dtos";
 
 export interface UserInputDTOSanitizerProtocol {
   sanitize(data: UserInputDTO): UserInputDTO;

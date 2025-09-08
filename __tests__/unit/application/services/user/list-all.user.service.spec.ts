@@ -23,7 +23,6 @@ describe("ListAllUserService", () => {
           id: "military-1",
           name: "Admin User",
           rg: 1111,
-          militaryRankId: "rank-1",
           militaryRank: {
             id: "rank-1",
             abbreviation: "CEL",
@@ -38,7 +37,6 @@ describe("ListAllUserService", () => {
           id: "military-2",
           name: "Chef User",
           rg: 2222,
-          militaryRankId: "rank-2",
           militaryRank: {
             id: "rank-2",
             abbreviation: "MAJ",
@@ -53,7 +51,6 @@ describe("ListAllUserService", () => {
           id: "military-3",
           name: "Firefighter User",
           rg: 3333,
-          militaryRankId: "rank-3",
           militaryRank: {
             id: "rank-3",
             abbreviation: "SD",
@@ -169,7 +166,6 @@ describe("ListAllUserService", () => {
             id: "complex-military-1",
             name: "Complex User Name with Accents: João",
             rg: 123456,
-            militaryRankId: "complex-rank-1",
             militaryRank: {
               id: "complex-rank-1",
               abbreviation: "GEN",
@@ -272,7 +268,6 @@ describe("ListAllUserService", () => {
             id: "minimal-military",
             name: "",
             rg: 0,
-            militaryRankId: "minimal-rank",
             militaryRank: {
               id: "minimal-rank",
               abbreviation: "",

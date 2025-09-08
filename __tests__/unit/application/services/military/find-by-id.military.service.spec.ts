@@ -30,7 +30,6 @@ describe("FindByIdMilitaryService", () => {
 
     const mockMilitaryOutput: MilitaryOutputDTO = {
       id: "military-id-123",
-      militaryRankId: "rank-id-1",
       militaryRank: {
         id: "rank-id-1",
         abbreviation: "CEL",
@@ -318,7 +317,6 @@ describe("FindByIdMilitaryService", () => {
     it("should return military with complete data structure", async () => {
       const completeMilitary: MilitaryOutputDTO = {
         id: "complete-military-id",
-        militaryRankId: "rank-id-complete",
         militaryRank: {
           id: "rank-id-complete",
           abbreviation: "1º SGT",

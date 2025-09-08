@@ -36,7 +36,6 @@ describe("FindByIdUserService", () => {
         id: "military-id",
         name: "João Silva",
         rg: 1234,
-        militaryRankId: "rank-id",
         militaryRank: {
           id: "rank-id",
           abbreviation: "SGT",
@@ -228,7 +227,6 @@ describe("FindByIdUserService", () => {
           id: "complex-military-id",
           name: "Complex Military Name",
           rg: 9999,
-          militaryRankId: "complex-rank-id",
           militaryRank: {
             id: "complex-rank-id",
             abbreviation: "CEL",
@@ -290,7 +288,6 @@ describe("FindByIdUserService", () => {
           id: "military-integrity-id",
           name: "Integrity Test User",
           rg: 7777,
-          militaryRankId: "rank-integrity-id",
           militaryRank: {
             id: "rank-integrity-id",
             abbreviation: "SD",

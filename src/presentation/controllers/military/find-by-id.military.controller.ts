@@ -1,5 +1,6 @@
+import { MilitaryOutputDTO } from "src/domain/dtos";
+
 import { LoggerProtocol } from "../../../application/protocols";
-import { Military } from "../../../domain/entities";
 import { FindByIdMilitaryUseCase } from "../../../domain/use-cases";
 import { HttpRequest, HttpResponse } from "../../protocols";
 import { emptyRequest, ok } from "../../utils";
@@ -15,7 +16,9 @@ export class FindByIdMilitaryController extends BaseController {
     super(props.logger);
   }
 
-  public async handle(request: HttpRequest): Promise<HttpResponse> {
+  public async handle(
+    request: HttpRequest,
+  ): Promise<HttpResponse | HttpResponse<MilitaryOutputDTO | null>> {
     const { findByIdMilitaryService } = this.props;
 
     this.logger.info("Recebida requisição para listar militar por ID", {
@@ -34,7 +37,7 @@ export class FindByIdMilitaryController extends BaseController {
           id,
           found: !!military,
         });
-        return ok<Military | null>(military);
+        return ok<MilitaryOutputDTO | null>(military);
       },
       "Erro ao listar militar",
       { id },

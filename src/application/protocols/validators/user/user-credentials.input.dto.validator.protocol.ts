@@ -1,4 +1,4 @@
-import { UserCredentialsInputDTO } from "../../../domain/dtos";
+import { UserCredentialsInputDTO } from "../../../../domain/dtos";
 
 export interface UserCredentialsInputDTOValidatorProtocol {
   validate(data: UserCredentialsInputDTO): void;

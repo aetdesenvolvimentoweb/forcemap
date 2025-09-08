@@ -23,14 +23,12 @@ describe("ListAllMilitaryController", () => {
     const mockMilitaryList: MilitaryOutputDTO[] = [
       {
         id: "military-1",
-        militaryRankId: "rank-1",
         militaryRank: { id: "rank-1", abbreviation: "CEL", order: 10 },
         rg: 11111111,
         name: "João da Silva",
       },
       {
         id: "military-2",
-        militaryRankId: "rank-2",
         militaryRank: { id: "rank-2", abbreviation: "MAJ", order: 8 },
         rg: 22222222,
         name: "Maria dos Santos",
@@ -213,7 +211,7 @@ describe("ListAllMilitaryController", () => {
             expect(military).toHaveProperty("rg");
             expect(military).toHaveProperty("name");
             expect(typeof military.id).toBe("string");
-            expect(typeof military.militaryRankId).toBe("string");
+            expect(typeof military.militaryRank.id).toBe("string");
             expect(typeof military.militaryRank).toBe("object");
             expect(typeof military.rg).toBe("number");
             expect(typeof military.name).toBe("string");

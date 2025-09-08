@@ -1,5 +1,5 @@
-import { UserInputDTO, UserOutputDTO } from "../dtos";
-import { User } from "../entities";
+import { UpdateUserInputDTO, UserInputDTO, UserOutputDTO } from "../dtos";
+import { User, UserRole } from "../entities";
 
 export interface UserRepository {
   create(data: UserInputDTO): Promise<void>;
@@ -9,4 +9,6 @@ export interface UserRepository {
   findByMilitaryIdWithPassword(militaryId: string): Promise<User | null>;
   listAll(): Promise<UserOutputDTO[]>;
   update(id: string, data: UserInputDTO): Promise<void>;
+  updateUserRole(id: string, role: UserRole): Promise<void>;
+  updateUserPassword(id: string, data: UpdateUserInputDTO): Promise<void>;
 }

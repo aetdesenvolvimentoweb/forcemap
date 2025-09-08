@@ -16,7 +16,7 @@ export class MilitaryRankInUseValidator
 
     const allMilitary = await militaryRepository.listAll();
     const isInUse = allMilitary.some(
-      (military) => military.militaryRankId === militaryRankId,
+      (military) => military.militaryRank.id === militaryRankId,
     );
 
     if (isInUse) {

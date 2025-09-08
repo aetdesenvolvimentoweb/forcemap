@@ -23,7 +23,6 @@ describe("FindByIdMilitaryController", () => {
   describe("handle", () => {
     const mockMilitary: MilitaryOutputDTO = {
       id: "military-123",
-      militaryRankId: "rank-456",
       militaryRank: { id: "rank-456", abbreviation: "CAP", order: 6 },
       rg: 12345678,
       name: "João da Silva",
@@ -247,7 +246,7 @@ describe("FindByIdMilitaryController", () => {
 
       expect(result.body).toEqual({ data: mockMilitary });
       expect(result.body?.data).toHaveProperty("id");
-      expect(result.body?.data).toHaveProperty("militaryRankId");
+      expect(result.body?.data).toHaveProperty("militaryRank");
       expect(result.body?.data).toHaveProperty("rg");
       expect(result.body?.data).toHaveProperty("name");
     });

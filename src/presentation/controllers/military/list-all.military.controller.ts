@@ -1,5 +1,6 @@
+import { MilitaryOutputDTO } from "src/domain/dtos";
+
 import { LoggerProtocol } from "../../../application/protocols";
-import { Military } from "../../../domain/entities";
 import { ListAllMilitaryUseCase } from "../../../domain/use-cases";
 import { HttpResponse } from "../../protocols";
 import { ok } from "../../utils";
@@ -15,7 +16,7 @@ export class ListAllMilitaryController extends BaseController {
     super(props.logger);
   }
 
-  public async handle(): Promise<HttpResponse> {
+  public async handle(): Promise<HttpResponse<MilitaryOutputDTO[]>> {
     const { listAllMilitaryService } = this.props;
 
     this.logger.info("Recebida requisição para listar todos os militares");
@@ -25,9 +26,9 @@ export class ListAllMilitaryController extends BaseController {
       this.logger.info("Militares listados com sucesso", {
         count: militarys.length,
       });
-      return ok<Military[]>(militarys);
+      return ok<MilitaryOutputDTO[]>(militarys);
     }, "Erro ao listar militares");
 
-    return result as HttpResponse;
+    return result as HttpResponse<MilitaryOutputDTO[]>;
   }
 }

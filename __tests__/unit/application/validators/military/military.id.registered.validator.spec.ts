@@ -32,7 +32,6 @@ describe("MilitaryIdRegisteredValidator", () => {
         id: validId,
         name: "João Silva",
         rg: 1234,
-        militaryRankId: "rank-id",
         militaryRank: {
           id: "rank-id",
           abbreviation: "SGT",
@@ -78,7 +77,6 @@ describe("MilitaryIdRegisteredValidator", () => {
         id: testId,
         name: "Test Military",
         rg: 9999,
-        militaryRankId: "rank-id",
         militaryRank: {} as MilitaryRank,
       });
 
@@ -105,7 +103,6 @@ describe("MilitaryIdRegisteredValidator", () => {
         id: id1,
         name: "Military 1",
         rg: 1111,
-        militaryRankId: "rank-1",
         militaryRank: {} as MilitaryRank,
       };
 
@@ -113,7 +110,6 @@ describe("MilitaryIdRegisteredValidator", () => {
         id: id2,
         name: "Military 2",
         rg: 2222,
-        militaryRankId: "rank-2",
         militaryRank: {} as MilitaryRank,
       };
 
@@ -168,7 +164,6 @@ describe("MilitaryIdRegisteredValidator", () => {
         id: testId,
         name: "Repeated Military",
         rg: 5555,
-        militaryRankId: "rank-id",
         militaryRank: {} as MilitaryRank,
       };
 
@@ -205,7 +200,6 @@ describe("MilitaryIdRegisteredValidator", () => {
         id: validId,
         name: "Complex Military Name",
         rg: 7777,
-        militaryRankId: "complex-rank-id",
         militaryRank: {
           id: "complex-rank-id",
           abbreviation: "MAJ",
@@ -227,7 +221,6 @@ describe("MilitaryIdRegisteredValidator", () => {
         id: validId,
         name: "Async Military",
         rg: 8888,
-        militaryRankId: "async-rank",
         militaryRank: {} as MilitaryRank,
       };
 

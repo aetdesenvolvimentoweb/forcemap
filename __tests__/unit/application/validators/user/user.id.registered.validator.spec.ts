@@ -35,7 +35,6 @@ describe("UserIdRegisteredValidator", () => {
           id: "military-id",
           name: "João Silva",
           rg: 1234,
-          militaryRankId: "rank-id",
           militaryRank: {
             id: "rank-id",
             abbreviation: "SGT",
@@ -82,7 +81,6 @@ describe("UserIdRegisteredValidator", () => {
           id: "military-id",
           name: "Test User",
           rg: 9999,
-          militaryRankId: "rank-id",
           militaryRank: {
             id: "rank-id",
             abbreviation: "SD",
@@ -117,7 +115,6 @@ describe("UserIdRegisteredValidator", () => {
           id: "military-1",
           name: "User 1",
           rg: 1111,
-          militaryRankId: "rank-1",
           militaryRank: {
             id: "rank-1",
             abbreviation: "TEN",
@@ -133,7 +130,6 @@ describe("UserIdRegisteredValidator", () => {
           id: "military-2",
           name: "User 2",
           rg: 2222,
-          militaryRankId: "rank-2",
           militaryRank: {
             id: "rank-2",
             abbreviation: "CAB",
@@ -194,7 +190,6 @@ describe("UserIdRegisteredValidator", () => {
           id: "military-repeated",
           name: "Repeated User",
           rg: 5555,
-          militaryRankId: "rank-id",
           militaryRank: {
             id: "rank-id",
             abbreviation: "MAJ",
@@ -239,7 +234,6 @@ describe("UserIdRegisteredValidator", () => {
           id: "complex-military-id",
           name: "Complex User Name",
           rg: 7777,
-          militaryRankId: "complex-rank-id",
           militaryRank: {
             id: "complex-rank-id",
             abbreviation: "CEL",
@@ -264,7 +258,6 @@ describe("UserIdRegisteredValidator", () => {
           id: "async-military",
           name: "Async User",
           rg: 8888,
-          militaryRankId: "async-rank",
           militaryRank: {
             id: "async-rank",
             abbreviation: "ASP",
@@ -324,7 +317,6 @@ describe("UserIdRegisteredValidator", () => {
             id: `military-${role}`,
             name: `User ${role}`,
             rg: 1000 + Object.keys(UserRole).indexOf(role),
-            militaryRankId: `rank-${role}`,
             militaryRank: {
               id: `rank-${role}`,
               abbreviation: "TEST",

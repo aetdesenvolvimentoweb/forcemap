@@ -17,7 +17,6 @@ describe("ListAllMilitaryService", () => {
     const mockMilitaryList: MilitaryOutputDTO[] = [
       {
         id: "military-id-1",
-        militaryRankId: "rank-id-1",
         militaryRank: {
           id: "rank-id-1",
           abbreviation: "CEL",
@@ -28,7 +27,6 @@ describe("ListAllMilitaryService", () => {
       },
       {
         id: "military-id-2",
-        militaryRankId: "rank-id-2",
         militaryRank: {
           id: "rank-id-2",
           abbreviation: "1º SGT",
@@ -105,7 +103,6 @@ describe("ListAllMilitaryService", () => {
       const completeMilitaryList: MilitaryOutputDTO[] = [
         {
           id: "complete-military-id-1",
-          militaryRankId: "complete-rank-id-1",
           militaryRank: {
             id: "complete-rank-id-1",
             abbreviation: "GEN EX",
@@ -116,7 +113,6 @@ describe("ListAllMilitaryService", () => {
         },
         {
           id: "complete-military-id-2",
-          militaryRankId: "complete-rank-id-2",
           militaryRank: {
             id: "complete-rank-id-2",
             abbreviation: "2º TEN",
@@ -171,7 +167,6 @@ describe("ListAllMilitaryService", () => {
       const specialCharsMilitaryList: MilitaryOutputDTO[] = [
         {
           id: "military-special-1",
-          militaryRankId: "rank-special-1",
           militaryRank: {
             id: "rank-special-1",
             abbreviation: "1º SGT",
@@ -182,7 +177,6 @@ describe("ListAllMilitaryService", () => {
         },
         {
           id: "military-special-2",
-          militaryRankId: "rank-special-2",
           militaryRank: {
             id: "rank-special-2",
             abbreviation: "3º SGT",
@@ -209,13 +203,13 @@ describe("ListAllMilitaryService", () => {
 
       result.forEach((military) => {
         expect(military.id).toBeDefined();
-        expect(military.militaryRankId).toBeDefined();
+        expect(military.militaryRank.id).toBeDefined();
         expect(military.militaryRank).toBeDefined();
-        expect(military.militaryRank.id).toBe(military.militaryRankId);
+        expect(military.militaryRank.id).toBe(military.militaryRank.id);
         expect(military.rg).toBeDefined();
         expect(military.name).toBeDefined();
         expect(typeof military.id).toBe("string");
-        expect(typeof military.militaryRankId).toBe("string");
+        expect(typeof military.militaryRank.id).toBe("string");
         expect(typeof military.rg).toBe("number");
         expect(typeof military.name).toBe("string");
       });

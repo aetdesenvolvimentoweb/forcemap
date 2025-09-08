@@ -25,8 +25,10 @@ export class MilitaryRepositoryInMemory implements MilitaryRepository {
     }
 
     return {
-      ...military,
+      id: military.id,
       militaryRank,
+      rg: military.rg,
+      name: military.name,
     };
   };
 

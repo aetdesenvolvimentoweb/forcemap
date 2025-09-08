@@ -68,8 +68,8 @@ export class AuthenticateUserService implements AuthenticateUserUseCase {
     // Return authenticated user data
     return {
       id: user.id,
-      role: user.role,
       military: military.militaryRank?.abbreviation + " " + military.name,
+      role: user.role,
     };
   };
 }

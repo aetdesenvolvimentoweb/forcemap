@@ -364,7 +364,6 @@ describe("MilitaryInputDTOValidator", () => {
         id: "existing-id",
         rg: validInputData.rg,
         name: "Existing Military",
-        militaryRankId: "existing-rank-id",
         militaryRank: {} as MilitaryRank,
       };
 
@@ -393,7 +392,6 @@ describe("MilitaryInputDTOValidator", () => {
         id: "different-id",
         rg: validInputData.rg,
         name: "Different Military",
-        militaryRankId: "different-rank-id",
         militaryRank: {} as MilitaryRank,
       };
 
@@ -413,7 +411,6 @@ describe("MilitaryInputDTOValidator", () => {
         id: "same-military-id",
         rg: validInputData.rg,
         name: "Same Military",
-        militaryRankId: "same-rank-id",
         militaryRank: {} as MilitaryRank,
       };
 
@@ -471,7 +468,6 @@ describe("MilitaryInputDTOValidator", () => {
         id: "existing-id",
         rg: validInputData.rg,
         name: "Existing",
-        militaryRankId: "rank-id",
         militaryRank: {} as MilitaryRank,
       });
 

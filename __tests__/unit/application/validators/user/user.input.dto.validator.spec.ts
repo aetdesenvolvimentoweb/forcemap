@@ -46,7 +46,6 @@ describe("UserInputDTOValidator", () => {
       id: "123e4567-e89b-12d3-a456-426614174000",
       name: "João Silva",
       rg: 1234,
-      militaryRankId: "rank-id",
       militaryRank: {
         id: "rank-id",
         abbreviation: "SD",
