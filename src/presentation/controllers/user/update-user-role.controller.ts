@@ -34,6 +34,7 @@ export class UpdateUserRoleController extends BaseController {
 
     const body = this.validateRequiredBody(request);
     if (!body) {
+      console.log("Corpo da requisição ausente", body);
       return emptyRequest();
     }
 

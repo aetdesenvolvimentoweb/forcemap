@@ -6,8 +6,8 @@ import { ValidationPatterns } from "../common";
 export class UpdateUserRoleValidator
   implements UpdateUserRoleValidatorProtocol
 {
-  private readonly validateUserRolePresence = (userRole: UserRole): void => {
-    ValidationPatterns.validatePresence(userRole, "Função do Usuário");
+  private readonly validateUserRolePresence = (role: UserRole): void => {
+    ValidationPatterns.validatePresence(role, "Função do Usuário");
   };
 
   private readonly validateUserRoleRange = (role: UserRole): void => {
@@ -16,8 +16,8 @@ export class UpdateUserRoleValidator
     }
   };
 
-  public readonly validate = async (userRole: UserRole): Promise<void> => {
-    this.validateUserRolePresence(userRole);
-    this.validateUserRoleRange(userRole);
+  public readonly validate = async (role: UserRole): Promise<void> => {
+    this.validateUserRolePresence(role);
+    this.validateUserRoleRange(role);
   };
 }
