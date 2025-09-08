@@ -17,11 +17,11 @@ userRoutes.get("/user", expressRouteAdapter(makeListAllUserController()));
 userRoutes.get("/user/:id", expressRouteAdapter(makeFindByIdUserController()));
 userRoutes.delete("/user/:id", expressRouteAdapter(makeDeleteUserController()));
 userRoutes.patch(
-  "/user/:id",
+  "/user/update-role/:id",
   expressRouteAdapter(makeUpdateUserRoleController()),
 );
 userRoutes.patch(
-  "/user/updatePassword/:id",
+  "/user/update-password/:id",
   expressRouteAdapter(makeUpdateUserPasswordController()),
 );
 
