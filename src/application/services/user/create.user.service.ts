@@ -1,39 +1,23 @@
 import { UserInputDTO } from "../../../domain/dtos";
-import { UserRepository } from "../../../domain/repositories";
 import { CreateUserUseCase } from "../../../domain/use-cases";
-import {
-  PasswordHasherProtocol,
-  UserInputDTOSanitizerProtocol,
-  UserInputDTOValidatorProtocol,
-} from "../../protocols";
-
-interface CreateUserServiceProps {
-  userRepository: UserRepository;
-  sanitizer: UserInputDTOSanitizerProtocol;
-  validator: UserInputDTOValidatorProtocol;
-  passwordHasher: PasswordHasherProtocol;
-}
+import { UserDomainServices } from "./user-domain-services.interface";
 
 export class CreateUserService implements CreateUserUseCase {
-  private readonly props: CreateUserServiceProps;
-
-  constructor(props: CreateUserServiceProps) {
-    this.props = props;
-  }
+  constructor(private readonly dependencies: UserDomainServices) {}
 
   public readonly create = async (data: UserInputDTO): Promise<void> => {
-    const { userRepository, sanitizer, validator, passwordHasher } = this.props;
+    const { repository, validation, sanitization, passwordHasher } =
+      this.dependencies;
 
-    const sanitizedData = sanitizer.sanitize(data);
-    await validator.validate(sanitizedData);
+    const sanitizedData = sanitization.sanitizeUserCreation(data);
+    await validation.validateUserCreation(sanitizedData);
 
-    // Hash the password before storing
     const hashedPassword = await passwordHasher.hash(sanitizedData.password);
     const userDataWithHashedPassword = {
       ...sanitizedData,
       password: hashedPassword,
     };
 
-    await userRepository.create(userDataWithHashedPassword);
+    await repository.create(userDataWithHashedPassword);
   };
 }

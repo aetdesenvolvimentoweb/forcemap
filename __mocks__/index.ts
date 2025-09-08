@@ -3,4 +3,6 @@ export * from "./protocols/password.hasher.mock";
 export * from "./repositories";
 export * from "./sanitizers";
 export * from "./services";
+export * from "./user-sanitization.service.mock";
+export * from "./user-validation.service.mock";
 export * from "./validators";

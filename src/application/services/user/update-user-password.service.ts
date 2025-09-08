@@ -1,55 +1,24 @@
 import { UpdateUserInputDTO } from "../../../domain/dtos";
-import { UserRepository } from "../../../domain/repositories";
 import { UpdateUserPasswordUseCase } from "../../../domain/use-cases";
 import { EntityNotFoundError, InvalidParamError } from "../../errors";
-import {
-  IdSanitizerProtocol,
-  IdValidatorProtocol,
-  PasswordHasherProtocol,
-  UpdateUserPasswordSanitizerProtocol,
-  UpdateUserPasswordValidatorProtocol,
-  UserIdRegisteredValidatorProtocol,
-} from "../../protocols";
-
-interface UpdateUserPasswordServiceProps {
-  userRepository: UserRepository;
-  idSanitizer: IdSanitizerProtocol;
-  idValidator: IdValidatorProtocol;
-  idRegisteredValidator: UserIdRegisteredValidatorProtocol;
-  updateUserPasswordSanitizer: UpdateUserPasswordSanitizerProtocol;
-  updateUserPasswordValidator: UpdateUserPasswordValidatorProtocol;
-  passwordHasher: PasswordHasherProtocol;
-}
+import { UserDomainServices } from "./user-domain-services.interface";
 
 export class UpdateUserPasswordService implements UpdateUserPasswordUseCase {
-  private readonly props: UpdateUserPasswordServiceProps;
-
-  constructor(props: UpdateUserPasswordServiceProps) {
-    this.props = props;
-  }
+  constructor(private readonly dependencies: UserDomainServices) {}
 
   public readonly updateUserPassword = async (
     id: string,
     data: UpdateUserInputDTO,
   ): Promise<void> => {
-    const {
-      userRepository,
-      idSanitizer,
-      idValidator,
-      idRegisteredValidator,
-      updateUserPasswordSanitizer,
-      updateUserPasswordValidator,
-      passwordHasher,
-    } = this.props;
+    const { repository, validation, sanitization, passwordHasher } =
+      this.dependencies;
 
-    const sanitizedUserId = idSanitizer.sanitize(id);
-    idValidator.validate(sanitizedUserId);
-    await idRegisteredValidator.validate(sanitizedUserId);
+    const sanitizedUserId = sanitization.sanitizeId(id);
+    const sanitizedData = sanitization.sanitizePasswordUpdate(data);
 
-    const sanitizedData = updateUserPasswordSanitizer.sanitize(data);
-    await updateUserPasswordValidator.validate(sanitizedData);
+    await validation.validateUserPasswordUpdate(sanitizedUserId, sanitizedData);
 
-    const user = await userRepository.findByIdWithPassword(sanitizedUserId);
+    const user = await repository.findByIdWithPassword(sanitizedUserId);
     if (!user) throw new EntityNotFoundError("Usuário");
 
     const match = await passwordHasher.compare(
@@ -58,16 +27,12 @@ export class UpdateUserPasswordService implements UpdateUserPasswordUseCase {
     );
     if (!match) throw new InvalidParamError("Senha atual", "incorreta");
 
-    // Hash the password before storing
     const hashedPassword = await passwordHasher.hash(sanitizedData.newPassword);
     const passwordHashedData = {
       ...sanitizedData,
       newPassword: hashedPassword,
     };
 
-    await userRepository.updateUserPassword(
-      sanitizedUserId,
-      passwordHashedData,
-    );
+    await repository.updateUserPassword(sanitizedUserId, passwordHashedData);
   };
 }
