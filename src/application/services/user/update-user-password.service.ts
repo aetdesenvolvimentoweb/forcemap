@@ -49,8 +49,7 @@ export class UpdateUserPasswordService implements UpdateUserPasswordUseCase {
     const sanitizedData = updateUserPasswordSanitizer.sanitize(data);
     await updateUserPasswordValidator.validate(sanitizedData);
 
-    const user =
-      await userRepository.findByMilitaryIdWithPassword(sanitizedUserId);
+    const user = await userRepository.findByIdWithPassword(sanitizedUserId);
     if (!user) throw new EntityNotFoundError("Usuário");
 
     const match = await passwordHasher.compare(

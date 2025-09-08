@@ -76,6 +76,16 @@ export class UserRepositoryInMemory implements UserRepository {
     return userMapped;
   };
 
+  public findByIdWithPassword = async (id: string): Promise<User | null> => {
+    const user = this.items.find((item) => item.id === id);
+
+    if (!user) {
+      return null;
+    }
+
+    return user;
+  };
+
   public listAll = async (): Promise<UserOutputDTO[]> => {
     const usersMapped = await Promise.all(
       this.items.map((user) => this.mapperUser(user)),

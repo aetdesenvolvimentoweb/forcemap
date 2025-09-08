@@ -5,6 +5,7 @@ export interface UserRepository {
   create(data: UserInputDTO): Promise<void>;
   delete(id: string): Promise<void>;
   findById(id: string): Promise<UserOutputDTO | null>;
+  findByIdWithPassword(id: string): Promise<User | null>;
   findByMilitaryId(militaryId: string): Promise<UserOutputDTO | null>;
   findByMilitaryIdWithPassword(militaryId: string): Promise<User | null>;
   listAll(): Promise<UserOutputDTO[]>;

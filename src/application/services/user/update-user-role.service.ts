@@ -26,8 +26,8 @@ export class UpdateUserRoleService implements UpdateUserRoleUseCase {
   }
 
   public readonly updateUserRole = async (
-    userId: string,
-    userRole: UserRole,
+    id: string,
+    role: UserRole,
   ): Promise<void> => {
     const {
       userRepository,
@@ -38,11 +38,11 @@ export class UpdateUserRoleService implements UpdateUserRoleUseCase {
       updateUserRoleValidator,
     } = this.props;
 
-    const sanitizedUserId = idSanitizer.sanitize(userId);
+    const sanitizedUserId = idSanitizer.sanitize(id);
     idValidator.validate(sanitizedUserId);
     await idRegisteredValidator.validate(sanitizedUserId);
 
-    const sanitizedUserRole = updateUserRoleSanitizer.sanitize(userRole);
+    const sanitizedUserRole = updateUserRoleSanitizer.sanitize(role);
     await updateUserRoleValidator.validate(sanitizedUserRole);
 
     await userRepository.updateUserRole(sanitizedUserId, sanitizedUserRole);

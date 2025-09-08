@@ -47,7 +47,7 @@ export class UpdateUserRoleController extends BaseController {
         return noContent();
       },
       "Erro ao atualizar função do usuário",
-      { id, data: body },
+      { id, role: body.role },
     );
 
     return result as HttpResponse;
