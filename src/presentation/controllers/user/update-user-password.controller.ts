@@ -26,7 +26,7 @@ export class UpdateUserPasswordController extends BaseController {
       body: request.body,
     });
 
-    const id = this.validateRequiredParam(request, "ID");
+    const id = this.validateRequiredParam(request, "id");
     if (!id) {
       return emptyRequest();
     }

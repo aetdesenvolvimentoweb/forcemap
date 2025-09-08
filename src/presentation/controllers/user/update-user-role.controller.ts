@@ -27,14 +27,13 @@ export class UpdateUserRoleController extends BaseController {
       },
     });
 
-    const id = this.validateRequiredParam(request, "ID");
+    const id = this.validateRequiredParam(request, "id");
     if (!id) {
       return emptyRequest();
     }
 
     const body = this.validateRequiredBody(request);
     if (!body) {
-      console.log("Corpo da requisição ausente", body);
       return emptyRequest();
     }
 
