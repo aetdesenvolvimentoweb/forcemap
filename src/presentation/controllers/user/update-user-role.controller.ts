@@ -16,14 +16,14 @@ export class UpdateUserRoleController extends BaseController {
   }
 
   public async handle(
-    request: HttpRequest<{ userRole: UserRole }>,
+    request: HttpRequest<{ role: UserRole }>,
   ): Promise<HttpResponse> {
     const { updateUserRoleService } = this.props;
 
     this.logger.info("Recebida requisição para atualizar função do usuário", {
       params: request.params,
       body: {
-        userRole: request.body?.userRole,
+        role: request.body?.role,
       },
     });
 
@@ -39,10 +39,10 @@ export class UpdateUserRoleController extends BaseController {
 
     const result = await this.executeWithErrorHandling(
       async () => {
-        await updateUserRoleService.updateUserRole(id, body.userRole);
+        await updateUserRoleService.updateUserRole(id, body.role);
         this.logger.info("Função do usuário atualizada com sucesso", {
           id,
-          userRole: body.userRole,
+          role: body.role,
         });
         return noContent();
       },

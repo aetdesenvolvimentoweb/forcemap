@@ -23,6 +23,7 @@ export class UpdateUserPasswordController extends BaseController {
 
     this.logger.info("Recebida requisição para atualizar senha do usuário", {
       params: request.params,
+      body: request.body,
     });
 
     const id = this.validateRequiredParam(request, "ID");
