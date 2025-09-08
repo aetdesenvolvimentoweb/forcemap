@@ -58,6 +58,16 @@ export class UpdateUserPasswordService implements UpdateUserPasswordUseCase {
     );
     if (!match) throw new InvalidParamError("Senha atual", "incorreta");
 
-    await userRepository.updateUserPassword(sanitizedUserId, sanitizedData);
+    // Hash the password before storing
+    const hashedPassword = await passwordHasher.hash(sanitizedData.newPassword);
+    const passwordHashedData = {
+      ...sanitizedData,
+      newPassword: hashedPassword,
+    };
+
+    await userRepository.updateUserPassword(
+      sanitizedUserId,
+      passwordHashedData,
+    );
   };
 }
