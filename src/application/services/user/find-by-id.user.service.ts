@@ -20,7 +20,7 @@ export class FindByIdUserService
   implements FindByIdUserUseCase
 {
   constructor(props: FindByIdUserServiceProps) {
-    const baseServiceDeps: BaseFindByIdServiceDeps = {
+    const baseServiceDeps: BaseFindByIdServiceDeps<UserOutputDTO> = {
       repository: props.userRepository,
       idSanitizer: props.sanitizer,
       idValidator: props.idValidator,

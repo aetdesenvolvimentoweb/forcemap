@@ -1,16 +1,15 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-export interface BaseCreateServiceDeps<TSanitizer, TValidator, TRepository> {
-  repository: TRepository;
-  sanitizer: TSanitizer;
-  validator: TValidator;
+export interface BaseCreateServiceDeps<TData> {
+  repository: { create(data: TData): Promise<void> };
+  sanitizer: { sanitize(data: TData): TData };
+  validator: { validate(data: TData): void | Promise<void> };
 }
 
 export abstract class BaseCreateService<TData> {
-  protected readonly repository: any;
-  protected readonly sanitizer: any;
-  protected readonly validator: any;
+  protected readonly repository: { create(data: TData): Promise<void> };
+  protected readonly sanitizer: { sanitize(data: TData): TData };
+  protected readonly validator: { validate(data: TData): void | Promise<void> };
 
-  constructor(deps: BaseCreateServiceDeps<any, any, any>) {
+  constructor(deps: BaseCreateServiceDeps<TData>) {
     this.repository = deps.repository;
     this.sanitizer = deps.sanitizer;
     this.validator = deps.validator;

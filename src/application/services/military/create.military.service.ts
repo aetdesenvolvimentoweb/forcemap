@@ -18,11 +18,7 @@ export class CreateMilitaryService
   implements CreateMilitaryUseCase
 {
   constructor(props: CreateMilitaryServiceProps) {
-    const baseServiceDeps: BaseCreateServiceDeps<
-      MilitaryInputDTOSanitizerProtocol,
-      MilitaryInputDTOValidatorProtocol,
-      MilitaryRepository
-    > = {
+    const baseServiceDeps: BaseCreateServiceDeps<MilitaryInputDTO> = {
       repository: props.militaryRepository,
       sanitizer: props.sanitizer,
       validator: props.validator,

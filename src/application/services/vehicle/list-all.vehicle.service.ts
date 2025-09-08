@@ -12,7 +12,7 @@ export class ListAllVehicleService
   implements ListAllVehicleUseCase
 {
   constructor(props: ListAllVehicleServiceProps) {
-    const baseServiceDeps: BaseListAllServiceDeps = {
+    const baseServiceDeps: BaseListAllServiceDeps<Vehicle> = {
       repository: props.vehicleRepository,
     };
     super(baseServiceDeps);

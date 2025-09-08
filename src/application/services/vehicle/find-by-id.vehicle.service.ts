@@ -20,7 +20,7 @@ export class FindByIdVehicleService
   implements FindByIdVehicleUseCase
 {
   constructor(props: FindByIdVehicleServiceProps) {
-    const baseServiceDeps: BaseFindByIdServiceDeps = {
+    const baseServiceDeps: BaseFindByIdServiceDeps<Vehicle> = {
       repository: props.vehicleRepository,
       idSanitizer: props.sanitizer,
       idValidator: props.idValidator,

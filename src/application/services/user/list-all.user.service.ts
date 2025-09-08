@@ -12,7 +12,7 @@ export class ListAllUserService
   implements ListAllUserUseCase
 {
   constructor(props: ListAllUserServiceProps) {
-    const baseServiceDeps: BaseListAllServiceDeps = {
+    const baseServiceDeps: BaseListAllServiceDeps<UserOutputDTO> = {
       repository: props.userRepository,
     };
     super(baseServiceDeps);

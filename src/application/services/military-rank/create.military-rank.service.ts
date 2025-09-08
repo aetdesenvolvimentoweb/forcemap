@@ -18,11 +18,7 @@ export class CreateMilitaryRankService
   implements CreateMilitaryRankUseCase
 {
   constructor(props: CreateMilitaryRankServiceProps) {
-    const baseServiceDeps: BaseCreateServiceDeps<
-      MilitaryRankInputDTOSanitizerProtocol,
-      MilitaryRankInputDTOValidatorProtocol,
-      MilitaryRankRepository
-    > = {
+    const baseServiceDeps: BaseCreateServiceDeps<MilitaryRankInputDTO> = {
       repository: props.militaryRankRepository,
       sanitizer: props.sanitizer,
       validator: props.validator,

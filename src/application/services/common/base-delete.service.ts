@@ -1,17 +1,18 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 export interface BaseDeleteServiceDeps {
-  repository: any;
-  idSanitizer: any;
-  idValidator: any;
-  idRegisteredValidator: any;
+  repository: { delete(id: string): Promise<void> };
+  idSanitizer: { sanitize(id: string): string };
+  idValidator: { validate(id: string): void };
+  idRegisteredValidator: { validate(id: string): Promise<void> };
 }
 
 export abstract class BaseDeleteService {
-  protected readonly repository: any;
-  protected readonly idSanitizer: any;
-  protected readonly idValidator: any;
-  protected readonly idRegisteredValidator: any;
+  protected readonly repository: { delete(id: string): Promise<void> };
+  protected readonly idSanitizer: { sanitize(id: string): string };
+  protected readonly idValidator: { validate(id: string): void };
+  protected readonly idRegisteredValidator: {
+    validate(id: string): Promise<void>;
+  };
 
   constructor(deps: BaseDeleteServiceDeps) {
     this.repository = deps.repository;

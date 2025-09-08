@@ -12,7 +12,7 @@ export class ListAllMilitaryService
   implements ListAllMilitaryUseCase
 {
   constructor(props: ListAllMilitaryServiceProps) {
-    const baseServiceDeps: BaseListAllServiceDeps = {
+    const baseServiceDeps: BaseListAllServiceDeps<MilitaryOutputDTO> = {
       repository: props.militaryRepository,
     };
     super(baseServiceDeps);

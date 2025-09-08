@@ -18,11 +18,7 @@ export class CreateVehicleService
   implements CreateVehicleUseCase
 {
   constructor(props: CreateVehicleServiceProps) {
-    const baseServiceDeps: BaseCreateServiceDeps<
-      VehicleInputDTOSanitizerProtocol,
-      VehicleInputDTOValidatorProtocol,
-      VehicleRepository
-    > = {
+    const baseServiceDeps: BaseCreateServiceDeps<VehicleInputDTO> = {
       repository: props.vehicleRepository,
       sanitizer: props.sanitizer,
       validator: props.validator,

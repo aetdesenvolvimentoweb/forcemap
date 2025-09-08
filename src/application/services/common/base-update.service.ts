@@ -1,23 +1,28 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-export interface BaseUpdateServiceDeps {
-  repository: any;
-  idSanitizer: any;
-  dataSanitizer: any;
-  idValidator: any;
-  idRegisteredValidator: any;
-  dataValidator: any;
+export interface BaseUpdateServiceDeps<TData> {
+  repository: { update(id: string, data: TData): Promise<void> };
+  idSanitizer: { sanitize(id: string): string };
+  dataSanitizer: { sanitize(data: TData): TData };
+  idValidator: { validate(id: string): void };
+  idRegisteredValidator: { validate(id: string): Promise<void> };
+  dataValidator: { validate(data: TData, id?: string): void | Promise<void> };
 }
 
 export abstract class BaseUpdateService<TData> {
-  protected readonly repository: any;
-  protected readonly idSanitizer: any;
-  protected readonly dataSanitizer: any;
-  protected readonly idValidator: any;
-  protected readonly idRegisteredValidator: any;
-  protected readonly dataValidator: any;
+  protected readonly repository: {
+    update(id: string, data: TData): Promise<void>;
+  };
+  protected readonly idSanitizer: { sanitize(id: string): string };
+  protected readonly dataSanitizer: { sanitize(data: TData): TData };
+  protected readonly idValidator: { validate(id: string): void };
+  protected readonly idRegisteredValidator: {
+    validate(id: string): Promise<void>;
+  };
+  protected readonly dataValidator: {
+    validate(data: TData, id?: string): void | Promise<void>;
+  };
 
-  constructor(deps: BaseUpdateServiceDeps) {
+  constructor(deps: BaseUpdateServiceDeps<TData>) {
     this.repository = deps.repository;
     this.idSanitizer = deps.idSanitizer;
     this.dataSanitizer = deps.dataSanitizer;

@@ -24,7 +24,7 @@ export class UpdateMilitaryRankService
   implements UpdateMilitaryRankUseCase
 {
   constructor(props: UpdateMilitaryRankServiceProps) {
-    const baseServiceDeps: BaseUpdateServiceDeps = {
+    const baseServiceDeps: BaseUpdateServiceDeps<MilitaryRankInputDTO> = {
       repository: props.militaryRankRepository,
       idSanitizer: props.idSanitizer,
       dataSanitizer: props.dataSanitizer,

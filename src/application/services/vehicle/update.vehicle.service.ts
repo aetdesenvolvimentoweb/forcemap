@@ -24,7 +24,7 @@ export class UpdateVehicleService
   implements UpdateVehicleUseCase
 {
   constructor(props: UpdateVehicleServiceProps) {
-    const baseServiceDeps: BaseUpdateServiceDeps = {
+    const baseServiceDeps: BaseUpdateServiceDeps<VehicleInputDTO> = {
       repository: props.vehicleRepository,
       idSanitizer: props.idSanitizer,
       dataSanitizer: props.dataSanitizer,

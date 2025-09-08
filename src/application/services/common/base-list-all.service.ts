@@ -1,13 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-export interface BaseListAllServiceDeps {
-  repository: any;
+export interface BaseListAllServiceDeps<TOutput> {
+  repository: { listAll(): Promise<TOutput[]> };
 }
 
 export abstract class BaseListAllService<TOutput> {
-  protected readonly repository: any;
+  protected readonly repository: { listAll(): Promise<TOutput[]> };
 
-  constructor(deps: BaseListAllServiceDeps) {
+  constructor(deps: BaseListAllServiceDeps<TOutput>) {
     this.repository = deps.repository;
   }
 

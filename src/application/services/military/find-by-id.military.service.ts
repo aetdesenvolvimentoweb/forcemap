@@ -20,7 +20,7 @@ export class FindByIdMilitaryService
   implements FindByIdMilitaryUseCase
 {
   constructor(props: FindByIdMilitaryServiceProps) {
-    const baseServiceDeps: BaseFindByIdServiceDeps = {
+    const baseServiceDeps: BaseFindByIdServiceDeps<MilitaryOutputDTO> = {
       repository: props.militaryRepository,
       idSanitizer: props.sanitizer,
       idValidator: props.idValidator,
