@@ -5,6 +5,7 @@ import {
   VehicleInputDTOSanitizerProtocol,
   VehicleInputDTOValidatorProtocol,
 } from "../../protocols";
+import { BaseCreateService, BaseCreateServiceDeps } from "../common";
 
 interface CreateVehicleServiceProps {
   vehicleRepository: VehicleRepository;
@@ -12,18 +13,20 @@ interface CreateVehicleServiceProps {
   validator: VehicleInputDTOValidatorProtocol;
 }
 
-export class CreateVehicleService implements CreateVehicleUseCase {
-  private readonly props: CreateVehicleServiceProps;
-
+export class CreateVehicleService
+  extends BaseCreateService<VehicleInputDTO>
+  implements CreateVehicleUseCase
+{
   constructor(props: CreateVehicleServiceProps) {
-    this.props = props;
+    const baseServiceDeps: BaseCreateServiceDeps<
+      VehicleInputDTOSanitizerProtocol,
+      VehicleInputDTOValidatorProtocol,
+      VehicleRepository
+    > = {
+      repository: props.vehicleRepository,
+      sanitizer: props.sanitizer,
+      validator: props.validator,
+    };
+    super(baseServiceDeps);
   }
-
-  public readonly create = async (data: VehicleInputDTO): Promise<void> => {
-    const { vehicleRepository, sanitizer, validator } = this.props;
-
-    const sanitizedData = sanitizer.sanitize(data);
-    await validator.validate(sanitizedData);
-    await vehicleRepository.create(sanitizedData);
-  };
 }

@@ -1,20 +1,20 @@
 import { UserOutputDTO } from "../../../domain/dtos";
 import { UserRepository } from "../../../domain/repositories";
 import { ListAllUserUseCase } from "../../../domain/use-cases";
+import { BaseListAllService, BaseListAllServiceDeps } from "../common";
 
 interface ListAllUserServiceProps {
   userRepository: UserRepository;
 }
 
-export class ListAllUserService implements ListAllUserUseCase {
-  private readonly props: ListAllUserServiceProps;
-
+export class ListAllUserService
+  extends BaseListAllService<UserOutputDTO>
+  implements ListAllUserUseCase
+{
   constructor(props: ListAllUserServiceProps) {
-    this.props = props;
+    const baseServiceDeps: BaseListAllServiceDeps = {
+      repository: props.userRepository,
+    };
+    super(baseServiceDeps);
   }
-
-  public readonly listAll = async (): Promise<UserOutputDTO[]> => {
-    const { userRepository } = this.props;
-    return await userRepository.listAll();
-  };
 }

@@ -6,6 +6,7 @@ import {
   MilitaryRankIdRegisteredValidatorProtocol,
   MilitaryRankInUseValidatorProtocol,
 } from "../../protocols";
+import { BaseDeleteService, BaseDeleteServiceDeps } from "../common";
 
 interface DeleteMilitaryRankServiceProps {
   militaryRankRepository: MilitaryRankRepository;
@@ -15,26 +16,24 @@ interface DeleteMilitaryRankServiceProps {
   inUseValidator: MilitaryRankInUseValidatorProtocol;
 }
 
-export class DeleteMilitaryRankService implements DeleteMilitaryRankUseCase {
-  private readonly props: DeleteMilitaryRankServiceProps;
+export class DeleteMilitaryRankService
+  extends BaseDeleteService
+  implements DeleteMilitaryRankUseCase
+{
+  private readonly inUseValidator: MilitaryRankInUseValidatorProtocol;
 
   constructor(props: DeleteMilitaryRankServiceProps) {
-    this.props = props;
+    const baseServiceDeps: BaseDeleteServiceDeps = {
+      repository: props.militaryRankRepository,
+      idSanitizer: props.sanitizer,
+      idValidator: props.idValidator,
+      idRegisteredValidator: props.idRegisteredValidator,
+    };
+    super(baseServiceDeps);
+    this.inUseValidator = props.inUseValidator;
   }
 
-  public readonly delete = async (id: string): Promise<void> => {
-    const {
-      militaryRankRepository,
-      sanitizer,
-      idValidator,
-      idRegisteredValidator,
-      inUseValidator,
-    } = this.props;
-
-    const sanitizedId = sanitizer.sanitize(id);
-    idValidator.validate(sanitizedId);
-    await idRegisteredValidator.validate(sanitizedId);
-    await inUseValidator.validate(sanitizedId);
-    await militaryRankRepository.delete(sanitizedId);
-  };
+  protected async performAdditionalValidations(id: string): Promise<void> {
+    await this.inUseValidator.validate(id);
+  }
 }

@@ -4,33 +4,36 @@ import {
   IdSanitizerProtocol,
   IdValidatorProtocol,
   MilitaryIdRegisteredValidatorProtocol,
+  MilitaryInUseValidatorProtocol,
 } from "../../protocols";
+import { BaseDeleteService, BaseDeleteServiceDeps } from "../common";
 
 interface DeleteMilitaryServiceProps {
   militaryRepository: MilitaryRepository;
   sanitizer: IdSanitizerProtocol;
   idValidator: IdValidatorProtocol;
   idRegisteredValidator: MilitaryIdRegisteredValidatorProtocol;
+  inUseValidator: MilitaryInUseValidatorProtocol;
 }
 
-export class DeleteMilitaryService implements DeleteMilitaryUseCase {
-  private readonly props: DeleteMilitaryServiceProps;
+export class DeleteMilitaryService
+  extends BaseDeleteService
+  implements DeleteMilitaryUseCase
+{
+  private readonly inUseValidator: MilitaryInUseValidatorProtocol;
 
   constructor(props: DeleteMilitaryServiceProps) {
-    this.props = props;
+    const baseServiceDeps: BaseDeleteServiceDeps = {
+      repository: props.militaryRepository,
+      idSanitizer: props.sanitizer,
+      idValidator: props.idValidator,
+      idRegisteredValidator: props.idRegisteredValidator,
+    };
+    super(baseServiceDeps);
+    this.inUseValidator = props.inUseValidator;
   }
 
-  public readonly delete = async (id: string): Promise<void> => {
-    const {
-      militaryRepository,
-      sanitizer,
-      idValidator,
-      idRegisteredValidator,
-    } = this.props;
-
-    const sanitizedId = sanitizer.sanitize(id);
-    idValidator.validate(sanitizedId);
-    await idRegisteredValidator.validate(sanitizedId);
-    await militaryRepository.delete(sanitizedId);
-  };
+  protected async performAdditionalValidations(id: string): Promise<void> {
+    await this.inUseValidator.validate(id);
+  }
 }

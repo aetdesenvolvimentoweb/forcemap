@@ -6,6 +6,7 @@ import {
   IdValidatorProtocol,
   VehicleIdRegisteredValidatorProtocol,
 } from "../../protocols";
+import { BaseFindByIdService, BaseFindByIdServiceDeps } from "../common";
 
 interface FindByIdVehicleServiceProps {
   vehicleRepository: VehicleRepository;
@@ -14,21 +15,17 @@ interface FindByIdVehicleServiceProps {
   idRegisteredValidator: VehicleIdRegisteredValidatorProtocol;
 }
 
-export class FindByIdVehicleService implements FindByIdVehicleUseCase {
-  private readonly props: FindByIdVehicleServiceProps;
-
+export class FindByIdVehicleService
+  extends BaseFindByIdService<Vehicle>
+  implements FindByIdVehicleUseCase
+{
   constructor(props: FindByIdVehicleServiceProps) {
-    this.props = props;
+    const baseServiceDeps: BaseFindByIdServiceDeps = {
+      repository: props.vehicleRepository,
+      idSanitizer: props.sanitizer,
+      idValidator: props.idValidator,
+      idRegisteredValidator: props.idRegisteredValidator,
+    };
+    super(baseServiceDeps);
   }
-
-  public readonly findById = async (id: string): Promise<Vehicle | null> => {
-    const { vehicleRepository, sanitizer, idValidator, idRegisteredValidator } =
-      this.props;
-
-    const sanitizedId = sanitizer.sanitize(id);
-    idValidator.validate(sanitizedId);
-    await idRegisteredValidator.validate(sanitizedId);
-    const vehicle = await vehicleRepository.findById(sanitizedId);
-    return vehicle;
-  };
 }

@@ -6,6 +6,7 @@ import {
   IdValidatorProtocol,
   UserIdRegisteredValidatorProtocol,
 } from "../../protocols";
+import { BaseFindByIdService, BaseFindByIdServiceDeps } from "../common";
 
 interface FindByIdUserServiceProps {
   userRepository: UserRepository;
@@ -14,23 +15,17 @@ interface FindByIdUserServiceProps {
   idRegisteredValidator: UserIdRegisteredValidatorProtocol;
 }
 
-export class FindByIdUserService implements FindByIdUserUseCase {
-  private readonly props: FindByIdUserServiceProps;
-
+export class FindByIdUserService
+  extends BaseFindByIdService<UserOutputDTO>
+  implements FindByIdUserUseCase
+{
   constructor(props: FindByIdUserServiceProps) {
-    this.props = props;
+    const baseServiceDeps: BaseFindByIdServiceDeps = {
+      repository: props.userRepository,
+      idSanitizer: props.sanitizer,
+      idValidator: props.idValidator,
+      idRegisteredValidator: props.idRegisteredValidator,
+    };
+    super(baseServiceDeps);
   }
-
-  public readonly findById = async (
-    id: string,
-  ): Promise<UserOutputDTO | null> => {
-    const { userRepository, sanitizer, idValidator, idRegisteredValidator } =
-      this.props;
-
-    const sanitizedId = sanitizer.sanitize(id);
-    idValidator.validate(sanitizedId);
-    await idRegisteredValidator.validate(sanitizedId);
-    const user = await userRepository.findById(sanitizedId);
-    return user;
-  };
 }

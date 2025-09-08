@@ -6,6 +6,7 @@ import {
   IdValidatorProtocol,
   MilitaryIdRegisteredValidatorProtocol,
 } from "../../protocols";
+import { BaseFindByIdService, BaseFindByIdServiceDeps } from "../common";
 
 interface FindByIdMilitaryServiceProps {
   militaryRepository: MilitaryRepository;
@@ -14,27 +15,17 @@ interface FindByIdMilitaryServiceProps {
   idRegisteredValidator: MilitaryIdRegisteredValidatorProtocol;
 }
 
-export class FindByIdMilitaryService implements FindByIdMilitaryUseCase {
-  private readonly props: FindByIdMilitaryServiceProps;
-
+export class FindByIdMilitaryService
+  extends BaseFindByIdService<MilitaryOutputDTO>
+  implements FindByIdMilitaryUseCase
+{
   constructor(props: FindByIdMilitaryServiceProps) {
-    this.props = props;
+    const baseServiceDeps: BaseFindByIdServiceDeps = {
+      repository: props.militaryRepository,
+      idSanitizer: props.sanitizer,
+      idValidator: props.idValidator,
+      idRegisteredValidator: props.idRegisteredValidator,
+    };
+    super(baseServiceDeps);
   }
-
-  public readonly findById = async (
-    id: string,
-  ): Promise<MilitaryOutputDTO | null> => {
-    const {
-      militaryRepository,
-      sanitizer,
-      idValidator,
-      idRegisteredValidator,
-    } = this.props;
-
-    const sanitizedId = sanitizer.sanitize(id);
-    idValidator.validate(sanitizedId);
-    await idRegisteredValidator.validate(sanitizedId);
-    const military = await militaryRepository.findById(sanitizedId);
-    return military;
-  };
 }

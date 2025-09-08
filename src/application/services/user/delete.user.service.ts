@@ -5,6 +5,7 @@ import {
   IdValidatorProtocol,
   UserIdRegisteredValidatorProtocol,
 } from "../../protocols";
+import { BaseDeleteService, BaseDeleteServiceDeps } from "../common";
 
 interface DeleteUserServiceProps {
   userRepository: UserRepository;
@@ -13,20 +14,17 @@ interface DeleteUserServiceProps {
   idRegisteredValidator: UserIdRegisteredValidatorProtocol;
 }
 
-export class DeleteUserService implements DeleteUserUseCase {
-  private readonly props: DeleteUserServiceProps;
-
+export class DeleteUserService
+  extends BaseDeleteService
+  implements DeleteUserUseCase
+{
   constructor(props: DeleteUserServiceProps) {
-    this.props = props;
+    const baseServiceDeps: BaseDeleteServiceDeps = {
+      repository: props.userRepository,
+      idSanitizer: props.sanitizer,
+      idValidator: props.idValidator,
+      idRegisteredValidator: props.idRegisteredValidator,
+    };
+    super(baseServiceDeps);
   }
-
-  public readonly delete = async (id: string): Promise<void> => {
-    const { userRepository, sanitizer, idValidator, idRegisteredValidator } =
-      this.props;
-
-    const sanitizedId = sanitizer.sanitize(id);
-    idValidator.validate(sanitizedId);
-    await idRegisteredValidator.validate(sanitizedId);
-    await userRepository.delete(sanitizedId);
-  };
 }

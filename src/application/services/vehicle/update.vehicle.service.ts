@@ -8,6 +8,7 @@ import {
   VehicleInputDTOSanitizerProtocol,
   VehicleInputDTOValidatorProtocol,
 } from "../../protocols";
+import { BaseUpdateService, BaseUpdateServiceDeps } from "../common";
 
 interface UpdateVehicleServiceProps {
   vehicleRepository: VehicleRepository;
@@ -18,31 +19,19 @@ interface UpdateVehicleServiceProps {
   dataValidator: VehicleInputDTOValidatorProtocol;
 }
 
-export class UpdateVehicleService implements UpdateVehicleUseCase {
-  private readonly props: UpdateVehicleServiceProps;
-
+export class UpdateVehicleService
+  extends BaseUpdateService<VehicleInputDTO>
+  implements UpdateVehicleUseCase
+{
   constructor(props: UpdateVehicleServiceProps) {
-    this.props = props;
+    const baseServiceDeps: BaseUpdateServiceDeps = {
+      repository: props.vehicleRepository,
+      idSanitizer: props.idSanitizer,
+      dataSanitizer: props.dataSanitizer,
+      idValidator: props.idValidator,
+      idRegisteredValidator: props.idRegisteredValidator,
+      dataValidator: props.dataValidator,
+    };
+    super(baseServiceDeps);
   }
-
-  public readonly update = async (
-    id: string,
-    data: VehicleInputDTO,
-  ): Promise<void> => {
-    const {
-      vehicleRepository,
-      idSanitizer,
-      dataSanitizer,
-      idValidator,
-      idRegisteredValidator,
-      dataValidator,
-    } = this.props;
-
-    const sanitizedId = idSanitizer.sanitize(id);
-    idValidator.validate(sanitizedId);
-    await idRegisteredValidator.validate(sanitizedId);
-    const sanitizedData = dataSanitizer.sanitize(data);
-    await dataValidator.validate(sanitizedData, sanitizedId);
-    await vehicleRepository.update(sanitizedId, sanitizedData);
-  };
 }

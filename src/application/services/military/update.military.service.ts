@@ -8,6 +8,7 @@ import {
   MilitaryInputDTOSanitizerProtocol,
   MilitaryInputDTOValidatorProtocol,
 } from "../../protocols";
+import { BaseUpdateService, BaseUpdateServiceDeps } from "../common";
 
 interface UpdateMilitaryServiceProps {
   militaryRepository: MilitaryRepository;
@@ -18,31 +19,19 @@ interface UpdateMilitaryServiceProps {
   dataValidator: MilitaryInputDTOValidatorProtocol;
 }
 
-export class UpdateMilitaryService implements UpdateMilitaryUseCase {
-  private readonly props: UpdateMilitaryServiceProps;
-
+export class UpdateMilitaryService
+  extends BaseUpdateService<MilitaryInputDTO>
+  implements UpdateMilitaryUseCase
+{
   constructor(props: UpdateMilitaryServiceProps) {
-    this.props = props;
+    const baseServiceDeps: BaseUpdateServiceDeps = {
+      repository: props.militaryRepository,
+      idSanitizer: props.idSanitizer,
+      dataSanitizer: props.dataSanitizer,
+      idValidator: props.idValidator,
+      idRegisteredValidator: props.idRegisteredValidator,
+      dataValidator: props.dataValidator,
+    };
+    super(baseServiceDeps);
   }
-
-  public readonly update = async (
-    id: string,
-    data: MilitaryInputDTO,
-  ): Promise<void> => {
-    const {
-      militaryRepository,
-      idSanitizer,
-      dataSanitizer,
-      idValidator,
-      idRegisteredValidator,
-      dataValidator,
-    } = this.props;
-
-    const sanitizedId = idSanitizer.sanitize(id);
-    idValidator.validate(sanitizedId);
-    await idRegisteredValidator.validate(sanitizedId);
-    const sanitizedData = dataSanitizer.sanitize(data);
-    await dataValidator.validate(sanitizedData, sanitizedId);
-    await militaryRepository.update(sanitizedId, sanitizedData);
-  };
 }

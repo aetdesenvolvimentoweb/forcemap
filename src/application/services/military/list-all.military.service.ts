@@ -1,20 +1,20 @@
 import { MilitaryOutputDTO } from "../../../domain/dtos";
 import { MilitaryRepository } from "../../../domain/repositories";
 import { ListAllMilitaryUseCase } from "../../../domain/use-cases";
+import { BaseListAllService, BaseListAllServiceDeps } from "../common";
 
 interface ListAllMilitaryServiceProps {
   militaryRepository: MilitaryRepository;
 }
 
-export class ListAllMilitaryService implements ListAllMilitaryUseCase {
-  private readonly props: ListAllMilitaryServiceProps;
-
+export class ListAllMilitaryService
+  extends BaseListAllService<MilitaryOutputDTO>
+  implements ListAllMilitaryUseCase
+{
   constructor(props: ListAllMilitaryServiceProps) {
-    this.props = props;
+    const baseServiceDeps: BaseListAllServiceDeps = {
+      repository: props.militaryRepository,
+    };
+    super(baseServiceDeps);
   }
-
-  public readonly listAll = async (): Promise<MilitaryOutputDTO[]> => {
-    const { militaryRepository } = this.props;
-    return await militaryRepository.listAll();
-  };
 }

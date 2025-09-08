@@ -5,6 +5,7 @@ import {
   MilitaryRankInputDTOSanitizerProtocol,
   MilitaryRankInputDTOValidatorProtocol,
 } from "../../protocols";
+import { BaseCreateService, BaseCreateServiceDeps } from "../common";
 
 interface CreateMilitaryRankServiceProps {
   militaryRankRepository: MilitaryRankRepository;
@@ -12,20 +13,20 @@ interface CreateMilitaryRankServiceProps {
   validator: MilitaryRankInputDTOValidatorProtocol;
 }
 
-export class CreateMilitaryRankService implements CreateMilitaryRankUseCase {
-  private readonly props: CreateMilitaryRankServiceProps;
-
+export class CreateMilitaryRankService
+  extends BaseCreateService<MilitaryRankInputDTO>
+  implements CreateMilitaryRankUseCase
+{
   constructor(props: CreateMilitaryRankServiceProps) {
-    this.props = props;
+    const baseServiceDeps: BaseCreateServiceDeps<
+      MilitaryRankInputDTOSanitizerProtocol,
+      MilitaryRankInputDTOValidatorProtocol,
+      MilitaryRankRepository
+    > = {
+      repository: props.militaryRankRepository,
+      sanitizer: props.sanitizer,
+      validator: props.validator,
+    };
+    super(baseServiceDeps);
   }
-
-  public readonly create = async (
-    data: MilitaryRankInputDTO,
-  ): Promise<void> => {
-    const { militaryRankRepository, sanitizer, validator } = this.props;
-
-    const sanitizedData = sanitizer.sanitize(data);
-    await validator.validate(sanitizedData);
-    await militaryRankRepository.create(sanitizedData);
-  };
 }
