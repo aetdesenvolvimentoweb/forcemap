@@ -1,5 +1,5 @@
-import { UserCredentialsInputDTOSanitizer } from "../../../../src/application/sanitizers";
-import { UserCredentialsInputDTO } from "../../../../src/domain/dtos";
+import { UserCredentialsInputDTOSanitizer } from "../../../../../src/application/sanitizers";
+import { UserCredentialsInputDTO } from "../../../../../src/domain/dtos";
 
 describe("UserCredentialsInputDTOSanitizer", () => {
   let sut: UserCredentialsInputDTOSanitizer;

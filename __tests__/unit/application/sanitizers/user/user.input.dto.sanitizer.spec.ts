@@ -1,8 +1,8 @@
-import { mockIdSanitizer } from "../../../../__mocks__/sanitizers";
-import { IdSanitizerProtocol } from "../../../../src/application/protocols";
-import { UserInputDTOSanitizer } from "../../../../src/application/sanitizers";
-import { UserInputDTO } from "../../../../src/domain/dtos";
-import { UserRole } from "../../../../src/domain/entities";
+import { mockIdSanitizer } from "../../../../../__mocks__/sanitizers";
+import { IdSanitizerProtocol } from "../../../../../src/application/protocols";
+import { UserInputDTOSanitizer } from "../../../../../src/application/sanitizers";
+import { UserInputDTO } from "../../../../../src/domain/dtos";
+import { UserRole } from "../../../../../src/domain/entities";
 
 describe("UserInputDTOSanitizer", () => {
   let sut: UserInputDTOSanitizer;
