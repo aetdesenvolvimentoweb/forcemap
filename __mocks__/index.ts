@@ -1,3 +1,6 @@
+export * from "./adapters";
+export * from "./express.mock";
+export * from "./factories";
 export * from "./logger.mock";
 export * from "./protocols/password.hasher.mock";
 export * from "./repositories";

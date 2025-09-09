@@ -1,15 +1,18 @@
-// Mock the adapter
-const mockExpressRouteAdapter = jest.fn();
+import {
+  mockExpressRouteAdapter,
+  mockMakeCreateMilitaryRankController,
+  mockMakeDeleteMilitaryRankController,
+  mockMakeFindByIdMilitaryRankController,
+  mockMakeListAllMilitaryRankController,
+  mockMakeUpdateMilitaryRankController,
+  mockRouter,
+  mockRouterMethods,
+} from "../../../../__mocks__";
+
+// Mock modules using imported mocks - must be before any imports that use these modules
 jest.mock("../../../../src/infra/adapters", () => ({
   expressRouteAdapter: mockExpressRouteAdapter,
 }));
-
-// Mock the factory functions
-const mockMakeCreateMilitaryRankController = jest.fn();
-const mockMakeDeleteMilitaryRankController = jest.fn();
-const mockMakeFindByIdMilitaryRankController = jest.fn();
-const mockMakeListAllMilitaryRankController = jest.fn();
-const mockMakeUpdateMilitaryRankController = jest.fn();
 
 jest.mock("../../../../src/main/factories/controllers", () => ({
   makeCreateMilitaryRankController: mockMakeCreateMilitaryRankController,
@@ -19,15 +22,6 @@ jest.mock("../../../../src/main/factories/controllers", () => ({
   makeUpdateMilitaryRankController: mockMakeUpdateMilitaryRankController,
 }));
 
-// Mock Express Router
-const mockRouterMethods = {
-  post: jest.fn(),
-  get: jest.fn(),
-  delete: jest.fn(),
-  put: jest.fn(),
-};
-
-const mockRouter = jest.fn(() => mockRouterMethods);
 jest.mock("express", () => ({
   Router: mockRouter,
 }));

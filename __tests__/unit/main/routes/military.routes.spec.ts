@@ -1,15 +1,18 @@
-// Mock the adapter
-const mockMilitaryExpressRouteAdapter = jest.fn();
-jest.mock("../../../../src/infra/adapters", () => ({
-  expressRouteAdapter: mockMilitaryExpressRouteAdapter,
-}));
+import {
+  mockExpressRouteAdapter,
+  mockMakeCreateMilitaryController,
+  mockMakeDeleteMilitaryController,
+  mockMakeFindByIdMilitaryController,
+  mockMakeListAllMilitaryController,
+  mockMakeUpdateMilitaryController,
+  mockRouter,
+  mockRouterMethods,
+} from "../../../../__mocks__";
 
-// Mock the factory functions
-const mockMakeCreateMilitaryController = jest.fn();
-const mockMakeDeleteMilitaryController = jest.fn();
-const mockMakeFindByIdMilitaryController = jest.fn();
-const mockMakeListAllMilitaryController = jest.fn();
-const mockMakeUpdateMilitaryController = jest.fn();
+// Mock modules using imported mocks - must be before any imports that use these modules
+jest.mock("../../../../src/infra/adapters", () => ({
+  expressRouteAdapter: mockExpressRouteAdapter,
+}));
 
 jest.mock("../../../../src/main/factories/controllers", () => ({
   makeCreateMilitaryController: mockMakeCreateMilitaryController,
@@ -19,17 +22,8 @@ jest.mock("../../../../src/main/factories/controllers", () => ({
   makeUpdateMilitaryController: mockMakeUpdateMilitaryController,
 }));
 
-// Mock Express Router
-const mockMilitaryRouterMethods = {
-  post: jest.fn(),
-  get: jest.fn(),
-  delete: jest.fn(),
-  put: jest.fn(),
-};
-
-const mockMilitaryRouter = jest.fn(() => mockMilitaryRouterMethods);
 jest.mock("express", () => ({
-  Router: mockMilitaryRouter,
+  Router: mockRouter,
 }));
 
 describe("militaryRoutes", () => {
@@ -56,7 +50,7 @@ describe("militaryRoutes", () => {
     mockMakeUpdateMilitaryController.mockReturnValue(mockUpdateController);
 
     // Mock expressRouteAdapter to return different adapters
-    mockMilitaryExpressRouteAdapter
+    mockExpressRouteAdapter
       .mockReturnValueOnce(mockCreateAdapter)
       .mockReturnValueOnce(mockListAllAdapter)
       .mockReturnValueOnce(mockFindByIdAdapter)
@@ -70,10 +64,10 @@ describe("militaryRoutes", () => {
       require("../../../../src/main/routes/military.routes");
 
       expect(mockMakeCreateMilitaryController).toHaveBeenCalledTimes(1);
-      expect(mockMilitaryExpressRouteAdapter).toHaveBeenCalledWith(
+      expect(mockExpressRouteAdapter).toHaveBeenCalledWith(
         mockCreateController,
       );
-      expect(mockMilitaryRouterMethods.post).toHaveBeenCalledWith(
+      expect(mockRouterMethods.post).toHaveBeenCalledWith(
         "/military",
         mockCreateAdapter,
       );
@@ -85,10 +79,10 @@ describe("militaryRoutes", () => {
       require("../../../../src/main/routes/military.routes");
 
       expect(mockMakeListAllMilitaryController).toHaveBeenCalledTimes(1);
-      expect(mockMilitaryExpressRouteAdapter).toHaveBeenCalledWith(
+      expect(mockExpressRouteAdapter).toHaveBeenCalledWith(
         mockListAllController,
       );
-      expect(mockMilitaryRouterMethods.get).toHaveBeenCalledWith(
+      expect(mockRouterMethods.get).toHaveBeenCalledWith(
         "/military",
         mockListAllAdapter,
       );
@@ -99,10 +93,10 @@ describe("militaryRoutes", () => {
       require("../../../../src/main/routes/military.routes");
 
       expect(mockMakeFindByIdMilitaryController).toHaveBeenCalledTimes(1);
-      expect(mockMilitaryExpressRouteAdapter).toHaveBeenCalledWith(
+      expect(mockExpressRouteAdapter).toHaveBeenCalledWith(
         mockFindByIdController,
       );
-      expect(mockMilitaryRouterMethods.get).toHaveBeenCalledWith(
+      expect(mockRouterMethods.get).toHaveBeenCalledWith(
         "/military/:id",
         mockFindByIdAdapter,
       );
@@ -113,10 +107,10 @@ describe("militaryRoutes", () => {
       require("../../../../src/main/routes/military.routes");
 
       expect(mockMakeDeleteMilitaryController).toHaveBeenCalledTimes(1);
-      expect(mockMilitaryExpressRouteAdapter).toHaveBeenCalledWith(
+      expect(mockExpressRouteAdapter).toHaveBeenCalledWith(
         mockDeleteController,
       );
-      expect(mockMilitaryRouterMethods.delete).toHaveBeenCalledWith(
+      expect(mockRouterMethods.delete).toHaveBeenCalledWith(
         "/military/:id",
         mockDeleteAdapter,
       );
@@ -127,10 +121,10 @@ describe("militaryRoutes", () => {
       require("../../../../src/main/routes/military.routes");
 
       expect(mockMakeUpdateMilitaryController).toHaveBeenCalledTimes(1);
-      expect(mockMilitaryExpressRouteAdapter).toHaveBeenCalledWith(
+      expect(mockExpressRouteAdapter).toHaveBeenCalledWith(
         mockUpdateController,
       );
-      expect(mockMilitaryRouterMethods.put).toHaveBeenCalledWith(
+      expect(mockRouterMethods.put).toHaveBeenCalledWith(
         "/military/:id",
         mockUpdateAdapter,
       );
@@ -142,33 +136,33 @@ describe("militaryRoutes", () => {
       jest.resetModules();
       require("../../../../src/main/routes/military.routes");
 
-      expect(mockMilitaryRouterMethods.post).toHaveBeenCalledTimes(1);
-      expect(mockMilitaryRouterMethods.get).toHaveBeenCalledTimes(2);
-      expect(mockMilitaryRouterMethods.delete).toHaveBeenCalledTimes(1);
-      expect(mockMilitaryRouterMethods.put).toHaveBeenCalledTimes(1);
+      expect(mockRouterMethods.post).toHaveBeenCalledTimes(1);
+      expect(mockRouterMethods.get).toHaveBeenCalledTimes(2);
+      expect(mockRouterMethods.delete).toHaveBeenCalledTimes(1);
+      expect(mockRouterMethods.put).toHaveBeenCalledTimes(1);
     });
 
     it("should use correct paths for each route", () => {
       jest.resetModules();
       require("../../../../src/main/routes/military.routes");
 
-      expect(mockMilitaryRouterMethods.post).toHaveBeenCalledWith(
+      expect(mockRouterMethods.post).toHaveBeenCalledWith(
         "/military",
         expect.any(Function),
       );
-      expect(mockMilitaryRouterMethods.get).toHaveBeenCalledWith(
+      expect(mockRouterMethods.get).toHaveBeenCalledWith(
         "/military",
         expect.any(Function),
       );
-      expect(mockMilitaryRouterMethods.get).toHaveBeenCalledWith(
+      expect(mockRouterMethods.get).toHaveBeenCalledWith(
         "/military/:id",
         expect.any(Function),
       );
-      expect(mockMilitaryRouterMethods.delete).toHaveBeenCalledWith(
+      expect(mockRouterMethods.delete).toHaveBeenCalledWith(
         "/military/:id",
         expect.any(Function),
       );
-      expect(mockMilitaryRouterMethods.put).toHaveBeenCalledWith(
+      expect(mockRouterMethods.put).toHaveBeenCalledWith(
         "/military/:id",
         expect.any(Function),
       );
@@ -180,20 +174,20 @@ describe("militaryRoutes", () => {
       jest.resetModules();
       require("../../../../src/main/routes/military.routes");
 
-      expect(mockMilitaryExpressRouteAdapter).toHaveBeenCalledTimes(5);
-      expect(mockMilitaryExpressRouteAdapter).toHaveBeenCalledWith(
+      expect(mockExpressRouteAdapter).toHaveBeenCalledTimes(5);
+      expect(mockExpressRouteAdapter).toHaveBeenCalledWith(
         mockCreateController,
       );
-      expect(mockMilitaryExpressRouteAdapter).toHaveBeenCalledWith(
+      expect(mockExpressRouteAdapter).toHaveBeenCalledWith(
         mockListAllController,
       );
-      expect(mockMilitaryExpressRouteAdapter).toHaveBeenCalledWith(
+      expect(mockExpressRouteAdapter).toHaveBeenCalledWith(
         mockFindByIdController,
       );
-      expect(mockMilitaryExpressRouteAdapter).toHaveBeenCalledWith(
+      expect(mockExpressRouteAdapter).toHaveBeenCalledWith(
         mockDeleteController,
       );
-      expect(mockMilitaryExpressRouteAdapter).toHaveBeenCalledWith(
+      expect(mockExpressRouteAdapter).toHaveBeenCalledWith(
         mockUpdateController,
       );
     });
@@ -202,23 +196,23 @@ describe("militaryRoutes", () => {
       jest.resetModules();
       require("../../../../src/main/routes/military.routes");
 
-      expect(mockMilitaryRouterMethods.post).toHaveBeenCalledWith(
+      expect(mockRouterMethods.post).toHaveBeenCalledWith(
         "/military",
         mockCreateAdapter,
       );
-      expect(mockMilitaryRouterMethods.get).toHaveBeenCalledWith(
+      expect(mockRouterMethods.get).toHaveBeenCalledWith(
         "/military",
         mockListAllAdapter,
       );
-      expect(mockMilitaryRouterMethods.get).toHaveBeenCalledWith(
+      expect(mockRouterMethods.get).toHaveBeenCalledWith(
         "/military/:id",
         mockFindByIdAdapter,
       );
-      expect(mockMilitaryRouterMethods.delete).toHaveBeenCalledWith(
+      expect(mockRouterMethods.delete).toHaveBeenCalledWith(
         "/military/:id",
         mockDeleteAdapter,
       );
-      expect(mockMilitaryRouterMethods.put).toHaveBeenCalledWith(
+      expect(mockRouterMethods.put).toHaveBeenCalledWith(
         "/military/:id",
         mockUpdateAdapter,
       );
@@ -254,8 +248,8 @@ describe("militaryRoutes", () => {
       jest.resetModules();
       require("../../../../src/main/routes/military.routes");
 
-      expect(mockMilitaryRouter).toHaveBeenCalledTimes(1);
-      expect(mockMilitaryRouter).toHaveBeenCalledWith();
+      expect(mockRouter).toHaveBeenCalledTimes(1);
+      expect(mockRouter).toHaveBeenCalledWith();
     });
   });
 
@@ -265,10 +259,10 @@ describe("militaryRoutes", () => {
       require("../../../../src/main/routes/military.routes");
 
       // Verify all CRUD operations are configured
-      const postCalls = mockMilitaryRouterMethods.post.mock.calls;
-      const getCalls = mockMilitaryRouterMethods.get.mock.calls;
-      const deleteCalls = mockMilitaryRouterMethods.delete.mock.calls;
-      const putCalls = mockMilitaryRouterMethods.put.mock.calls;
+      const postCalls = mockRouterMethods.post.mock.calls;
+      const getCalls = mockRouterMethods.get.mock.calls;
+      const deleteCalls = mockRouterMethods.delete.mock.calls;
+      const putCalls = mockRouterMethods.put.mock.calls;
 
       expect(postCalls).toHaveLength(1); // CREATE
       expect(getCalls).toHaveLength(2); // READ (list all + find by id)
@@ -297,9 +291,7 @@ describe("militaryRoutes", () => {
 
       routes.forEach(({ method, path }) => {
         expect(
-          mockMilitaryRouterMethods[
-            method as keyof typeof mockMilitaryRouterMethods
-          ],
+          mockRouterMethods[method as keyof typeof mockRouterMethods],
         ).toHaveBeenCalledWith(path, expect.any(Function));
       });
     });
