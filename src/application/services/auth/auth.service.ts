@@ -236,7 +236,7 @@ export class AuthService {
       });
 
       // Update session with new token and last access
-      await sessionRepository.updateLastAccess(session.id);
+      await sessionRepository.updateToken(session.id, newAccessToken);
 
       return {
         accessToken: newAccessToken,

@@ -9,6 +9,32 @@ import {
   mockRouterMethods,
 } from "../../../../__mocks__";
 
+// Mock PinoLoggerAdapter for this test file
+jest.mock("../../../../src/infra/adapters/pino.logger.adapter", () => ({
+  PinoLoggerAdapter: jest.fn().mockImplementation(() => ({
+    logger: {
+      info: jest.fn(),
+      warn: jest.fn(),
+      error: jest.fn(),
+      debug: jest.fn(),
+    },
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+  })),
+}));
+
+// Mock the logger factory
+jest.mock("../../../../src/main/factories/logger/logger.factory", () => ({
+  makeLogger: jest.fn(() => ({
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+  })),
+}));
+
 // Mock modules using imported mocks - must be before any imports that use these modules
 jest.mock("../../../../src/infra/adapters", () => ({
   expressRouteAdapter: mockExpressRouteAdapter,
@@ -69,6 +95,7 @@ describe("vehicleRoutes", () => {
       );
       expect(mockRouterMethods.post).toHaveBeenCalledWith(
         "/vehicle",
+        expect.any(Function),
         mockCreateAdapter,
       );
     });
@@ -84,6 +111,7 @@ describe("vehicleRoutes", () => {
       );
       expect(mockRouterMethods.get).toHaveBeenCalledWith(
         "/vehicle",
+        expect.any(Function),
         mockListAllAdapter,
       );
     });
@@ -98,6 +126,7 @@ describe("vehicleRoutes", () => {
       );
       expect(mockRouterMethods.get).toHaveBeenCalledWith(
         "/vehicle/:id",
+        expect.any(Function),
         mockFindByIdAdapter,
       );
     });
@@ -112,6 +141,7 @@ describe("vehicleRoutes", () => {
       );
       expect(mockRouterMethods.delete).toHaveBeenCalledWith(
         "/vehicle/:id",
+        expect.any(Function),
         mockDeleteAdapter,
       );
     });
@@ -126,6 +156,7 @@ describe("vehicleRoutes", () => {
       );
       expect(mockRouterMethods.put).toHaveBeenCalledWith(
         "/vehicle/:id",
+        expect.any(Function),
         mockUpdateAdapter,
       );
     });
@@ -149,21 +180,26 @@ describe("vehicleRoutes", () => {
       expect(mockRouterMethods.post).toHaveBeenCalledWith(
         "/vehicle",
         expect.any(Function),
+        expect.any(Function),
       );
       expect(mockRouterMethods.get).toHaveBeenCalledWith(
         "/vehicle",
         expect.any(Function),
+        expect.any(Function),
       );
       expect(mockRouterMethods.get).toHaveBeenCalledWith(
         "/vehicle/:id",
+        expect.any(Function),
         expect.any(Function),
       );
       expect(mockRouterMethods.delete).toHaveBeenCalledWith(
         "/vehicle/:id",
         expect.any(Function),
+        expect.any(Function),
       );
       expect(mockRouterMethods.put).toHaveBeenCalledWith(
         "/vehicle/:id",
+        expect.any(Function),
         expect.any(Function),
       );
     });
@@ -198,22 +234,27 @@ describe("vehicleRoutes", () => {
 
       expect(mockRouterMethods.post).toHaveBeenCalledWith(
         "/vehicle",
+        expect.any(Function),
         mockCreateAdapter,
       );
       expect(mockRouterMethods.get).toHaveBeenCalledWith(
         "/vehicle",
+        expect.any(Function),
         mockListAllAdapter,
       );
       expect(mockRouterMethods.get).toHaveBeenCalledWith(
         "/vehicle/:id",
+        expect.any(Function),
         mockFindByIdAdapter,
       );
       expect(mockRouterMethods.delete).toHaveBeenCalledWith(
         "/vehicle/:id",
+        expect.any(Function),
         mockDeleteAdapter,
       );
       expect(mockRouterMethods.put).toHaveBeenCalledWith(
         "/vehicle/:id",
+        expect.any(Function),
         mockUpdateAdapter,
       );
     });
@@ -292,7 +333,11 @@ describe("vehicleRoutes", () => {
       routes.forEach(({ method, path }) => {
         expect(
           mockRouterMethods[method as keyof typeof mockRouterMethods],
-        ).toHaveBeenCalledWith(path, expect.any(Function));
+        ).toHaveBeenCalledWith(
+          path,
+          expect.any(Function),
+          expect.any(Function),
+        );
       });
     });
   });

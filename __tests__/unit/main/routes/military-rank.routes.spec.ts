@@ -9,6 +9,32 @@ import {
   mockRouterMethods,
 } from "../../../../__mocks__";
 
+// Mock PinoLoggerAdapter for this test file
+jest.mock("../../../../src/infra/adapters/pino.logger.adapter", () => ({
+  PinoLoggerAdapter: jest.fn().mockImplementation(() => ({
+    logger: {
+      info: jest.fn(),
+      warn: jest.fn(),
+      error: jest.fn(),
+      debug: jest.fn(),
+    },
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+  })),
+}));
+
+// Mock the logger factory
+jest.mock("../../../../src/main/factories/logger/logger.factory", () => ({
+  makeLogger: jest.fn(() => ({
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+  })),
+}));
+
 // Mock modules using imported mocks - must be before any imports that use these modules
 jest.mock("../../../../src/infra/adapters", () => ({
   expressRouteAdapter: mockExpressRouteAdapter,
@@ -73,6 +99,7 @@ describe("militaryRankRoutes", () => {
       );
       expect(mockRouterMethods.post).toHaveBeenCalledWith(
         "/military-rank",
+        expect.any(Function),
         mockCreateAdapter,
       );
     });
@@ -88,6 +115,7 @@ describe("militaryRankRoutes", () => {
       );
       expect(mockRouterMethods.get).toHaveBeenCalledWith(
         "/military-rank",
+        expect.any(Function),
         mockListAllAdapter,
       );
     });
@@ -102,6 +130,7 @@ describe("militaryRankRoutes", () => {
       );
       expect(mockRouterMethods.get).toHaveBeenCalledWith(
         "/military-rank/:id",
+        expect.any(Function),
         mockFindByIdAdapter,
       );
     });
@@ -116,6 +145,7 @@ describe("militaryRankRoutes", () => {
       );
       expect(mockRouterMethods.delete).toHaveBeenCalledWith(
         "/military-rank/:id",
+        expect.any(Function),
         mockDeleteAdapter,
       );
     });
@@ -130,6 +160,7 @@ describe("militaryRankRoutes", () => {
       );
       expect(mockRouterMethods.put).toHaveBeenCalledWith(
         "/military-rank/:id",
+        expect.any(Function),
         mockUpdateAdapter,
       );
     });
@@ -153,21 +184,26 @@ describe("militaryRankRoutes", () => {
       expect(mockRouterMethods.post).toHaveBeenCalledWith(
         "/military-rank",
         expect.any(Function),
+        expect.any(Function),
       );
       expect(mockRouterMethods.get).toHaveBeenCalledWith(
         "/military-rank",
         expect.any(Function),
+        expect.any(Function),
       );
       expect(mockRouterMethods.get).toHaveBeenCalledWith(
         "/military-rank/:id",
+        expect.any(Function),
         expect.any(Function),
       );
       expect(mockRouterMethods.delete).toHaveBeenCalledWith(
         "/military-rank/:id",
         expect.any(Function),
+        expect.any(Function),
       );
       expect(mockRouterMethods.put).toHaveBeenCalledWith(
         "/military-rank/:id",
+        expect.any(Function),
         expect.any(Function),
       );
     });
@@ -202,22 +238,27 @@ describe("militaryRankRoutes", () => {
 
       expect(mockRouterMethods.post).toHaveBeenCalledWith(
         "/military-rank",
+        expect.any(Function),
         mockCreateAdapter,
       );
       expect(mockRouterMethods.get).toHaveBeenCalledWith(
         "/military-rank",
+        expect.any(Function),
         mockListAllAdapter,
       );
       expect(mockRouterMethods.get).toHaveBeenCalledWith(
         "/military-rank/:id",
+        expect.any(Function),
         mockFindByIdAdapter,
       );
       expect(mockRouterMethods.delete).toHaveBeenCalledWith(
         "/military-rank/:id",
+        expect.any(Function),
         mockDeleteAdapter,
       );
       expect(mockRouterMethods.put).toHaveBeenCalledWith(
         "/military-rank/:id",
+        expect.any(Function),
         mockUpdateAdapter,
       );
     });
@@ -296,7 +337,11 @@ describe("militaryRankRoutes", () => {
       routes.forEach(({ method, path }) => {
         expect(
           mockRouterMethods[method as keyof typeof mockRouterMethods],
-        ).toHaveBeenCalledWith(path, expect.any(Function));
+        ).toHaveBeenCalledWith(
+          path,
+          expect.any(Function),
+          expect.any(Function),
+        );
       });
     });
   });

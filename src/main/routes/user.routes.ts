@@ -17,19 +17,19 @@ const userRoutes = Router();
 // Rotas que requerem permissão ADMIN
 userRoutes.post(
   "/user",
-  requireAuthWithRoles(["ADMIN"]),
+  requireAuthWithRoles(["admin"]),
   expressRouteAdapter(makeCreateUserController()),
 );
 
 userRoutes.delete(
   "/user/:id",
-  requireAuthWithRoles(["ADMIN"]),
+  requireAuthWithRoles(["admin"]),
   expressRouteAdapter(makeDeleteUserController()),
 );
 
 userRoutes.patch(
   "/user/update-role/:id",
-  requireAuthWithRoles(["ADMIN"]),
+  requireAuthWithRoles(["admin"]),
   expressRouteAdapter(makeUpdateUserRoleController()),
 );
 
@@ -38,13 +38,13 @@ userRoutes.get("/user", expressRouteAdapter(makeListAllUserController()));
 
 userRoutes.get(
   "/user/:id",
-  requireAuthWithRoles(["ADMIN", "CHEFE"]),
+  requireAuthWithRoles(["admin", "chefe"]),
   expressRouteAdapter(makeFindByIdUserController()),
 );
 
 userRoutes.patch(
   "/user/update-password/:id",
-  requireAuthWithRoles(["ADMIN", "CHEFE"]),
+  requireAuthWithRoles(["admin", "chefe"]),
   expressRouteAdapter(makeUpdateUserPasswordController()),
 );
 

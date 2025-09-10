@@ -111,6 +111,8 @@ export const requireAuthWithRoles = (allowedRoles: string[]) => {
         connection: req.connection,
       };
 
+      console.log("dentro do require auth with roles", httpRequest);
+
       const authResult = await authMiddleware.authenticate(httpRequest);
 
       if ("statusCode" in authResult) {

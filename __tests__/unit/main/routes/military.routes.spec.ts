@@ -76,6 +76,7 @@ describe("militaryRoutes", () => {
       );
       expect(mockRouterMethods.post).toHaveBeenCalledWith(
         "/military",
+        expect.any(Function),
         mockCreateAdapter,
       );
       expect(mockRouterMethods.post).toHaveBeenCalledTimes(1);
@@ -92,6 +93,7 @@ describe("militaryRoutes", () => {
       );
       expect(mockRouterMethods.get).toHaveBeenCalledWith(
         "/military",
+        expect.any(Function),
         mockListAllAdapter,
       );
       expect(mockRouterMethods.get).toHaveBeenCalledTimes(2);
@@ -107,6 +109,7 @@ describe("militaryRoutes", () => {
       );
       expect(mockRouterMethods.get).toHaveBeenCalledWith(
         "/military/:id",
+        expect.any(Function),
         mockFindByIdAdapter,
       );
       expect(mockRouterMethods.get).toHaveBeenCalledTimes(2);
@@ -122,6 +125,7 @@ describe("militaryRoutes", () => {
       );
       expect(mockRouterMethods.delete).toHaveBeenCalledWith(
         "/military/:id",
+        expect.any(Function),
         mockDeleteAdapter,
       );
       expect(mockRouterMethods.delete).toHaveBeenCalledTimes(1);
@@ -137,6 +141,7 @@ describe("militaryRoutes", () => {
       );
       expect(mockRouterMethods.put).toHaveBeenCalledWith(
         "/military/:id",
+        expect.any(Function),
         mockUpdateAdapter,
       );
       expect(mockRouterMethods.put).toHaveBeenCalledTimes(1);
@@ -161,21 +166,26 @@ describe("militaryRoutes", () => {
       expect(mockRouterMethods.post).toHaveBeenCalledWith(
         "/military",
         expect.any(Function),
+        expect.any(Function),
       );
       expect(mockRouterMethods.get).toHaveBeenCalledWith(
         "/military",
         expect.any(Function),
+        expect.any(Function),
       );
       expect(mockRouterMethods.get).toHaveBeenCalledWith(
         "/military/:id",
+        expect.any(Function),
         expect.any(Function),
       );
       expect(mockRouterMethods.delete).toHaveBeenCalledWith(
         "/military/:id",
         expect.any(Function),
+        expect.any(Function),
       );
       expect(mockRouterMethods.put).toHaveBeenCalledWith(
         "/military/:id",
+        expect.any(Function),
         expect.any(Function),
       );
     });
@@ -210,22 +220,27 @@ describe("militaryRoutes", () => {
 
       expect(mockRouterMethods.post).toHaveBeenCalledWith(
         "/military",
+        expect.any(Function),
         mockCreateAdapter,
       );
       expect(mockRouterMethods.get).toHaveBeenCalledWith(
         "/military",
+        expect.any(Function),
         mockListAllAdapter,
       );
       expect(mockRouterMethods.get).toHaveBeenCalledWith(
         "/military/:id",
+        expect.any(Function),
         mockFindByIdAdapter,
       );
       expect(mockRouterMethods.delete).toHaveBeenCalledWith(
         "/military/:id",
+        expect.any(Function),
         mockDeleteAdapter,
       );
       expect(mockRouterMethods.put).toHaveBeenCalledWith(
         "/military/:id",
+        expect.any(Function),
         mockUpdateAdapter,
       );
     });
@@ -304,7 +319,11 @@ describe("militaryRoutes", () => {
       routes.forEach(({ method, path }) => {
         expect(
           mockRouterMethods[method as keyof typeof mockRouterMethods],
-        ).toHaveBeenCalledWith(path, expect.any(Function));
+        ).toHaveBeenCalledWith(
+          path,
+          expect.any(Function),
+          expect.any(Function),
+        );
       });
     });
   });

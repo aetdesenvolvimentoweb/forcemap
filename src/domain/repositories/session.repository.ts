@@ -9,6 +9,7 @@ export interface SessionRepository {
   findBySessionId(sessionId: string): Promise<UserSession | null>;
   findActiveByUserId(userId: string): Promise<UserSession | null>;
   updateLastAccess(sessionId: string): Promise<void>;
+  updateToken(sessionId: string, newToken: string): Promise<void>;
   deactivateSession(sessionId: string): Promise<void>;
   deactivateAllUserSessions(userId: string): Promise<void>;
   deleteExpiredSessions(): Promise<void>;

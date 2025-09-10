@@ -8,6 +8,7 @@ const config: Config = {
     "**/__tests__/**/*.test.ts",
     "**/__tests__/**/*.e2e.ts",
   ],
+  setupFilesAfterEnv: ["<rootDir>/jest.setup.ts"],
   collectCoverage: false,
   collectCoverageFrom: [
     "src/**/*.ts",
