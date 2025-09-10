@@ -55,14 +55,21 @@ export class DatabaseSeed {
     ]);
 
     const admin = await this.militaryRepository.findByRg(9999);
+    console.log("military admin", admin);
+    console.log("vai iniciar o hash da senha");
+    const hashedPassword = await this.passwordHasher.hash("F0rceAdmin!");
+    console.log("hashed password", hashedPassword);
 
     await this.seedUsers([
       {
         militaryId: admin!.id,
         role: UserRole.ADMIN,
-        password: "F0rceAdmin!",
+        password: hashedPassword,
       },
     ]);
+
+    const users = await this.userRepository.listAll();
+    console.log("users seeded", users);
 
     DatabaseSeed.hasSeeded = true;
     console.log("✅ Database seeded successfully");
@@ -91,7 +98,7 @@ export class DatabaseSeed {
       await this.userRepository.create({
         militaryId: user.militaryId,
         role: user.role,
-        password: await this.passwordHasher.hash(user.password),
+        password: user.password,
       });
     }
   }
