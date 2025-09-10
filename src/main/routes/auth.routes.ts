@@ -7,11 +7,16 @@ import {
   makeRefreshTokenController,
 } from "../factories/controllers/auth";
 import { requireAuth } from "../middlewares";
+import { ensureSeedMiddleware } from "../middlewares/seed.middleware";
 
 const authRoutes = Router();
 
-// Rota pública de login
-authRoutes.post("/login", expressRouteAdapter(makeLoginController()));
+// Rota pública de login - precisa do seed para funcionar
+authRoutes.post(
+  "/login",
+  ensureSeedMiddleware,
+  expressRouteAdapter(makeLoginController()),
+);
 
 // Rota pública para renovar token
 authRoutes.post(

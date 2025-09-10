@@ -28,6 +28,10 @@ jest.mock("../../../../src/main/middlewares", () => ({
   requireAuth: jest.fn(),
 }));
 
+jest.mock("../../../../src/main/middlewares/seed.middleware", () => ({
+  ensureSeedMiddleware: jest.fn(),
+}));
+
 jest.mock("express", () => ({
   Router: mockRouter,
 }));
@@ -66,6 +70,7 @@ describe("authRoutes", () => {
       expect(mockExpressRouteAdapter).toHaveBeenCalledWith(mockLoginController);
       expect(mockRouterMethods.post).toHaveBeenCalledWith(
         "/login",
+        expect.any(Function), // ensureSeedMiddleware
         mockLoginAdapter,
       );
       expect(mockRouterMethods.post).toHaveBeenCalledTimes(3);
@@ -121,7 +126,8 @@ describe("authRoutes", () => {
 
       expect(mockRouterMethods.post).toHaveBeenCalledWith(
         "/login",
-        expect.any(Function),
+        expect.any(Function), // ensureSeedMiddleware
+        expect.any(Function), // expressRouteAdapter
       );
       expect(mockRouterMethods.post).toHaveBeenCalledWith(
         "/refresh-token",
@@ -156,6 +162,7 @@ describe("authRoutes", () => {
 
       expect(mockRouterMethods.post).toHaveBeenCalledWith(
         "/login",
+        expect.any(Function), // ensureSeedMiddleware
         mockLoginAdapter,
       );
       expect(mockRouterMethods.post).toHaveBeenCalledWith(
@@ -234,7 +241,8 @@ describe("authRoutes", () => {
       // All authentication routes should use POST method
       expect(mockRouterMethods.post).toHaveBeenCalledWith(
         "/login",
-        expect.any(Function),
+        expect.any(Function), // ensureSeedMiddleware
+        expect.any(Function), // expressRouteAdapter
       );
       expect(mockRouterMethods.post).toHaveBeenCalledWith(
         "/refresh-token",
@@ -287,7 +295,8 @@ describe("authRoutes", () => {
       // All auth operations should use POST for security
       expect(mockRouterMethods.post).toHaveBeenCalledWith(
         "/login",
-        expect.any(Function),
+        expect.any(Function), // ensureSeedMiddleware
+        expect.any(Function), // expressRouteAdapter
       );
       expect(mockRouterMethods.post).toHaveBeenCalledWith(
         "/refresh-token",
@@ -325,7 +334,8 @@ describe("authRoutes", () => {
       // Login and refresh-token have 2 arguments (path, adapter)
       expect(mockRouterMethods.post).toHaveBeenCalledWith(
         "/login",
-        expect.any(Function),
+        expect.any(Function), // ensureSeedMiddleware
+        expect.any(Function), // expressRouteAdapter
       );
       expect(mockRouterMethods.post).toHaveBeenCalledWith(
         "/refresh-token",
