@@ -1,6 +1,7 @@
 import { AuthService } from "../../../../application/services/auth/auth.service";
 import { makePasswordHasher } from "../../hasher";
 import {
+  makeMilitaryRankRepository,
   makeMilitaryRepository,
   makeSessionRepository,
   makeUserRepository,
@@ -13,7 +14,8 @@ import { makeJWTService } from "./jwt.service.factory";
 import { makeRateLimiterService } from "./rate-limiter.service.factory";
 
 export const makeAuthService = (): AuthService => {
-  const militaryRepository = makeMilitaryRepository();
+  const militaryRankRepository = makeMilitaryRankRepository();
+  const militaryRepository = makeMilitaryRepository(militaryRankRepository);
   const userRepository = makeUserRepository(militaryRepository);
   const sessionRepository = makeSessionRepository();
   const userValidation = makeUserValidationService();

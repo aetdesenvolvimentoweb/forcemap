@@ -1,5 +1,9 @@
 import { UpdateUserRoleService } from "../../../../application/services";
-import { makeMilitaryRepository, makeUserRepository } from "../../repositories";
+import {
+  makeMilitaryRankRepository,
+  makeMilitaryRepository,
+  makeUserRepository,
+} from "../../repositories";
 import { makeIdSanitizer, makeUserRoleSanitizer } from "../../sanitizers";
 import {
   makeIdValidator,
@@ -8,7 +12,8 @@ import {
 } from "../../validators";
 
 export const makeUpdateUserRoleService = (): UpdateUserRoleService => {
-  const militaryRepository = makeMilitaryRepository();
+  const militaryRankRepository = makeMilitaryRankRepository();
+  const militaryRepository = makeMilitaryRepository(militaryRankRepository);
   const userRepository = makeUserRepository(militaryRepository);
   const idSanitizer = makeIdSanitizer();
   const idValidator = makeIdValidator();

@@ -1,5 +1,9 @@
 import { DeleteMilitaryService } from "../../../../application/services";
-import { makeMilitaryRepository, makeUserRepository } from "../../repositories";
+import {
+  makeMilitaryRankRepository,
+  makeMilitaryRepository,
+  makeUserRepository,
+} from "../../repositories";
 import { makeIdSanitizer } from "../../sanitizers";
 import {
   makeIdValidator,
@@ -8,7 +12,8 @@ import {
 } from "../../validators";
 
 export const makeDeleteMilitaryService = (): DeleteMilitaryService => {
-  const militaryRepository = makeMilitaryRepository();
+  const militaryRankRepository = makeMilitaryRankRepository();
+  const militaryRepository = makeMilitaryRepository(militaryRankRepository);
   const userRepository = makeUserRepository(militaryRepository);
   const sanitizer = makeIdSanitizer();
   const idValidator = makeIdValidator();

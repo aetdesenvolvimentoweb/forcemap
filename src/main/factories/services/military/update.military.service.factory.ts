@@ -1,5 +1,8 @@
 import { UpdateMilitaryService } from "../../../../application/services";
-import { makeMilitaryRepository } from "../../repositories";
+import {
+  makeMilitaryRankRepository,
+  makeMilitaryRepository,
+} from "../../repositories";
 import {
   makeIdSanitizer,
   makeMilitaryInputDTOSanitizer,
@@ -11,7 +14,8 @@ import {
 } from "../../validators";
 
 export const makeUpdateMilitaryService = (): UpdateMilitaryService => {
-  const militaryRepository = makeMilitaryRepository();
+  const militaryRankRepository = makeMilitaryRankRepository();
+  const militaryRepository = makeMilitaryRepository(militaryRankRepository);
   const idSanitizer = makeIdSanitizer();
   const dataSanitizer = makeMilitaryInputDTOSanitizer();
   const idValidator = makeIdValidator();

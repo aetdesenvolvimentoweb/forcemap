@@ -1,8 +1,12 @@
 import { ListAllMilitaryService } from "../../../../application/services";
-import { makeMilitaryRepository } from "../../repositories";
+import {
+  makeMilitaryRankRepository,
+  makeMilitaryRepository,
+} from "../../repositories";
 
 export const makeListAllMilitaryService = (): ListAllMilitaryService => {
-  const militaryRepository = makeMilitaryRepository();
+  const militaryRankRepository = makeMilitaryRankRepository();
+  const militaryRepository = makeMilitaryRepository(militaryRankRepository);
 
   return new ListAllMilitaryService({
     militaryRepository,

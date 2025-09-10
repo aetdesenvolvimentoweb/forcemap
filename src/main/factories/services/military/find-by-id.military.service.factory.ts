@@ -1,5 +1,8 @@
 import { FindByIdMilitaryService } from "../../../../application/services";
-import { makeMilitaryRepository } from "../../repositories";
+import {
+  makeMilitaryRankRepository,
+  makeMilitaryRepository,
+} from "../../repositories";
 import { makeIdSanitizer } from "../../sanitizers";
 import {
   makeIdValidator,
@@ -7,7 +10,8 @@ import {
 } from "../../validators";
 
 export const makeFindByIdMilitaryService = (): FindByIdMilitaryService => {
-  const militaryRepository = makeMilitaryRepository();
+  const militaryRankRepository = makeMilitaryRankRepository();
+  const militaryRepository = makeMilitaryRepository(militaryRankRepository);
   const sanitizer = makeIdSanitizer();
   const idValidator = makeIdValidator();
   const idRegisteredValidator =

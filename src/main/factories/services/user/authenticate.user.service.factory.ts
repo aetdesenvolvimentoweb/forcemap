@@ -1,12 +1,17 @@
 import { AuthenticateUserService } from "../../../../application/services";
 import { AuthenticateUserUseCase } from "../../../../domain/use-cases";
 import { makePasswordHasher } from "../../hasher";
-import { makeMilitaryRepository, makeUserRepository } from "../../repositories";
+import {
+  makeMilitaryRankRepository,
+  makeMilitaryRepository,
+  makeUserRepository,
+} from "../../repositories";
 import { makeUserCredentialsInputDTOSanitizer } from "../../sanitizers";
 import { makeUserCredentialsInputDTOValidator } from "../../validators";
 
 export const makeAuthenticateUserService = (): AuthenticateUserUseCase => {
-  const militaryRepository = makeMilitaryRepository();
+  const militaryRankRepository = makeMilitaryRankRepository();
+  const militaryRepository = makeMilitaryRepository(militaryRankRepository);
   const userRepository = makeUserRepository(militaryRepository);
   const sanitizer = makeUserCredentialsInputDTOSanitizer();
   const validator = makeUserCredentialsInputDTOValidator();

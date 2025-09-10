@@ -12,7 +12,7 @@ import { makeMilitaryRankInUseValidator } from "../../validators/military-rank/m
 
 export const makeDeleteMilitaryRankService = (): DeleteMilitaryRankService => {
   const militaryRankRepository = makeMilitaryRankRepository();
-  const militaryRepository = makeMilitaryRepository();
+  const militaryRepository = makeMilitaryRepository(militaryRankRepository);
   const sanitizer = makeIdSanitizer();
   const idValidator = makeIdValidator();
   const idRegisteredValidator = makeMilitaryRankIdRegisteredValidator(

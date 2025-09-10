@@ -1,11 +1,16 @@
 import { UserDomainServices } from "../../../../application/services/user/user-domain-services.interface";
 import { makePasswordHasher } from "../../hasher";
-import { makeMilitaryRepository, makeUserRepository } from "../../repositories";
+import {
+  makeMilitaryRankRepository,
+  makeMilitaryRepository,
+  makeUserRepository,
+} from "../../repositories";
 import { makeUserSanitizationService } from "./user-sanitization.service.factory";
 import { makeUserValidationService } from "./user-validation.service.factory";
 
 export const makeUserDomainServices = (): UserDomainServices => {
-  const militaryRepository = makeMilitaryRepository();
+  const militaryRankRepository = makeMilitaryRankRepository();
+  const militaryRepository = makeMilitaryRepository(militaryRankRepository);
   const repository = makeUserRepository(militaryRepository);
   const validation = makeUserValidationService();
   const sanitization = makeUserSanitizationService();
