@@ -60,7 +60,7 @@ export class DatabaseSeed {
       {
         militaryId: admin!.id,
         role: UserRole.ADMIN,
-        password: await this.passwordHasher.hash("F0rceAdmin!"),
+        password: "F0rceAdmin!",
       },
     ]);
 
