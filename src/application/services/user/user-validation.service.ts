@@ -19,8 +19,11 @@ interface UserValidationServiceProps {
 export class UserValidationService {
   constructor(private readonly props: UserValidationServiceProps) {}
 
-  async validateUserCreation(data: UserInputDTO): Promise<void> {
-    await this.props.userInputDTOValidator.validate(data);
+  async validateUserCreation(
+    data: UserInputDTO,
+    requestingUserRole?: UserRole,
+  ): Promise<void> {
+    await this.props.userInputDTOValidator.validate(data, requestingUserRole);
   }
 
   async validateUserPasswordUpdate(

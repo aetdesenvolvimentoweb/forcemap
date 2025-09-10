@@ -66,6 +66,7 @@ describe("UserValidationService", () => {
 
       expect(mockUserInputDTOValidator.validate).toHaveBeenCalledWith(
         mockUserInput,
+        undefined,
       );
       expect(mockUserInputDTOValidator.validate).toHaveBeenCalledTimes(1);
     });
@@ -87,6 +88,7 @@ describe("UserValidationService", () => {
       );
       expect(mockUserInputDTOValidator.validate).toHaveBeenCalledWith(
         mockUserInput,
+        undefined,
       );
     });
 
@@ -99,6 +101,7 @@ describe("UserValidationService", () => {
 
         expect(mockUserInputDTOValidator.validate).toHaveBeenCalledWith(
           userWithRole,
+          undefined,
         );
       }
     });
@@ -553,7 +556,10 @@ describe("UserValidationService", () => {
 
       expect(mockIdRegisteredValidator.validate).toHaveBeenCalledWith(id1);
       expect(mockIdRegisteredValidator.validate).toHaveBeenCalledWith(id2);
-      expect(mockUserInputDTOValidator.validate).toHaveBeenCalledWith(userData);
+      expect(mockUserInputDTOValidator.validate).toHaveBeenCalledWith(
+        userData,
+        undefined,
+      );
       expect(mockIdValidator.validate).toHaveBeenCalledWith(id1);
     });
 

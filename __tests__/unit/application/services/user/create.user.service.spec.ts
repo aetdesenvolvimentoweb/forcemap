@@ -77,7 +77,7 @@ describe("CreateUserService", () => {
       );
       expect(
         mockedUserValidationService.validateUserCreation,
-      ).toHaveBeenCalledWith(mockSanitizedData);
+      ).toHaveBeenCalledWith(mockSanitizedData, undefined);
       expect(mockedPasswordHasher.hash).toHaveBeenCalledWith(
         mockSanitizedData.password,
       );
@@ -119,7 +119,7 @@ describe("CreateUserService", () => {
 
       expect(
         mockedUserValidationService.validateUserCreation,
-      ).toHaveBeenCalledWith(mockSanitizedData);
+      ).toHaveBeenCalledWith(mockSanitizedData, undefined);
       expect(
         mockedUserValidationService.validateUserCreation,
       ).toHaveBeenCalledTimes(1);
@@ -219,7 +219,7 @@ describe("CreateUserService", () => {
       );
       expect(
         mockedUserValidationService.validateUserCreation,
-      ).toHaveBeenCalledWith(mockSanitizedData);
+      ).toHaveBeenCalledWith(mockSanitizedData, undefined);
       expect(mockedPasswordHasher.hash).not.toHaveBeenCalled();
       expect(mockedRepository.create).not.toHaveBeenCalled();
     });
@@ -241,7 +241,7 @@ describe("CreateUserService", () => {
       );
       expect(
         mockedUserValidationService.validateUserCreation,
-      ).toHaveBeenCalledWith(mockSanitizedData);
+      ).toHaveBeenCalledWith(mockSanitizedData, undefined);
       expect(mockedPasswordHasher.hash).toHaveBeenCalledWith(
         mockSanitizedData.password,
       );
@@ -266,7 +266,7 @@ describe("CreateUserService", () => {
       );
       expect(
         mockedUserValidationService.validateUserCreation,
-      ).toHaveBeenCalledWith(mockSanitizedData);
+      ).toHaveBeenCalledWith(mockSanitizedData, undefined);
       expect(mockedPasswordHasher.hash).toHaveBeenCalledWith(
         mockSanitizedData.password,
       );

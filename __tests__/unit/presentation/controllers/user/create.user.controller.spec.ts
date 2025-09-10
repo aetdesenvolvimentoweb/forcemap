@@ -40,7 +40,7 @@ describe("CreateUserController", () => {
       expect(result).toEqual({
         statusCode: 201,
       });
-      expect(mockedService.create).toHaveBeenCalledWith(validBody);
+      expect(mockedService.create).toHaveBeenCalledWith(validBody, undefined);
       expect(mockedService.create).toHaveBeenCalledTimes(1);
     });
 
@@ -136,7 +136,7 @@ describe("CreateUserController", () => {
         body: { error: serviceError.message },
         statusCode: serviceError.statusCode,
       });
-      expect(mockedService.create).toHaveBeenCalledWith(validBody);
+      expect(mockedService.create).toHaveBeenCalledWith(validBody, undefined);
     });
 
     it("should log error when service throws exception", async () => {
@@ -161,7 +161,7 @@ describe("CreateUserController", () => {
         body: { error: "Erro interno no servidor." },
         statusCode: 500,
       });
-      expect(mockedService.create).toHaveBeenCalledWith(validBody);
+      expect(mockedService.create).toHaveBeenCalledWith(validBody, undefined);
     });
 
     it("should handle concurrent requests independently", async () => {
@@ -189,8 +189,8 @@ describe("CreateUserController", () => {
       expect(result1).toEqual({ statusCode: 201 });
       expect(result2).toEqual({ statusCode: 201 });
       expect(mockedService.create).toHaveBeenCalledTimes(2);
-      expect(mockedService.create).toHaveBeenNthCalledWith(1, body1);
-      expect(mockedService.create).toHaveBeenNthCalledWith(2, body2);
+      expect(mockedService.create).toHaveBeenNthCalledWith(1, body1, undefined);
+      expect(mockedService.create).toHaveBeenNthCalledWith(2, body2, undefined);
     });
 
     it("should preserve request data structure integrity", async () => {
@@ -208,7 +208,7 @@ describe("CreateUserController", () => {
 
       await sut.handle(request);
 
-      expect(mockedService.create).toHaveBeenCalledWith(complexBody);
+      expect(mockedService.create).toHaveBeenCalledWith(complexBody, undefined);
 
       const calledWith = mockedService.create.mock.calls[0][0];
       expect(calledWith).toHaveProperty("militaryId");
@@ -256,8 +256,16 @@ describe("CreateUserController", () => {
       await sut.handle({ body: regularUserBody });
 
       expect(mockedService.create).toHaveBeenCalledTimes(2);
-      expect(mockedService.create).toHaveBeenNthCalledWith(1, adminUserBody);
-      expect(mockedService.create).toHaveBeenNthCalledWith(2, regularUserBody);
+      expect(mockedService.create).toHaveBeenNthCalledWith(
+        1,
+        adminUserBody,
+        undefined,
+      );
+      expect(mockedService.create).toHaveBeenNthCalledWith(
+        2,
+        regularUserBody,
+        undefined,
+      );
     });
 
     it("should mask password in logs consistently", async () => {

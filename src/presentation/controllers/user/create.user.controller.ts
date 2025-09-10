@@ -1,5 +1,6 @@
 import { LoggerProtocol } from "../../../application/protocols";
 import { UserInputDTO } from "../../../domain/dtos";
+import { UserRole } from "../../../domain/entities";
 import { CreateUserUseCase } from "../../../domain/use-cases";
 import { HttpRequest, HttpResponse } from "../../protocols";
 import { created, emptyRequest } from "../../utils";
@@ -33,9 +34,11 @@ export class CreateUserController extends BaseController {
       return emptyRequest();
     }
 
+    const requestingUserRole = request.user?.role as UserRole;
+
     const result = await this.executeWithErrorHandling(
       async () => {
-        await createUserService.create(body);
+        await createUserService.create(body, requestingUserRole);
         this.logger.info("Usuário criado com sucesso", {
           militaryId: body.militaryId,
           role: body.role,

@@ -64,7 +64,9 @@ describe("UserInputDTOValidator", () => {
 
   describe("validate", () => {
     it("should validate successfully with valid input data", async () => {
-      await expect(sut.validate(validInputData)).resolves.not.toThrow();
+      await expect(
+        sut.validate(validInputData, undefined),
+      ).resolves.not.toThrow();
     });
 
     describe("Military ID validation", () => {
@@ -104,7 +106,7 @@ describe("UserInputDTOValidator", () => {
       it("should throw EntityNotFoundError when military does not exist", async () => {
         mockedMilitaryRepository.findById.mockResolvedValue(null);
 
-        await expect(sut.validate(validInputData)).rejects.toThrow(
+        await expect(sut.validate(validInputData, undefined)).rejects.toThrow(
           new EntityNotFoundError("Militar"),
         );
       });
@@ -288,7 +290,7 @@ describe("UserInputDTOValidator", () => {
 
     describe("Military ID validation calls", () => {
       it("should call idValidator.validate with militaryId", async () => {
-        await sut.validate(validInputData);
+        await sut.validate(validInputData, undefined);
 
         expect(mockedIdValidator.validate).toHaveBeenCalledWith(
           validInputData.militaryId,
@@ -296,7 +298,7 @@ describe("UserInputDTOValidator", () => {
       });
 
       it("should call militaryRepository.findById with militaryId", async () => {
-        await sut.validate(validInputData);
+        await sut.validate(validInputData, undefined);
 
         expect(mockedMilitaryRepository.findById).toHaveBeenCalledWith(
           validInputData.militaryId,
@@ -351,7 +353,7 @@ describe("UserInputDTOValidator", () => {
         mockedUserRepository.findByMilitaryId.mockReset();
         mockedUserRepository.findByMilitaryId.mockResolvedValue(existingUser);
 
-        await expect(sut.validate(validInputData)).rejects.toThrow(
+        await expect(sut.validate(validInputData, undefined)).rejects.toThrow(
           new DuplicatedKeyError("Militar"),
         );
       });
@@ -379,9 +381,9 @@ describe("UserInputDTOValidator", () => {
         mockedUserRepository.findByMilitaryId.mockReset();
         mockedUserRepository.findByMilitaryId.mockResolvedValue(existingUser);
 
-        await expect(sut.validate(validInputData, idToIgnore)).rejects.toThrow(
-          new DuplicatedKeyError("Militar"),
-        );
+        await expect(
+          sut.validate(validInputData, undefined, idToIgnore),
+        ).rejects.toThrow(new DuplicatedKeyError("Militar"));
       });
     });
 
@@ -390,7 +392,7 @@ describe("UserInputDTOValidator", () => {
         const idToIgnore = "existing-user-id";
 
         await expect(
-          sut.validate(validInputData, idToIgnore),
+          sut.validate(validInputData, undefined, idToIgnore),
         ).resolves.not.toThrow();
       });
     });

@@ -1,4 +1,5 @@
 import { LoggerProtocol } from "../../../application/protocols";
+import { UserRole } from "../../../domain/entities";
 import { DeleteMilitaryUseCase } from "../../../domain/use-cases";
 import { HttpRequest, HttpResponse } from "../../protocols";
 import { emptyRequest, noContent } from "../../utils";
@@ -24,9 +25,11 @@ export class DeleteMilitaryController extends BaseController {
       return emptyRequest();
     }
 
+    const requestingUserRole = request.user?.role as UserRole;
+
     const result = await this.executeWithErrorHandling(
       async () => {
-        await deleteMilitaryService.delete(id);
+        await deleteMilitaryService.delete(id, requestingUserRole);
         this.logger.info("Militar deletado com sucesso", { id });
         return noContent();
       },

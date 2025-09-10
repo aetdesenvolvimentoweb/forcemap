@@ -7,6 +7,7 @@ import {
 import { makeIdSanitizer } from "../../sanitizers";
 import {
   makeIdValidator,
+  makeMilitaryDeletionPermissionValidator,
   makeMilitaryIdRegisteredValidator,
   makeMilitaryInUseValidator,
 } from "../../validators";
@@ -20,6 +21,7 @@ export const makeDeleteMilitaryService = (): DeleteMilitaryService => {
   const idRegisteredValidator =
     makeMilitaryIdRegisteredValidator(militaryRepository);
   const inUseValidator = makeMilitaryInUseValidator(userRepository);
+  const deletionPermissionValidator = makeMilitaryDeletionPermissionValidator();
 
   return new DeleteMilitaryService({
     militaryRepository,
@@ -27,5 +29,6 @@ export const makeDeleteMilitaryService = (): DeleteMilitaryService => {
     idValidator,
     idRegisteredValidator,
     inUseValidator,
+    deletionPermissionValidator,
   });
 };

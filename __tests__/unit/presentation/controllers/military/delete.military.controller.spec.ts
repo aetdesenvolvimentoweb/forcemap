@@ -32,7 +32,10 @@ describe("DeleteMilitaryController", () => {
       expect(result).toEqual({
         statusCode: 204,
       });
-      expect(mockedService.delete).toHaveBeenCalledWith("military-123");
+      expect(mockedService.delete).toHaveBeenCalledWith(
+        "military-123",
+        undefined,
+      );
       expect(mockedService.delete).toHaveBeenCalledTimes(1);
     });
 
@@ -131,7 +134,10 @@ describe("DeleteMilitaryController", () => {
         body: { error: serviceError.message },
         statusCode: serviceError.statusCode,
       });
-      expect(mockedService.delete).toHaveBeenCalledWith("military-123");
+      expect(mockedService.delete).toHaveBeenCalledWith(
+        "military-123",
+        undefined,
+      );
     });
 
     it("should handle database error and return appropriate response", async () => {
@@ -144,7 +150,10 @@ describe("DeleteMilitaryController", () => {
         body: { error: serviceError.message },
         statusCode: serviceError.statusCode,
       });
-      expect(mockedService.delete).toHaveBeenCalledWith("military-123");
+      expect(mockedService.delete).toHaveBeenCalledWith(
+        "military-123",
+        undefined,
+      );
     });
 
     it("should log error when service throws exception", async () => {
@@ -172,7 +181,10 @@ describe("DeleteMilitaryController", () => {
         body: { error: "Erro interno no servidor." },
         statusCode: 500,
       });
-      expect(mockedService.delete).toHaveBeenCalledWith("military-123");
+      expect(mockedService.delete).toHaveBeenCalledWith(
+        "military-123",
+        undefined,
+      );
     });
 
     it("should handle different id formats correctly", async () => {
@@ -189,6 +201,7 @@ describe("DeleteMilitaryController", () => {
       });
       expect(mockedService.delete).toHaveBeenCalledWith(
         "550e8400-e29b-41d4-a716-446655440000",
+        undefined,
       );
     });
 
@@ -206,8 +219,16 @@ describe("DeleteMilitaryController", () => {
       expect(result1).toEqual({ statusCode: 204 });
       expect(result2).toEqual({ statusCode: 204 });
       expect(mockedService.delete).toHaveBeenCalledTimes(2);
-      expect(mockedService.delete).toHaveBeenNthCalledWith(1, "military-1");
-      expect(mockedService.delete).toHaveBeenNthCalledWith(2, "military-2");
+      expect(mockedService.delete).toHaveBeenNthCalledWith(
+        1,
+        "military-1",
+        undefined,
+      );
+      expect(mockedService.delete).toHaveBeenNthCalledWith(
+        2,
+        "military-2",
+        undefined,
+      );
     });
 
     it("should not modify the original request params", async () => {
@@ -235,7 +256,10 @@ describe("DeleteMilitaryController", () => {
       expect(result).toEqual({
         statusCode: 204,
       });
-      expect(mockedService.delete).toHaveBeenCalledWith("military-123-àáâã");
+      expect(mockedService.delete).toHaveBeenCalledWith(
+        "military-123-àáâã",
+        undefined,
+      );
     });
 
     it("should handle numeric string ids correctly", async () => {
@@ -250,7 +274,7 @@ describe("DeleteMilitaryController", () => {
       expect(result).toEqual({
         statusCode: 204,
       });
-      expect(mockedService.delete).toHaveBeenCalledWith("12345");
+      expect(mockedService.delete).toHaveBeenCalledWith("12345", undefined);
     });
 
     it("should preserve id string format", async () => {
@@ -262,7 +286,7 @@ describe("DeleteMilitaryController", () => {
 
       await sut.handle(idWithLeadingZeros);
 
-      expect(mockedService.delete).toHaveBeenCalledWith("00123");
+      expect(mockedService.delete).toHaveBeenCalledWith("00123", undefined);
 
       const calledWith = mockedService.delete.mock.calls[0][0];
       expect(typeof calledWith).toBe("string");
@@ -282,7 +306,7 @@ describe("DeleteMilitaryController", () => {
       expect(result).toEqual({
         statusCode: 204,
       });
-      expect(mockedService.delete).toHaveBeenCalledWith(longId);
+      expect(mockedService.delete).toHaveBeenCalledWith(longId, undefined);
     });
 
     it("should handle deletion of already deleted resource gracefully", async () => {
@@ -295,7 +319,10 @@ describe("DeleteMilitaryController", () => {
         body: { error: serviceError.message },
         statusCode: serviceError.statusCode,
       });
-      expect(mockedService.delete).toHaveBeenCalledWith("military-123");
+      expect(mockedService.delete).toHaveBeenCalledWith(
+        "military-123",
+        undefined,
+      );
       expect(mockedLogger.error).toHaveBeenCalledWith(
         "Erro ao deletar militar",
         {

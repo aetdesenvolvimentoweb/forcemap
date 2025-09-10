@@ -17,7 +17,7 @@ const userRoutes = Router();
 // Rotas que requerem permissão ADMIN
 userRoutes.post(
   "/user",
-  requireAuthWithRoles(["Admin"]),
+  requireAuthWithRoles(["Admin", "Chefe"]),
   expressRouteAdapter(makeCreateUserController()),
 );
 

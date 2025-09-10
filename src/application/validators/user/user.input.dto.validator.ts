@@ -77,6 +77,31 @@ export class UserInputDTOValidator implements UserInputDTOValidatorProtocol {
       );
     }
   };
+
+  private readonly validateRoleCreationPermission = (
+    roleToCreate: UserRole,
+    requestingUserRole?: UserRole,
+  ): void => {
+    if (!requestingUserRole) return;
+
+    if (requestingUserRole === UserRole.ADMIN) return;
+
+    if (requestingUserRole === UserRole.CHEFE) {
+      const allowedRoles = [UserRole.ACA, UserRole.BOMBEIRO];
+      if (!allowedRoles.includes(roleToCreate)) {
+        throw new InvalidParamError(
+          "Função",
+          "Chefe só pode criar usuários ACA ou Bombeiro",
+        );
+      }
+      return;
+    }
+
+    throw new InvalidParamError(
+      "Função",
+      "usuário não tem permissão para criar outros usuários",
+    );
+  };
   private readonly validateMilitaryIdUniqueness = async (
     militaryId: string,
     idToIgnore?: string,
@@ -122,9 +147,11 @@ export class UserInputDTOValidator implements UserInputDTOValidatorProtocol {
    */
   public readonly validate = async (
     data: UserInputDTO,
+    requestingUserRole?: UserRole,
     idToIgnore?: string,
   ): Promise<void> => {
     this.validateRequiredFields(data);
+    this.validateRoleCreationPermission(data.role, requestingUserRole);
     await this.validateBusinessRules(data);
     await this.validateUniqueness(data, idToIgnore);
   };
