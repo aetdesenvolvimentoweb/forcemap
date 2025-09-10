@@ -12,6 +12,12 @@ import {
 // Mock modules using imported mocks - must be before any imports that use these modules
 jest.mock("../../../../src/infra/adapters", () => ({
   expressRouteAdapter: mockExpressRouteAdapter,
+  PinoLoggerAdapter: jest.fn().mockImplementation(() => ({
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+  })),
 }));
 
 jest.mock("../../../../src/main/factories/controllers", () => ({
@@ -50,12 +56,13 @@ describe("militaryRoutes", () => {
     mockMakeUpdateMilitaryController.mockReturnValue(mockUpdateController);
 
     // Mock expressRouteAdapter to return different adapters
+    // The order must match the execution order in military.routes.ts
     mockExpressRouteAdapter
-      .mockReturnValueOnce(mockCreateAdapter)
-      .mockReturnValueOnce(mockListAllAdapter)
-      .mockReturnValueOnce(mockFindByIdAdapter)
-      .mockReturnValueOnce(mockDeleteAdapter)
-      .mockReturnValueOnce(mockUpdateAdapter);
+      .mockReturnValueOnce(mockCreateAdapter) // POST /military
+      .mockReturnValueOnce(mockDeleteAdapter) // DELETE /military/:id
+      .mockReturnValueOnce(mockUpdateAdapter) // PUT /military/:id
+      .mockReturnValueOnce(mockListAllAdapter) // GET /military
+      .mockReturnValueOnce(mockFindByIdAdapter); // GET /military/:id
   });
 
   describe("route registration", () => {
@@ -71,6 +78,7 @@ describe("militaryRoutes", () => {
         "/military",
         mockCreateAdapter,
       );
+      expect(mockRouterMethods.post).toHaveBeenCalledTimes(1);
     });
 
     it("should register GET /military route", () => {
@@ -86,6 +94,7 @@ describe("militaryRoutes", () => {
         "/military",
         mockListAllAdapter,
       );
+      expect(mockRouterMethods.get).toHaveBeenCalledTimes(2);
     });
 
     it("should register GET /military/:id route", () => {
@@ -100,6 +109,7 @@ describe("militaryRoutes", () => {
         "/military/:id",
         mockFindByIdAdapter,
       );
+      expect(mockRouterMethods.get).toHaveBeenCalledTimes(2);
     });
 
     it("should register DELETE /military/:id route", () => {
@@ -114,6 +124,7 @@ describe("militaryRoutes", () => {
         "/military/:id",
         mockDeleteAdapter,
       );
+      expect(mockRouterMethods.delete).toHaveBeenCalledTimes(1);
     });
 
     it("should register PUT /military/:id route", () => {
@@ -128,6 +139,7 @@ describe("militaryRoutes", () => {
         "/military/:id",
         mockUpdateAdapter,
       );
+      expect(mockRouterMethods.put).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -138,8 +150,8 @@ describe("militaryRoutes", () => {
 
       expect(mockRouterMethods.post).toHaveBeenCalledTimes(1);
       expect(mockRouterMethods.get).toHaveBeenCalledTimes(2);
-      expect(mockRouterMethods.delete).toHaveBeenCalledTimes(1);
       expect(mockRouterMethods.put).toHaveBeenCalledTimes(1);
+      expect(mockRouterMethods.delete).toHaveBeenCalledTimes(1);
     });
 
     it("should use correct paths for each route", () => {

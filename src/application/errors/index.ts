@@ -4,3 +4,5 @@ export * from "./invalid.param.error";
 export * from "./missing.param.error";
 export * from "./not.authorized.error";
 export * from "./resource.in.use.error";
+export * from "./too-many-requests.error";
+export * from "./unauthorized.error";

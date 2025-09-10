@@ -17,9 +17,11 @@
     "test:verbose": "jest --silent=false --verbose"
   },
   "dependencies": {
+    "@types/jsonwebtoken": "^9.0.10",
     "@vercel/node": "^5.3.15",
     "bcrypt": "^6.0.0",
     "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
     "pino": "^9.9.0"
   },
   "devDependencies": {

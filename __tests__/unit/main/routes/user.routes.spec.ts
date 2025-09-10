@@ -13,6 +13,12 @@ import {
 // Mock modules using imported mocks - must be before any imports that use these modules
 jest.mock("../../../../src/infra/adapters", () => ({
   expressRouteAdapter: mockExpressRouteAdapter,
+  PinoLoggerAdapter: jest.fn().mockImplementation(() => ({
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn(),
+    debug: jest.fn(),
+  })),
 }));
 
 jest.mock("../../../../src/main/factories/controllers", () => ({
@@ -26,6 +32,10 @@ jest.mock("../../../../src/main/factories/controllers", () => ({
 
 jest.mock("express", () => ({
   Router: mockRouter,
+}));
+
+jest.mock("../../../../src/main/middlewares", () => ({
+  requireAuthWithRoles: jest.fn(() => jest.fn()),
 }));
 
 describe("userRoutes", () => {
@@ -57,13 +67,14 @@ describe("userRoutes", () => {
     mockMakeUpdateUserRoleController.mockReturnValue(mockUpdateRoleController);
 
     // Mock expressRouteAdapter to return different adapters
+    // The order must match the execution order in user.routes.ts
     mockExpressRouteAdapter
-      .mockReturnValueOnce(mockCreateAdapter)
-      .mockReturnValueOnce(mockListAllAdapter)
-      .mockReturnValueOnce(mockFindByIdAdapter)
-      .mockReturnValueOnce(mockDeleteAdapter)
-      .mockReturnValueOnce(mockUpdateRoleAdapter)
-      .mockReturnValueOnce(mockUpdatePasswordAdapter);
+      .mockReturnValueOnce(mockCreateAdapter) // POST /user
+      .mockReturnValueOnce(mockDeleteAdapter) // DELETE /user/:id
+      .mockReturnValueOnce(mockUpdateRoleAdapter) // PATCH /user/update-role/:id
+      .mockReturnValueOnce(mockListAllAdapter) // GET /user
+      .mockReturnValueOnce(mockFindByIdAdapter) // GET /user/:id
+      .mockReturnValueOnce(mockUpdatePasswordAdapter); // PATCH /user/update-password/:id
   });
 
   describe("route registration", () => {
@@ -77,8 +88,10 @@ describe("userRoutes", () => {
       );
       expect(mockRouterMethods.post).toHaveBeenCalledWith(
         "/user",
+        expect.any(Function),
         mockCreateAdapter,
       );
+      expect(mockRouterMethods.post).toHaveBeenCalledTimes(1);
     });
 
     it("should register GET /user route", () => {
@@ -92,8 +105,10 @@ describe("userRoutes", () => {
       );
       expect(mockRouterMethods.get).toHaveBeenCalledWith(
         "/user",
+        expect.any(Function),
         mockListAllAdapter,
       );
+      expect(mockRouterMethods.get).toHaveBeenCalledTimes(2);
     });
 
     it("should register GET /user/:id route", () => {
@@ -106,8 +121,10 @@ describe("userRoutes", () => {
       );
       expect(mockRouterMethods.get).toHaveBeenCalledWith(
         "/user/:id",
+        expect.any(Function),
         mockFindByIdAdapter,
       );
+      expect(mockRouterMethods.get).toHaveBeenCalledTimes(2);
     });
 
     it("should register DELETE /user/:id route", () => {
@@ -120,8 +137,10 @@ describe("userRoutes", () => {
       );
       expect(mockRouterMethods.delete).toHaveBeenCalledWith(
         "/user/:id",
+        expect.any(Function),
         mockDeleteAdapter,
       );
+      expect(mockRouterMethods.delete).toHaveBeenCalledTimes(1);
     });
 
     it("should register PATCH /user/update-role/:id route", () => {
@@ -134,8 +153,10 @@ describe("userRoutes", () => {
       );
       expect(mockRouterMethods.patch).toHaveBeenCalledWith(
         "/user/update-role/:id",
+        expect.any(Function),
         mockUpdateRoleAdapter,
       );
+      expect(mockRouterMethods.patch).toHaveBeenCalledTimes(2);
     });
 
     it("should register PATCH /user/update-password/:id route", () => {
@@ -148,8 +169,10 @@ describe("userRoutes", () => {
       );
       expect(mockRouterMethods.patch).toHaveBeenCalledWith(
         "/user/update-password/:id",
+        expect.any(Function),
         mockUpdatePasswordAdapter,
       );
+      expect(mockRouterMethods.patch).toHaveBeenCalledTimes(2);
     });
   });
 
@@ -171,25 +194,31 @@ describe("userRoutes", () => {
       expect(mockRouterMethods.post).toHaveBeenCalledWith(
         "/user",
         expect.any(Function),
+        expect.any(Function),
       );
       expect(mockRouterMethods.get).toHaveBeenCalledWith(
         "/user",
         expect.any(Function),
+        expect.any(Function),
       );
       expect(mockRouterMethods.get).toHaveBeenCalledWith(
         "/user/:id",
+        expect.any(Function),
         expect.any(Function),
       );
       expect(mockRouterMethods.delete).toHaveBeenCalledWith(
         "/user/:id",
         expect.any(Function),
+        expect.any(Function),
       );
       expect(mockRouterMethods.patch).toHaveBeenCalledWith(
         "/user/update-role/:id",
         expect.any(Function),
+        expect.any(Function),
       );
       expect(mockRouterMethods.patch).toHaveBeenCalledWith(
         "/user/update-password/:id",
+        expect.any(Function),
         expect.any(Function),
       );
     });
@@ -227,26 +256,32 @@ describe("userRoutes", () => {
 
       expect(mockRouterMethods.post).toHaveBeenCalledWith(
         "/user",
+        expect.any(Function),
         mockCreateAdapter,
       );
       expect(mockRouterMethods.get).toHaveBeenCalledWith(
         "/user",
+        expect.any(Function),
         mockListAllAdapter,
       );
       expect(mockRouterMethods.get).toHaveBeenCalledWith(
         "/user/:id",
+        expect.any(Function),
         mockFindByIdAdapter,
       );
       expect(mockRouterMethods.delete).toHaveBeenCalledWith(
         "/user/:id",
+        expect.any(Function),
         mockDeleteAdapter,
       );
       expect(mockRouterMethods.patch).toHaveBeenCalledWith(
         "/user/update-role/:id",
+        expect.any(Function),
         mockUpdateRoleAdapter,
       );
       expect(mockRouterMethods.patch).toHaveBeenCalledWith(
         "/user/update-password/:id",
+        expect.any(Function),
         mockUpdatePasswordAdapter,
       );
     });
@@ -329,7 +364,11 @@ describe("userRoutes", () => {
       routes.forEach(({ method, path }) => {
         expect(
           mockRouterMethods[method as keyof typeof mockRouterMethods],
-        ).toHaveBeenCalledWith(path, expect.any(Function));
+        ).toHaveBeenCalledWith(
+          path,
+          expect.any(Function),
+          expect.any(Function),
+        );
       });
     });
   });
@@ -343,9 +382,11 @@ describe("userRoutes", () => {
       expect(mockRouterMethods.patch).toHaveBeenCalledWith(
         "/user/update-role/:id",
         expect.any(Function),
+        expect.any(Function),
       );
       expect(mockRouterMethods.patch).toHaveBeenCalledWith(
         "/user/update-password/:id",
+        expect.any(Function),
         expect.any(Function),
       );
 

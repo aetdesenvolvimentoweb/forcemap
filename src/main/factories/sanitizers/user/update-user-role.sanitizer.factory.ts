@@ -1,5 +1,6 @@
 import { UpdateUserRoleSanitizerProtocol } from "src/application/protocols";
-import { UpdateUserRoleSanitizer } from "src/application/sanitizers";
+
+import { UpdateUserRoleSanitizer } from "../../../../application/sanitizers/user";
 
 export const makeUserRoleSanitizer = (): UpdateUserRoleSanitizerProtocol => {
   return new UpdateUserRoleSanitizer();

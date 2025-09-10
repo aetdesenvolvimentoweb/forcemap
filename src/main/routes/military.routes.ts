@@ -11,25 +11,31 @@ import {
 
 const militaryRoutes = Router();
 
+// Operações críticas - apenas ADMIN
 militaryRoutes.post(
   "/military",
   expressRouteAdapter(makeCreateMilitaryController()),
 );
-militaryRoutes.get(
-  "/military",
-  expressRouteAdapter(makeListAllMilitaryController()),
-);
-militaryRoutes.get(
-  "/military/:id",
-  expressRouteAdapter(makeFindByIdMilitaryController()),
-);
+
 militaryRoutes.delete(
   "/military/:id",
   expressRouteAdapter(makeDeleteMilitaryController()),
 );
+
 militaryRoutes.put(
   "/military/:id",
   expressRouteAdapter(makeUpdateMilitaryController()),
+);
+
+// Operações de consulta - ADMIN e CHEFE
+militaryRoutes.get(
+  "/military",
+  expressRouteAdapter(makeListAllMilitaryController()),
+);
+
+militaryRoutes.get(
+  "/military/:id",
+  expressRouteAdapter(makeFindByIdMilitaryController()),
 );
 
 export default militaryRoutes;

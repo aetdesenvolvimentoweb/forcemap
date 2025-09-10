@@ -9,19 +9,46 @@ import {
   makeUpdateUserPasswordController,
   makeUpdateUserRoleController,
 } from "../factories/controllers";
+import { requireAuthWithRoles } from "../middlewares";
 
 const userRoutes = Router();
 
-userRoutes.post("/user", expressRouteAdapter(makeCreateUserController()));
-userRoutes.get("/user", expressRouteAdapter(makeListAllUserController()));
-userRoutes.get("/user/:id", expressRouteAdapter(makeFindByIdUserController()));
-userRoutes.delete("/user/:id", expressRouteAdapter(makeDeleteUserController()));
+// Todas as rotas de usuário requerem autenticação mínima
+// Rotas que requerem permissão ADMIN
+userRoutes.post(
+  "/user",
+  requireAuthWithRoles(["ADMIN"]),
+  expressRouteAdapter(makeCreateUserController()),
+);
+
+userRoutes.delete(
+  "/user/:id",
+  requireAuthWithRoles(["ADMIN"]),
+  expressRouteAdapter(makeDeleteUserController()),
+);
+
 userRoutes.patch(
   "/user/update-role/:id",
+  requireAuthWithRoles(["ADMIN"]),
   expressRouteAdapter(makeUpdateUserRoleController()),
 );
+
+// Rotas que requerem permissão ADMIN ou CHEFE
+userRoutes.get(
+  "/user",
+  requireAuthWithRoles(["ADMIN", "CHEFE"]),
+  expressRouteAdapter(makeListAllUserController()),
+);
+
+userRoutes.get(
+  "/user/:id",
+  requireAuthWithRoles(["ADMIN", "CHEFE"]),
+  expressRouteAdapter(makeFindByIdUserController()),
+);
+
 userRoutes.patch(
   "/user/update-password/:id",
+  requireAuthWithRoles(["ADMIN", "CHEFE"]),
   expressRouteAdapter(makeUpdateUserPasswordController()),
 );
 

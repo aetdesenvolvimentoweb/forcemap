@@ -1,5 +1,6 @@
 import { UpdateUserPasswordSanitizerProtocol } from "src/application/protocols";
-import { UpdateUserPasswordSanitizer } from "src/application/sanitizers";
+
+import { UpdateUserPasswordSanitizer } from "../../../../application/sanitizers/user";
 
 export const makeUpdateUserPasswordSanitizer =
   (): UpdateUserPasswordSanitizerProtocol => {

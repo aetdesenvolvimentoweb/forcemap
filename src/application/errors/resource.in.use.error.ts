@@ -1,4 +1,4 @@
-import { AppError } from "../../domain/errors";
+import { AppError } from "../../domain/errors/app.error";
 
 export class ResourceInUseError extends AppError {
   constructor(resource: string, dependentResource: string) {

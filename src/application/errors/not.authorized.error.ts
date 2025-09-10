@@ -1,4 +1,4 @@
-import { AppError } from "../../domain/errors";
+import { AppError } from "../../domain/errors/app.error";
 
 export class NotAuthorizedError extends AppError {
   constructor() {
