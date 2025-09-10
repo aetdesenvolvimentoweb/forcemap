@@ -14,27 +14,27 @@ const vehicleRoutes = Router();
 
 vehicleRoutes.post(
   "/vehicle",
-  requireAuthWithRoles(["admin", "chefe"]),
+  requireAuthWithRoles(["Admin", "Chefe", "ACA"]),
   expressRouteAdapter(makeCreateVehicleController()),
 );
 vehicleRoutes.get(
   "/vehicle",
-  requireAuthWithRoles(["admin", "chefe"]),
+  requireAuthWithRoles(["Admin", "Chefe", "ACA"]),
   expressRouteAdapter(makeListAllVehicleController()),
 );
 vehicleRoutes.get(
   "/vehicle/:id",
-  requireAuthWithRoles(["admin", "chefe"]),
+  requireAuthWithRoles(["Admin", "Chefe", "ACA"]),
   expressRouteAdapter(makeFindByIdVehicleController()),
 );
 vehicleRoutes.delete(
   "/vehicle/:id",
-  requireAuthWithRoles(["admin", "chefe"]),
+  requireAuthWithRoles(["Admin", "Chefe"]),
   expressRouteAdapter(makeDeleteVehicleController()),
 );
 vehicleRoutes.put(
   "/vehicle/:id",
-  requireAuthWithRoles(["admin", "chefe"]),
+  requireAuthWithRoles(["Admin", "Chefe", "ACA"]),
   expressRouteAdapter(makeUpdateVehicleController()),
 );
 

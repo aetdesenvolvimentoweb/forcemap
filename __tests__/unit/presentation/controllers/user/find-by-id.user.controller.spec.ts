@@ -386,7 +386,7 @@ describe("FindByIdUserController", () => {
       const result = await sut.handle(validRequest);
 
       const userData = result.body?.data as UserOutputDTO;
-      expect(userData.role).toBe("bombeiro");
+      expect(userData.role).toBe("Bombeiro");
       expect(Object.values(UserRole)).toContain(userData.role);
     });
   });

@@ -15,31 +15,31 @@ const militaryRoutes = Router();
 // Operações de consulta - ADMIN e CHEFE
 militaryRoutes.post(
   "/military",
-  requireAuthWithRoles(["admin", "chefe"]),
+  requireAuthWithRoles(["Admin", "Chefe", "ACA"]),
   expressRouteAdapter(makeCreateMilitaryController()),
 );
 
 militaryRoutes.delete(
   "/military/:id",
-  requireAuthWithRoles(["admin", "chefe"]),
+  requireAuthWithRoles(["Admin", "Chefe"]),
   expressRouteAdapter(makeDeleteMilitaryController()),
 );
 
 militaryRoutes.put(
   "/military/:id",
-  requireAuthWithRoles(["admin", "chefe"]),
+  requireAuthWithRoles(["Admin", "Chefe", "ACA"]),
   expressRouteAdapter(makeUpdateMilitaryController()),
 );
 
 militaryRoutes.get(
   "/military",
-  requireAuthWithRoles(["admin", "chefe"]),
+  requireAuthWithRoles(["Admin", "Chefe", "ACA"]),
   expressRouteAdapter(makeListAllMilitaryController()),
 );
 
 militaryRoutes.get(
   "/military/:id",
-  requireAuthWithRoles(["admin", "chefe"]),
+  requireAuthWithRoles(["Admin", "Chefe", "ACA"]),
   expressRouteAdapter(makeFindByIdMilitaryController()),
 );
 

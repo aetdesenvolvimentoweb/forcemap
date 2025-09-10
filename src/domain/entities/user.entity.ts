@@ -1,7 +1,8 @@
 export enum UserRole {
-  ADMIN = "admin",
-  CHEFE = "chefe",
-  BOMBEIRO = "bombeiro",
+  ADMIN = "Admin",
+  CHEFE = "Chefe",
+  ACA = "ACA",
+  BOMBEIRO = "Bombeiro",
 }
 
 export type User = {

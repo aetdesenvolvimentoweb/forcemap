@@ -15,27 +15,27 @@ const militaryRankRoutes = Router();
 // Operações críticas - apenas ADMIN
 militaryRankRoutes.post(
   "/military-rank",
-  requireAuthWithRoles(["admin"]),
+  requireAuthWithRoles(["Admin"]),
   expressRouteAdapter(makeCreateMilitaryRankController()),
 );
 militaryRankRoutes.get(
   "/military-rank",
-  requireAuthWithRoles(["admin"]),
+  requireAuthWithRoles(["Admin"]),
   expressRouteAdapter(makeListAllMilitaryRankController()),
 );
 militaryRankRoutes.get(
   "/military-rank/:id",
-  requireAuthWithRoles(["admin"]),
+  requireAuthWithRoles(["Admin"]),
   expressRouteAdapter(makeFindByIdMilitaryRankController()),
 );
 militaryRankRoutes.delete(
   "/military-rank/:id",
-  requireAuthWithRoles(["admin"]),
+  requireAuthWithRoles(["Admin"]),
   expressRouteAdapter(makeDeleteMilitaryRankController()),
 );
 militaryRankRoutes.put(
   "/military-rank/:id",
-  requireAuthWithRoles(["admin"]),
+  requireAuthWithRoles(["Admin"]),
   expressRouteAdapter(makeUpdateMilitaryRankController()),
 );
 

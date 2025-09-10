@@ -32,6 +32,10 @@ describe("UpdateUserRoleValidator", () => {
       await expect(sut.validate(UserRole.BOMBEIRO)).resolves.not.toThrow();
     });
 
+    it("should validate successfully with valid ACA role", async () => {
+      await expect(sut.validate(UserRole.ACA)).resolves.not.toThrow();
+    });
+
     it("should validate successfully with all valid user roles", async () => {
       for (const role of Object.values(UserRole)) {
         await expect(sut.validate(role)).resolves.not.toThrow();
@@ -122,15 +126,15 @@ describe("UpdateUserRoleValidator", () => {
       });
 
       it("should throw InvalidParamError when role has mixed case", async () => {
-        await expect(sut.validate("Admin" as any)).rejects.toThrow(
+        await expect(sut.validate("admin" as any)).rejects.toThrow(
           new InvalidParamError("Função do Usuário", "valor inválido"),
         );
 
-        await expect(sut.validate("Chefe" as any)).rejects.toThrow(
+        await expect(sut.validate("chefe" as any)).rejects.toThrow(
           new InvalidParamError("Função do Usuário", "valor inválido"),
         );
 
-        await expect(sut.validate("Bombeiro" as any)).rejects.toThrow(
+        await expect(sut.validate("bombeiro" as any)).rejects.toThrow(
           new InvalidParamError("Função do Usuário", "valor inválido"),
         );
       });
@@ -178,10 +182,11 @@ describe("UpdateUserRoleValidator", () => {
 
         expect(userRoleValues).toContain(UserRole.ADMIN);
         expect(userRoleValues).toContain(UserRole.CHEFE);
+        expect(userRoleValues).toContain(UserRole.ACA);
         expect(userRoleValues).toContain(UserRole.BOMBEIRO);
 
         // Ensure we test all values that exist
-        expect(userRoleValues).toHaveLength(3);
+        expect(userRoleValues).toHaveLength(4);
 
         for (const role of userRoleValues) {
           await expect(sut.validate(role)).resolves.not.toThrow();
@@ -189,9 +194,9 @@ describe("UpdateUserRoleValidator", () => {
       });
 
       it("should validate enum values match expected strings", async () => {
-        expect(UserRole.ADMIN).toBe("admin");
-        expect(UserRole.CHEFE).toBe("chefe");
-        expect(UserRole.BOMBEIRO).toBe("bombeiro");
+        expect(UserRole.ADMIN).toBe("Admin");
+        expect(UserRole.CHEFE).toBe("Chefe");
+        expect(UserRole.BOMBEIRO).toBe("Bombeiro");
       });
     });
 

@@ -20,12 +20,12 @@ describe("UpdateUserRoleSanitizer", () => {
 
     it("should trim whitespace from role strings", () => {
       const testCases = [
-        { input: "  admin  " as UserRole, expected: UserRole.ADMIN },
-        { input: "  chefe  " as UserRole, expected: "chefe" as UserRole },
-        { input: "  bombeiro  " as UserRole, expected: "bombeiro" as UserRole },
-        { input: " admin " as UserRole, expected: UserRole.ADMIN },
-        { input: "\tadmin\t" as UserRole, expected: UserRole.ADMIN },
-        { input: "\nchefe\n" as UserRole, expected: "chefe" as UserRole },
+        { input: "  Admin  " as UserRole, expected: UserRole.ADMIN },
+        { input: "  Chefe  " as UserRole, expected: UserRole.CHEFE },
+        { input: "  Bombeiro  " as UserRole, expected: UserRole.BOMBEIRO },
+        { input: " Admin " as UserRole, expected: UserRole.ADMIN },
+        { input: "\tAdmin\t" as UserRole, expected: UserRole.ADMIN },
+        { input: "\nChefe\n" as UserRole, expected: UserRole.CHEFE },
       ];
 
       testCases.forEach(({ input, expected }) => {
@@ -102,20 +102,20 @@ describe("UpdateUserRoleSanitizer", () => {
     it("should handle combined sanitization scenarios", () => {
       const testCases = [
         {
-          input: "  admin'  ;  --comment  " as UserRole,
-          expected: "admin  comment" as UserRole,
+          input: "  Admin'  ;  --comment  " as UserRole,
+          expected: "Admin  comment" as UserRole,
         },
         {
-          input: '\t chefe"  /*test*/  \n' as UserRole,
-          expected: "chefe test" as UserRole,
+          input: '\t Chefe"  /*test*/  \n' as UserRole,
+          expected: "Chefe test" as UserRole,
         },
         {
-          input: "  bombeiro\\  ;;  --  /**/  " as UserRole,
-          expected: "bombeiro   " as UserRole,
+          input: "  Bombeiro\\  ;;  --  /**/  " as UserRole,
+          expected: "Bombeiro   " as UserRole,
         },
         {
-          input: "'\"admin;\\--/*comment*/" as UserRole,
-          expected: "admincomment" as UserRole,
+          input: "'\"Admin;\\--/*comment*/" as UserRole,
+          expected: "Admincomment" as UserRole,
         },
       ];
 
@@ -178,7 +178,7 @@ describe("UpdateUserRoleSanitizer", () => {
     });
 
     it("should maintain valid role values exactly", () => {
-      const validRoleStrings = ["admin", "chefe", "bombeiro"];
+      const validRoleStrings = ["Admin", "Chefe", "Bombeiro"];
 
       validRoleStrings.forEach((roleString) => {
         const result = sut.sanitize(roleString as UserRole);
@@ -189,12 +189,12 @@ describe("UpdateUserRoleSanitizer", () => {
     it("should be case sensitive and not alter casing", () => {
       const testCases = [
         { input: "ADMIN" as UserRole, expected: "ADMIN" as UserRole },
-        { input: "Admin" as UserRole, expected: "Admin" as UserRole },
+        { input: "admin" as UserRole, expected: "admin" as UserRole },
         { input: "aDmIn" as UserRole, expected: "aDmIn" as UserRole },
         { input: "CHEFE" as UserRole, expected: "CHEFE" as UserRole },
-        { input: "Chefe" as UserRole, expected: "Chefe" as UserRole },
+        { input: "chefe" as UserRole, expected: "chefe" as UserRole },
         { input: "BOMBEIRO" as UserRole, expected: "BOMBEIRO" as UserRole },
-        { input: "Bombeiro" as UserRole, expected: "Bombeiro" as UserRole },
+        { input: "bombeiro" as UserRole, expected: "bombeiro" as UserRole },
       ];
 
       testCases.forEach(({ input, expected }) => {
@@ -256,16 +256,16 @@ describe("UpdateUserRoleSanitizer", () => {
     it("should handle complex nested SQL injection attempts", () => {
       const testCases = [
         {
-          input: "admin'; DROP TABLE users; --" as UserRole,
-          expected: "admin DROP TABLE users " as UserRole,
+          input: "Admin'; DROP TABLE users; --" as UserRole,
+          expected: "Admin DROP TABLE users " as UserRole,
         },
         {
-          input: "chefe/**/UNION/**/SELECT/**/" as UserRole,
-          expected: "chefeUNIONSELECT" as UserRole,
+          input: "Chefe/**/UNION/**/SELECT/**/" as UserRole,
+          expected: "ChefeUNIONSELECT" as UserRole,
         },
         {
-          input: "bombeiro\\';/*comment*/--end" as UserRole,
-          expected: "bombeirocommentend" as UserRole,
+          input: "Bombeiro\\';/*comment*/--end" as UserRole,
+          expected: "Bombeirocommentend" as UserRole,
         },
       ];
 
@@ -276,8 +276,8 @@ describe("UpdateUserRoleSanitizer", () => {
     });
 
     it("should be consistent across multiple calls with same input", () => {
-      const testInput = "  admin'  ;  --test  " as UserRole;
-      const expected = "admin  test" as UserRole;
+      const testInput = "  Admin'  ;  --test  " as UserRole;
+      const expected = "Admin  test" as UserRole;
 
       for (let i = 0; i < 5; i++) {
         const result = sut.sanitize(testInput);
@@ -415,7 +415,7 @@ describe("UpdateUserRoleSanitizer", () => {
     });
 
     it("should handle large inputs efficiently", () => {
-      const largeInput = "admin" + "'".repeat(10000) + "test";
+      const largeInput = "Admin" + "'".repeat(10000) + "test";
       const startTime = Date.now();
 
       const result = sut.sanitize(largeInput as UserRole);
