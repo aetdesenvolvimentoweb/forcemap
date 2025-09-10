@@ -15,11 +15,11 @@ Sistema de autenticação JWT completo implementado com:
 ### 1. Login (POST /auth/login)
 
 ```bash
-curl -X POST http://localhost:3000/auth/login \
+curl -X POST http://localhost:3333/api/v1/login \
   -H "Content-Type: application/json" \
   -d '{
-    "rg": 12345678,
-    "password": "minhasenha123",
+    "rg": 9999,
+    "password": "F0rceAdmin!",
     "deviceInfo": "Chrome/Windows"
   }'
 ```

@@ -23,6 +23,7 @@ export class LoginController extends BaseController {
 
   public async handle(request: LoginHttpRequest): Promise<HttpResponse> {
     const { authService } = this.props;
+    console.log("controller de login", request);
 
     this.logger.info("Recebida requisição para login", {
       rg: request.body?.rg,

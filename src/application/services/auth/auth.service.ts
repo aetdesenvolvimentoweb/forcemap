@@ -5,7 +5,10 @@ import {
   LoginOutputDTO,
   RefreshTokenInputDTO,
 } from "../../../domain/dtos/auth";
-import { UserRepository } from "../../../domain/repositories";
+import {
+  MilitaryRepository,
+  UserRepository,
+} from "../../../domain/repositories";
 import { SessionRepository } from "../../../domain/repositories/session.repository";
 import {
   EntityNotFoundError,
@@ -19,6 +22,7 @@ import { UserSanitizationService, UserValidationService } from "../user";
 
 interface AuthServiceDependencies {
   userRepository: UserRepository;
+  militaryRepository: MilitaryRepository;
   sessionRepository: SessionRepository;
   userValidation: UserValidationService;
   userSanitization: UserSanitizationService;
@@ -37,12 +41,14 @@ export class AuthService {
   ): Promise<LoginOutputDTO> => {
     const {
       userRepository,
+      militaryRepository,
       sessionRepository,
       userSanitization,
       passwordHasher,
       jwtService,
       rateLimiter,
     } = this.dependencies;
+    console.log("serviço de auth", data, ipAddress, userAgent);
 
     // Rate limiting by IP
     const ipLimitKey = `login:ip:${ipAddress}`;
@@ -76,9 +82,21 @@ export class AuthService {
     }
 
     try {
-      // Find user by RG with password
+      // Find military by RG
+      const military = await militaryRepository.findByRg(
+        sanitizedCredentials.rg,
+      );
+      if (!military) {
+        // Record failed attempt
+        await rateLimiter.recordAttempt(ipLimitKey, 15 * 60 * 1000);
+        await rateLimiter.recordAttempt(rgLimitKey, 15 * 60 * 1000);
+
+        throw new UnauthorizedError("Credenciais inválidas");
+      }
+
+      // Find user by military ID with password
       const user = await userRepository.findByMilitaryIdWithPassword(
-        sanitizedCredentials.rg.toString(),
+        military.id,
       );
 
       if (!user) {

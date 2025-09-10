@@ -26,6 +26,7 @@ export const makeAuthService = (): AuthService => {
 
   return new AuthService({
     userRepository,
+    militaryRepository,
     sessionRepository,
     userValidation,
     userSanitization,
