@@ -37,14 +37,7 @@ export class RefreshTokenController extends BaseController {
       async () => {
         const ipAddress =
           request.ip || request.socket?.remoteAddress || "unknown";
-        const userAgent =
-          (request.headers?.["user-agent"] as string) || "unknown";
-
-        const refreshResult = await authService.refreshToken(
-          body,
-          ipAddress,
-          userAgent,
-        );
+        const refreshResult = await authService.refreshToken(body, ipAddress);
 
         this.logger.info("Token renovado com sucesso", {
           userId: refreshResult.user.id,

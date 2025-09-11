@@ -8,3 +8,4 @@ export * from "./update-user-role.service";
 export * from "./user-domain-services.interface";
 export * from "./user-sanitization.service";
 export * from "./user-validation.service";
+export * from "./validation";

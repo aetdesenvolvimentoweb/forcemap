@@ -1,11 +1,18 @@
+import { mockLogger } from "../../../../__mocks__";
+import { UnauthorizedError } from "../../../../src/domain/errors";
+import { AuthMiddleware } from "../../../../src/presentation/middlewares/auth.middleware";
 import {
-  mockJwtService,
-  mockLogger,
-  mockSessionRepository,
-} from "../../../../__mocks__";
-import { JWTPayload, UserSession } from "../../../../src/domain/entities";
-import { AuthMiddleware } from "../../../../src/presentation/middlewares";
-import { HttpRequest } from "../../../../src/presentation/protocols";
+  HttpRequest,
+  HttpResponse,
+} from "../../../../src/presentation/protocols";
+
+interface MockTokenValidationService {
+  validateAccessToken: jest.Mock;
+}
+
+interface MockSessionService {
+  updateLastAccess: jest.Mock;
+}
 
 interface AuthenticatedRequest extends HttpRequest {
   user?: {
@@ -19,239 +26,379 @@ interface AuthenticatedRequest extends HttpRequest {
 
 describe("AuthMiddleware", () => {
   let sut: AuthMiddleware;
-  let mockedJwtService: any;
-  let mockedSessionRepository: any;
-  let mockedLogger: any;
+  let mockTokenValidationService: MockTokenValidationService;
+  let mockSessionService: MockSessionService;
+  let mockedLogger = mockLogger();
 
   beforeEach(() => {
-    mockedJwtService = mockJwtService();
+    jest.clearAllMocks();
 
-    mockedSessionRepository = mockSessionRepository();
+    mockTokenValidationService = {
+      validateAccessToken: jest.fn(),
+    };
 
-    mockedLogger = mockLogger();
+    mockSessionService = {
+      updateLastAccess: jest.fn(),
+    };
 
     sut = new AuthMiddleware({
-      jwtService: mockedJwtService,
-      sessionRepository: mockedSessionRepository,
+      tokenValidationService: mockTokenValidationService as any,
+      sessionService: mockSessionService as any,
       logger: mockedLogger,
     });
   });
 
-  describe("authenticate", () => {
-    const validToken = "valid.jwt.token";
-    const validPayload: JWTPayload = {
+  describe("validateAuth", () => {
+    const validRequest: AuthenticatedRequest = {
+      headers: {
+        authorization: "Bearer valid.jwt.token",
+      },
+    };
+
+    const mockPayload = {
       userId: "user-123",
-      sessionId: "session-123",
-      role: "Admin",
+      role: "ADMIN",
       militaryId: "military-123",
-      iat: Date.now(),
-      exp: Date.now() + 3600000,
     };
 
-    const validSession: UserSession = {
-      id: "session-123",
-      userId: "user-123",
-      token: validToken,
-      refreshToken: "refresh-token",
-      deviceInfo: "test-device",
-      ipAddress: "127.0.0.1",
-      userAgent: "test-agent",
-      isActive: true,
-      expiresAt: new Date(Date.now() + 3600000),
-      createdAt: new Date(),
-      lastAccessAt: new Date(),
-    };
+    const mockSessionId = "session-123";
 
-    it("should authenticate successfully with valid token and active session", async () => {
-      const request: AuthenticatedRequest = {
-        headers: {
-          authorization: `Bearer ${validToken}`,
-        },
-      };
-
-      mockedJwtService.verifyAccessToken.mockReturnValue(validPayload);
-      mockedSessionRepository.findByToken.mockResolvedValue(validSession);
-      mockedSessionRepository.updateLastAccess.mockResolvedValue(undefined);
-
-      const result = await sut.authenticate(request);
-
-      expect(result).toEqual({
-        ...request,
-        user: {
-          userId: validPayload.userId,
-          sessionId: validSession.id,
-          role: validPayload.role,
-          militaryId: validPayload.militaryId,
-        },
+    it("should validate auth successfully with valid token", async () => {
+      mockTokenValidationService.validateAccessToken.mockResolvedValueOnce({
+        payload: mockPayload,
+        sessionId: mockSessionId,
       });
 
-      expect(mockedJwtService.verifyAccessToken).toHaveBeenCalledWith(
-        validToken,
-      );
-      expect(mockedSessionRepository.findByToken).toHaveBeenCalledWith(
-        validToken,
-      );
-      expect(mockedSessionRepository.updateLastAccess).toHaveBeenCalledWith(
-        validSession.id,
-      );
+      const result = await sut.validateAuth(validRequest);
+
+      expect(result).toEqual({
+        ...validRequest,
+        user: {
+          userId: mockPayload.userId,
+          sessionId: mockSessionId,
+          role: mockPayload.role,
+          militaryId: mockPayload.militaryId,
+        },
+      });
+      expect(
+        mockTokenValidationService.validateAccessToken,
+      ).toHaveBeenCalledWith("Bearer valid.jwt.token");
+      expect(
+        mockTokenValidationService.validateAccessToken,
+      ).toHaveBeenCalledTimes(1);
+    });
+
+    it("should log success when validation is successful", async () => {
+      mockTokenValidationService.validateAccessToken.mockResolvedValueOnce({
+        payload: mockPayload,
+        sessionId: mockSessionId,
+      });
+
+      await sut.validateAuth(validRequest);
+
       expect(mockedLogger.info).toHaveBeenCalledWith(
-        "Usuário autenticado com sucesso",
+        "Usuário validado com sucesso",
         {
-          userId: validPayload.userId,
-          role: validPayload.role,
-          sessionId: validSession.id,
+          userId: mockPayload.userId,
+          role: mockPayload.role,
+          sessionId: mockSessionId,
         },
       );
     });
 
-    it("should return unauthorized when no authorization header is provided", async () => {
-      const request: AuthenticatedRequest = {
+    it("should handle missing authorization header", async () => {
+      const requestWithoutAuth: AuthenticatedRequest = {
         headers: {},
       };
 
-      const result = await sut.authenticate(request);
-
-      expect(result).toEqual({
-        statusCode: 401,
-        body: { error: "Token de autorização necessário" },
-      });
-
-      expect(mockedLogger.warn).toHaveBeenCalledWith(
-        "Token de autorização ausente ou inválido",
+      mockTokenValidationService.validateAccessToken.mockRejectedValueOnce(
+        new UnauthorizedError("Token não fornecido"),
       );
-    });
 
-    it("should return unauthorized when authorization header doesn't start with Bearer", async () => {
-      const request: AuthenticatedRequest = {
-        headers: {
-          authorization: "Basic token123",
-        },
-      };
-
-      const result = await sut.authenticate(request);
+      const result = await sut.validateAuth(requestWithoutAuth);
 
       expect(result).toEqual({
         statusCode: 401,
-        body: { error: "Token de autorização necessário" },
+        body: { error: "Token não fornecido" },
       });
+      expect(
+        mockTokenValidationService.validateAccessToken,
+      ).toHaveBeenCalledWith(undefined);
+    });
 
-      expect(mockedLogger.warn).toHaveBeenCalledWith(
-        "Token de autorização ausente ou inválido",
+    it("should handle undefined headers", async () => {
+      const requestWithoutHeaders: AuthenticatedRequest = {};
+
+      mockTokenValidationService.validateAccessToken.mockRejectedValueOnce(
+        new UnauthorizedError("Token não fornecido"),
       );
-    });
 
-    it("should return unauthorized when token is empty", async () => {
-      const request: AuthenticatedRequest = {
-        headers: {
-          authorization: "Bearer ",
-        },
-      };
-
-      const result = await sut.authenticate(request);
+      const result = await sut.validateAuth(requestWithoutHeaders);
 
       expect(result).toEqual({
         statusCode: 401,
-        body: { error: "Token inválido" },
+        body: { error: "Token não fornecido" },
       });
-
-      expect(mockedLogger.warn).toHaveBeenCalledWith("Token vazio");
+      expect(
+        mockTokenValidationService.validateAccessToken,
+      ).toHaveBeenCalledWith(undefined);
     });
 
-    it("should return unauthorized when JWT verification fails", async () => {
-      const request: AuthenticatedRequest = {
-        headers: {
-          authorization: `Bearer ${validToken}`,
-        },
-      };
+    it("should handle UnauthorizedError from token validation service", async () => {
+      const serviceError = new UnauthorizedError("Token inválido");
+      mockTokenValidationService.validateAccessToken.mockRejectedValueOnce(
+        serviceError,
+      );
 
-      mockedJwtService.verifyAccessToken.mockImplementation(() => {
-        throw new Error("Invalid token");
+      const result = await sut.validateAuth(validRequest);
+
+      expect(result).toEqual({
+        statusCode: 401,
+        body: { error: serviceError.message },
       });
+      expect(
+        mockTokenValidationService.validateAccessToken,
+      ).toHaveBeenCalledWith("Bearer valid.jwt.token");
+    });
 
-      const result = await sut.authenticate(request);
+    it("should handle generic errors from token validation service", async () => {
+      const genericError = new Error("Database connection failed");
+      mockTokenValidationService.validateAccessToken.mockRejectedValueOnce(
+        genericError,
+      );
+
+      const result = await sut.validateAuth(validRequest);
 
       expect(result).toEqual({
         statusCode: 401,
         body: { error: "Falha na autenticação" },
       });
-
-      expect(mockedLogger.error).toHaveBeenCalledWith("Erro na autenticação", {
-        error: expect.any(Error),
-      });
-    });
-
-    it("should return unauthorized when session is not found", async () => {
-      const request: AuthenticatedRequest = {
-        headers: {
-          authorization: `Bearer ${validToken}`,
-        },
-      };
-
-      mockedJwtService.verifyAccessToken.mockReturnValue(validPayload);
-      mockedSessionRepository.findByToken.mockResolvedValue(null);
-
-      const result = await sut.authenticate(request);
-
-      expect(result).toEqual({
-        statusCode: 401,
-        body: { error: "Sessão inválida" },
-      });
-
-      expect(mockedLogger.warn).toHaveBeenCalledWith(
-        "Sessão não encontrada ou inativa",
-        {
-          userId: validPayload.userId,
-        },
+      expect(mockedLogger.error).toHaveBeenCalledWith(
+        "Erro na validação de autenticação",
+        { error: genericError },
       );
     });
 
-    it("should return unauthorized when session is inactive", async () => {
-      const request: AuthenticatedRequest = {
+    it("should handle different token formats", async () => {
+      const tokenFormats = [
+        "Bearer valid.jwt.token",
+        "bearer another.token",
+        "JWT yet.another.token",
+        "valid.token.without.prefix",
+      ];
+
+      for (const token of tokenFormats) {
+        const request: AuthenticatedRequest = {
+          headers: {
+            authorization: token,
+          },
+        };
+
+        mockTokenValidationService.validateAccessToken.mockResolvedValueOnce({
+          payload: mockPayload,
+          sessionId: mockSessionId,
+        });
+
+        await sut.validateAuth(request);
+
+        expect(
+          mockTokenValidationService.validateAccessToken,
+        ).toHaveBeenCalledWith(token);
+      }
+    });
+
+    it("should handle different user roles", async () => {
+      const roles = ["ADMIN", "CHEFE", "ACA", "BOMBEIRO"];
+
+      for (const role of roles) {
+        const payload = { ...mockPayload, role };
+
+        mockTokenValidationService.validateAccessToken.mockResolvedValueOnce({
+          payload,
+          sessionId: mockSessionId,
+        });
+
+        const result = await sut.validateAuth(validRequest);
+
+        expect((result as AuthenticatedRequest).user?.role).toBe(role);
+        expect(mockedLogger.info).toHaveBeenCalledWith(
+          "Usuário validado com sucesso",
+          {
+            userId: payload.userId,
+            role: role,
+            sessionId: mockSessionId,
+          },
+        );
+      }
+    });
+
+    it("should preserve original request data", async () => {
+      const requestWithData: AuthenticatedRequest = {
         headers: {
-          authorization: `Bearer ${validToken}`,
+          authorization: "Bearer valid.jwt.token",
+          "content-type": "application/json",
         },
+        body: { someData: "test" },
+        params: { id: "123" },
       };
 
-      const inactiveSession = { ...validSession, isActive: false };
+      mockTokenValidationService.validateAccessToken.mockResolvedValueOnce({
+        payload: mockPayload,
+        sessionId: mockSessionId,
+      });
 
-      mockedJwtService.verifyAccessToken.mockReturnValue(validPayload);
-      mockedSessionRepository.findByToken.mockResolvedValue(inactiveSession);
+      const result = await sut.validateAuth(requestWithData);
 
-      const result = await sut.authenticate(request);
+      expect(result).toMatchObject({
+        headers: requestWithData.headers,
+        body: requestWithData.body,
+        params: requestWithData.params,
+        user: {
+          userId: mockPayload.userId,
+          sessionId: mockSessionId,
+          role: mockPayload.role,
+          militaryId: mockPayload.militaryId,
+        },
+      });
+    });
+  });
+
+  describe("updateSessionAccess", () => {
+    it("should call session service to update last access", async () => {
+      const sessionId = "session-123";
+      mockSessionService.updateLastAccess.mockResolvedValueOnce(undefined);
+
+      await sut.updateSessionAccess(sessionId);
+
+      expect(mockSessionService.updateLastAccess).toHaveBeenCalledWith(
+        sessionId,
+      );
+      expect(mockSessionService.updateLastAccess).toHaveBeenCalledTimes(1);
+    });
+
+    it("should handle session service errors", async () => {
+      const sessionId = "session-123";
+      const serviceError = new Error("Session not found");
+      mockSessionService.updateLastAccess.mockRejectedValueOnce(serviceError);
+
+      await expect(sut.updateSessionAccess(sessionId)).rejects.toThrow(
+        serviceError,
+      );
+      expect(mockSessionService.updateLastAccess).toHaveBeenCalledWith(
+        sessionId,
+      );
+    });
+  });
+
+  describe("authenticate", () => {
+    const validRequest: AuthenticatedRequest = {
+      headers: {
+        authorization: "Bearer valid.jwt.token",
+      },
+    };
+
+    const mockPayload = {
+      userId: "user-123",
+      role: "ADMIN",
+      militaryId: "military-123",
+    };
+
+    const mockSessionId = "session-123";
+
+    it("should authenticate successfully and update session access", async () => {
+      mockTokenValidationService.validateAccessToken.mockResolvedValueOnce({
+        payload: mockPayload,
+        sessionId: mockSessionId,
+      });
+      mockSessionService.updateLastAccess.mockResolvedValueOnce(undefined);
+
+      const result = await sut.authenticate(validRequest);
+
+      expect(result).toEqual({
+        ...validRequest,
+        user: {
+          userId: mockPayload.userId,
+          sessionId: mockSessionId,
+          role: mockPayload.role,
+          militaryId: mockPayload.militaryId,
+        },
+      });
+      expect(mockSessionService.updateLastAccess).toHaveBeenCalledWith(
+        mockSessionId,
+      );
+    });
+
+    it("should return error response when validation fails", async () => {
+      const serviceError = new UnauthorizedError("Token inválido");
+      mockTokenValidationService.validateAccessToken.mockRejectedValueOnce(
+        serviceError,
+      );
+
+      const result = await sut.authenticate(validRequest);
 
       expect(result).toEqual({
         statusCode: 401,
-        body: { error: "Sessão expirada" },
+        body: { error: serviceError.message },
       });
+      expect(mockSessionService.updateLastAccess).not.toHaveBeenCalled();
+    });
 
-      expect(mockedLogger.warn).toHaveBeenCalledWith("Sessão inativa", {
-        sessionId: inactiveSession.id,
-        userId: validPayload.userId,
+    it("should not update session access when validation returns error", async () => {
+      mockTokenValidationService.validateAccessToken.mockRejectedValueOnce(
+        new UnauthorizedError("Token expirado"),
+      );
+
+      const result = await sut.authenticate(validRequest);
+
+      expect("statusCode" in result).toBe(true);
+      expect(mockSessionService.updateLastAccess).not.toHaveBeenCalled();
+    });
+
+    it("should handle session update errors gracefully", async () => {
+      mockTokenValidationService.validateAccessToken.mockResolvedValueOnce({
+        payload: mockPayload,
+        sessionId: mockSessionId,
+      });
+      mockSessionService.updateLastAccess.mockRejectedValueOnce(
+        new Error("Session update failed"),
+      );
+
+      await expect(sut.authenticate(validRequest)).rejects.toThrow(
+        "Session update failed",
+      );
+      expect(mockSessionService.updateLastAccess).toHaveBeenCalledWith(
+        mockSessionId,
+      );
+    });
+
+    it("should not update session when user is not present in validated request", async () => {
+      jest.spyOn(sut, "validateAuth").mockResolvedValueOnce({
+        headers: validRequest.headers,
+      } as AuthenticatedRequest);
+
+      const result = await sut.authenticate(validRequest);
+
+      expect(mockSessionService.updateLastAccess).not.toHaveBeenCalled();
+      expect(result).toEqual({
+        headers: validRequest.headers,
       });
     });
 
-    it("should handle session repository errors", async () => {
-      const request: AuthenticatedRequest = {
-        headers: {
-          authorization: `Bearer ${validToken}`,
+    it("should not update session when sessionId is missing", async () => {
+      jest.spyOn(sut, "validateAuth").mockResolvedValueOnce({
+        ...validRequest,
+        user: {
+          userId: mockPayload.userId,
+          sessionId: "",
+          role: mockPayload.role,
+          militaryId: mockPayload.militaryId,
         },
-      };
+      } as AuthenticatedRequest);
 
-      mockedJwtService.verifyAccessToken.mockReturnValue(validPayload);
-      mockedSessionRepository.findByToken.mockRejectedValue(
-        new Error("Database error"),
-      );
+      const result = await sut.authenticate(validRequest);
 
-      const result = await sut.authenticate(request);
-
-      expect(result).toEqual({
-        statusCode: 401,
-        body: { error: "Falha na autenticação" },
-      });
-
-      expect(mockedLogger.error).toHaveBeenCalledWith("Erro na autenticação", {
-        error: expect.any(Error),
-      });
+      expect(mockSessionService.updateLastAccess).not.toHaveBeenCalled();
+      expect((result as AuthenticatedRequest).user?.sessionId).toBe("");
     });
   });
 
@@ -260,180 +407,277 @@ describe("AuthMiddleware", () => {
       user: {
         userId: "user-123",
         sessionId: "session-123",
-        role: "Admin",
+        role: "ADMIN",
         militaryId: "military-123",
       },
     };
 
-    it("should authorize user with correct role", () => {
-      const allowedRoles = ["Admin", "Chefe"];
-      const authorizeFunc = sut.authorize(allowedRoles);
+    it("should authorize user with valid role", () => {
+      const authorizeFunction = sut.authorize(["ADMIN", "CHEFE"]);
 
-      const result = authorizeFunc(authenticatedRequest);
+      const result = authorizeFunction(authenticatedRequest);
 
       expect(result).toEqual(authenticatedRequest);
       expect(mockedLogger.debug).toHaveBeenCalledWith("Usuário autorizado", {
-        userId: "user-123",
-        role: "Admin",
-        allowedRoles,
+        userId: authenticatedRequest.user?.userId,
+        role: authenticatedRequest.user?.role,
+        allowedRoles: ["ADMIN", "CHEFE"],
       });
     });
 
-    it("should deny access when user role is not in allowed roles", () => {
-      const allowedRoles = ["Chefe", "ACA"];
-      const authorizeFunc = sut.authorize(allowedRoles);
+    it("should deny authorization for insufficient role", () => {
+      const authorizeFunction = sut.authorize(["SUPER_ADMIN"]);
 
-      const result = authorizeFunc(authenticatedRequest);
+      const result = authorizeFunction(authenticatedRequest);
 
       expect(result).toEqual({
         statusCode: 401,
         body: { error: "Acesso negado" },
       });
-
       expect(mockedLogger.warn).toHaveBeenCalledWith(
         "Acesso negado - papel insuficiente",
         {
-          userId: "user-123",
-          userRole: "Admin",
-          requiredRoles: allowedRoles,
+          userId: authenticatedRequest.user?.userId,
+          userRole: authenticatedRequest.user?.role,
+          requiredRoles: ["SUPER_ADMIN"],
         },
       );
     });
 
-    it("should deny access when user is not authenticated", () => {
-      const requestWithoutUser: AuthenticatedRequest = {};
-      const allowedRoles = ["Admin"];
-      const authorizeFunc = sut.authorize(allowedRoles);
+    it("should deny authorization for unauthenticated user", () => {
+      const unauthenticatedRequest: AuthenticatedRequest = {};
+      const authorizeFunction = sut.authorize(["ADMIN"]);
 
-      const result = authorizeFunc(requestWithoutUser);
+      const result = authorizeFunction(unauthenticatedRequest);
 
       expect(result).toEqual({
         statusCode: 401,
         body: { error: "Usuário não autenticado" },
       });
-
       expect(mockedLogger.warn).toHaveBeenCalledWith(
         "Tentativa de autorização sem usuário autenticado",
       );
     });
 
-    it("should handle case where logger.debug is undefined", () => {
-      const loggerWithoutDebug = {
-        info: jest.fn(),
-        warn: jest.fn(),
-        error: jest.fn(),
-      };
+    it("should handle multiple allowed roles", () => {
+      const roles = ["ADMIN", "CHEFE", "ACA", "BOMBEIRO"];
 
-      const middlewareWithoutDebug = new AuthMiddleware({
-        jwtService: mockedJwtService,
-        sessionRepository: mockedSessionRepository,
-        logger: loggerWithoutDebug,
-      });
-
-      const allowedRoles = ["Admin"];
-      const authorizeFunc = middlewareWithoutDebug.authorize(allowedRoles);
-
-      expect(() => {
-        authorizeFunc(authenticatedRequest);
-      }).not.toThrow();
-    });
-
-    it("should work with different role combinations", () => {
-      const testCases = [
-        { userRole: "Admin", allowedRoles: ["Admin"], shouldPass: true },
-        {
-          userRole: "Chefe",
-          allowedRoles: ["Admin", "Chefe"],
-          shouldPass: true,
-        },
-        {
-          userRole: "ACA",
-          allowedRoles: ["ACA", "Bombeiro"],
-          shouldPass: true,
-        },
-        { userRole: "Bombeiro", allowedRoles: ["Bombeiro"], shouldPass: true },
-        {
-          userRole: "Bombeiro",
-          allowedRoles: ["Admin", "Chefe"],
-          shouldPass: false,
-        },
-        { userRole: "ACA", allowedRoles: ["Admin"], shouldPass: false },
-      ];
-
-      testCases.forEach(({ userRole, allowedRoles, shouldPass }) => {
-        const request = {
-          ...authenticatedRequest,
-          user: { ...authenticatedRequest.user!, role: userRole },
+      for (const userRole of roles) {
+        const request: AuthenticatedRequest = {
+          user: {
+            userId: "user-123",
+            sessionId: "session-123",
+            role: userRole,
+            militaryId: "military-123",
+          },
         };
 
-        const authorizeFunc = sut.authorize(allowedRoles);
-        const result = authorizeFunc(request);
+        const authorizeFunction = sut.authorize(roles);
+        const result = authorizeFunction(request);
 
-        if (shouldPass) {
-          expect(result).toEqual(request);
-        } else {
-          expect(result).toEqual({
-            statusCode: 401,
-            body: { error: "Acesso negado" },
-          });
-        }
+        expect(result).toEqual(request);
+        expect(mockedLogger.debug).toHaveBeenCalledWith("Usuário autorizado", {
+          userId: request.user?.userId,
+          role: userRole,
+          allowedRoles: roles,
+        });
+      }
+    });
+
+    it("should handle single allowed role", () => {
+      const authorizeFunction = sut.authorize(["ADMIN"]);
+
+      const result = authorizeFunction(authenticatedRequest);
+
+      expect(result).toEqual(authenticatedRequest);
+      expect(mockedLogger.debug).toHaveBeenCalledWith("Usuário autorizado", {
+        userId: authenticatedRequest.user?.userId,
+        role: authenticatedRequest.user?.role,
+        allowedRoles: ["ADMIN"],
+      });
+    });
+
+    it("should handle empty allowed roles array", () => {
+      const authorizeFunction = sut.authorize([]);
+
+      const result = authorizeFunction(authenticatedRequest);
+
+      expect(result).toEqual({
+        statusCode: 401,
+        body: { error: "Acesso negado" },
+      });
+      expect(mockedLogger.warn).toHaveBeenCalledWith(
+        "Acesso negado - papel insuficiente",
+        {
+          userId: authenticatedRequest.user?.userId,
+          userRole: authenticatedRequest.user?.role,
+          requiredRoles: [],
+        },
+      );
+    });
+
+    it("should handle case-sensitive role comparison", () => {
+      const request: AuthenticatedRequest = {
+        user: {
+          userId: "user-123",
+          sessionId: "session-123",
+          role: "admin", // lowercase
+          militaryId: "military-123",
+        },
+      };
+
+      const authorizeFunction = sut.authorize(["ADMIN"]); // uppercase
+      const result = authorizeFunction(request);
+
+      expect(result).toEqual({
+        statusCode: 401,
+        body: { error: "Acesso negado" },
+      });
+      expect(mockedLogger.warn).toHaveBeenCalledWith(
+        "Acesso negado - papel insuficiente",
+        {
+          userId: request.user?.userId,
+          userRole: "admin",
+          requiredRoles: ["ADMIN"],
+        },
+      );
+    });
+
+    it("should preserve request data when authorization succeeds", () => {
+      const requestWithData: AuthenticatedRequest = {
+        user: {
+          userId: "user-123",
+          sessionId: "session-123",
+          role: "ADMIN",
+          militaryId: "military-123",
+        },
+        headers: {
+          "content-type": "application/json",
+        },
+        body: { someData: "test" },
+        params: { id: "123" },
+      };
+
+      const authorizeFunction = sut.authorize(["ADMIN"]);
+      const result = authorizeFunction(requestWithData);
+
+      expect(result).toEqual(requestWithData);
+    });
+
+    it("should handle undefined user object", () => {
+      const requestWithUndefinedUser: AuthenticatedRequest = {
+        user: undefined,
+      };
+
+      const authorizeFunction = sut.authorize(["ADMIN"]);
+      const result = authorizeFunction(requestWithUndefinedUser);
+
+      expect(result).toEqual({
+        statusCode: 401,
+        body: { error: "Usuário não autenticado" },
+      });
+      expect(mockedLogger.warn).toHaveBeenCalledWith(
+        "Tentativa de autorização sem usuário autenticado",
+      );
+    });
+
+    it("should work with authorization chains", () => {
+      const adminAuth = sut.authorize(["ADMIN"]);
+      const chefeAuth = sut.authorize(["CHEFE"]);
+
+      // Admin should pass admin auth
+      expect(adminAuth(authenticatedRequest)).toEqual(authenticatedRequest);
+
+      // Admin should fail chefe auth
+      expect(chefeAuth(authenticatedRequest)).toEqual({
+        statusCode: 401,
+        body: { error: "Acesso negado" },
       });
     });
   });
 
   describe("integration scenarios", () => {
-    it("should handle complete auth flow with multiple role checks", async () => {
-      const token = "valid.token";
-      const payload: JWTPayload = {
-        userId: "user-123",
-        sessionId: "session-123",
-        role: "Chefe",
-        militaryId: "military-123",
-        iat: Date.now(),
-        exp: Date.now() + 3600000,
-      };
-
-      const session: UserSession = {
-        id: "session-123",
-        userId: "user-123",
-        token,
-        refreshToken: "refresh-token",
-        deviceInfo: "test-device",
-        ipAddress: "127.0.0.1",
-        userAgent: "test-agent",
-        isActive: true,
-        expiresAt: new Date(Date.now() + 3600000),
-        createdAt: new Date(),
-        lastAccessAt: new Date(),
-      };
-
+    it("should handle complete authentication and authorization flow", async () => {
       const request: AuthenticatedRequest = {
-        headers: { authorization: `Bearer ${token}` },
+        headers: {
+          authorization: "Bearer valid.jwt.token",
+        },
       };
 
-      mockedJwtService.verifyAccessToken.mockReturnValue(payload);
-      mockedSessionRepository.findByToken.mockResolvedValue(session);
-      mockedSessionRepository.updateLastAccess.mockResolvedValue(undefined);
+      const mockPayload = {
+        userId: "user-123",
+        role: "ADMIN",
+        militaryId: "military-123",
+      };
 
-      // First authenticate
-      const authResult = await sut.authenticate(request);
-      expect("user" in authResult).toBe(true);
+      const mockSessionId = "session-123";
 
-      // Then authorize for different roles
-      const adminAuthorize = sut.authorize(["Admin"]);
-      const chefeAuthorize = sut.authorize(["Chefe", "ACA"]);
+      mockTokenValidationService.validateAccessToken.mockResolvedValueOnce({
+        payload: mockPayload,
+        sessionId: mockSessionId,
+      });
+      mockSessionService.updateLastAccess.mockResolvedValueOnce(undefined);
 
-      const adminResult = adminAuthorize(authResult as any);
-      const chefeResult = chefeAuthorize(authResult as any);
+      // Authenticate
+      const authenticatedResult = await sut.authenticate(request);
 
-      // Should fail for Admin-only
-      expect(adminResult).toEqual({
-        statusCode: 401,
-        body: { error: "Acesso negado" },
+      // Authorize
+      const authorizeFunction = sut.authorize(["ADMIN", "CHEFE"]);
+      const authorizedResult = authorizeFunction(
+        authenticatedResult as AuthenticatedRequest,
+      );
+
+      expect(authorizedResult).toEqual({
+        ...request,
+        user: {
+          userId: mockPayload.userId,
+          sessionId: mockSessionId,
+          role: mockPayload.role,
+          militaryId: mockPayload.militaryId,
+        },
       });
 
-      // Should pass for Chefe-allowed
-      expect(chefeResult).toEqual(authResult);
+      expect(
+        mockTokenValidationService.validateAccessToken,
+      ).toHaveBeenCalledWith("Bearer valid.jwt.token");
+      expect(mockSessionService.updateLastAccess).toHaveBeenCalledWith(
+        mockSessionId,
+      );
+      expect(mockedLogger.info).toHaveBeenCalledWith(
+        "Usuário validado com sucesso",
+        {
+          userId: mockPayload.userId,
+          role: mockPayload.role,
+          sessionId: mockSessionId,
+        },
+      );
+      expect(mockedLogger.debug).toHaveBeenCalledWith("Usuário autorizado", {
+        userId: mockPayload.userId,
+        role: mockPayload.role,
+        allowedRoles: ["ADMIN", "CHEFE"],
+      });
+    });
+
+    it("should handle authentication failure followed by authorization attempt", async () => {
+      const request: AuthenticatedRequest = {
+        headers: {
+          authorization: "Bearer invalid.jwt.token",
+        },
+      };
+
+      mockTokenValidationService.validateAccessToken.mockRejectedValueOnce(
+        new UnauthorizedError("Token inválido"),
+      );
+
+      // Authenticate (should fail)
+      const authenticatedResult = await sut.authenticate(request);
+
+      // Should be an error response, not an authenticated request
+      expect("statusCode" in authenticatedResult).toBe(true);
+      expect((authenticatedResult as HttpResponse).statusCode).toBe(401);
+
+      // Don't attempt authorization on error response
+      expect(mockSessionService.updateLastAccess).not.toHaveBeenCalled();
     });
   });
 });

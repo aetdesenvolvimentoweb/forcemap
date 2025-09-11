@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 export interface BaseUpdateServiceDeps<TData> {
   repository: { update(id: string, data: TData): Promise<void> };
   idSanitizer: { sanitize(id: string): string };
@@ -32,8 +31,6 @@ export abstract class BaseUpdateService<TData> {
   }
 
   public readonly update = async (id: string, data: TData): Promise<void> => {
-    await this.beforeUpdate(id, data);
-
     const sanitizedId = this.sanitizeId(id);
     this.validateId(sanitizedId);
     await this.validateIdExists(sanitizedId);
@@ -42,8 +39,6 @@ export abstract class BaseUpdateService<TData> {
     await this.validateData(sanitizedData, sanitizedId);
 
     await this.execute(sanitizedId, sanitizedData);
-
-    await this.afterUpdate(sanitizedId, sanitizedData);
   };
 
   protected sanitizeId(id: string): string {
@@ -68,14 +63,5 @@ export abstract class BaseUpdateService<TData> {
 
   protected async execute(id: string, data: TData): Promise<void> {
     await this.repository.update(id, data);
-  }
-
-  // Hook methods - podem ser sobrescritos por subclasses
-  protected async beforeUpdate(_id: string, _data: TData): Promise<void> {
-    // Override point for additional logic
-  }
-
-  protected async afterUpdate(_id: string, _data: TData): Promise<void> {
-    // Override point for additional logic
   }
 }

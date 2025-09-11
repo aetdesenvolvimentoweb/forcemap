@@ -2,18 +2,22 @@ import { UpdateUserInputDTO, UserInputDTO } from "../../../domain/dtos";
 import { UserRole } from "../../../domain/entities";
 import {
   IdValidatorProtocol,
-  UpdateUserPasswordValidatorProtocol,
-  UpdateUserRoleValidatorProtocol,
   UserIdRegisteredValidatorProtocol,
-  UserInputDTOValidatorProtocol,
 } from "../../protocols";
+import {
+  IUserCreationValidationStrategy,
+  IUserDeletionValidationStrategy,
+  IUserPasswordUpdateValidationStrategy,
+  IUserRoleUpdateValidationStrategy,
+} from "./validation";
 
 interface UserValidationServiceProps {
   idValidator: IdValidatorProtocol;
   idRegisteredValidator: UserIdRegisteredValidatorProtocol;
-  userInputDTOValidator: UserInputDTOValidatorProtocol;
-  updateUserPasswordValidator: UpdateUserPasswordValidatorProtocol;
-  updateUserRoleValidator: UpdateUserRoleValidatorProtocol;
+  userCreationValidationStrategy: IUserCreationValidationStrategy;
+  userPasswordUpdateValidationStrategy: IUserPasswordUpdateValidationStrategy;
+  userRoleUpdateValidationStrategy: IUserRoleUpdateValidationStrategy;
+  userDeletionValidationStrategy: IUserDeletionValidationStrategy;
 }
 
 export class UserValidationService {
@@ -23,35 +27,25 @@ export class UserValidationService {
     data: UserInputDTO,
     requestingUserRole?: UserRole,
   ): Promise<void> {
-    await this.props.userInputDTOValidator.validate(data, requestingUserRole);
+    await this.props.userCreationValidationStrategy.validate(
+      data,
+      requestingUserRole,
+    );
   }
 
   async validateUserPasswordUpdate(
     id: string,
     data: UpdateUserInputDTO,
   ): Promise<void> {
-    const { idValidator, idRegisteredValidator, updateUserPasswordValidator } =
-      this.props;
-
-    idValidator.validate(id);
-    await idRegisteredValidator.validate(id);
-    await updateUserPasswordValidator.validate(data);
+    await this.props.userPasswordUpdateValidationStrategy.validate(id, data);
   }
 
   async validateUserRoleUpdate(id: string, role: UserRole): Promise<void> {
-    const { idValidator, idRegisteredValidator, updateUserRoleValidator } =
-      this.props;
-
-    idValidator.validate(id);
-    await idRegisteredValidator.validate(id);
-    await updateUserRoleValidator.validate(role);
+    await this.props.userRoleUpdateValidationStrategy.validate(id, role);
   }
 
   async validateUserDeletion(id: string): Promise<void> {
-    const { idValidator, idRegisteredValidator } = this.props;
-
-    idValidator.validate(id);
-    await idRegisteredValidator.validate(id);
+    await this.props.userDeletionValidationStrategy.validate(id);
   }
 
   validateUserId(id: string): void {

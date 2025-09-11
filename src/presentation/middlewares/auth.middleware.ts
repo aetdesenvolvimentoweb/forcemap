@@ -1,12 +1,13 @@
-import { JWTProtocol, LoggerProtocol } from "../../application/protocols";
+import { LoggerProtocol } from "../../application/protocols";
+import { SessionService } from "../../application/services/auth/session.service";
+import { TokenValidationService } from "../../application/services/auth/token-validation.service";
 import { UnauthorizedError } from "../../domain/errors";
-import { SessionRepository } from "../../domain/repositories";
 import { HttpRequest, HttpResponse } from "../protocols";
 import { badRequest } from "../utils";
 
 interface AuthMiddlewareProps {
-  jwtService: JWTProtocol;
-  sessionRepository: SessionRepository;
+  tokenValidationService: TokenValidationService;
+  sessionService: SessionService;
   logger: LoggerProtocol;
 }
 
@@ -23,67 +24,61 @@ interface AuthenticatedRequest extends HttpRequest {
 export class AuthMiddleware {
   constructor(private readonly props: AuthMiddlewareProps) {}
 
-  public authenticate = async (
+  public validateAuth = async (
     request: AuthenticatedRequest,
   ): Promise<AuthenticatedRequest | HttpResponse> => {
-    const { jwtService, sessionRepository, logger } = this.props;
+    const { tokenValidationService, logger } = this.props;
 
     try {
       const authHeader = request.headers?.authorization as string;
 
-      if (!authHeader || !authHeader.startsWith("Bearer ")) {
-        logger.warn("Token de autorização ausente ou inválido");
-        return badRequest(
-          new UnauthorizedError("Token de autorização necessário"),
-        );
-      }
-
-      const token = authHeader.substring(7);
-
-      if (!token) {
-        logger.warn("Token vazio");
-        return badRequest(new UnauthorizedError("Token inválido"));
-      }
-
-      const payload = jwtService.verifyAccessToken(token);
-
-      const session = await sessionRepository.findByToken(token);
-
-      if (!session) {
-        logger.warn("Sessão não encontrada ou inativa", {
-          userId: payload.userId,
-        });
-        return badRequest(new UnauthorizedError("Sessão inválida"));
-      }
-
-      if (!session.isActive) {
-        logger.warn("Sessão inativa", {
-          sessionId: session.id,
-          userId: payload.userId,
-        });
-        return badRequest(new UnauthorizedError("Sessão expirada"));
-      }
-
-      await sessionRepository.updateLastAccess(session.id);
+      const { payload, sessionId } =
+        await tokenValidationService.validateAccessToken(authHeader);
 
       request.user = {
         userId: payload.userId,
-        sessionId: session.id,
+        sessionId: sessionId,
         role: payload.role,
         militaryId: payload.militaryId,
       };
 
-      logger.info("Usuário autenticado com sucesso", {
+      logger.info("Usuário validado com sucesso", {
         userId: payload.userId,
         role: payload.role,
-        sessionId: session.id,
+        sessionId: sessionId,
       });
 
       return request;
     } catch (error) {
-      logger.error("Erro na autenticação", { error });
+      if (error instanceof UnauthorizedError) {
+        return badRequest(error);
+      }
+      logger.error("Erro na validação de autenticação", { error });
       return badRequest(new UnauthorizedError("Falha na autenticação"));
     }
+  };
+
+  public updateSessionAccess = async (sessionId: string): Promise<void> => {
+    const { sessionService } = this.props;
+    await sessionService.updateLastAccess(sessionId);
+  };
+
+  public authenticate = async (
+    request: AuthenticatedRequest,
+  ): Promise<AuthenticatedRequest | HttpResponse> => {
+    // CQS: Separate query (validation) from command (update)
+    const validatedRequest = await this.validateAuth(request);
+
+    if ("statusCode" in validatedRequest) {
+      return validatedRequest; // Return error response
+    }
+
+    // Command: Update last access after successful validation
+    if ("user" in validatedRequest && validatedRequest.user?.sessionId) {
+      await this.updateSessionAccess(validatedRequest.user.sessionId);
+    }
+
+    return validatedRequest;
   };
 
   public authorize = (allowedRoles: string[]) => {

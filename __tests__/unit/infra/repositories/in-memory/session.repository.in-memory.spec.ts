@@ -368,6 +368,71 @@ describe("SessionRepositoryInMemory", () => {
     });
   });
 
+  describe("updateRefreshToken", () => {
+    it("should update refresh token and last access time", async () => {
+      const sessionData = createMockSessionData({
+        refreshToken: "old-refresh-token",
+      });
+      const createdSession = await sut.create(sessionData);
+      const originalLastAccess = createdSession.lastAccessAt;
+
+      // Wait a bit to ensure time difference
+      await new Promise((resolve) => setTimeout(resolve, 1));
+
+      await sut.updateRefreshToken(createdSession.id, "new-refresh-token");
+
+      const updatedSession = await sut.findBySessionId(createdSession.id);
+      expect(updatedSession).not.toBeNull();
+      expect(updatedSession!.refreshToken).toBe("new-refresh-token");
+      expect(updatedSession!.lastAccessAt.getTime()).toBeGreaterThanOrEqual(
+        originalLastAccess.getTime(),
+      );
+    });
+
+    it("should not affect other properties when updating refresh token", async () => {
+      const sessionData = createMockSessionData({
+        refreshToken: "old-refresh-token",
+      });
+      const createdSession = await sut.create(sessionData);
+
+      await sut.updateRefreshToken(createdSession.id, "new-refresh-token");
+
+      const updatedSession = await sut.findBySessionId(createdSession.id);
+      expect(updatedSession).not.toBeNull();
+      expect(updatedSession!.id).toBe(createdSession.id);
+      expect(updatedSession!.userId).toBe(createdSession.userId);
+      expect(updatedSession!.token).toBe(createdSession.token);
+      expect(updatedSession!.isActive).toBe(createdSession.isActive);
+      expect(updatedSession!.createdAt).toEqual(createdSession.createdAt);
+    });
+
+    it("should handle update for non-existent session gracefully", async () => {
+      await sut.updateRefreshToken("non-existent-id", "new-refresh-token");
+
+      // Should not throw error and session should remain non-existent
+      const result = await sut.findBySessionId("non-existent-id");
+      expect(result).toBeNull();
+    });
+
+    it("should allow finding session with new refresh token", async () => {
+      const sessionData = createMockSessionData({
+        refreshToken: "old-refresh-token",
+      });
+      const createdSession = await sut.create(sessionData);
+
+      await sut.updateRefreshToken(createdSession.id, "new-refresh-token");
+
+      const foundByOldRefreshToken =
+        await sut.findByRefreshToken("old-refresh-token");
+      const foundByNewRefreshToken =
+        await sut.findByRefreshToken("new-refresh-token");
+
+      expect(foundByOldRefreshToken).toBeNull();
+      expect(foundByNewRefreshToken).not.toBeNull();
+      expect(foundByNewRefreshToken!.id).toBe(createdSession.id);
+    });
+  });
+
   describe("deactivateSession", () => {
     it("should deactivate existing session", async () => {
       const sessionData = createMockSessionData();
@@ -580,6 +645,16 @@ describe("SessionRepositoryInMemory", () => {
       const foundByNewToken = await sut.findByToken("updated-token");
       expect(foundByNewToken).not.toBeNull();
       expect(foundByNewToken!.token).toBe("updated-token");
+
+      // Update refresh token
+      await sut.updateRefreshToken(createdSession.id, "updated-refresh-token");
+      const foundByNewRefreshToken = await sut.findByRefreshToken(
+        "updated-refresh-token",
+      );
+      expect(foundByNewRefreshToken).not.toBeNull();
+      expect(foundByNewRefreshToken!.refreshToken).toBe(
+        "updated-refresh-token",
+      );
 
       // Update last access
       const beforeAccessUpdate = foundByNewToken!.lastAccessAt;
