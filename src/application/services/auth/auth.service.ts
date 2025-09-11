@@ -48,7 +48,6 @@ export class AuthService {
       jwtService,
       rateLimiter,
     } = this.dependencies;
-    console.log("serviço de auth", data, ipAddress, userAgent);
 
     // Rate limiting by IP
     const ipLimitKey = `login:ip:${ipAddress}`;

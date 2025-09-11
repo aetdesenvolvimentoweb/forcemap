@@ -90,7 +90,7 @@ export class UserRepositoryInMemory implements UserRepository {
     const usersMapped = await Promise.all(
       this.items.map((user) => this.mapperUser(user)),
     );
-    return usersMapped;
+    return usersMapped.filter((user) => user.military.rg !== 9999);
   };
 
   public updateUserPassword = async (

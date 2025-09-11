@@ -23,7 +23,6 @@ export class LoginController extends BaseController {
 
   public async handle(request: LoginHttpRequest): Promise<HttpResponse> {
     const { authService } = this.props;
-    console.log("controller de login", request);
 
     this.logger.info("Recebida requisição para login", {
       rg: request.body?.rg,
@@ -39,7 +38,7 @@ export class LoginController extends BaseController {
     const result = await this.executeWithErrorHandling(
       async () => {
         const ipAddress =
-          request.ip || request.connection?.remoteAddress || "unknown";
+          request.ip || request.socket?.remoteAddress || "unknown";
         const userAgent =
           (request.headers?.["user-agent"] as string) || "unknown";
 

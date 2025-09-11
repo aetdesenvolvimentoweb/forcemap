@@ -55,10 +55,7 @@ export class DatabaseSeed {
     ]);
 
     const admin = await this.militaryRepository.findByRg(9999);
-    console.log("military admin", admin);
-    console.log("vai iniciar o hash da senha");
     const hashedPassword = await this.passwordHasher.hash("F0rceAdmin!");
-    console.log("hashed password", hashedPassword);
 
     await this.seedUsers([
       {
@@ -68,11 +65,8 @@ export class DatabaseSeed {
       },
     ]);
 
-    const users = await this.userRepository.listAll();
-    console.log("users seeded", users);
-
     DatabaseSeed.hasSeeded = true;
-    console.log("✅ Database seeded successfully");
+    console.log("🌱 Database seeded successfully");
   }
 
   private async seedMilitaryRanks(

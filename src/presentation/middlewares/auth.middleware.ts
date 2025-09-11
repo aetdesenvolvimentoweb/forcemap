@@ -89,7 +89,6 @@ export class AuthMiddleware {
 
   public authorize = (allowedRoles: string[]) => {
     const { logger } = this.props;
-    console.log("entrou no middleware");
 
     return (
       request: AuthenticatedRequest,

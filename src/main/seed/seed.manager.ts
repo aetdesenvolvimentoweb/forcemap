@@ -32,7 +32,7 @@ export class SeedManager {
       const databaseSeed = makeDatabaseSeed();
       await databaseSeed.run();
       this.isSeeded = true;
-      console.log("✅ Database seed completed successfully");
+      console.log("🌱 Database seed completed successfully");
     } catch (error) {
       console.error("❌ Database seed failed:", error);
       // Reset promise so it can be retried

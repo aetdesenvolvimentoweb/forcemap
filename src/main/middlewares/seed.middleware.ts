@@ -17,7 +17,6 @@ export const ensureSeedMiddleware = async (
     }
 
     // Se está em processo de seeding, aguarde
-    console.log("⏳ Waiting for database seed to complete...");
     await seedManager.ensureSeeded();
 
     next();

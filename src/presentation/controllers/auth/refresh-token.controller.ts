@@ -36,7 +36,7 @@ export class RefreshTokenController extends BaseController {
     const result = await this.executeWithErrorHandling(
       async () => {
         const ipAddress =
-          request.ip || request.connection?.remoteAddress || "unknown";
+          request.ip || request.socket?.remoteAddress || "unknown";
         const userAgent =
           (request.headers?.["user-agent"] as string) || "unknown";
 

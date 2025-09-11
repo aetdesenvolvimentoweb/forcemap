@@ -69,7 +69,7 @@ export class MilitaryRepositoryInMemory implements MilitaryRepository {
     const militariesMapped = await Promise.all(
       this.items.map((military) => this.mapperMilitary(military)),
     );
-    return militariesMapped;
+    return militariesMapped.filter((military) => military.rg !== 9999);
   };
 
   public update = async (id: string, data: MilitaryInputDTO): Promise<void> => {

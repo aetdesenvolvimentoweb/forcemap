@@ -18,7 +18,7 @@ interface AuthHttpRequest {
   params?: Record<string, string>;
   headers?: { [key: string]: string | string[] | undefined };
   ip?: string;
-  connection?: { remoteAddress?: string };
+  socket?: { remoteAddress?: string };
   user?: {
     userId: string;
     sessionId: string;
@@ -42,7 +42,7 @@ export const requireAuth = async (
       params: req.params,
       headers: req.headers,
       ip: req.ip,
-      connection: req.connection,
+      socket: req.socket,
     };
 
     const result = await authMiddleware.authenticate(httpRequest);
@@ -77,7 +77,7 @@ export const requireRoles = (allowedRoles: string[]) => {
       params: req.params,
       headers: req.headers,
       ip: req.ip,
-      connection: req.connection,
+      socket: req.socket,
       user: req.user,
     };
 
@@ -108,10 +108,8 @@ export const requireAuthWithRoles = (allowedRoles: string[]) => {
         params: req.params,
         headers: req.headers,
         ip: req.ip,
-        connection: req.connection,
+        socket: req.socket,
       };
-
-      console.log("dentro do require auth with roles", httpRequest);
 
       const authResult = await authMiddleware.authenticate(httpRequest);
 

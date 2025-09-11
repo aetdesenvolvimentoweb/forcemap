@@ -3,6 +3,8 @@ export interface HttpRequest<REQ = unknown> {
   params?: Record<string, string>;
   query?: unknown;
   headers?: unknown;
+  ip?: string;
+  socket?: { remoteAddress?: string };
   user?: {
     userId: string;
     sessionId: string;
