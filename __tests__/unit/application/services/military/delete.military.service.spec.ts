@@ -38,6 +38,7 @@ describe("DeleteMilitaryService", () => {
       mockedSanitizer.sanitize.mockReturnValueOnce(sanitizedId);
       mockedIdValidator.validate.mockReturnValueOnce();
       mockedIdRegisteredValidator.validate.mockResolvedValueOnce();
+      mockedInUseValidator.validate.mockResolvedValueOnce();
       mockedRepository.delete.mockResolvedValueOnce();
 
       await expect(sut.delete(inputId)).resolves.not.toThrow();
@@ -47,6 +48,7 @@ describe("DeleteMilitaryService", () => {
       mockedSanitizer.sanitize.mockReturnValueOnce(sanitizedId);
       mockedIdValidator.validate.mockReturnValueOnce();
       mockedIdRegisteredValidator.validate.mockResolvedValueOnce();
+      mockedInUseValidator.validate.mockResolvedValueOnce();
       mockedRepository.delete.mockResolvedValueOnce();
 
       await sut.delete(inputId);
@@ -59,6 +61,7 @@ describe("DeleteMilitaryService", () => {
       mockedSanitizer.sanitize.mockReturnValueOnce(sanitizedId);
       mockedIdValidator.validate.mockReturnValueOnce();
       mockedIdRegisteredValidator.validate.mockResolvedValueOnce();
+      mockedInUseValidator.validate.mockResolvedValueOnce();
       mockedRepository.delete.mockResolvedValueOnce();
 
       await sut.delete(inputId);
@@ -71,6 +74,7 @@ describe("DeleteMilitaryService", () => {
       mockedSanitizer.sanitize.mockReturnValueOnce(sanitizedId);
       mockedIdValidator.validate.mockReturnValueOnce();
       mockedIdRegisteredValidator.validate.mockResolvedValueOnce();
+      mockedInUseValidator.validate.mockResolvedValueOnce();
       mockedRepository.delete.mockResolvedValueOnce();
 
       await sut.delete(inputId);
@@ -85,6 +89,7 @@ describe("DeleteMilitaryService", () => {
       mockedSanitizer.sanitize.mockReturnValueOnce(sanitizedId);
       mockedIdValidator.validate.mockReturnValueOnce();
       mockedIdRegisteredValidator.validate.mockResolvedValueOnce();
+      mockedInUseValidator.validate.mockResolvedValueOnce();
       mockedRepository.delete.mockResolvedValueOnce();
 
       await sut.delete(inputId);
@@ -93,7 +98,20 @@ describe("DeleteMilitaryService", () => {
       expect(mockedRepository.delete).toHaveBeenCalledTimes(1);
     });
 
-    it("should execute operations in correct order", async () => {
+    it("should call inUseValidator during additional validations", async () => {
+      mockedSanitizer.sanitize.mockReturnValueOnce(sanitizedId);
+      mockedIdValidator.validate.mockReturnValueOnce();
+      mockedIdRegisteredValidator.validate.mockResolvedValueOnce();
+      mockedInUseValidator.validate.mockResolvedValueOnce();
+      mockedRepository.delete.mockResolvedValueOnce();
+
+      await sut.delete(inputId);
+
+      expect(mockedInUseValidator.validate).toHaveBeenCalledWith(sanitizedId);
+      expect(mockedInUseValidator.validate).toHaveBeenCalledTimes(1);
+    });
+
+    it("should execute operations in correct order without requestingUserRole", async () => {
       const executionOrder: string[] = [];
 
       mockedSanitizer.sanitize.mockImplementation(() => {
@@ -109,6 +127,10 @@ describe("DeleteMilitaryService", () => {
         executionOrder.push("idRegisteredValidate");
       });
 
+      mockedInUseValidator.validate.mockImplementation(async () => {
+        executionOrder.push("inUseValidate");
+      });
+
       mockedRepository.delete.mockImplementation(async () => {
         executionOrder.push("delete");
       });
@@ -119,6 +141,50 @@ describe("DeleteMilitaryService", () => {
         "sanitize",
         "idValidate",
         "idRegisteredValidate",
+        "inUseValidate",
+        "delete",
+      ]);
+    });
+
+    it("should execute operations in correct order with requestingUserRole", async () => {
+      const executionOrder: string[] = [];
+      const userRole = "ADMIN" as any;
+
+      mockedSanitizer.sanitize.mockImplementation(() => {
+        executionOrder.push("sanitize");
+        return sanitizedId;
+      });
+
+      mockedIdValidator.validate.mockImplementation(() => {
+        executionOrder.push("idValidate");
+      });
+
+      mockedIdRegisteredValidator.validate.mockImplementation(async () => {
+        executionOrder.push("idRegisteredValidate");
+      });
+
+      mockedDeletionPermissionValidator.validate.mockImplementation(
+        async () => {
+          executionOrder.push("deletionPermissionValidate");
+        },
+      );
+
+      mockedInUseValidator.validate.mockImplementation(async () => {
+        executionOrder.push("inUseValidate");
+      });
+
+      mockedRepository.delete.mockImplementation(async () => {
+        executionOrder.push("delete");
+      });
+
+      await sut.delete(inputId, userRole);
+
+      expect(executionOrder).toEqual([
+        "sanitize",
+        "idValidate",
+        "idRegisteredValidate",
+        "deletionPermissionValidate",
+        "inUseValidate",
         "delete",
       ]);
     });
@@ -129,6 +195,7 @@ describe("DeleteMilitaryService", () => {
       mockedSanitizer.sanitize.mockReturnValueOnce(differentSanitizedId);
       mockedIdValidator.validate.mockReturnValueOnce();
       mockedIdRegisteredValidator.validate.mockResolvedValueOnce();
+      mockedInUseValidator.validate.mockResolvedValueOnce();
       mockedRepository.delete.mockResolvedValueOnce();
 
       await sut.delete(inputId);
@@ -137,6 +204,9 @@ describe("DeleteMilitaryService", () => {
         differentSanitizedId,
       );
       expect(mockedIdRegisteredValidator.validate).toHaveBeenCalledWith(
+        differentSanitizedId,
+      );
+      expect(mockedInUseValidator.validate).toHaveBeenCalledWith(
         differentSanitizedId,
       );
       expect(mockedRepository.delete).toHaveBeenCalledWith(
@@ -190,6 +260,7 @@ describe("DeleteMilitaryService", () => {
       expect(mockedSanitizer.sanitize).toHaveBeenCalledTimes(1);
       expect(mockedIdValidator.validate).toHaveBeenCalledTimes(1);
       expect(mockedIdRegisteredValidator.validate).toHaveBeenCalledTimes(1);
+      expect(mockedInUseValidator.validate).not.toHaveBeenCalled();
       expect(mockedRepository.delete).not.toHaveBeenCalled();
     });
 
@@ -199,6 +270,7 @@ describe("DeleteMilitaryService", () => {
       mockedSanitizer.sanitize.mockReturnValueOnce(sanitizedId);
       mockedIdValidator.validate.mockReturnValueOnce();
       mockedIdRegisteredValidator.validate.mockResolvedValueOnce();
+      mockedInUseValidator.validate.mockResolvedValueOnce();
       mockedRepository.delete.mockRejectedValueOnce(repositoryError);
 
       await expect(sut.delete(inputId)).rejects.toThrow(repositoryError);
@@ -206,6 +278,7 @@ describe("DeleteMilitaryService", () => {
       expect(mockedSanitizer.sanitize).toHaveBeenCalledTimes(1);
       expect(mockedIdValidator.validate).toHaveBeenCalledTimes(1);
       expect(mockedIdRegisteredValidator.validate).toHaveBeenCalledTimes(1);
+      expect(mockedInUseValidator.validate).toHaveBeenCalledTimes(1);
       expect(mockedRepository.delete).toHaveBeenCalledTimes(1);
     });
 
@@ -215,12 +288,16 @@ describe("DeleteMilitaryService", () => {
       mockedSanitizer.sanitize.mockReturnValueOnce(emptySanitizedId);
       mockedIdValidator.validate.mockReturnValueOnce();
       mockedIdRegisteredValidator.validate.mockResolvedValueOnce();
+      mockedInUseValidator.validate.mockResolvedValueOnce();
       mockedRepository.delete.mockResolvedValueOnce();
 
       await sut.delete(inputId);
 
       expect(mockedIdValidator.validate).toHaveBeenCalledWith(emptySanitizedId);
       expect(mockedIdRegisteredValidator.validate).toHaveBeenCalledWith(
+        emptySanitizedId,
+      );
+      expect(mockedInUseValidator.validate).toHaveBeenCalledWith(
         emptySanitizedId,
       );
       expect(mockedRepository.delete).toHaveBeenCalledWith(emptySanitizedId);
@@ -230,6 +307,7 @@ describe("DeleteMilitaryService", () => {
       mockedSanitizer.sanitize.mockReturnValueOnce(sanitizedId);
       mockedIdValidator.validate.mockReturnValueOnce();
       mockedIdRegisteredValidator.validate.mockResolvedValueOnce();
+      mockedInUseValidator.validate.mockResolvedValueOnce();
       mockedRepository.delete.mockResolvedValueOnce();
 
       const result = await sut.delete(inputId);
@@ -253,6 +331,10 @@ describe("DeleteMilitaryService", () => {
         .mockResolvedValueOnce()
         .mockResolvedValueOnce();
 
+      mockedInUseValidator.validate
+        .mockResolvedValueOnce()
+        .mockResolvedValueOnce();
+
       mockedRepository.delete.mockResolvedValueOnce().mockResolvedValueOnce();
 
       await Promise.all([sut.delete(id1), sut.delete(id2)]);
@@ -260,6 +342,7 @@ describe("DeleteMilitaryService", () => {
       expect(mockedSanitizer.sanitize).toHaveBeenCalledTimes(2);
       expect(mockedIdValidator.validate).toHaveBeenCalledTimes(2);
       expect(mockedIdRegisteredValidator.validate).toHaveBeenCalledTimes(2);
+      expect(mockedInUseValidator.validate).toHaveBeenCalledTimes(2);
       expect(mockedRepository.delete).toHaveBeenCalledTimes(2);
 
       expect(mockedSanitizer.sanitize).toHaveBeenNthCalledWith(1, id1);
@@ -273,6 +356,7 @@ describe("DeleteMilitaryService", () => {
       mockedSanitizer.sanitize.mockReturnValueOnce(sanitizedUuidId);
       mockedIdValidator.validate.mockReturnValueOnce();
       mockedIdRegisteredValidator.validate.mockResolvedValueOnce();
+      mockedInUseValidator.validate.mockResolvedValueOnce();
       mockedRepository.delete.mockResolvedValueOnce();
 
       await sut.delete(uuidId);
@@ -283,6 +367,114 @@ describe("DeleteMilitaryService", () => {
         sanitizedUuidId,
       );
       expect(mockedRepository.delete).toHaveBeenCalledWith(sanitizedUuidId);
+    });
+  });
+
+  describe("delete with requestingUserRole", () => {
+    const inputId = "military-id-123";
+    const sanitizedId = "clean-military-id-123";
+    const userRole = "ADMIN" as any;
+
+    beforeEach(() => {
+      mockedSanitizer.sanitize.mockReturnValue(sanitizedId);
+      mockedIdValidator.validate.mockReturnValue();
+      mockedIdRegisteredValidator.validate.mockResolvedValue();
+      mockedDeletionPermissionValidator.validate.mockResolvedValue();
+      mockedInUseValidator.validate.mockResolvedValue();
+      mockedRepository.delete.mockResolvedValue();
+    });
+
+    it("should delete military successfully with requestingUserRole", async () => {
+      await expect(sut.delete(inputId, userRole)).resolves.not.toThrow();
+    });
+
+    it("should call deletionPermissionValidator with sanitized id and user role", async () => {
+      await sut.delete(inputId, userRole);
+
+      expect(mockedDeletionPermissionValidator.validate).toHaveBeenCalledWith(
+        sanitizedId,
+        userRole,
+      );
+      expect(mockedDeletionPermissionValidator.validate).toHaveBeenCalledTimes(
+        1,
+      );
+    });
+
+    it("should not call deletionPermissionValidator when requestingUserRole is undefined", async () => {
+      await sut.delete(inputId, undefined);
+
+      expect(mockedDeletionPermissionValidator.validate).not.toHaveBeenCalled();
+    });
+
+    it("should not call deletionPermissionValidator when requestingUserRole is null", async () => {
+      await sut.delete(inputId, null as any);
+
+      expect(mockedDeletionPermissionValidator.validate).not.toHaveBeenCalled();
+    });
+
+    it("should propagate deletionPermissionValidator exceptions", async () => {
+      const permissionError = new Error("No permission to delete");
+      mockedDeletionPermissionValidator.validate.mockRejectedValueOnce(
+        permissionError,
+      );
+
+      await expect(sut.delete(inputId, userRole)).rejects.toThrow(
+        permissionError,
+      );
+
+      expect(mockedSanitizer.sanitize).toHaveBeenCalledTimes(1);
+      expect(mockedIdValidator.validate).toHaveBeenCalledTimes(1);
+      expect(mockedIdRegisteredValidator.validate).toHaveBeenCalledTimes(1);
+      expect(mockedDeletionPermissionValidator.validate).toHaveBeenCalledTimes(
+        1,
+      );
+      expect(mockedInUseValidator.validate).not.toHaveBeenCalled();
+      expect(mockedRepository.delete).not.toHaveBeenCalled();
+    });
+
+    it("should call all validators with requestingUserRole", async () => {
+      await sut.delete(inputId, userRole);
+
+      expect(mockedSanitizer.sanitize).toHaveBeenCalledTimes(1);
+      expect(mockedIdValidator.validate).toHaveBeenCalledTimes(1);
+      expect(mockedIdRegisteredValidator.validate).toHaveBeenCalledTimes(1);
+      expect(mockedDeletionPermissionValidator.validate).toHaveBeenCalledTimes(
+        1,
+      );
+      expect(mockedInUseValidator.validate).toHaveBeenCalledTimes(1);
+      expect(mockedRepository.delete).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("performAdditionalValidations", () => {
+    const inputId = "military-id-123";
+    const sanitizedId = "clean-military-id-123";
+
+    beforeEach(() => {
+      mockedSanitizer.sanitize.mockReturnValue(sanitizedId);
+      mockedIdValidator.validate.mockReturnValue();
+      mockedIdRegisteredValidator.validate.mockResolvedValue();
+      mockedInUseValidator.validate.mockResolvedValue();
+      mockedRepository.delete.mockResolvedValue();
+    });
+
+    it("should propagate inUseValidator exceptions", async () => {
+      const inUseError = new Error("Military is in use");
+      mockedInUseValidator.validate.mockRejectedValueOnce(inUseError);
+
+      await expect(sut.delete(inputId)).rejects.toThrow(inUseError);
+
+      expect(mockedSanitizer.sanitize).toHaveBeenCalledTimes(1);
+      expect(mockedIdValidator.validate).toHaveBeenCalledTimes(1);
+      expect(mockedIdRegisteredValidator.validate).toHaveBeenCalledTimes(1);
+      expect(mockedInUseValidator.validate).toHaveBeenCalledTimes(1);
+      expect(mockedRepository.delete).not.toHaveBeenCalled();
+    });
+
+    it("should call inUseValidator with correct parameters", async () => {
+      await sut.delete(inputId);
+
+      expect(mockedInUseValidator.validate).toHaveBeenCalledWith(sanitizedId);
     });
   });
 });

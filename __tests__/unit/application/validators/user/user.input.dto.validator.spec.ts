@@ -1,8 +1,8 @@
 import {
+  mockIdValidator,
   mockMilitaryRepository,
   mockUserRepository,
-} from "../../../../../__mocks__/repositories";
-import { mockIdValidator } from "../../../../../__mocks__/validators";
+} from "../../../../../__mocks__";
 import {
   DuplicatedKeyError,
   EntityNotFoundError,
@@ -384,6 +384,100 @@ describe("UserInputDTOValidator", () => {
         await expect(
           sut.validate(validInputData, undefined, idToIgnore),
         ).rejects.toThrow(new DuplicatedKeyError("Militar"));
+      });
+    });
+
+    describe("Role creation permission validation", () => {
+      it("should validate successfully when no requesting user role is provided", async () => {
+        await expect(
+          sut.validate(validInputData, undefined),
+        ).resolves.not.toThrow();
+      });
+
+      it("should validate successfully when requesting user is ADMIN", async () => {
+        await expect(
+          sut.validate(validInputData, UserRole.ADMIN),
+        ).resolves.not.toThrow();
+      });
+
+      it("should validate successfully when CHEFE creates ACA user", async () => {
+        const inputData: UserInputDTO = {
+          ...validInputData,
+          role: UserRole.ACA,
+        };
+
+        await expect(
+          sut.validate(inputData, UserRole.CHEFE),
+        ).resolves.not.toThrow();
+      });
+
+      it("should validate successfully when CHEFE creates BOMBEIRO user", async () => {
+        const inputData: UserInputDTO = {
+          ...validInputData,
+          role: UserRole.BOMBEIRO,
+        };
+
+        await expect(
+          sut.validate(inputData, UserRole.CHEFE),
+        ).resolves.not.toThrow();
+      });
+
+      it("should throw InvalidParamError when CHEFE tries to create ADMIN user", async () => {
+        const inputData: UserInputDTO = {
+          ...validInputData,
+          role: UserRole.ADMIN,
+        };
+
+        await expect(sut.validate(inputData, UserRole.CHEFE)).rejects.toThrow(
+          new InvalidParamError(
+            "Função",
+            "Chefe só pode criar usuários ACA ou Bombeiro",
+          ),
+        );
+      });
+
+      it("should throw InvalidParamError when CHEFE tries to create CHEFE user", async () => {
+        const inputData: UserInputDTO = {
+          ...validInputData,
+          role: UserRole.CHEFE,
+        };
+
+        await expect(sut.validate(inputData, UserRole.CHEFE)).rejects.toThrow(
+          new InvalidParamError(
+            "Função",
+            "Chefe só pode criar usuários ACA ou Bombeiro",
+          ),
+        );
+      });
+
+      it("should throw InvalidParamError when ACA tries to create any user", async () => {
+        const inputData: UserInputDTO = {
+          ...validInputData,
+          role: UserRole.BOMBEIRO,
+        };
+
+        await expect(sut.validate(inputData, UserRole.ACA)).rejects.toThrow(
+          new InvalidParamError(
+            "Função",
+            "usuário não tem permissão para criar outros usuários",
+          ),
+        );
+      });
+
+      it("should throw InvalidParamError when BOMBEIRO tries to create any user", async () => {
+        const inputData: UserInputDTO = {
+          ...validInputData,
+          role: UserRole.ACA,
+        };
+
+        await expect(
+          sut.validate(inputData, UserRole.BOMBEIRO),
+        ).rejects.toThrow(
+          new InvalidParamError(
+            "Função",
+            "usuário não tem permissão para criar outros usuários",
+          ),
+        );
       });
     });
 
