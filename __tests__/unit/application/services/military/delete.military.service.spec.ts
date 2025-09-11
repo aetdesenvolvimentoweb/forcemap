@@ -1,6 +1,7 @@
 import {
   mockIdSanitizer,
   mockIdValidator,
+  mockMilitaryDeletionPermissionValidator,
   mockMilitaryIdRegisteredValidator,
   mockMilitaryInUseValidator,
   mockMilitaryRepository,
@@ -14,6 +15,8 @@ describe("DeleteMilitaryService", () => {
   let mockedIdValidator = mockIdValidator();
   let mockedIdRegisteredValidator = mockMilitaryIdRegisteredValidator();
   let mockedInUseValidator = mockMilitaryInUseValidator();
+  let mockedDeletionPermissionValidator =
+    mockMilitaryDeletionPermissionValidator();
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -23,6 +26,7 @@ describe("DeleteMilitaryService", () => {
       idValidator: mockedIdValidator,
       idRegisteredValidator: mockedIdRegisteredValidator,
       inUseValidator: mockedInUseValidator,
+      deletionPermissionValidator: mockedDeletionPermissionValidator,
     });
   });
 
