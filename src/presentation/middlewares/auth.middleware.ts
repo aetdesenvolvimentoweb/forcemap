@@ -1,12 +1,11 @@
-import { LoggerProtocol } from "../../application/protocols";
-import { JWTService } from "../../application/services/auth/jwt.service";
+import { JWTProtocol, LoggerProtocol } from "../../application/protocols";
 import { UnauthorizedError } from "../../domain/errors";
-import { SessionRepository } from "../../domain/repositories/session.repository";
+import { SessionRepository } from "../../domain/repositories";
 import { HttpRequest, HttpResponse } from "../protocols";
 import { badRequest } from "../utils";
 
 interface AuthMiddlewareProps {
-  jwtService: JWTService;
+  jwtService: JWTProtocol;
   sessionRepository: SessionRepository;
   logger: LoggerProtocol;
 }

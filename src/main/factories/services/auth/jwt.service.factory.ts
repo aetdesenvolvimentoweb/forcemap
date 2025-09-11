@@ -1,5 +1,6 @@
-import { JWTService } from "../../../../application/services/auth/jwt.service";
+import { JWTProtocol } from "../../../../application/protocols/jwt.protocol";
+import { JsonWebTokenJWTAdapter } from "../../../../infra/adapters/jsonwebtoken.jwt.adapter";
 
-export const makeJWTService = (): JWTService => {
-  return new JWTService();
+export const makeJWTService = (): JWTProtocol => {
+  return new JsonWebTokenJWTAdapter();
 };

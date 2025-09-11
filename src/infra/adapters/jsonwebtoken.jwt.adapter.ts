@@ -6,11 +6,11 @@ import {
   verify,
 } from "jsonwebtoken";
 
-import { JWTPayload, RefreshTokenPayload } from "../../../domain/entities";
-import { InvalidParamError, UnauthorizedError } from "../../errors";
-import { JWTProtocol } from "../../protocols/jwt.protocol";
+import { InvalidParamError, UnauthorizedError } from "../../application/errors";
+import { JWTProtocol } from "../../application/protocols";
+import { JWTPayload, RefreshTokenPayload } from "../../domain/entities";
 
-export class JWTService implements JWTProtocol {
+export class JsonWebTokenJWTAdapter implements JWTProtocol {
   private readonly accessTokenSecret: string;
   private readonly refreshTokenSecret: string;
   private readonly accessTokenExpiry: string;

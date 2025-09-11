@@ -2,13 +2,13 @@ import {
   InvalidParamError,
   UnauthorizedError,
 } from "../../../../../src/application/errors";
-import { JWTService } from "../../../../../src/application/services";
+import { JsonWebTokenJWTAdapter } from "../../../../../src/infra/adapters";
 
 // Mock jsonwebtoken
 jest.mock("jsonwebtoken");
 
-describe("JWTService", () => {
-  let sut: JWTService;
+describe("JsonWebTokenJWTAdapter", () => {
+  let sut: JsonWebTokenJWTAdapter;
   let mockSign: jest.Mock;
   let mockVerify: jest.Mock;
 
@@ -31,7 +31,7 @@ describe("JWTService", () => {
       JWT_REFRESH_EXPIRY: "7d",
     };
 
-    sut = new JWTService();
+    sut = new JsonWebTokenJWTAdapter();
   });
 
   afterAll(() => {
@@ -45,7 +45,7 @@ describe("JWTService", () => {
       process.env.JWT_ACCESS_EXPIRY = "30m";
       process.env.JWT_REFRESH_EXPIRY = "14d";
 
-      const service = new JWTService();
+      const service = new JsonWebTokenJWTAdapter();
 
       // Test by generating a token to verify secrets are used
       const payload = {
@@ -71,7 +71,7 @@ describe("JWTService", () => {
       delete process.env.JWT_ACCESS_EXPIRY;
       delete process.env.JWT_REFRESH_EXPIRY;
 
-      const service = new JWTService();
+      const service = new JsonWebTokenJWTAdapter();
 
       const payload = {
         userId: "user-123",
