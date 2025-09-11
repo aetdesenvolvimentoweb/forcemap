@@ -1,11 +1,35 @@
 import { UserRepository } from "../../../domain/repositories";
-import { PasswordHasherProtocol } from "../../protocols";
-import { UserSanitizationService } from "./user-sanitization.service";
-import { UserValidationService } from "./user-validation.service";
+import {
+  IdSanitizerProtocol,
+  IdValidatorProtocol,
+  PasswordHasherProtocol,
+  UpdateUserPasswordSanitizerProtocol,
+  UpdateUserPasswordValidatorProtocol,
+  UpdateUserRoleSanitizerProtocol,
+  UpdateUserRoleValidatorProtocol,
+  UserCredentialsInputDTOSanitizerProtocol,
+  UserCredentialsInputDTOValidatorProtocol,
+  UserIdRegisteredValidatorProtocol,
+  UserInputDTOSanitizerProtocol,
+  UserInputDTOValidatorProtocol,
+} from "../../protocols";
 
 export interface UserDomainServices {
   repository: UserRepository;
-  validation: UserValidationService;
-  sanitization: UserSanitizationService;
   passwordHasher: PasswordHasherProtocol;
+
+  // Validators
+  idValidator: IdValidatorProtocol;
+  userIdRegisteredValidator: UserIdRegisteredValidatorProtocol;
+  userInputDTOValidator: UserInputDTOValidatorProtocol;
+  userCredentialsInputDTOValidator: UserCredentialsInputDTOValidatorProtocol;
+  updateUserPasswordValidator: UpdateUserPasswordValidatorProtocol;
+  updateUserRoleValidator: UpdateUserRoleValidatorProtocol;
+
+  // Sanitizers
+  idSanitizer: IdSanitizerProtocol;
+  userInputDTOSanitizer: UserInputDTOSanitizerProtocol;
+  userCredentialsInputDTOSanitizer: UserCredentialsInputDTOSanitizerProtocol;
+  updateUserPasswordSanitizer: UpdateUserPasswordSanitizerProtocol;
+  updateUserRoleSanitizer: UpdateUserRoleSanitizerProtocol;
 }

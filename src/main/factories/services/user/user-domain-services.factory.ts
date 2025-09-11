@@ -5,21 +5,66 @@ import {
   makeMilitaryRepository,
   makeUserRepository,
 } from "../../repositories";
-import { makeUserSanitizationService } from "./user-sanitization.service.factory";
-import { makeUserValidationService } from "./user-validation.service.factory";
+import {
+  makeIdSanitizer,
+  makeUpdateUserPasswordSanitizer,
+  makeUpdateUserRoleSanitizer,
+  makeUserCredentialsInputDTOSanitizer,
+  makeUserInputDTOSanitizer,
+} from "../../sanitizers";
+import {
+  makeIdValidator,
+  makeUpdateUserPasswordValidator,
+  makeUpdateUserRoleValidator,
+  makeUserCredentialsInputDTOValidator,
+  makeUserIdRegisteredValidator,
+  makeUserInputDTOValidator,
+} from "../../validators";
 
 export const makeUserDomainServices = (): UserDomainServices => {
   const militaryRankRepository = makeMilitaryRankRepository();
   const militaryRepository = makeMilitaryRepository(militaryRankRepository);
   const repository = makeUserRepository(militaryRepository);
-  const validation = makeUserValidationService();
-  const sanitization = makeUserSanitizationService();
   const passwordHasher = makePasswordHasher();
+
+  // Validators
+  const idValidator = makeIdValidator();
+  const userIdRegisteredValidator = makeUserIdRegisteredValidator(repository);
+  const userInputDTOValidator = makeUserInputDTOValidator(
+    repository,
+    idValidator,
+    militaryRepository,
+  );
+  const userCredentialsInputDTOValidator =
+    makeUserCredentialsInputDTOValidator();
+  const updateUserPasswordValidator = makeUpdateUserPasswordValidator();
+  const updateUserRoleValidator = makeUpdateUserRoleValidator();
+
+  // Sanitizers
+  const idSanitizer = makeIdSanitizer();
+  const userInputDTOSanitizer = makeUserInputDTOSanitizer(idSanitizer);
+  const userCredentialsInputDTOSanitizer =
+    makeUserCredentialsInputDTOSanitizer();
+  const updateUserPasswordSanitizer = makeUpdateUserPasswordSanitizer();
+  const updateUserRoleSanitizer = makeUpdateUserRoleSanitizer();
 
   return {
     repository,
-    validation,
-    sanitization,
     passwordHasher,
+
+    // Validators
+    idValidator,
+    userIdRegisteredValidator,
+    userInputDTOValidator,
+    userCredentialsInputDTOValidator,
+    updateUserPasswordValidator,
+    updateUserRoleValidator,
+
+    // Sanitizers
+    idSanitizer,
+    userInputDTOSanitizer,
+    userCredentialsInputDTOSanitizer,
+    updateUserPasswordSanitizer,
+    updateUserRoleSanitizer,
   };
 };

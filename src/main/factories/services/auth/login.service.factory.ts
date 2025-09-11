@@ -5,7 +5,7 @@ import {
   makeMilitaryRepository,
   makeUserRepository,
 } from "../../repositories";
-import { makeUserSanitizationService } from "../user";
+import { makeUserCredentialsInputDTOSanitizer } from "../../sanitizers";
 import { makeRateLimiterService } from "./rate-limiter.service.factory";
 import { makeSessionService } from "./session.service.factory";
 import { makeTokenService } from "./token.service.factory";
@@ -16,7 +16,8 @@ export const makeLoginService = (): LoginService => {
   const userRepository = makeUserRepository(militaryRepository);
   const sessionService = makeSessionService();
   const tokenService = makeTokenService();
-  const userSanitization = makeUserSanitizationService();
+  const userCredentialsInputDTOSanitizer =
+    makeUserCredentialsInputDTOSanitizer();
   const passwordHasher = makePasswordHasher();
   const rateLimiter = makeRateLimiterService();
 
@@ -25,7 +26,7 @@ export const makeLoginService = (): LoginService => {
     militaryRepository,
     sessionService,
     tokenService,
-    userSanitization,
+    userCredentialsInputDTOSanitizer,
     passwordHasher,
     rateLimiter,
   });

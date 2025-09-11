@@ -4,11 +4,11 @@ import {
   makeMilitaryRepository,
   makeUserRepository,
 } from "../../repositories";
-import { makeIdSanitizer, makeUserRoleSanitizer } from "../../sanitizers";
+import { makeIdSanitizer, makeUpdateUserRoleSanitizer } from "../../sanitizers";
 import {
   makeIdValidator,
+  makeUpdateUserRoleValidator,
   makeUserIdRegisteredValidator,
-  makeUserRoleValidator,
 } from "../../validators";
 
 export const makeUpdateUserRoleService = (): UpdateUserRoleService => {
@@ -18,8 +18,8 @@ export const makeUpdateUserRoleService = (): UpdateUserRoleService => {
   const idSanitizer = makeIdSanitizer();
   const idValidator = makeIdValidator();
   const idRegisteredValidator = makeUserIdRegisteredValidator(userRepository);
-  const updateUserRoleSanitizer = makeUserRoleSanitizer();
-  const updateUserRoleValidator = makeUserRoleValidator();
+  const updateUserRoleSanitizer = makeUpdateUserRoleSanitizer();
+  const updateUserRoleValidator = makeUpdateUserRoleValidator();
 
   return new UpdateUserRoleService({
     idRegisteredValidator,

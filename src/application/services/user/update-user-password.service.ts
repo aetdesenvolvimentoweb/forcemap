@@ -10,13 +10,18 @@ export class UpdateUserPasswordService implements UpdateUserPasswordUseCase {
     id: string,
     data: UpdateUserInputDTO,
   ): Promise<void> => {
-    const { repository, validation, sanitization, passwordHasher } =
-      this.dependencies;
+    const {
+      repository,
+      passwordHasher,
+      idSanitizer,
+      updateUserPasswordSanitizer,
+      updateUserPasswordValidator,
+    } = this.dependencies;
 
-    const sanitizedUserId = sanitization.sanitizeId(id);
-    const sanitizedData = sanitization.sanitizePasswordUpdate(data);
+    const sanitizedUserId = idSanitizer.sanitize(id);
+    const sanitizedData = updateUserPasswordSanitizer.sanitize(data);
 
-    await validation.validateUserPasswordUpdate(sanitizedUserId, sanitizedData);
+    await updateUserPasswordValidator.validate(sanitizedData);
 
     const user = await repository.findByIdWithPassword(sanitizedUserId);
     if (!user) throw new EntityNotFoundError("Usuário");

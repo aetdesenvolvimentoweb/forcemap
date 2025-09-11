@@ -6,5 +6,3 @@ export * from "./list-all.user.service.factory";
 export * from "./update-user-password.service.factory";
 export * from "./update-user-role.service.factory";
 export * from "./user-domain-services.factory";
-export * from "./user-sanitization.service.factory";
-export * from "./user-validation.service.factory";

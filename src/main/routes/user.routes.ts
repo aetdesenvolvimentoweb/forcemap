@@ -23,13 +23,13 @@ userRoutes.post(
 
 userRoutes.delete(
   "/user/:id",
-  requireAuthWithRoles(["Admin"]),
+  requireAuthWithRoles(["Admin", "Chefe"]),
   expressRouteAdapter(makeDeleteUserController()),
 );
 
 userRoutes.patch(
   "/user/update-role/:id",
-  requireAuthWithRoles(["Admin"]),
+  requireAuthWithRoles(["Admin", "Chefe"]),
   expressRouteAdapter(makeUpdateUserRoleController()),
 );
 

@@ -12,8 +12,11 @@ import {
   TooManyRequestsError,
   UnauthorizedError,
 } from "../../errors";
-import { PasswordHasherProtocol, RateLimiterProtocol } from "../../protocols";
-import { UserSanitizationService } from "../user";
+import {
+  PasswordHasherProtocol,
+  RateLimiterProtocol,
+  UserCredentialsInputDTOSanitizerProtocol,
+} from "../../protocols";
 import { SessionService } from "./session.service";
 import { TokenService } from "./token.service";
 
@@ -22,7 +25,7 @@ interface LoginServiceDependencies {
   militaryRepository: MilitaryRepository;
   sessionService: SessionService;
   tokenService: TokenService;
-  userSanitization: UserSanitizationService;
+  userCredentialsInputDTOSanitizer: UserCredentialsInputDTOSanitizerProtocol;
   passwordHasher: PasswordHasherProtocol;
   rateLimiter: RateLimiterProtocol;
 }
@@ -40,7 +43,7 @@ export class LoginService {
       militaryRepository,
       sessionService,
       tokenService,
-      userSanitization,
+      userCredentialsInputDTOSanitizer,
       passwordHasher,
       rateLimiter,
     } = this.dependencies;
@@ -62,7 +65,8 @@ export class LoginService {
     }
 
     // Sanitize credentials
-    const sanitizedCredentials = userSanitization.sanitizeUserCredentials(data);
+    const sanitizedCredentials =
+      userCredentialsInputDTOSanitizer.sanitize(data);
 
     // Rate limiting by RG
     const rgLimitKey = `login:rg:${sanitizedCredentials.rg}`;

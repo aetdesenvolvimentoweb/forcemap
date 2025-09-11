@@ -10,11 +10,15 @@ export class CreateUserService implements CreateUserUseCase {
     data: UserInputDTO,
     requestingUserRole?: UserRole,
   ): Promise<void> => {
-    const { repository, validation, sanitization, passwordHasher } =
-      this.dependencies;
+    const {
+      repository,
+      passwordHasher,
+      userInputDTOSanitizer,
+      userInputDTOValidator,
+    } = this.dependencies;
 
-    const sanitizedData = sanitization.sanitizeUserCreation(data);
-    await validation.validateUserCreation(sanitizedData, requestingUserRole);
+    const sanitizedData = userInputDTOSanitizer.sanitize(data);
+    await userInputDTOValidator.validate(sanitizedData, requestingUserRole);
 
     const hashedPassword = await passwordHasher.hash(sanitizedData.password);
     const userDataWithHashedPassword = {
