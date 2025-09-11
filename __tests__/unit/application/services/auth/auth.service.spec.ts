@@ -91,6 +91,7 @@ describe("AuthService", () => {
       deactivateAllUserSessions: jest.fn(),
       deactivateSession: jest.fn(),
       updateToken: jest.fn(),
+      updateRefreshToken: jest.fn(),
     };
 
     // Mock services
@@ -165,10 +166,24 @@ describe("AuthService", () => {
       mockPasswordHasher.compare.mockResolvedValue(true);
       mockJwtService.generateAccessToken.mockReturnValue("access-token");
       mockJwtService.generateRefreshToken.mockReturnValue("refresh-token");
-      mockSessionRepository.create.mockResolvedValue(undefined);
+      mockSessionRepository.create.mockResolvedValue({
+        id: "session-123",
+        userId: "user-123",
+        token: "temp",
+        refreshToken: "temp",
+        deviceInfo: "Test Device",
+        ipAddress: "192.168.1.1",
+        userAgent: "Test Agent",
+        isActive: true,
+        expiresAt: new Date(),
+        createdAt: new Date(),
+        lastAccessAt: new Date(),
+      });
       mockSessionRepository.deactivateAllUserSessions.mockResolvedValue(
         undefined,
       );
+      mockSessionRepository.updateToken.mockResolvedValue(undefined);
+      mockSessionRepository.updateRefreshToken.mockResolvedValue(undefined);
       mockRateLimiter.recordAttempt.mockResolvedValue(undefined);
       mockRateLimiter.reset.mockResolvedValue(undefined);
     });
@@ -658,6 +673,24 @@ describe("AuthService", () => {
       mockPasswordHasher.compare.mockResolvedValue(true);
       mockJwtService.generateAccessToken.mockReturnValue("access-token");
       mockJwtService.generateRefreshToken.mockReturnValue("refresh-token");
+      mockSessionRepository.create.mockResolvedValue({
+        id: "session-123",
+        userId: "user-123",
+        token: "temp",
+        refreshToken: "temp",
+        deviceInfo: "Test Device",
+        ipAddress: "192.168.1.1",
+        userAgent: "Test Agent",
+        isActive: true,
+        expiresAt: new Date(),
+        createdAt: new Date(),
+        lastAccessAt: new Date(),
+      });
+      mockSessionRepository.deactivateAllUserSessions.mockResolvedValue(
+        undefined,
+      );
+      mockSessionRepository.updateToken.mockResolvedValue(undefined);
+      mockSessionRepository.updateRefreshToken.mockResolvedValue(undefined);
 
       // Login
       const loginResult = await sut.login(

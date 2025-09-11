@@ -102,6 +102,19 @@ export class SessionRepositoryInMemory implements SessionRepository {
     }
   };
 
+  public readonly updateRefreshToken = async (
+    sessionId: string,
+    newRefreshToken: string,
+  ): Promise<void> => {
+    const session = this.sessions.get(sessionId);
+
+    if (session) {
+      session.refreshToken = newRefreshToken;
+      session.lastAccessAt = new Date();
+      this.sessions.set(sessionId, session);
+    }
+  };
+
   public readonly deactivateSession = async (
     sessionId: string,
   ): Promise<void> => {

@@ -1,5 +1,3 @@
-import { randomUUID } from "crypto";
-
 import {
   LoginInputDTO,
   LoginOutputDTO,
@@ -9,15 +7,17 @@ import {
   MilitaryRepository,
   UserRepository,
 } from "../../../domain/repositories";
-import { SessionRepository } from "../../../domain/repositories/session.repository";
+import { SessionRepository } from "../../../domain/repositories";
 import {
   EntityNotFoundError,
   TooManyRequestsError,
   UnauthorizedError,
 } from "../../errors";
-import { PasswordHasherProtocol } from "../../protocols";
-import { JWTProtocol } from "../../protocols/jwt.protocol";
-import { RateLimiterProtocol } from "../../protocols/rate-limiter.protocol";
+import {
+  JWTProtocol,
+  PasswordHasherProtocol,
+  RateLimiterProtocol,
+} from "../../protocols";
 import { UserSanitizationService, UserValidationService } from "../user";
 
 interface AuthServiceDependencies {
@@ -123,37 +123,39 @@ export class AuthService {
       // **SINGLE SESSION CONTROL**: Deactivate any existing session for this user
       await sessionRepository.deactivateAllUserSessions(user.id);
 
-      // Create new session
-      const sessionId = randomUUID();
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + 7); // 7 days
 
       const deviceInfo = data.deviceInfo || `${userAgent.substring(0, 100)}`;
 
-      // Generate tokens
-      const accessToken = jwtService.generateAccessToken({
+      // Create session record first to get the sessionId
+      const session = await sessionRepository.create({
         userId: user.id,
-        sessionId,
-        role: user.role,
-        militaryId: user.militaryId,
-      });
-
-      const refreshToken = jwtService.generateRefreshToken({
-        userId: user.id,
-        sessionId,
-      });
-
-      // Create session record
-      await sessionRepository.create({
-        userId: user.id,
-        token: accessToken,
-        refreshToken,
+        token: "temp", // Temporary placeholder
+        refreshToken: "temp", // Temporary placeholder
         deviceInfo,
         ipAddress,
         userAgent,
         isActive: true,
         expiresAt,
       });
+
+      // Generate tokens using the real sessionId
+      const accessToken = jwtService.generateAccessToken({
+        userId: user.id,
+        sessionId: session.id,
+        role: user.role,
+        militaryId: user.militaryId,
+      });
+
+      const refreshToken = jwtService.generateRefreshToken({
+        userId: user.id,
+        sessionId: session.id,
+      });
+
+      // Update session with the real tokens
+      await sessionRepository.updateToken(session.id, accessToken);
+      await sessionRepository.updateRefreshToken(session.id, refreshToken);
 
       // Reset rate limiting on successful login
       await rateLimiter.reset(ipLimitKey);

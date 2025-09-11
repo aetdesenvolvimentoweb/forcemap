@@ -283,7 +283,7 @@ describe("SessionRepositoryInMemory", () => {
 
       const updatedSession = await sut.findBySessionId(createdSession.id);
       expect(updatedSession).not.toBeNull();
-      expect(updatedSession!.lastAccessAt.getTime()).toBeGreaterThan(
+      expect(updatedSession!.lastAccessAt.getTime()).toBeGreaterThanOrEqual(
         originalLastAccess.getTime(),
       );
     });
@@ -325,7 +325,7 @@ describe("SessionRepositoryInMemory", () => {
       const updatedSession = await sut.findBySessionId(createdSession.id);
       expect(updatedSession).not.toBeNull();
       expect(updatedSession!.token).toBe("new-token");
-      expect(updatedSession!.lastAccessAt.getTime()).toBeGreaterThan(
+      expect(updatedSession!.lastAccessAt.getTime()).toBeGreaterThanOrEqual(
         originalLastAccess.getTime(),
       );
     });

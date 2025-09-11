@@ -8,6 +8,7 @@ export const mockSessionRepository = (): jest.Mocked<SessionRepository> => ({
   findBySessionId: jest.fn(),
   findActiveByUserId: jest.fn(),
   updateToken: jest.fn(),
+  updateRefreshToken: jest.fn(),
   deactivateSession: jest.fn(),
   deactivateAllUserSessions: jest.fn(),
   deleteExpiredSessions: jest.fn(),
