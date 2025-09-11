@@ -1,13 +1,15 @@
 import { Router } from "express";
 
-import { expressRouteAdapter } from "../../infra/adapters";
+import {
+  ensureSeedMiddleware,
+  expressRouteAdapter,
+  requireAuth,
+} from "../../infra/adapters";
 import {
   makeLoginController,
   makeLogoutController,
   makeRefreshTokenController,
 } from "../factories/controllers/auth";
-import { requireAuth } from "../middlewares";
-import { ensureSeedMiddleware } from "../middlewares/seed.middleware";
 
 const authRoutes = Router();
 

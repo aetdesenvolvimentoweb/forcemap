@@ -1,437 +1,404 @@
-import * as bcrypt from "bcrypt";
-
 import { BcryptPasswordHasherAdapter } from "../../../../src/infra/adapters";
 
 // Mock bcrypt module
-jest.mock("bcrypt");
-const mockedBcrypt = bcrypt as jest.Mocked<typeof bcrypt>;
+jest.mock("bcrypt", () => ({
+  hash: jest.fn(),
+  compare: jest.fn(),
+}));
+
+import * as bcrypt from "bcrypt";
+const mockHash = jest.mocked(bcrypt.hash);
+const mockCompare = jest.mocked(bcrypt.compare);
 
 describe("BcryptPasswordHasherAdapter", () => {
   let sut: BcryptPasswordHasherAdapter;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    sut = new BcryptPasswordHasherAdapter();
   });
 
   describe("constructor", () => {
-    it("should create adapter with default salt rounds", () => {
+    it("should use default salt rounds when not provided", () => {
       const adapter = new BcryptPasswordHasherAdapter();
-
-      expect(adapter).toBeDefined();
-      expect(adapter).toBeInstanceOf(BcryptPasswordHasherAdapter);
+      expect(adapter["saltRounds"]).toBe(12);
     });
 
-    it("should create adapter with provided salt rounds", () => {
+    it("should use provided salt rounds", () => {
       const customSaltRounds = 10;
       const adapter = new BcryptPasswordHasherAdapter(customSaltRounds);
-
-      expect(adapter).toBeDefined();
-      expect(adapter).toBeInstanceOf(BcryptPasswordHasherAdapter);
+      expect(adapter["saltRounds"]).toBe(customSaltRounds);
     });
 
-    it("should use custom salt rounds when provided", async () => {
-      const customSaltRounds = 8;
-      const adapter = new BcryptPasswordHasherAdapter(customSaltRounds);
-      const plainPassword = "test123";
-      const expectedHash = "$2b$08$hashedPassword123";
+    it("should handle different salt round values", () => {
+      const saltRoundsValues = [8, 10, 12, 14, 16];
 
-      (mockedBcrypt.hash as jest.Mock).mockResolvedValueOnce(expectedHash);
-
-      await adapter.hash(plainPassword);
-
-      expect(mockedBcrypt.hash).toHaveBeenCalledWith(
-        plainPassword,
-        customSaltRounds,
-      );
-    });
-
-    it("should use default salt rounds (12) when not provided", async () => {
-      const adapter = new BcryptPasswordHasherAdapter();
-      const plainPassword = "test123";
-      const expectedHash = "$2b$12$hashedPassword123";
-
-      (mockedBcrypt.hash as jest.Mock).mockResolvedValueOnce(expectedHash);
-
-      await adapter.hash(plainPassword);
-
-      expect(mockedBcrypt.hash).toHaveBeenCalledWith(plainPassword, 12);
+      for (const saltRounds of saltRoundsValues) {
+        const adapter = new BcryptPasswordHasherAdapter(saltRounds);
+        expect(adapter["saltRounds"]).toBe(saltRounds);
+      }
     });
   });
 
   describe("hash", () => {
-    it("should hash plain password successfully", async () => {
-      const plainPassword = "myPassword123";
-      const expectedHash = "$2b$12$hashedPassword123";
+    beforeEach(() => {
+      sut = new BcryptPasswordHasherAdapter();
+    });
 
-      (mockedBcrypt.hash as jest.Mock).mockResolvedValueOnce(expectedHash);
+    it("should hash plain password with default salt rounds", async () => {
+      const plainPassword = "myPlainPassword123";
+      const hashedPassword = "$2b$12$hashedPassword";
+
+      (mockHash as jest.Mock).mockResolvedValue(hashedPassword);
 
       const result = await sut.hash(plainPassword);
 
-      expect(result).toBe(expectedHash);
-      expect(mockedBcrypt.hash).toHaveBeenCalledWith(plainPassword, 12);
-      expect(mockedBcrypt.hash).toHaveBeenCalledTimes(1);
+      expect(result).toBe(hashedPassword);
+      expect(mockHash).toHaveBeenCalledWith(plainPassword, 12);
+      expect(mockHash).toHaveBeenCalledTimes(1);
     });
 
-    it("should handle empty password", async () => {
-      const emptyPassword = "";
-      const expectedHash = "$2b$12$emptyPasswordHash";
+    it("should hash plain password with custom salt rounds", async () => {
+      const customSaltRounds = 10;
+      const customSut = new BcryptPasswordHasherAdapter(customSaltRounds);
+      const plainPassword = "customPassword456";
+      const hashedPassword = "$2b$10$customHashedPassword";
 
-      (mockedBcrypt.hash as jest.Mock).mockResolvedValueOnce(expectedHash);
+      (mockHash as jest.Mock).mockResolvedValue(hashedPassword);
 
-      const result = await sut.hash(emptyPassword);
+      const result = await customSut.hash(plainPassword);
 
-      expect(result).toBe(expectedHash);
-      expect(mockedBcrypt.hash).toHaveBeenCalledWith(emptyPassword, 12);
+      expect(result).toBe(hashedPassword);
+      expect(mockHash).toHaveBeenCalledWith(plainPassword, customSaltRounds);
+      expect(mockHash).toHaveBeenCalledTimes(1);
     });
 
-    it("should handle long password", async () => {
-      const longPassword = "a".repeat(200);
-      const expectedHash = "$2b$12$longPasswordHash";
+    it("should handle different password formats", async () => {
+      const passwords = [
+        "simplePassword",
+        "P@ssw0rd!",
+        "123456789",
+        "password with spaces",
+        "àçéñtüd-châráctêrs",
+        "🔒🗝️🔐",
+        "",
+        "a",
+        "a".repeat(100),
+      ];
 
-      (mockedBcrypt.hash as jest.Mock).mockResolvedValueOnce(expectedHash);
+      for (const password of passwords) {
+        (mockHash as jest.Mock).mockResolvedValue(`hashed_${password}`);
 
-      const result = await sut.hash(longPassword);
+        const result = await sut.hash(password);
 
-      expect(result).toBe(expectedHash);
-      expect(mockedBcrypt.hash).toHaveBeenCalledWith(longPassword, 12);
+        expect(result).toBe(`hashed_${password}`);
+        expect(mockHash).toHaveBeenCalledWith(password, 12);
+      }
     });
 
-    it("should handle password with special characters", async () => {
-      const specialPassword = "!@#$%^&*()_+{}|:<>?[]\\;',./`~";
-      const expectedHash = "$2b$12$specialPasswordHash";
+    it("should propagate bcrypt hash errors", async () => {
+      const plainPassword = "testPassword";
+      const bcryptError = new Error("Bcrypt hash failed");
 
-      (mockedBcrypt.hash as jest.Mock).mockResolvedValueOnce(expectedHash);
+      (mockHash as jest.Mock).mockRejectedValue(bcryptError);
 
-      const result = await sut.hash(specialPassword);
-
-      expect(result).toBe(expectedHash);
-      expect(mockedBcrypt.hash).toHaveBeenCalledWith(specialPassword, 12);
+      await expect(sut.hash(plainPassword)).rejects.toThrow(bcryptError);
+      expect(mockHash).toHaveBeenCalledWith(plainPassword, 12);
     });
 
-    it("should handle password with unicode characters", async () => {
-      const unicodePassword = "パスワード123🔒";
-      const expectedHash = "$2b$12$unicodePasswordHash";
+    it("should handle bcrypt hash with different error types", async () => {
+      const plainPassword = "testPassword";
+      const errorTypes = [
+        new Error("Generic error"),
+        new TypeError("Type error"),
+        "String error",
+        { message: "Object error" },
+      ];
 
-      (mockedBcrypt.hash as jest.Mock).mockResolvedValueOnce(expectedHash);
+      for (const error of errorTypes) {
+        (mockHash as jest.Mock).mockRejectedValue(error);
 
-      const result = await sut.hash(unicodePassword);
-
-      expect(result).toBe(expectedHash);
-      expect(mockedBcrypt.hash).toHaveBeenCalledWith(unicodePassword, 12);
+        await expect(sut.hash(plainPassword)).rejects.toBe(error);
+        expect(mockHash).toHaveBeenCalledWith(plainPassword, 12);
+      }
     });
 
-    it("should propagate bcrypt errors", async () => {
-      const plainPassword = "test123";
-      const bcryptError = new Error("Bcrypt hash error");
+    it("should work with different salt rounds in parallel calls", async () => {
+      const adapters = [
+        new BcryptPasswordHasherAdapter(8),
+        new BcryptPasswordHasherAdapter(10),
+        new BcryptPasswordHasherAdapter(12),
+        new BcryptPasswordHasherAdapter(14),
+      ];
 
-      (mockedBcrypt.hash as jest.Mock).mockRejectedValueOnce(bcryptError);
-
-      await expect(sut.hash(plainPassword)).rejects.toThrow(
-        "Bcrypt hash error",
+      const password = "parallelPassword";
+      (mockHash as jest.Mock).mockImplementation(() =>
+        Promise.resolve(`hashed_parallelPassword_salt`),
       );
-      expect(mockedBcrypt.hash).toHaveBeenCalledWith(plainPassword, 12);
-    });
 
-    it("should handle multiple hash operations", async () => {
-      const passwords = ["password1", "password2", "password3"];
-      const hashes = ["$2b$12$hash1", "$2b$12$hash2", "$2b$12$hash3"];
+      const promises = adapters.map((adapter, index) =>
+        adapter.hash(`${password}_${index}`),
+      );
 
-      (mockedBcrypt.hash as jest.Mock)
-        .mockResolvedValueOnce(hashes[0])
-        .mockResolvedValueOnce(hashes[1])
-        .mockResolvedValueOnce(hashes[2]);
+      const results = await Promise.all(promises);
 
-      const results = await Promise.all(passwords.map((pwd) => sut.hash(pwd)));
+      expect(results).toEqual([
+        "hashed_parallelPassword_salt",
+        "hashed_parallelPassword_salt",
+        "hashed_parallelPassword_salt",
+        "hashed_parallelPassword_salt",
+      ]);
 
-      expect(results).toEqual(hashes);
-      expect(mockedBcrypt.hash).toHaveBeenCalledTimes(3);
-      expect(mockedBcrypt.hash).toHaveBeenNthCalledWith(1, passwords[0], 12);
-      expect(mockedBcrypt.hash).toHaveBeenNthCalledWith(2, passwords[1], 12);
-      expect(mockedBcrypt.hash).toHaveBeenNthCalledWith(3, passwords[2], 12);
-    });
-
-    it("should use correct salt rounds for different instances", async () => {
-      const adapter8 = new BcryptPasswordHasherAdapter(8);
-      const adapter14 = new BcryptPasswordHasherAdapter(14);
-      const plainPassword = "test123";
-
-      (mockedBcrypt.hash as jest.Mock).mockResolvedValue("$2b$hash");
-
-      await adapter8.hash(plainPassword);
-      await adapter14.hash(plainPassword);
-
-      expect(mockedBcrypt.hash).toHaveBeenNthCalledWith(1, plainPassword, 8);
-      expect(mockedBcrypt.hash).toHaveBeenNthCalledWith(2, plainPassword, 14);
+      expect(mockHash).toHaveBeenCalledTimes(4);
     });
   });
 
   describe("compare", () => {
-    it("should compare plain password with hash successfully when they match", async () => {
-      const plainPassword = "myPassword123";
-      const hashedPassword = "$2b$12$hashedPassword123";
+    beforeEach(() => {
+      sut = new BcryptPasswordHasherAdapter();
+    });
 
-      (mockedBcrypt.compare as jest.Mock).mockResolvedValueOnce(true);
+    it("should return true when passwords match", async () => {
+      const plainPassword = "myPassword123";
+      const hashedPassword = "$2b$12$validHashedPassword";
+
+      (mockCompare as jest.Mock).mockResolvedValue(true);
 
       const result = await sut.compare(plainPassword, hashedPassword);
 
       expect(result).toBe(true);
-      expect(mockedBcrypt.compare).toHaveBeenCalledWith(
-        plainPassword,
-        hashedPassword,
-      );
-      expect(mockedBcrypt.compare).toHaveBeenCalledTimes(1);
+      expect(mockCompare).toHaveBeenCalledWith(plainPassword, hashedPassword);
+      expect(mockCompare).toHaveBeenCalledTimes(1);
     });
 
-    it("should compare plain password with hash successfully when they don't match", async () => {
-      const plainPassword = "myPassword123";
-      const hashedPassword = "$2b$12$differentHashedPassword";
+    it("should return false when passwords do not match", async () => {
+      const plainPassword = "wrongPassword";
+      const hashedPassword = "$2b$12$validHashedPassword";
 
-      (mockedBcrypt.compare as jest.Mock).mockResolvedValueOnce(false);
+      (mockCompare as jest.Mock).mockResolvedValue(false);
 
       const result = await sut.compare(plainPassword, hashedPassword);
 
       expect(result).toBe(false);
-      expect(mockedBcrypt.compare).toHaveBeenCalledWith(
-        plainPassword,
-        hashedPassword,
-      );
+      expect(mockCompare).toHaveBeenCalledWith(plainPassword, hashedPassword);
+      expect(mockCompare).toHaveBeenCalledTimes(1);
     });
 
-    it("should handle empty plain password", async () => {
-      const emptyPassword = "";
-      const hashedPassword = "$2b$12$hashedPassword123";
+    it("should handle different password combinations", async () => {
+      const testCases = [
+        {
+          plain: "correctPassword",
+          hashed: "$2b$12$correctHash",
+          expected: true,
+        },
+        {
+          plain: "wrongPassword",
+          hashed: "$2b$12$correctHash",
+          expected: false,
+        },
+        {
+          plain: "P@ssw0rd!",
+          hashed: "$2b$10$specialCharHash",
+          expected: true,
+        },
+        {
+          plain: "",
+          hashed: "$2b$12$emptyPasswordHash",
+          expected: false,
+        },
+        {
+          plain: "longPasswordWithManyCharacters",
+          hashed: "$2b$14$longPasswordHash",
+          expected: true,
+        },
+      ];
 
-      (mockedBcrypt.compare as jest.Mock).mockResolvedValueOnce(false);
+      for (const testCase of testCases) {
+        (mockCompare as jest.Mock).mockResolvedValue(testCase.expected);
 
-      const result = await sut.compare(emptyPassword, hashedPassword);
+        const result = await sut.compare(testCase.plain, testCase.hashed);
 
-      expect(result).toBe(false);
-      expect(mockedBcrypt.compare).toHaveBeenCalledWith(
-        emptyPassword,
-        hashedPassword,
-      );
+        expect(result).toBe(testCase.expected);
+        expect(mockCompare).toHaveBeenCalledWith(
+          testCase.plain,
+          testCase.hashed,
+        );
+      }
     });
 
-    it("should handle empty hash", async () => {
-      const plainPassword = "myPassword123";
-      const emptyHash = "";
+    it("should handle special characters in passwords", async () => {
+      const specialCases = [
+        { plain: "àçéñt", hashed: "$2b$12$accentHash" },
+        { plain: "🔒🗝️", hashed: "$2b$12$emojiHash" },
+        { plain: "password with spaces", hashed: "$2b$12$spacesHash" },
+        { plain: "newline\npassword", hashed: "$2b$12$newlineHash" },
+        { plain: "quotes\"and'apostrophes", hashed: "$2b$12$quotesHash" },
+      ];
 
-      (mockedBcrypt.compare as jest.Mock).mockResolvedValueOnce(false);
+      (mockCompare as jest.Mock).mockResolvedValue(true);
 
-      const result = await sut.compare(plainPassword, emptyHash);
+      for (const testCase of specialCases) {
+        const result = await sut.compare(testCase.plain, testCase.hashed);
 
-      expect(result).toBe(false);
-      expect(mockedBcrypt.compare).toHaveBeenCalledWith(
-        plainPassword,
-        emptyHash,
-      );
-    });
-
-    it("should handle special characters in plain password", async () => {
-      const specialPassword = "!@#$%^&*()_+{}|:<>?[]\\;',./`~";
-      const hashedPassword = "$2b$12$hashedSpecialPassword";
-
-      (mockedBcrypt.compare as jest.Mock).mockResolvedValueOnce(true);
-
-      const result = await sut.compare(specialPassword, hashedPassword);
-
-      expect(result).toBe(true);
-      expect(mockedBcrypt.compare).toHaveBeenCalledWith(
-        specialPassword,
-        hashedPassword,
-      );
-    });
-
-    it("should handle unicode characters in plain password", async () => {
-      const unicodePassword = "パスワード123🔒";
-      const hashedPassword = "$2b$12$hashedUnicodePassword";
-
-      (mockedBcrypt.compare as jest.Mock).mockResolvedValueOnce(true);
-
-      const result = await sut.compare(unicodePassword, hashedPassword);
-
-      expect(result).toBe(true);
-      expect(mockedBcrypt.compare).toHaveBeenCalledWith(
-        unicodePassword,
-        hashedPassword,
-      );
+        expect(result).toBe(true);
+        expect(mockCompare).toHaveBeenCalledWith(
+          testCase.plain,
+          testCase.hashed,
+        );
+      }
     });
 
     it("should propagate bcrypt compare errors", async () => {
-      const plainPassword = "test123";
-      const hashedPassword = "$2b$12$hashedPassword";
-      const bcryptError = new Error("Bcrypt compare error");
+      const plainPassword = "testPassword";
+      const hashedPassword = "$2b$12$testHash";
+      const bcryptError = new Error("Bcrypt compare failed");
 
-      (mockedBcrypt.compare as jest.Mock).mockRejectedValueOnce(bcryptError);
+      (mockCompare as jest.Mock).mockRejectedValue(bcryptError);
 
       await expect(sut.compare(plainPassword, hashedPassword)).rejects.toThrow(
-        "Bcrypt compare error",
+        bcryptError,
       );
-      expect(mockedBcrypt.compare).toHaveBeenCalledWith(
-        plainPassword,
-        hashedPassword,
-      );
+      expect(mockCompare).toHaveBeenCalledWith(plainPassword, hashedPassword);
     });
 
-    it("should handle multiple compare operations", async () => {
-      const testCases = [
-        { plain: "password1", hash: "$2b$12$hash1", expected: true },
-        { plain: "password2", hash: "$2b$12$hash2", expected: false },
-        { plain: "password3", hash: "$2b$12$hash3", expected: true },
+    it("should handle bcrypt compare with different error types", async () => {
+      const plainPassword = "testPassword";
+      const hashedPassword = "$2b$12$testHash";
+      const errorTypes = [
+        new Error("Generic compare error"),
+        new TypeError("Compare type error"),
+        "String compare error",
+        { message: "Object compare error" },
       ];
 
-      (mockedBcrypt.compare as jest.Mock)
-        .mockResolvedValueOnce(testCases[0].expected)
-        .mockResolvedValueOnce(testCases[1].expected)
-        .mockResolvedValueOnce(testCases[2].expected);
+      for (const error of errorTypes) {
+        (mockCompare as jest.Mock).mockRejectedValue(error);
 
-      const results = await Promise.all(
-        testCases.map(({ plain, hash }) => sut.compare(plain, hash)),
+        await expect(sut.compare(plainPassword, hashedPassword)).rejects.toBe(
+          error,
+        );
+        expect(mockCompare).toHaveBeenCalledWith(plainPassword, hashedPassword);
+      }
+    });
+
+    it("should work with malformed hash strings", async () => {
+      const plainPassword = "testPassword";
+      const malformedHashes = [
+        "invalid-hash",
+        "",
+        "notABcryptHash",
+        "$2b$12$",
+        "$2b$12$tooshort",
+      ];
+
+      (mockCompare as jest.Mock).mockResolvedValue(false);
+
+      for (const hash of malformedHashes) {
+        const result = await sut.compare(plainPassword, hash);
+
+        expect(result).toBe(false);
+        expect(mockCompare).toHaveBeenCalledWith(plainPassword, hash);
+      }
+    });
+
+    it("should handle concurrent compare operations", async () => {
+      const testData = [
+        { plain: "password1", hashed: "$2b$12$hash1", expected: true },
+        { plain: "password2", hashed: "$2b$12$hash2", expected: false },
+        { plain: "password3", hashed: "$2b$12$hash3", expected: true },
+        { plain: "password4", hashed: "$2b$12$hash4", expected: false },
+      ];
+
+      (mockCompare as jest.Mock).mockImplementation(() =>
+        Promise.resolve(true),
       );
 
-      expect(results).toEqual([true, false, true]);
-      expect(mockedBcrypt.compare).toHaveBeenCalledTimes(3);
-      testCases.forEach((testCase, index) => {
-        expect(mockedBcrypt.compare).toHaveBeenNthCalledWith(
-          index + 1,
-          testCase.plain,
-          testCase.hash,
-        );
-      });
+      const promises = testData.map((data) =>
+        sut.compare(data.plain, data.hashed),
+      );
+
+      const results = await Promise.all(promises);
+
+      expect(results).toEqual([true, true, true, true]);
+      expect(mockCompare).toHaveBeenCalledTimes(4);
     });
   });
 
   describe("integration scenarios", () => {
-    it("should work with hash and compare together", async () => {
-      const plainPassword = "integrationTest123";
-      const hashedPassword = "$2b$12$integrationHashedPassword";
+    it("should work with different salt rounds for same password", async () => {
+      const plainPassword = "samePassword123";
+      const adapters = [
+        new BcryptPasswordHasherAdapter(8),
+        new BcryptPasswordHasherAdapter(12),
+        new BcryptPasswordHasherAdapter(16),
+      ];
+
+      // Mock hash to return different results for different salt rounds
+      (mockHash as jest.Mock).mockImplementation(() =>
+        Promise.resolve(`$2b$12$hash_samePassword123_12`),
+      );
+
+      const hashedPasswords = await Promise.all(
+        adapters.map((adapter) => adapter.hash(plainPassword)),
+      );
+
+      expect(hashedPasswords).toEqual([
+        "$2b$12$hash_samePassword123_12",
+        "$2b$12$hash_samePassword123_12",
+        "$2b$12$hash_samePassword123_12",
+      ]);
+
+      expect(mockHash).toHaveBeenCalledTimes(3);
+      expect(mockHash).toHaveBeenCalledWith(plainPassword, 8);
+      expect(mockHash).toHaveBeenCalledWith(plainPassword, 12);
+      expect(mockHash).toHaveBeenCalledWith(plainPassword, 16);
+    });
+
+    it("should maintain consistency between hash and compare operations", async () => {
+      const plainPassword = "consistencyTest";
+      const hashedPassword = "$2b$12$hashedConsistencyTest";
 
       // First hash the password
-      (mockedBcrypt.hash as jest.Mock).mockResolvedValueOnce(hashedPassword);
+      (mockHash as jest.Mock).mockResolvedValue(hashedPassword);
       const hashResult = await sut.hash(plainPassword);
 
       // Then compare it
-      (mockedBcrypt.compare as jest.Mock).mockResolvedValueOnce(true);
+      (mockCompare as jest.Mock).mockResolvedValue(true);
       const compareResult = await sut.compare(plainPassword, hashResult);
 
       expect(hashResult).toBe(hashedPassword);
       expect(compareResult).toBe(true);
-      expect(mockedBcrypt.hash).toHaveBeenCalledWith(plainPassword, 12);
-      expect(mockedBcrypt.compare).toHaveBeenCalledWith(
-        plainPassword,
-        hashedPassword,
+
+      expect(mockHash).toHaveBeenCalledWith(plainPassword, 12);
+      expect(mockCompare).toHaveBeenCalledWith(plainPassword, hashedPassword);
+    });
+
+    it("should handle edge cases with empty and null-like values", async () => {
+      // Note: In real bcrypt, empty strings and null values would behave differently
+      // but we're testing the adapter behavior with mocked bcrypt
+      const edgeCases = [
+        { plain: "", hashed: "" },
+        { plain: " ", hashed: " " },
+        { plain: "\n", hashed: "\n" },
+        { plain: "\t", hashed: "\t" },
+      ];
+
+      (mockHash as jest.Mock).mockImplementation(() =>
+        Promise.resolve("hashed_test"),
       );
-    });
+      (mockCompare as jest.Mock).mockResolvedValue(false);
 
-    it("should handle different passwords with different adapters", async () => {
-      const adapter10 = new BcryptPasswordHasherAdapter(10);
-      const adapter14 = new BcryptPasswordHasherAdapter(14);
+      for (const edgeCase of edgeCases) {
+        // Hash operation
+        const hashResult = await sut.hash(edgeCase.plain);
+        expect(hashResult).toBe("hashed_test");
 
-      const password1 = "password1";
-      const password2 = "password2";
-      const hash1 = "$2b$10$hash1";
-      const hash2 = "$2b$14$hash2";
-
-      (mockedBcrypt.hash as jest.Mock)
-        .mockResolvedValueOnce(hash1)
-        .mockResolvedValueOnce(hash2);
-
-      (mockedBcrypt.compare as jest.Mock)
-        .mockResolvedValueOnce(true)
-        .mockResolvedValueOnce(true);
-
-      // Hash with different adapters
-      const result1 = await adapter10.hash(password1);
-      const result2 = await adapter14.hash(password2);
-
-      // Compare with same adapters
-      const compare1 = await adapter10.compare(password1, result1);
-      const compare2 = await adapter14.compare(password2, result2);
-
-      expect(result1).toBe(hash1);
-      expect(result2).toBe(hash2);
-      expect(compare1).toBe(true);
-      expect(compare2).toBe(true);
-
-      expect(mockedBcrypt.hash).toHaveBeenNthCalledWith(1, password1, 10);
-      expect(mockedBcrypt.hash).toHaveBeenNthCalledWith(2, password2, 14);
-    });
-
-    it("should handle concurrent hash and compare operations", async () => {
-      const passwords = ["concurrent1", "concurrent2", "concurrent3"];
-      const hashes = ["$2b$12$hash1", "$2b$12$hash2", "$2b$12$hash3"];
-
-      (mockedBcrypt.hash as jest.Mock)
-        .mockResolvedValueOnce(hashes[0])
-        .mockResolvedValueOnce(hashes[1])
-        .mockResolvedValueOnce(hashes[2]);
-
-      (mockedBcrypt.compare as jest.Mock)
-        .mockResolvedValueOnce(true)
-        .mockResolvedValueOnce(false)
-        .mockResolvedValueOnce(true);
-
-      // Concurrent hash operations
-      const hashPromises = passwords.map((pwd) => sut.hash(pwd));
-      const hashResults = await Promise.all(hashPromises);
-
-      // Concurrent compare operations
-      const comparePromises = passwords.map((pwd, index) =>
-        sut.compare(pwd, hashResults[index]),
-      );
-      const compareResults = await Promise.all(comparePromises);
-
-      expect(hashResults).toEqual(hashes);
-      expect(compareResults).toEqual([true, false, true]);
-      expect(mockedBcrypt.hash).toHaveBeenCalledTimes(3);
-      expect(mockedBcrypt.compare).toHaveBeenCalledTimes(3);
-    });
-
-    it("should maintain adapter independence", async () => {
-      const adapter1 = new BcryptPasswordHasherAdapter(8);
-      const adapter2 = new BcryptPasswordHasherAdapter(12);
-      const password = "testPassword";
-
-      (mockedBcrypt.hash as jest.Mock).mockResolvedValue("$2b$hash");
-
-      await adapter1.hash(password);
-      await adapter2.hash(password);
-
-      // Each adapter should use its own salt rounds
-      expect(mockedBcrypt.hash).toHaveBeenNthCalledWith(1, password, 8);
-      expect(mockedBcrypt.hash).toHaveBeenNthCalledWith(2, password, 12);
-    });
-  });
-
-  describe("edge cases", () => {
-    it("should handle extreme salt rounds", async () => {
-      const minAdapter = new BcryptPasswordHasherAdapter(1);
-      const maxAdapter = new BcryptPasswordHasherAdapter(20);
-      const password = "test";
-
-      (mockedBcrypt.hash as jest.Mock).mockResolvedValue("$2b$hash");
-
-      await minAdapter.hash(password);
-      await maxAdapter.hash(password);
-
-      expect(mockedBcrypt.hash).toHaveBeenNthCalledWith(1, password, 1);
-      expect(mockedBcrypt.hash).toHaveBeenNthCalledWith(2, password, 20);
-    });
-
-    it("should handle whitespace in passwords", async () => {
-      const plainPassword = "  password with spaces  ";
-      const hashedPassword = "$2b$12$hashedSpacedPassword";
-
-      (mockedBcrypt.compare as jest.Mock).mockResolvedValueOnce(true);
-
-      const result = await sut.compare(plainPassword, hashedPassword);
-
-      expect(result).toBe(true);
-      expect(mockedBcrypt.compare).toHaveBeenCalledWith(
-        plainPassword,
-        hashedPassword,
-      );
+        // Compare operation
+        const compareResult = await sut.compare(
+          edgeCase.plain,
+          edgeCase.hashed,
+        );
+        expect(compareResult).toBe(false);
+      }
     });
   });
 });

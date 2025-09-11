@@ -1,6 +1,9 @@
 import { Router } from "express";
 
-import { expressRouteAdapter } from "../../infra/adapters";
+import {
+  expressRouteAdapter,
+  requireAuthWithRoles,
+} from "../../infra/adapters";
 import {
   makeCreateMilitaryController,
   makeDeleteMilitaryController,
@@ -8,7 +11,6 @@ import {
   makeListAllMilitaryController,
   makeUpdateMilitaryController,
 } from "../factories/controllers";
-import { requireAuthWithRoles } from "../middlewares";
 
 const militaryRoutes = Router();
 

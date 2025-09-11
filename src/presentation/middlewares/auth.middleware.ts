@@ -1,12 +1,12 @@
 import { LoggerProtocol } from "../../application/protocols";
 import { SessionService } from "../../application/services/auth/session.service";
-import { TokenValidationService } from "../../application/services/auth/token-validation.service";
+import { TokenValidator } from "../../application/validators/auth/token.validator";
 import { UnauthorizedError } from "../../domain/errors";
 import { HttpRequest, HttpResponse } from "../protocols";
 import { badRequest } from "../utils";
 
 interface AuthMiddlewareProps {
-  tokenValidationService: TokenValidationService;
+  tokenValidator: TokenValidator;
   sessionService: SessionService;
   logger: LoggerProtocol;
 }
@@ -27,13 +27,13 @@ export class AuthMiddleware {
   public validateAuth = async (
     request: AuthenticatedRequest,
   ): Promise<AuthenticatedRequest | HttpResponse> => {
-    const { tokenValidationService, logger } = this.props;
+    const { tokenValidator, logger } = this.props;
 
     try {
       const authHeader = request.headers?.authorization as string;
 
       const { payload, sessionId } =
-        await tokenValidationService.validateAccessToken(authHeader);
+        await tokenValidator.validateAccessToken(authHeader);
 
       request.user = {
         userId: payload.userId,

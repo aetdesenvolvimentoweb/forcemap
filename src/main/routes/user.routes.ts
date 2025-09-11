@@ -1,6 +1,9 @@
 import { Router } from "express";
 
-import { expressRouteAdapter } from "../../infra/adapters";
+import {
+  expressRouteAdapter,
+  requireAuthWithRoles,
+} from "../../infra/adapters";
 import {
   makeCreateUserController,
   makeDeleteUserController,
@@ -9,7 +12,6 @@ import {
   makeUpdateUserPasswordController,
   makeUpdateUserRoleController,
 } from "../factories/controllers";
-import { requireAuthWithRoles } from "../middlewares";
 
 const userRoutes = Router();
 

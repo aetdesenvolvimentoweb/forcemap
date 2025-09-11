@@ -38,6 +38,10 @@ jest.mock("../../../../src/main/factories/logger/logger.factory", () => ({
 // Mock modules using imported mocks - must be before any imports that use these modules
 jest.mock("../../../../src/infra/adapters", () => ({
   expressRouteAdapter: mockExpressRouteAdapter,
+  requireAuth: jest.fn(),
+  requireAuthWithRoles: jest.fn((_roles) => jest.fn()),
+  requireRoles: jest.fn((_roles) => jest.fn()),
+  ensureSeedMiddleware: jest.fn(),
 }));
 
 jest.mock("../../../../src/main/factories/controllers", () => ({

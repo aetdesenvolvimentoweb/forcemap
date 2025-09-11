@@ -10,6 +10,10 @@ import {
 // Mock modules using imported mocks - must be before any imports that use these modules
 jest.mock("../../../../src/infra/adapters", () => ({
   expressRouteAdapter: mockExpressRouteAdapter,
+  requireAuth: jest.fn(),
+  requireAuthWithRoles: jest.fn((_roles) => jest.fn()),
+  requireRoles: jest.fn((_roles) => jest.fn()),
+  ensureSeedMiddleware: jest.fn(),
   PinoLoggerAdapter: jest.fn().mockImplementation(() => ({
     info: jest.fn(),
     warn: jest.fn(),
@@ -22,14 +26,6 @@ jest.mock("../../../../src/main/factories/controllers/auth", () => ({
   makeLoginController: mockMakeLoginController,
   makeLogoutController: mockMakeLogoutController,
   makeRefreshTokenController: mockMakeRefreshTokenController,
-}));
-
-jest.mock("../../../../src/main/middlewares", () => ({
-  requireAuth: jest.fn(),
-}));
-
-jest.mock("../../../../src/main/middlewares/seed.middleware", () => ({
-  ensureSeedMiddleware: jest.fn(),
 }));
 
 jest.mock("express", () => ({

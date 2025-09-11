@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 
-import { SeedManager } from "../seed/seed.manager";
+import { SeedManager } from "../../../main/seed/seed.manager";
 
 export const ensureSeedMiddleware = async (
   req: Request,

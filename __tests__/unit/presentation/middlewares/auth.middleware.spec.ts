@@ -6,7 +6,7 @@ import {
   HttpResponse,
 } from "../../../../src/presentation/protocols";
 
-interface MockTokenValidationService {
+interface MockTokenValidator {
   validateAccessToken: jest.Mock;
 }
 
@@ -26,14 +26,14 @@ interface AuthenticatedRequest extends HttpRequest {
 
 describe("AuthMiddleware", () => {
   let sut: AuthMiddleware;
-  let mockTokenValidationService: MockTokenValidationService;
+  let mockTokenValidator: MockTokenValidator;
   let mockSessionService: MockSessionService;
   let mockedLogger = mockLogger();
 
   beforeEach(() => {
     jest.clearAllMocks();
 
-    mockTokenValidationService = {
+    mockTokenValidator = {
       validateAccessToken: jest.fn(),
     };
 
@@ -42,7 +42,7 @@ describe("AuthMiddleware", () => {
     };
 
     sut = new AuthMiddleware({
-      tokenValidationService: mockTokenValidationService as any,
+      tokenValidator: mockTokenValidator as any,
       sessionService: mockSessionService as any,
       logger: mockedLogger,
     });
@@ -64,7 +64,7 @@ describe("AuthMiddleware", () => {
     const mockSessionId = "session-123";
 
     it("should validate auth successfully with valid token", async () => {
-      mockTokenValidationService.validateAccessToken.mockResolvedValueOnce({
+      mockTokenValidator.validateAccessToken.mockResolvedValueOnce({
         payload: mockPayload,
         sessionId: mockSessionId,
       });
@@ -80,16 +80,14 @@ describe("AuthMiddleware", () => {
           militaryId: mockPayload.militaryId,
         },
       });
-      expect(
-        mockTokenValidationService.validateAccessToken,
-      ).toHaveBeenCalledWith("Bearer valid.jwt.token");
-      expect(
-        mockTokenValidationService.validateAccessToken,
-      ).toHaveBeenCalledTimes(1);
+      expect(mockTokenValidator.validateAccessToken).toHaveBeenCalledWith(
+        "Bearer valid.jwt.token",
+      );
+      expect(mockTokenValidator.validateAccessToken).toHaveBeenCalledTimes(1);
     });
 
     it("should log success when validation is successful", async () => {
-      mockTokenValidationService.validateAccessToken.mockResolvedValueOnce({
+      mockTokenValidator.validateAccessToken.mockResolvedValueOnce({
         payload: mockPayload,
         sessionId: mockSessionId,
       });
@@ -111,7 +109,7 @@ describe("AuthMiddleware", () => {
         headers: {},
       };
 
-      mockTokenValidationService.validateAccessToken.mockRejectedValueOnce(
+      mockTokenValidator.validateAccessToken.mockRejectedValueOnce(
         new UnauthorizedError("Token não fornecido"),
       );
 
@@ -121,15 +119,15 @@ describe("AuthMiddleware", () => {
         statusCode: 401,
         body: { error: "Token não fornecido" },
       });
-      expect(
-        mockTokenValidationService.validateAccessToken,
-      ).toHaveBeenCalledWith(undefined);
+      expect(mockTokenValidator.validateAccessToken).toHaveBeenCalledWith(
+        undefined,
+      );
     });
 
     it("should handle undefined headers", async () => {
       const requestWithoutHeaders: AuthenticatedRequest = {};
 
-      mockTokenValidationService.validateAccessToken.mockRejectedValueOnce(
+      mockTokenValidator.validateAccessToken.mockRejectedValueOnce(
         new UnauthorizedError("Token não fornecido"),
       );
 
@@ -139,14 +137,14 @@ describe("AuthMiddleware", () => {
         statusCode: 401,
         body: { error: "Token não fornecido" },
       });
-      expect(
-        mockTokenValidationService.validateAccessToken,
-      ).toHaveBeenCalledWith(undefined);
+      expect(mockTokenValidator.validateAccessToken).toHaveBeenCalledWith(
+        undefined,
+      );
     });
 
     it("should handle UnauthorizedError from token validation service", async () => {
       const serviceError = new UnauthorizedError("Token inválido");
-      mockTokenValidationService.validateAccessToken.mockRejectedValueOnce(
+      mockTokenValidator.validateAccessToken.mockRejectedValueOnce(
         serviceError,
       );
 
@@ -156,14 +154,14 @@ describe("AuthMiddleware", () => {
         statusCode: 401,
         body: { error: serviceError.message },
       });
-      expect(
-        mockTokenValidationService.validateAccessToken,
-      ).toHaveBeenCalledWith("Bearer valid.jwt.token");
+      expect(mockTokenValidator.validateAccessToken).toHaveBeenCalledWith(
+        "Bearer valid.jwt.token",
+      );
     });
 
     it("should handle generic errors from token validation service", async () => {
       const genericError = new Error("Database connection failed");
-      mockTokenValidationService.validateAccessToken.mockRejectedValueOnce(
+      mockTokenValidator.validateAccessToken.mockRejectedValueOnce(
         genericError,
       );
 
@@ -194,16 +192,16 @@ describe("AuthMiddleware", () => {
           },
         };
 
-        mockTokenValidationService.validateAccessToken.mockResolvedValueOnce({
+        mockTokenValidator.validateAccessToken.mockResolvedValueOnce({
           payload: mockPayload,
           sessionId: mockSessionId,
         });
 
         await sut.validateAuth(request);
 
-        expect(
-          mockTokenValidationService.validateAccessToken,
-        ).toHaveBeenCalledWith(token);
+        expect(mockTokenValidator.validateAccessToken).toHaveBeenCalledWith(
+          token,
+        );
       }
     });
 
@@ -213,7 +211,7 @@ describe("AuthMiddleware", () => {
       for (const role of roles) {
         const payload = { ...mockPayload, role };
 
-        mockTokenValidationService.validateAccessToken.mockResolvedValueOnce({
+        mockTokenValidator.validateAccessToken.mockResolvedValueOnce({
           payload,
           sessionId: mockSessionId,
         });
@@ -242,7 +240,7 @@ describe("AuthMiddleware", () => {
         params: { id: "123" },
       };
 
-      mockTokenValidationService.validateAccessToken.mockResolvedValueOnce({
+      mockTokenValidator.validateAccessToken.mockResolvedValueOnce({
         payload: mockPayload,
         sessionId: mockSessionId,
       });
@@ -306,7 +304,7 @@ describe("AuthMiddleware", () => {
     const mockSessionId = "session-123";
 
     it("should authenticate successfully and update session access", async () => {
-      mockTokenValidationService.validateAccessToken.mockResolvedValueOnce({
+      mockTokenValidator.validateAccessToken.mockResolvedValueOnce({
         payload: mockPayload,
         sessionId: mockSessionId,
       });
@@ -330,7 +328,7 @@ describe("AuthMiddleware", () => {
 
     it("should return error response when validation fails", async () => {
       const serviceError = new UnauthorizedError("Token inválido");
-      mockTokenValidationService.validateAccessToken.mockRejectedValueOnce(
+      mockTokenValidator.validateAccessToken.mockRejectedValueOnce(
         serviceError,
       );
 
@@ -344,7 +342,7 @@ describe("AuthMiddleware", () => {
     });
 
     it("should not update session access when validation returns error", async () => {
-      mockTokenValidationService.validateAccessToken.mockRejectedValueOnce(
+      mockTokenValidator.validateAccessToken.mockRejectedValueOnce(
         new UnauthorizedError("Token expirado"),
       );
 
@@ -355,7 +353,7 @@ describe("AuthMiddleware", () => {
     });
 
     it("should handle session update errors gracefully", async () => {
-      mockTokenValidationService.validateAccessToken.mockResolvedValueOnce({
+      mockTokenValidator.validateAccessToken.mockResolvedValueOnce({
         payload: mockPayload,
         sessionId: mockSessionId,
       });
@@ -612,7 +610,7 @@ describe("AuthMiddleware", () => {
 
       const mockSessionId = "session-123";
 
-      mockTokenValidationService.validateAccessToken.mockResolvedValueOnce({
+      mockTokenValidator.validateAccessToken.mockResolvedValueOnce({
         payload: mockPayload,
         sessionId: mockSessionId,
       });
@@ -637,9 +635,9 @@ describe("AuthMiddleware", () => {
         },
       });
 
-      expect(
-        mockTokenValidationService.validateAccessToken,
-      ).toHaveBeenCalledWith("Bearer valid.jwt.token");
+      expect(mockTokenValidator.validateAccessToken).toHaveBeenCalledWith(
+        "Bearer valid.jwt.token",
+      );
       expect(mockSessionService.updateLastAccess).toHaveBeenCalledWith(
         mockSessionId,
       );
@@ -665,7 +663,7 @@ describe("AuthMiddleware", () => {
         },
       };
 
-      mockTokenValidationService.validateAccessToken.mockRejectedValueOnce(
+      mockTokenValidator.validateAccessToken.mockRejectedValueOnce(
         new UnauthorizedError("Token inválido"),
       );
 

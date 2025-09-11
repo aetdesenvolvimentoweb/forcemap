@@ -1,6 +1,9 @@
 import { Router } from "express";
 
-import { expressRouteAdapter } from "../../infra/adapters";
+import {
+  expressRouteAdapter,
+  requireAuthWithRoles,
+} from "../../infra/adapters";
 import {
   makeCreateVehicleController,
   makeDeleteVehicleController,
@@ -8,7 +11,6 @@ import {
   makeListAllVehicleController,
   makeUpdateVehicleController,
 } from "../factories/controllers";
-import { requireAuthWithRoles } from "../middlewares";
 
 const vehicleRoutes = Router();
 

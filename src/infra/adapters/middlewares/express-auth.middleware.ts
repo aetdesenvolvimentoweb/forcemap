@@ -1,8 +1,15 @@
 import { NextFunction, Request, Response } from "express";
 
-import { makeAuthMiddleware } from "../factories/middlewares/auth.middleware.factory";
+import { makeAuthMiddleware } from "../../../main/factories/middlewares/auth.middleware.factory";
 
-const authMiddleware = makeAuthMiddleware();
+let authMiddleware: ReturnType<typeof makeAuthMiddleware> | null = null;
+
+const getAuthMiddleware = () => {
+  if (!authMiddleware) {
+    authMiddleware = makeAuthMiddleware();
+  }
+  return authMiddleware;
+};
 
 export interface AuthenticatedRequest extends Request {
   user?: {
@@ -45,7 +52,7 @@ export const requireAuth = async (
       socket: req.socket,
     };
 
-    const result = await authMiddleware.authenticate(httpRequest);
+    const result = await getAuthMiddleware().authenticate(httpRequest);
 
     if ("statusCode" in result) {
       return res.status(result.statusCode).json(result.body);
@@ -81,7 +88,7 @@ export const requireRoles = (allowedRoles: string[]) => {
       user: req.user,
     };
 
-    const result = authMiddleware.authorize(allowedRoles)(httpRequest);
+    const result = getAuthMiddleware().authorize(allowedRoles)(httpRequest);
 
     if ("statusCode" in result) {
       return res.status(result.statusCode).json(result.body);
@@ -111,7 +118,7 @@ export const requireAuthWithRoles = (allowedRoles: string[]) => {
         socket: req.socket,
       };
 
-      const authResult = await authMiddleware.authenticate(httpRequest);
+      const authResult = await getAuthMiddleware().authenticate(httpRequest);
 
       if ("statusCode" in authResult) {
         return res.status(authResult.statusCode).json(authResult.body);
@@ -120,7 +127,8 @@ export const requireAuthWithRoles = (allowedRoles: string[]) => {
       req.user = authResult.user;
 
       // Depois autoriza
-      const authzResult = authMiddleware.authorize(allowedRoles)(authResult);
+      const authzResult =
+        getAuthMiddleware().authorize(allowedRoles)(authResult);
 
       if ("statusCode" in authzResult) {
         return res.status(authzResult.statusCode).json(authzResult.body);
