@@ -1,13 +1,13 @@
 import { LoggerProtocol } from "../../application/protocols";
-import { SessionService } from "../../application/services";
 import { TokenValidator } from "../../application/validators";
 import { UnauthorizedError } from "../../domain/errors";
+import { SessionRepository } from "../../domain/repositories";
 import { HttpRequest, HttpResponse } from "../protocols";
 import { badRequest } from "../utils";
 
 interface AuthMiddlewareProps {
   tokenValidator: TokenValidator;
-  sessionService: SessionService;
+  sessionRepository: SessionRepository;
   logger: LoggerProtocol;
 }
 
@@ -59,8 +59,8 @@ export class AuthMiddleware {
   };
 
   public updateSessionAccess = async (sessionId: string): Promise<void> => {
-    const { sessionService } = this.props;
-    await sessionService.updateLastAccess(sessionId);
+    const { sessionRepository } = this.props;
+    await sessionRepository.updateLastAccess(sessionId);
   };
 
   public authenticate = async (

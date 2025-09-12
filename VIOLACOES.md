@@ -30,37 +30,16 @@ const sanitizer = makeXInputDTOSanitizer();
 const validator = makeXInputDTOValidator(repository);
 return new CreateXService({ repository, sanitizer, validator });
 };
-
-2. Método authenticate Complexo Demais (KISS)
-
-Localização: src/application/services/auth/login.service.ts:28-169
-Problema: 141 linhas, múltiplas responsabilidades
-
-Deveria ser quebrado em:
-
-- validateRateLimit()
-- findAndValidateUser()
-- generateTokens()
-- createSession()
-
 ---
 
 🟡 ALTO - Próximas Sprints
 
-3. Validators Complexos
+1. Validators Complexos
 
 Localização: src/application/validators/user/user.input.dto.validator.ts
 Problema: 158 linhas, violação SRP
 
-4. Sanitização Duplicada
-
-Padrão repetido em 5 arquivos:
-.trim()
-.replace(/\s+/g, " ")
-.replace(/['";\\]/g, "")
-// ... mais 4 replaces idênticos
-
-5. Middleware Auth Complexo
+1. Middleware Auth Complexo
 
 Problema: Mistura autenticação + autorização em uma função
 
@@ -73,11 +52,7 @@ Problema: Mistura autenticação + autorização em uma função
 Localização: SessionService.create()
 Problema: Executa comando E retorna query
 
-7. Hook Methods Desnecessários (YAGNI)
-
-Problema: beforeFind, afterFind nunca usados
-
-8. Arquivos Muito Grandes
+1. Arquivos Muito Grandes
 
 - login.service.ts: 179 linhas
 - user.input.dto.validator.ts: 158 linhas
@@ -98,9 +73,7 @@ Mistura português/inglês em logs e mensagens
 
 🏆 Plano de Ação Recomendado
 
-Phase 1 - Quick Wins (1-2 sprints)
-
-1. ✅ Quebrar método authenticate
+✅ Phase 1 - Quick Wins (1-2 sprints)
 
 Phase 2 - Grandes Refatorações (2-3 sprints)
 

@@ -1,10 +1,10 @@
 import { LogoutService } from "../../../../application/services/auth/logout.service";
-import { makeSessionService } from "./session.service.factory";
+import { makeSessionRepository } from "../../repositories";
 
 export const makeLogoutService = (): LogoutService => {
-  const sessionService = makeSessionService();
+  const sessionRepository = makeSessionRepository();
 
   return new LogoutService({
-    sessionService,
+    sessionRepository,
   });
 };

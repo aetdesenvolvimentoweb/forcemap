@@ -2,21 +2,21 @@ import { RefreshTokenService } from "../../../../application/services/auth/refre
 import {
   makeMilitaryRankRepository,
   makeMilitaryRepository,
+  makeSessionRepository,
   makeUserRepository,
 } from "../../repositories";
 import { makeTokenHandler } from "../../token-handler";
-import { makeSessionService } from "./session.service.factory";
 
 export const makeRefreshTokenService = (): RefreshTokenService => {
   const militaryRankRepository = makeMilitaryRankRepository();
   const militaryRepository = makeMilitaryRepository(militaryRankRepository);
   const userRepository = makeUserRepository(militaryRepository);
-  const sessionService = makeSessionService();
+  const sessionRepository = makeSessionRepository();
   const tokenHandler = makeTokenHandler();
 
   return new RefreshTokenService({
     userRepository,
-    sessionService,
+    sessionRepository,
     tokenHandler,
   });
 };

@@ -1,7 +1,7 @@
-import { SessionService } from "./session.service";
+import { SessionRepository } from "../../../domain/repositories";
 
 interface LogoutServiceDependencies {
-  sessionService: SessionService;
+  sessionRepository: SessionRepository;
 }
 
 export class LogoutService {
@@ -9,7 +9,7 @@ export class LogoutService {
 
   public readonly logout = async (sessionId: string): Promise<void> => {
     try {
-      await this.dependencies.sessionService.deactivateSession(sessionId);
+      await this.dependencies.sessionRepository.deactivateSession(sessionId);
     } catch {
       // Silent fail for logout - even if session doesn't exist, logout is successful
     }

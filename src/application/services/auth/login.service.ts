@@ -2,6 +2,7 @@ import { LoginInputDTO, LoginOutputDTO } from "../../../domain/dtos/auth";
 import { User } from "../../../domain/entities";
 import {
   MilitaryRepository,
+  SessionRepository,
   UserRepository,
 } from "../../../domain/repositories";
 import { TooManyRequestsError, UnauthorizedError } from "../../errors";
@@ -11,12 +12,11 @@ import {
   TokenHandlerProtocol,
   UserCredentialsInputDTOSanitizerProtocol,
 } from "../../protocols";
-import { SessionService } from "./session.service";
 
 interface LoginServiceDependencies {
   userRepository: UserRepository;
   militaryRepository: MilitaryRepository;
-  sessionService: SessionService;
+  sessionRepository: SessionRepository;
   tokenHandler: TokenHandlerProtocol;
   userCredentialsInputDTOSanitizer: UserCredentialsInputDTOSanitizerProtocol;
   passwordHasher: PasswordHasherProtocol;
@@ -154,16 +154,16 @@ export class LoginService {
     userAgent: string,
     deviceInfo?: string,
   ): Promise<{ accessToken: string; refreshToken: string }> => {
-    const { sessionService, tokenHandler } = this.dependencies;
+    const { sessionRepository, tokenHandler } = this.dependencies;
 
-    await sessionService.deactivateAllUserSessions(user.id);
+    await sessionRepository.deactivateAllUserSessions(user.id);
 
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 7);
 
     const finalDeviceInfo = deviceInfo || `${userAgent.substring(0, 100)}`;
 
-    const session = await sessionService.create({
+    const session = await sessionRepository.create({
       userId: user.id,
       token: "temp",
       refreshToken: "temp",
@@ -186,8 +186,8 @@ export class LoginService {
       sessionId: session.id,
     });
 
-    await sessionService.updateToken(session.id, accessToken);
-    await sessionService.updateRefreshToken(session.id, refreshToken);
+    await sessionRepository.updateToken(session.id, accessToken);
+    await sessionRepository.updateRefreshToken(session.id, refreshToken);
 
     return { accessToken, refreshToken };
   };

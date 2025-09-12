@@ -2,14 +2,16 @@ import {
   LoginOutputDTO,
   RefreshTokenInputDTO,
 } from "../../../domain/dtos/auth";
-import { UserRepository } from "../../../domain/repositories";
+import {
+  SessionRepository,
+  UserRepository,
+} from "../../../domain/repositories";
 import { EntityNotFoundError, UnauthorizedError } from "../../errors";
 import { TokenHandlerProtocol } from "../../protocols";
-import { SessionService } from "./session.service";
 
 interface RefreshTokenServiceDependencies {
   userRepository: UserRepository;
-  sessionService: SessionService;
+  sessionRepository: SessionRepository;
   tokenHandler: TokenHandlerProtocol;
 }
 
@@ -20,14 +22,15 @@ export class RefreshTokenService {
     data: RefreshTokenInputDTO,
     ipAddress: string,
   ): Promise<LoginOutputDTO> => {
-    const { sessionService, userRepository, tokenHandler } = this.dependencies;
+    const { sessionRepository, userRepository, tokenHandler } =
+      this.dependencies;
 
     try {
       // Verify refresh token
       tokenHandler.verifyRefreshToken(data.refreshToken);
 
       // Find session
-      const session = await sessionService.findByRefreshToken(
+      const session = await sessionRepository.findByRefreshToken(
         data.refreshToken,
       );
 
@@ -38,7 +41,7 @@ export class RefreshTokenService {
       // Verify session belongs to the same device/IP (optional security check)
       if (session.ipAddress !== ipAddress) {
         // Deactivate session for security
-        await sessionService.deactivateSession(session.id);
+        await sessionRepository.deactivateSession(session.id);
         throw new UnauthorizedError("Sessão comprometida detectada");
       }
 
@@ -46,7 +49,7 @@ export class RefreshTokenService {
       const user = await userRepository.findById(session.userId);
 
       if (!user) {
-        await sessionService.deactivateSession(session.id);
+        await sessionRepository.deactivateSession(session.id);
         throw new EntityNotFoundError("Usuário");
       }
 
@@ -59,7 +62,7 @@ export class RefreshTokenService {
       });
 
       // Update session with new token and last access
-      await sessionService.updateToken(session.id, newAccessToken);
+      await sessionRepository.updateToken(session.id, newAccessToken);
 
       return {
         accessToken: newAccessToken,

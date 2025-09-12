@@ -10,7 +10,7 @@ interface MockTokenValidator {
   validateAccessToken: jest.Mock;
 }
 
-interface MockSessionService {
+interface MockSessionRepository {
   updateLastAccess: jest.Mock;
 }
 
@@ -27,7 +27,7 @@ interface AuthenticatedRequest extends HttpRequest {
 describe("AuthMiddleware", () => {
   let sut: AuthMiddleware;
   let mockTokenValidator: MockTokenValidator;
-  let mockSessionService: MockSessionService;
+  let mockSessionRepository: MockSessionRepository;
   let mockedLogger = mockLogger();
 
   beforeEach(() => {
@@ -37,13 +37,13 @@ describe("AuthMiddleware", () => {
       validateAccessToken: jest.fn(),
     };
 
-    mockSessionService = {
+    mockSessionRepository = {
       updateLastAccess: jest.fn(),
     };
 
     sut = new AuthMiddleware({
       tokenValidator: mockTokenValidator as any,
-      sessionService: mockSessionService as any,
+      sessionRepository: mockSessionRepository as any,
       logger: mockedLogger,
     });
   });
@@ -264,25 +264,27 @@ describe("AuthMiddleware", () => {
   describe("updateSessionAccess", () => {
     it("should call session service to update last access", async () => {
       const sessionId = "session-123";
-      mockSessionService.updateLastAccess.mockResolvedValueOnce(undefined);
+      mockSessionRepository.updateLastAccess.mockResolvedValueOnce(undefined);
 
       await sut.updateSessionAccess(sessionId);
 
-      expect(mockSessionService.updateLastAccess).toHaveBeenCalledWith(
+      expect(mockSessionRepository.updateLastAccess).toHaveBeenCalledWith(
         sessionId,
       );
-      expect(mockSessionService.updateLastAccess).toHaveBeenCalledTimes(1);
+      expect(mockSessionRepository.updateLastAccess).toHaveBeenCalledTimes(1);
     });
 
     it("should handle session service errors", async () => {
       const sessionId = "session-123";
       const serviceError = new Error("Session not found");
-      mockSessionService.updateLastAccess.mockRejectedValueOnce(serviceError);
+      mockSessionRepository.updateLastAccess.mockRejectedValueOnce(
+        serviceError,
+      );
 
       await expect(sut.updateSessionAccess(sessionId)).rejects.toThrow(
         serviceError,
       );
-      expect(mockSessionService.updateLastAccess).toHaveBeenCalledWith(
+      expect(mockSessionRepository.updateLastAccess).toHaveBeenCalledWith(
         sessionId,
       );
     });
@@ -308,7 +310,7 @@ describe("AuthMiddleware", () => {
         payload: mockPayload,
         sessionId: mockSessionId,
       });
-      mockSessionService.updateLastAccess.mockResolvedValueOnce(undefined);
+      mockSessionRepository.updateLastAccess.mockResolvedValueOnce(undefined);
 
       const result = await sut.authenticate(validRequest);
 
@@ -321,7 +323,7 @@ describe("AuthMiddleware", () => {
           militaryId: mockPayload.militaryId,
         },
       });
-      expect(mockSessionService.updateLastAccess).toHaveBeenCalledWith(
+      expect(mockSessionRepository.updateLastAccess).toHaveBeenCalledWith(
         mockSessionId,
       );
     });
@@ -338,7 +340,7 @@ describe("AuthMiddleware", () => {
         statusCode: 401,
         body: { error: serviceError.message },
       });
-      expect(mockSessionService.updateLastAccess).not.toHaveBeenCalled();
+      expect(mockSessionRepository.updateLastAccess).not.toHaveBeenCalled();
     });
 
     it("should not update session access when validation returns error", async () => {
@@ -349,7 +351,7 @@ describe("AuthMiddleware", () => {
       const result = await sut.authenticate(validRequest);
 
       expect("statusCode" in result).toBe(true);
-      expect(mockSessionService.updateLastAccess).not.toHaveBeenCalled();
+      expect(mockSessionRepository.updateLastAccess).not.toHaveBeenCalled();
     });
 
     it("should handle session update errors gracefully", async () => {
@@ -357,14 +359,14 @@ describe("AuthMiddleware", () => {
         payload: mockPayload,
         sessionId: mockSessionId,
       });
-      mockSessionService.updateLastAccess.mockRejectedValueOnce(
+      mockSessionRepository.updateLastAccess.mockRejectedValueOnce(
         new Error("Session update failed"),
       );
 
       await expect(sut.authenticate(validRequest)).rejects.toThrow(
         "Session update failed",
       );
-      expect(mockSessionService.updateLastAccess).toHaveBeenCalledWith(
+      expect(mockSessionRepository.updateLastAccess).toHaveBeenCalledWith(
         mockSessionId,
       );
     });
@@ -376,7 +378,7 @@ describe("AuthMiddleware", () => {
 
       const result = await sut.authenticate(validRequest);
 
-      expect(mockSessionService.updateLastAccess).not.toHaveBeenCalled();
+      expect(mockSessionRepository.updateLastAccess).not.toHaveBeenCalled();
       expect(result).toEqual({
         headers: validRequest.headers,
       });
@@ -395,7 +397,7 @@ describe("AuthMiddleware", () => {
 
       const result = await sut.authenticate(validRequest);
 
-      expect(mockSessionService.updateLastAccess).not.toHaveBeenCalled();
+      expect(mockSessionRepository.updateLastAccess).not.toHaveBeenCalled();
       expect((result as AuthenticatedRequest).user?.sessionId).toBe("");
     });
   });
@@ -614,7 +616,7 @@ describe("AuthMiddleware", () => {
         payload: mockPayload,
         sessionId: mockSessionId,
       });
-      mockSessionService.updateLastAccess.mockResolvedValueOnce(undefined);
+      mockSessionRepository.updateLastAccess.mockResolvedValueOnce(undefined);
 
       // Authenticate
       const authenticatedResult = await sut.authenticate(request);
@@ -638,7 +640,7 @@ describe("AuthMiddleware", () => {
       expect(mockTokenValidator.validateAccessToken).toHaveBeenCalledWith(
         "Bearer valid.jwt.token",
       );
-      expect(mockSessionService.updateLastAccess).toHaveBeenCalledWith(
+      expect(mockSessionRepository.updateLastAccess).toHaveBeenCalledWith(
         mockSessionId,
       );
       expect(mockedLogger.info).toHaveBeenCalledWith(
@@ -675,7 +677,7 @@ describe("AuthMiddleware", () => {
       expect((authenticatedResult as HttpResponse).statusCode).toBe(401);
 
       // Don't attempt authorization on error response
-      expect(mockSessionService.updateLastAccess).not.toHaveBeenCalled();
+      expect(mockSessionRepository.updateLastAccess).not.toHaveBeenCalled();
     });
   });
 });

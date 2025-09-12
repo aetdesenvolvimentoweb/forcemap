@@ -1,16 +1,16 @@
 import { AuthMiddleware } from "../../../presentation/middlewares/auth.middleware";
 import { makeLogger } from "../logger";
-import { makeSessionService } from "../services/auth/session.service.factory";
+import { makeSessionRepository } from "../repositories";
 import { makeTokenValidator } from "../validators/auth/token.validator.factory";
 
 export const makeAuthMiddleware = (): AuthMiddleware => {
   const tokenValidator = makeTokenValidator();
-  const sessionService = makeSessionService();
+  const sessionRepository = makeSessionRepository();
   const logger = makeLogger();
 
   return new AuthMiddleware({
     tokenValidator,
-    sessionService,
+    sessionRepository,
     logger,
   });
 };
