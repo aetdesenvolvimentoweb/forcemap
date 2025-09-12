@@ -2,11 +2,15 @@ import {
   InvalidParamError,
   MissingParamError,
 } from "../../../../../src/application/errors";
-import { UpdateUserPasswordValidator } from "../../../../../src/application/validators/user/update-user-password.validator";
+import {
+  UpdateUserPasswordValidator,
+  UserPasswordValidator,
+} from "../../../../../src/application/validators";
 import { UpdateUserInputDTO } from "../../../../../src/domain/dtos";
 
 describe("UpdateUserPasswordValidator", () => {
   let sut: UpdateUserPasswordValidator;
+  const userPasswordValidator = new UserPasswordValidator();
 
   const validInputData: UpdateUserInputDTO = {
     currentPassword: "CurrentPass@123",
@@ -14,7 +18,7 @@ describe("UpdateUserPasswordValidator", () => {
   };
 
   beforeEach(() => {
-    sut = new UpdateUserPasswordValidator();
+    sut = new UpdateUserPasswordValidator(userPasswordValidator);
   });
 
   describe("constructor", () => {

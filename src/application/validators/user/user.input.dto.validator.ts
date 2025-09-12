@@ -5,15 +5,17 @@ import {
   UserRepository,
 } from "../../../domain/repositories";
 import {
-  DuplicatedKeyError,
-  EntityNotFoundError,
-  InvalidParamError,
-} from "../../errors";
-import {
   IdValidatorProtocol,
+  UserBusinessRulesValidatorProtocol,
   UserInputDTOValidatorProtocol,
+  UserPasswordValidatorProtocol,
+  UserRolePermissionValidatorProtocol,
+  UserUniquenessValidatorProtocol,
 } from "../../protocols";
-import { ValidationPatterns } from "../common";
+import { UserBusinessRulesValidator } from "./user.business.rules.validator";
+import { UserPasswordValidator } from "./user.password.validator";
+import { UserRolePermissionValidator } from "./user.role.permission.validator";
+import { UserUniquenessValidator } from "./user.uniqueness.validator";
 
 interface UserInputDTOValidatorProps {
   userRepository: UserRepository;
@@ -22,125 +24,22 @@ interface UserInputDTOValidatorProps {
 }
 
 export class UserInputDTOValidator implements UserInputDTOValidatorProtocol {
-  constructor(private readonly props: UserInputDTOValidatorProps) {}
+  private readonly passwordValidator: UserPasswordValidatorProtocol;
+  private readonly rolePermissionValidator: UserRolePermissionValidatorProtocol;
+  private readonly businessRulesValidator: UserBusinessRulesValidatorProtocol;
+  private readonly uniquenessValidator: UserUniquenessValidatorProtocol;
 
-  private readonly validateMilitaryIdPresence = (militaryId: string): void => {
-    ValidationPatterns.validatePresence(militaryId, "Militar");
-  };
-
-  private readonly validateUserRolePresence = (role: UserRole): void => {
-    ValidationPatterns.validatePresence(role, "Função");
-  };
-
-  private readonly validatePasswordPresence = (password: string): void => {
-    ValidationPatterns.validatePresence(password, "Senha");
-  };
-
-  private readonly validateUserRoleRange = (role: UserRole): void => {
-    if (!Object.values(UserRole).includes(role)) {
-      throw new InvalidParamError("Função", "valor inválido");
-    }
-  };
-
-  private readonly validatePasswordFormat = (password: string): void => {
-    // Valida tamanho mínimo
-    if (password.length < 8) {
-      throw new InvalidParamError("Senha", "deve ter pelo menos 8 caracteres");
-    }
-
-    // Valida se tem pelo menos 1 maiúscula
-    if (!/[A-Z]/.test(password)) {
-      throw new InvalidParamError(
-        "Senha",
-        "deve conter pelo menos 1 letra maiúscula",
-      );
-    }
-
-    // Valida se tem pelo menos 1 minúscula
-    if (!/[a-z]/.test(password)) {
-      throw new InvalidParamError(
-        "Senha",
-        "deve conter pelo menos 1 letra minúscula",
-      );
-    }
-
-    // Valida se tem pelo menos 1 número
-    if (!/[0-9]/.test(password)) {
-      throw new InvalidParamError("Senha", "deve conter pelo menos 1 número");
-    }
-
-    // Valida se tem pelo menos 1 caractere especial
-    if (!/[!@#$%^&*()_+=[\]{};':"\\|,.<>/?-]/.test(password)) {
-      throw new InvalidParamError(
-        "Senha",
-        "deve conter pelo menos 1 caractere especial",
-      );
-    }
-  };
-
-  private readonly validateRoleCreationPermission = (
-    roleToCreate: UserRole,
-    requestingUserRole?: UserRole,
-  ): void => {
-    if (!requestingUserRole) return;
-
-    if (requestingUserRole === UserRole.ADMIN) return;
-
-    if (requestingUserRole === UserRole.CHEFE) {
-      const allowedRoles = [UserRole.ACA, UserRole.BOMBEIRO];
-      if (!allowedRoles.includes(roleToCreate)) {
-        throw new InvalidParamError(
-          "Função",
-          "Chefe só pode criar usuários ACA ou Bombeiro",
-        );
-      }
-      return;
-    }
-
-    throw new InvalidParamError(
-      "Função",
-      "usuário não tem permissão para criar outros usuários",
+  constructor(private readonly props: UserInputDTOValidatorProps) {
+    this.passwordValidator = new UserPasswordValidator();
+    this.rolePermissionValidator = new UserRolePermissionValidator();
+    this.businessRulesValidator = new UserBusinessRulesValidator({
+      militaryRepository: props.militaryRepository,
+      idValidator: props.idValidator,
+    });
+    this.uniquenessValidator = new UserUniquenessValidator(
+      props.userRepository,
     );
-  };
-  private readonly validateMilitaryIdUniqueness = async (
-    militaryId: string,
-    idToIgnore?: string,
-  ): Promise<void> => {
-    const existingUser =
-      await this.props.userRepository.findByMilitaryId(militaryId);
-    if (existingUser && (!idToIgnore || existingUser.id !== idToIgnore)) {
-      throw new DuplicatedKeyError("Militar");
-    }
-  };
-
-  private readonly validateRequiredFields = (data: UserInputDTO): void => {
-    this.validateMilitaryIdPresence(data.militaryId);
-    this.validateUserRolePresence(data.role);
-    this.validatePasswordPresence(data.password);
-  };
-
-  private readonly validateBusinessRules = async (
-    data: UserInputDTO,
-  ): Promise<void> => {
-    const { idValidator, militaryRepository } = this.props;
-
-    idValidator.validate(data.militaryId);
-    const military = await militaryRepository.findById(data.militaryId);
-
-    if (!military) {
-      throw new EntityNotFoundError("Militar");
-    }
-
-    this.validateUserRoleRange(data.role);
-    this.validatePasswordFormat(data.password);
-  };
-
-  private readonly validateUniqueness = async (
-    data: UserInputDTO,
-    idToIgnore?: string,
-  ): Promise<void> => {
-    await this.validateMilitaryIdUniqueness(data.militaryId, idToIgnore);
-  };
+  }
 
   /**
    * Valida para create (idToIgnore não informado) ou update (idToIgnore informado)
@@ -150,9 +49,9 @@ export class UserInputDTOValidator implements UserInputDTOValidatorProtocol {
     requestingUserRole?: UserRole,
     idToIgnore?: string,
   ): Promise<void> => {
-    this.validateRequiredFields(data);
-    this.validateRoleCreationPermission(data.role, requestingUserRole);
-    await this.validateBusinessRules(data);
-    await this.validateUniqueness(data, idToIgnore);
+    await this.uniquenessValidator.validate(data.militaryId, idToIgnore);
+    this.rolePermissionValidator.validate(data.role, requestingUserRole);
+    await this.businessRulesValidator.validate(data.militaryId);
+    this.passwordValidator.validate(data.password);
   };
 }

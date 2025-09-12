@@ -1,7 +1,11 @@
 import { UpdateUserPasswordValidatorProtocol } from "../../../../application/protocols";
-import { UpdateUserPasswordValidator } from "../../../../application/validators";
+import {
+  UpdateUserPasswordValidator,
+  UserPasswordValidator,
+} from "../../../../application/validators";
 
 export const makeUpdateUserPasswordValidator =
   (): UpdateUserPasswordValidatorProtocol => {
-    return new UpdateUserPasswordValidator();
+    const userPasswordValidator = new UserPasswordValidator();
+    return new UpdateUserPasswordValidator(userPasswordValidator);
   };
