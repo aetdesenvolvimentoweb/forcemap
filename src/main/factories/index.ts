@@ -2,6 +2,7 @@ export * from "./controllers";
 export * from "./hasher";
 export * from "./logger";
 export * from "./middlewares";
+export * from "./rate-limiter";
 export * from "./repositories";
 export * from "./sanitizers";
 export * from "./services";

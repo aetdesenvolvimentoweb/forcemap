@@ -1,5 +1,6 @@
 import { LoginService } from "../../../../application/services/auth";
 import { makePasswordHasher } from "../../hasher";
+import { makeRateLimiter } from "../../rate-limiter";
 import {
   makeMilitaryRankRepository,
   makeMilitaryRepository,
@@ -7,7 +8,6 @@ import {
 } from "../../repositories";
 import { makeUserCredentialsInputDTOSanitizer } from "../../sanitizers";
 import { makeTokenHandler } from "../../token-handler";
-import { makeRateLimiterService } from "./rate-limiter.service.factory";
 import { makeSessionService } from "./session.service.factory";
 
 export const makeLoginService = (): LoginService => {
@@ -19,7 +19,7 @@ export const makeLoginService = (): LoginService => {
   const userCredentialsInputDTOSanitizer =
     makeUserCredentialsInputDTOSanitizer();
   const passwordHasher = makePasswordHasher();
-  const rateLimiter = makeRateLimiterService();
+  const rateLimiter = makeRateLimiter();
 
   return new LoginService({
     userRepository,

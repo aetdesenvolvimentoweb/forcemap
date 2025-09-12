@@ -1,14 +1,14 @@
 import {
   RateLimiterProtocol,
   RateLimiterResult,
-} from "../../protocols/rate-limiter.protocol";
+} from "../../application/protocols";
 
 interface AttemptRecord {
   attempts: number[];
   blockedUntil?: Date;
 }
 
-export class RateLimiterService implements RateLimiterProtocol {
+export class InMemoryRateLimiterAdapter implements RateLimiterProtocol {
   private readonly records: Map<string, AttemptRecord> = new Map();
   private readonly maxBlockDuration = 15 * 60 * 1000; // 15 minutes
 
