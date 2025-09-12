@@ -1,20 +1,20 @@
-import { UserSession } from "../../../domain/entities";
+import {
+  Payload,
+  RefreshTokenPayload,
+  UserSession,
+} from "../../../domain/entities";
 import { UnauthorizedError } from "../../../domain/errors";
 import { SessionRepository } from "../../../domain/repositories";
-import {
-  RefreshTokenPayload,
-  TokenPayload,
-} from "../../adapters/token.adapter";
-import { JWTProtocol, LoggerProtocol } from "../../protocols";
+import { LoggerProtocol, TokenHandlerProtocol } from "../../protocols";
 
 interface TokenValidatorDependencies {
-  jwtService: JWTProtocol;
+  tokenHandler: TokenHandlerProtocol;
   sessionRepository: SessionRepository;
   logger: LoggerProtocol;
 }
 
 export interface ValidatedTokenResult {
-  payload: TokenPayload;
+  payload: Payload;
   sessionId: string;
 }
 
@@ -24,7 +24,7 @@ export class TokenValidator {
   public readonly validateAccessToken = async (
     authHeader: string,
   ): Promise<ValidatedTokenResult> => {
-    const { jwtService, sessionRepository, logger } = this.dependencies;
+    const { tokenHandler, sessionRepository, logger } = this.dependencies;
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       logger.warn("Token de autorização ausente ou inválido");
@@ -39,7 +39,7 @@ export class TokenValidator {
     }
 
     try {
-      const payload = jwtService.verifyAccessToken(token);
+      const payload = tokenHandler.verifyAccessToken(token);
 
       const session = await sessionRepository.findByToken(token);
 
@@ -74,10 +74,10 @@ export class TokenValidator {
   public readonly validateRefreshToken = async (
     refreshToken: string,
   ): Promise<{ payload: RefreshTokenPayload; session: UserSession }> => {
-    const { jwtService, sessionRepository, logger } = this.dependencies;
+    const { tokenHandler, sessionRepository, logger } = this.dependencies;
 
     try {
-      const payload = jwtService.verifyRefreshToken(refreshToken);
+      const payload = tokenHandler.verifyRefreshToken(refreshToken);
 
       const session = await sessionRepository.findByRefreshToken(refreshToken);
 

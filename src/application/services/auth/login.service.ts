@@ -15,16 +15,16 @@ import {
 import {
   PasswordHasherProtocol,
   RateLimiterProtocol,
+  TokenHandlerProtocol,
   UserCredentialsInputDTOSanitizerProtocol,
 } from "../../protocols";
 import { SessionService } from "./session.service";
-import { TokenService } from "./token.service";
 
 interface LoginServiceDependencies {
   userRepository: UserRepository;
   militaryRepository: MilitaryRepository;
   sessionService: SessionService;
-  tokenService: TokenService;
+  tokenHandler: TokenHandlerProtocol;
   userCredentialsInputDTOSanitizer: UserCredentialsInputDTOSanitizerProtocol;
   passwordHasher: PasswordHasherProtocol;
   rateLimiter: RateLimiterProtocol;
@@ -42,7 +42,7 @@ export class LoginService {
       userRepository,
       militaryRepository,
       sessionService,
-      tokenService,
+      tokenHandler,
       userCredentialsInputDTOSanitizer,
       passwordHasher,
       rateLimiter,
@@ -132,14 +132,14 @@ export class LoginService {
       });
 
       // Generate tokens using the real sessionId
-      const accessToken = tokenService.generateAccessToken({
+      const accessToken = tokenHandler.generateAccessToken({
         userId: user.id,
         sessionId: session.id,
         role: user.role,
         militaryId: user.militaryId,
       });
 
-      const refreshToken = tokenService.generateRefreshToken({
+      const refreshToken = tokenHandler.generateRefreshToken({
         userId: user.id,
         sessionId: session.id,
       });
@@ -180,11 +180,11 @@ export class LoginService {
     data: RefreshTokenInputDTO,
     ipAddress: string,
   ): Promise<LoginOutputDTO> => {
-    const { sessionService, userRepository, tokenService } = this.dependencies;
+    const { sessionService, userRepository, tokenHandler } = this.dependencies;
 
     try {
       // Verify refresh token
-      tokenService.verifyRefreshToken(data.refreshToken);
+      tokenHandler.verifyRefreshToken(data.refreshToken);
 
       // Find session
       const session = await sessionService.findByRefreshToken(
@@ -211,7 +211,7 @@ export class LoginService {
       }
 
       // Generate new access token
-      const newAccessToken = tokenService.generateAccessToken({
+      const newAccessToken = tokenHandler.generateAccessToken({
         userId: user.id,
         sessionId: session.id,
         role: user.role,

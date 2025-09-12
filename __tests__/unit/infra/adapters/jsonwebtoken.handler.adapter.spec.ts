@@ -9,7 +9,7 @@ import {
   InvalidParamError,
   UnauthorizedError,
 } from "../../../../src/application/errors";
-import { JsonWebTokenJWTAdapter } from "../../../../src/infra/adapters";
+import { JsonWebTokenHandlerAdapter } from "../../../../src/infra/adapters";
 
 jest.mock("jsonwebtoken", () => ({
   sign: jest.fn(),
@@ -22,7 +22,7 @@ const mockSign = sign as jest.Mock;
 const mockVerify = verify as jest.Mock;
 
 describe("JsonWebTokenJWTAdapter", () => {
-  let sut: JsonWebTokenJWTAdapter;
+  let sut: JsonWebTokenHandlerAdapter;
   let originalEnv: NodeJS.ProcessEnv;
 
   beforeAll(() => {
@@ -41,7 +41,7 @@ describe("JsonWebTokenJWTAdapter", () => {
     process.env.JWT_ACCESS_EXPIRY = "15m";
     process.env.JWT_REFRESH_EXPIRY = "7d";
 
-    sut = new JsonWebTokenJWTAdapter();
+    sut = new JsonWebTokenHandlerAdapter();
   });
 
   describe("constructor", () => {
@@ -51,7 +51,7 @@ describe("JsonWebTokenJWTAdapter", () => {
       process.env.JWT_ACCESS_EXPIRY = "30m";
       process.env.JWT_REFRESH_EXPIRY = "14d";
 
-      const adapter = new JsonWebTokenJWTAdapter();
+      const adapter = new JsonWebTokenHandlerAdapter();
 
       expect(adapter["accessTokenSecret"]).toBe("custom-access-secret");
       expect(adapter["refreshTokenSecret"]).toBe("custom-refresh-secret");
@@ -65,7 +65,7 @@ describe("JsonWebTokenJWTAdapter", () => {
       delete process.env.JWT_ACCESS_EXPIRY;
       delete process.env.JWT_REFRESH_EXPIRY;
 
-      const adapter = new JsonWebTokenJWTAdapter();
+      const adapter = new JsonWebTokenHandlerAdapter();
 
       expect(adapter["accessTokenSecret"]).toBe("your-access-secret");
       expect(adapter["refreshTokenSecret"]).toBe("your-refresh-secret");
@@ -619,7 +619,7 @@ describe("JsonWebTokenJWTAdapter", () => {
       process.env.JWT_ACCESS_EXPIRY = "";
       process.env.JWT_REFRESH_EXPIRY = "";
 
-      const adapter = new JsonWebTokenJWTAdapter();
+      const adapter = new JsonWebTokenHandlerAdapter();
 
       expect(adapter["accessTokenSecret"]).toBe("your-access-secret");
       expect(adapter["refreshTokenSecret"]).toBe("your-refresh-secret");

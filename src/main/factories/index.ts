@@ -5,4 +5,5 @@ export * from "./middlewares";
 export * from "./repositories";
 export * from "./sanitizers";
 export * from "./services";
+export * from "./token-handler";
 export * from "./validators";

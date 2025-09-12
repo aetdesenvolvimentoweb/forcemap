@@ -7,10 +7,10 @@ import {
 } from "jsonwebtoken";
 
 import { InvalidParamError, UnauthorizedError } from "../../application/errors";
-import { JWTProtocol } from "../../application/protocols";
-import { JWTPayload, RefreshTokenPayload } from "../../domain/entities";
+import { TokenHandlerProtocol } from "../../application/protocols";
+import { Payload, RefreshTokenPayload } from "../../domain/entities";
 
-export class JsonWebTokenJWTAdapter implements JWTProtocol {
+export class JsonWebTokenHandlerAdapter implements TokenHandlerProtocol {
   private readonly accessTokenSecret: string;
   private readonly refreshTokenSecret: string;
   private readonly accessTokenExpiry: string;
@@ -26,7 +26,7 @@ export class JsonWebTokenJWTAdapter implements JWTProtocol {
   }
 
   public readonly generateAccessToken = (
-    payload: Omit<JWTPayload, "iat" | "exp">,
+    payload: Omit<Payload, "iat" | "exp">,
   ): string => {
     try {
       return sign(payload as Record<string, unknown>, this.accessTokenSecret, {
@@ -56,7 +56,7 @@ export class JsonWebTokenJWTAdapter implements JWTProtocol {
     }
   };
 
-  public readonly verifyAccessToken = (token: string): JWTPayload => {
+  public readonly verifyAccessToken = (token: string): Payload => {
     try {
       if (!token || typeof token !== "string") {
         throw new UnauthorizedError("Token de acesso obrigatório");
@@ -65,7 +65,7 @@ export class JsonWebTokenJWTAdapter implements JWTProtocol {
       const decoded = verify(token, this.accessTokenSecret, {
         issuer: "forcemap-api",
         audience: "forcemap-client",
-      }) as JWTPayload;
+      }) as Payload;
 
       if (
         !decoded.userId ||

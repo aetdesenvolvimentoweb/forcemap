@@ -12,7 +12,7 @@ export type UserSession = {
   lastAccessAt: Date;
 };
 
-export type JWTPayload = {
+export type Payload = {
   userId: string;
   sessionId: string;
   role: string;

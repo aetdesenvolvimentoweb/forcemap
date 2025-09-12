@@ -1,6 +1,6 @@
-import { JWTProtocol } from "../../src/application/protocols/jwt.protocol";
+import { TokenHandlerProtocol } from "../../src/application/protocols";
 
-export const mockJwtService = (): jest.Mocked<JWTProtocol> => ({
+export const mockJwtService = (): jest.Mocked<TokenHandlerProtocol> => ({
   extractTokenFromHeader: jest.fn(),
   verifyAccessToken: jest.fn(),
   verifyRefreshToken: jest.fn(),
