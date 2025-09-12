@@ -1,6 +1,6 @@
 import { LoggerProtocol } from "../../application/protocols";
-import { SessionService } from "../../application/services/auth/session.service";
-import { TokenValidator } from "../../application/validators/auth/token.validator";
+import { SessionService } from "../../application/services";
+import { TokenValidator } from "../../application/validators";
 import { UnauthorizedError } from "../../domain/errors";
 import { HttpRequest, HttpResponse } from "../protocols";
 import { badRequest } from "../utils";
