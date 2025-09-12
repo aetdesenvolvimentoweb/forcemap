@@ -1,8 +1,7 @@
 import { AuthService } from "../../src/application/services/auth/auth.service";
 
 export const mockAuthService = (): jest.Mocked<
-  Pick<AuthService, "refreshToken" | "validateSession">
+  Pick<AuthService, "validateSession">
 > => ({
-  refreshToken: jest.fn(),
   validateSession: jest.fn(),
 });

@@ -1,4 +1,4 @@
-import { mockAuthService, mockLogger } from "../../../../../__mocks__";
+import { mockLogger, mockRefreshTokenService } from "../../../../../__mocks__";
 import {
   TooManyRequestsError,
   UnauthorizedError,
@@ -20,13 +20,13 @@ interface RefreshTokenHttpRequest extends HttpRequest<RefreshTokenInputDTO> {
 
 describe("RefreshTokenController", () => {
   let sut: RefreshTokenController;
-  let mockedAuthService = mockAuthService();
+  let mockedRefreshTokenService = mockRefreshTokenService();
   let mockedLogger = mockLogger();
 
   beforeEach(() => {
     jest.clearAllMocks();
     sut = new RefreshTokenController({
-      authService: mockedAuthService as any,
+      refreshTokenService: mockedRefreshTokenService as any,
       logger: mockedLogger,
     });
   });
@@ -53,7 +53,9 @@ describe("RefreshTokenController", () => {
     };
 
     it("should refresh token successfully with valid refresh token", async () => {
-      mockedAuthService.refreshToken.mockResolvedValueOnce(mockRefreshResult);
+      mockedRefreshTokenService.refreshToken.mockResolvedValueOnce(
+        mockRefreshResult,
+      );
 
       const result = await sut.handle(validRequest);
 
@@ -61,15 +63,17 @@ describe("RefreshTokenController", () => {
         statusCode: 200,
         body: { data: mockRefreshResult },
       });
-      expect(mockedAuthService.refreshToken).toHaveBeenCalledWith(
+      expect(mockedRefreshTokenService.refreshToken).toHaveBeenCalledWith(
         validBody,
         "192.168.1.1",
       );
-      expect(mockedAuthService.refreshToken).toHaveBeenCalledTimes(1);
+      expect(mockedRefreshTokenService.refreshToken).toHaveBeenCalledTimes(1);
     });
 
     it("should log info when receiving refresh token request", async () => {
-      mockedAuthService.refreshToken.mockResolvedValueOnce(mockRefreshResult);
+      mockedRefreshTokenService.refreshToken.mockResolvedValueOnce(
+        mockRefreshResult,
+      );
 
       await sut.handle(validRequest);
 
@@ -82,7 +86,9 @@ describe("RefreshTokenController", () => {
     });
 
     it("should log info when token refresh is successful", async () => {
-      mockedAuthService.refreshToken.mockResolvedValueOnce(mockRefreshResult);
+      mockedRefreshTokenService.refreshToken.mockResolvedValueOnce(
+        mockRefreshResult,
+      );
 
       await sut.handle(validRequest);
 
@@ -101,11 +107,13 @@ describe("RefreshTokenController", () => {
         socket: { remoteAddress: "10.0.0.1" },
       };
 
-      mockedAuthService.refreshToken.mockResolvedValueOnce(mockRefreshResult);
+      mockedRefreshTokenService.refreshToken.mockResolvedValueOnce(
+        mockRefreshResult,
+      );
 
       await sut.handle(requestWithSocket);
 
-      expect(mockedAuthService.refreshToken).toHaveBeenCalledWith(
+      expect(mockedRefreshTokenService.refreshToken).toHaveBeenCalledWith(
         validBody,
         "10.0.0.1",
       );
@@ -125,11 +133,13 @@ describe("RefreshTokenController", () => {
         socket: { remoteAddress: "10.0.0.1" },
       };
 
-      mockedAuthService.refreshToken.mockResolvedValueOnce(mockRefreshResult);
+      mockedRefreshTokenService.refreshToken.mockResolvedValueOnce(
+        mockRefreshResult,
+      );
 
       await sut.handle(requestWithBoth);
 
-      expect(mockedAuthService.refreshToken).toHaveBeenCalledWith(
+      expect(mockedRefreshTokenService.refreshToken).toHaveBeenCalledWith(
         validBody,
         "192.168.1.1",
       );
@@ -140,11 +150,13 @@ describe("RefreshTokenController", () => {
         body: validBody,
       };
 
-      mockedAuthService.refreshToken.mockResolvedValueOnce(mockRefreshResult);
+      mockedRefreshTokenService.refreshToken.mockResolvedValueOnce(
+        mockRefreshResult,
+      );
 
       await sut.handle(requestWithoutIP);
 
-      expect(mockedAuthService.refreshToken).toHaveBeenCalledWith(
+      expect(mockedRefreshTokenService.refreshToken).toHaveBeenCalledWith(
         validBody,
         "unknown",
       );
@@ -162,7 +174,9 @@ describe("RefreshTokenController", () => {
         body: validBody,
       };
 
-      mockedAuthService.refreshToken.mockResolvedValueOnce(mockRefreshResult);
+      mockedRefreshTokenService.refreshToken.mockResolvedValueOnce(
+        mockRefreshResult,
+      );
 
       await sut.handle(requestWithoutIP);
 
@@ -185,7 +199,7 @@ describe("RefreshTokenController", () => {
         body: { error: "Campos obrigatórios não foram preenchidos." },
         statusCode: 422,
       });
-      expect(mockedAuthService.refreshToken).not.toHaveBeenCalled();
+      expect(mockedRefreshTokenService.refreshToken).not.toHaveBeenCalled();
     });
 
     it("should return empty request error when body is null", async () => {
@@ -200,7 +214,7 @@ describe("RefreshTokenController", () => {
         body: { error: "Campos obrigatórios não foram preenchidos." },
         statusCode: 422,
       });
-      expect(mockedAuthService.refreshToken).not.toHaveBeenCalled();
+      expect(mockedRefreshTokenService.refreshToken).not.toHaveBeenCalled();
     });
 
     it("should return empty request error when body is undefined", async () => {
@@ -215,7 +229,7 @@ describe("RefreshTokenController", () => {
         body: { error: "Campos obrigatórios não foram preenchidos." },
         statusCode: 422,
       });
-      expect(mockedAuthService.refreshToken).not.toHaveBeenCalled();
+      expect(mockedRefreshTokenService.refreshToken).not.toHaveBeenCalled();
     });
 
     it("should log error when body is missing", async () => {
@@ -232,7 +246,9 @@ describe("RefreshTokenController", () => {
 
     it("should handle unauthorized error from auth service", async () => {
       const serviceError = new UnauthorizedError("Refresh token inválido");
-      mockedAuthService.refreshToken.mockRejectedValueOnce(serviceError);
+      mockedRefreshTokenService.refreshToken.mockRejectedValueOnce(
+        serviceError,
+      );
 
       const result = await sut.handle(validRequest);
 
@@ -240,7 +256,7 @@ describe("RefreshTokenController", () => {
         body: { error: serviceError.message },
         statusCode: serviceError.statusCode,
       });
-      expect(mockedAuthService.refreshToken).toHaveBeenCalledWith(
+      expect(mockedRefreshTokenService.refreshToken).toHaveBeenCalledWith(
         validBody,
         "192.168.1.1",
       );
@@ -250,7 +266,9 @@ describe("RefreshTokenController", () => {
       const serviceError = new TooManyRequestsError(
         "Muitas tentativas de renovação de token. Tente novamente em 5 minutos.",
       );
-      mockedAuthService.refreshToken.mockRejectedValueOnce(serviceError);
+      mockedRefreshTokenService.refreshToken.mockRejectedValueOnce(
+        serviceError,
+      );
 
       const result = await sut.handle(validRequest);
 
@@ -258,7 +276,7 @@ describe("RefreshTokenController", () => {
         body: { error: serviceError.message },
         statusCode: serviceError.statusCode,
       });
-      expect(mockedAuthService.refreshToken).toHaveBeenCalledWith(
+      expect(mockedRefreshTokenService.refreshToken).toHaveBeenCalledWith(
         validBody,
         "192.168.1.1",
       );
@@ -266,7 +284,9 @@ describe("RefreshTokenController", () => {
 
     it("should log error when service throws exception", async () => {
       const serviceError = new UnauthorizedError("Refresh token inválido");
-      mockedAuthService.refreshToken.mockRejectedValueOnce(serviceError);
+      mockedRefreshTokenService.refreshToken.mockRejectedValueOnce(
+        serviceError,
+      );
 
       await sut.handle(validRequest);
 
@@ -278,7 +298,9 @@ describe("RefreshTokenController", () => {
 
     it("should handle unknown errors and return server error", async () => {
       const unknownError = new Error("Database connection failed");
-      mockedAuthService.refreshToken.mockRejectedValueOnce(unknownError);
+      mockedRefreshTokenService.refreshToken.mockRejectedValueOnce(
+        unknownError,
+      );
 
       const result = await sut.handle(validRequest);
 
@@ -286,7 +308,7 @@ describe("RefreshTokenController", () => {
         body: { error: "Erro interno no servidor." },
         statusCode: 500,
       });
-      expect(mockedAuthService.refreshToken).toHaveBeenCalledWith(
+      expect(mockedRefreshTokenService.refreshToken).toHaveBeenCalledWith(
         validBody,
         "192.168.1.1",
       );
@@ -306,7 +328,9 @@ describe("RefreshTokenController", () => {
           user: { ...mockRefreshResult.user, role },
         };
 
-        mockedAuthService.refreshToken.mockResolvedValueOnce(refreshResult);
+        mockedRefreshTokenService.refreshToken.mockResolvedValueOnce(
+          refreshResult,
+        );
 
         const result = await sut.handle(validRequest);
 
@@ -342,11 +366,13 @@ describe("RefreshTokenController", () => {
           ip: "192.168.1.1",
         };
 
-        mockedAuthService.refreshToken.mockResolvedValueOnce(mockRefreshResult);
+        mockedRefreshTokenService.refreshToken.mockResolvedValueOnce(
+          mockRefreshResult,
+        );
 
         await sut.handle(requestWithToken);
 
-        expect(mockedAuthService.refreshToken).toHaveBeenCalledWith(
+        expect(mockedRefreshTokenService.refreshToken).toHaveBeenCalledWith(
           bodyWithToken,
           "192.168.1.1",
         );
@@ -369,11 +395,13 @@ describe("RefreshTokenController", () => {
           ip,
         };
 
-        mockedAuthService.refreshToken.mockResolvedValueOnce(mockRefreshResult);
+        mockedRefreshTokenService.refreshToken.mockResolvedValueOnce(
+          mockRefreshResult,
+        );
 
         await sut.handle(requestWithIP);
 
-        expect(mockedAuthService.refreshToken).toHaveBeenCalledWith(
+        expect(mockedRefreshTokenService.refreshToken).toHaveBeenCalledWith(
           validBody,
           ip,
         );
@@ -413,7 +441,7 @@ describe("RefreshTokenController", () => {
         ip: "192.168.1.2",
       };
 
-      mockedAuthService.refreshToken
+      mockedRefreshTokenService.refreshToken
         .mockResolvedValueOnce(refreshResult1)
         .mockResolvedValueOnce(refreshResult2);
 
@@ -430,13 +458,13 @@ describe("RefreshTokenController", () => {
         statusCode: 200,
         body: { data: refreshResult2 },
       });
-      expect(mockedAuthService.refreshToken).toHaveBeenCalledTimes(2);
-      expect(mockedAuthService.refreshToken).toHaveBeenNthCalledWith(
+      expect(mockedRefreshTokenService.refreshToken).toHaveBeenCalledTimes(2);
+      expect(mockedRefreshTokenService.refreshToken).toHaveBeenNthCalledWith(
         1,
         body1,
         "192.168.1.1",
       );
-      expect(mockedAuthService.refreshToken).toHaveBeenNthCalledWith(
+      expect(mockedRefreshTokenService.refreshToken).toHaveBeenNthCalledWith(
         2,
         body2,
         "192.168.1.2",
@@ -453,16 +481,18 @@ describe("RefreshTokenController", () => {
         ip: "192.168.1.1",
       };
 
-      mockedAuthService.refreshToken.mockResolvedValueOnce(mockRefreshResult);
+      mockedRefreshTokenService.refreshToken.mockResolvedValueOnce(
+        mockRefreshResult,
+      );
 
       await sut.handle(request);
 
-      expect(mockedAuthService.refreshToken).toHaveBeenCalledWith(
+      expect(mockedRefreshTokenService.refreshToken).toHaveBeenCalledWith(
         complexBody,
         "192.168.1.1",
       );
 
-      const calledWith = mockedAuthService.refreshToken.mock.calls[0];
+      const calledWith = mockedRefreshTokenService.refreshToken.mock.calls[0];
       expect(calledWith[0]).toHaveProperty("refreshToken");
       expect(typeof calledWith[0].refreshToken).toBe("string");
       expect(typeof calledWith[1]).toBe("string"); // IP address
@@ -478,7 +508,9 @@ describe("RefreshTokenController", () => {
         ip: "192.168.1.1",
       };
 
-      mockedAuthService.refreshToken.mockResolvedValueOnce(mockRefreshResult);
+      mockedRefreshTokenService.refreshToken.mockResolvedValueOnce(
+        mockRefreshResult,
+      );
 
       await sut.handle(request);
 
@@ -486,7 +518,9 @@ describe("RefreshTokenController", () => {
     });
 
     it("should maintain consistent response structure", async () => {
-      mockedAuthService.refreshToken.mockResolvedValueOnce(mockRefreshResult);
+      mockedRefreshTokenService.refreshToken.mockResolvedValueOnce(
+        mockRefreshResult,
+      );
 
       const result = await sut.handle(validRequest);
 
@@ -515,7 +549,9 @@ describe("RefreshTokenController", () => {
       };
 
       const serviceError = new UnauthorizedError("Refresh token inválido");
-      mockedAuthService.refreshToken.mockRejectedValueOnce(serviceError);
+      mockedRefreshTokenService.refreshToken.mockRejectedValueOnce(
+        serviceError,
+      );
 
       const result = await sut.handle(requestWithEmptyToken);
 
@@ -523,7 +559,7 @@ describe("RefreshTokenController", () => {
         body: { error: serviceError.message },
         statusCode: serviceError.statusCode,
       });
-      expect(mockedAuthService.refreshToken).toHaveBeenCalledWith(
+      expect(mockedRefreshTokenService.refreshToken).toHaveBeenCalledWith(
         bodyWithEmptyToken,
         "192.168.1.1",
       );
@@ -550,7 +586,9 @@ describe("RefreshTokenController", () => {
         };
 
         const serviceError = new UnauthorizedError("Refresh token inválido");
-        mockedAuthService.refreshToken.mockRejectedValueOnce(serviceError);
+        mockedRefreshTokenService.refreshToken.mockRejectedValueOnce(
+          serviceError,
+        );
 
         const result = await sut.handle(requestWithMalformedToken);
 
@@ -558,7 +596,7 @@ describe("RefreshTokenController", () => {
           body: { error: serviceError.message },
           statusCode: serviceError.statusCode,
         });
-        expect(mockedAuthService.refreshToken).toHaveBeenCalledWith(
+        expect(mockedRefreshTokenService.refreshToken).toHaveBeenCalledWith(
           bodyWithMalformedToken,
           "192.168.1.1",
         );
@@ -576,7 +614,9 @@ describe("RefreshTokenController", () => {
         },
       };
 
-      mockedAuthService.refreshToken.mockResolvedValueOnce(mockRefreshResult);
+      mockedRefreshTokenService.refreshToken.mockResolvedValueOnce(
+        mockRefreshResult,
+      );
 
       const result = await sut.handle(requestWithHeaders);
 
@@ -584,7 +624,7 @@ describe("RefreshTokenController", () => {
         statusCode: 200,
         body: { data: mockRefreshResult },
       });
-      expect(mockedAuthService.refreshToken).toHaveBeenCalledWith(
+      expect(mockedRefreshTokenService.refreshToken).toHaveBeenCalledWith(
         validBody,
         "192.168.1.1",
       );
@@ -592,7 +632,9 @@ describe("RefreshTokenController", () => {
 
     it("should properly mask refresh token in error logs", async () => {
       const serviceError = new UnauthorizedError("Refresh token inválido");
-      mockedAuthService.refreshToken.mockRejectedValueOnce(serviceError);
+      mockedRefreshTokenService.refreshToken.mockRejectedValueOnce(
+        serviceError,
+      );
 
       await sut.handle(validRequest);
 
@@ -610,7 +652,9 @@ describe("RefreshTokenController", () => {
       ];
 
       for (const networkError of networkErrors) {
-        mockedAuthService.refreshToken.mockRejectedValueOnce(networkError);
+        mockedRefreshTokenService.refreshToken.mockRejectedValueOnce(
+          networkError,
+        );
 
         const result = await sut.handle(validRequest);
 

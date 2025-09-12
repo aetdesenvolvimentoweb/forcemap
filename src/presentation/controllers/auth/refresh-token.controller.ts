@@ -1,12 +1,12 @@
 import { LoggerProtocol } from "../../../application/protocols";
-import { AuthService } from "../../../application/services/auth/auth.service";
+import { RefreshTokenService } from "../../../application/services/auth/refresh-token.service";
 import { RefreshTokenInputDTO } from "../../../domain/dtos/auth";
 import { HttpRequest, HttpResponse } from "../../protocols";
 import { emptyRequest, ok } from "../../utils";
 import { BaseController } from "../base.controller";
 
 interface RefreshTokenControllerProps {
-  authService: AuthService;
+  refreshTokenService: RefreshTokenService;
   logger: LoggerProtocol;
 }
 
@@ -22,7 +22,7 @@ export class RefreshTokenController extends BaseController {
   }
 
   public async handle(request: RefreshTokenHttpRequest): Promise<HttpResponse> {
-    const { authService } = this.props;
+    const { refreshTokenService } = this.props;
 
     this.logger.info("Recebida requisição para renovar token", {
       ip: request.ip,
@@ -37,7 +37,10 @@ export class RefreshTokenController extends BaseController {
       async () => {
         const ipAddress =
           request.ip || request.socket?.remoteAddress || "unknown";
-        const refreshResult = await authService.refreshToken(body, ipAddress);
+        const refreshResult = await refreshTokenService.refreshToken(
+          body,
+          ipAddress,
+        );
 
         this.logger.info("Token renovado com sucesso", {
           userId: refreshResult.user.id,
