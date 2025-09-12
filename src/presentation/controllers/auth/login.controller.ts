@@ -1,12 +1,12 @@
 import { LoggerProtocol } from "../../../application/protocols";
-import { AuthService } from "../../../application/services/auth/auth.service";
+import { LoginService } from "../../../application/services/auth/login.service";
 import { LoginInputDTO } from "../../../domain/dtos/auth";
 import { HttpRequest, HttpResponse } from "../../protocols";
 import { emptyRequest, ok } from "../../utils";
 import { BaseController } from "../base.controller";
 
 interface LoginControllerProps {
-  authService: AuthService;
+  loginService: LoginService;
   logger: LoggerProtocol;
 }
 
@@ -22,7 +22,7 @@ export class LoginController extends BaseController {
   }
 
   public async handle(request: LoginHttpRequest): Promise<HttpResponse> {
-    const { authService } = this.props;
+    const { loginService } = this.props;
 
     this.logger.info("Recebida requisição para login", {
       rg: request.body?.rg,
@@ -42,7 +42,11 @@ export class LoginController extends BaseController {
         const userAgent =
           (request.headers?.["user-agent"] as string) || "unknown";
 
-        const loginResult = await authService.login(body, ipAddress, userAgent);
+        const loginResult = await loginService.authenticate(
+          body,
+          ipAddress,
+          userAgent,
+        );
 
         this.logger.info("Login realizado com sucesso", {
           userId: loginResult.user.id,

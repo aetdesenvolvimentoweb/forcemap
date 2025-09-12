@@ -1,5 +1,4 @@
 import {
-  LoginInputDTO,
   LoginOutputDTO,
   RefreshTokenInputDTO,
 } from "../../../domain/dtos/auth";
@@ -13,18 +12,6 @@ interface AuthServiceDependencies {
 
 export class AuthService {
   constructor(private readonly dependencies: AuthServiceDependencies) {}
-
-  public readonly login = async (
-    data: LoginInputDTO,
-    ipAddress: string,
-    userAgent: string,
-  ): Promise<LoginOutputDTO> => {
-    return this.dependencies.loginService.authenticate(
-      data,
-      ipAddress,
-      userAgent,
-    );
-  };
 
   public readonly refreshToken = async (
     data: RefreshTokenInputDTO,

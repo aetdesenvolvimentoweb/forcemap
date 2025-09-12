@@ -1,4 +1,4 @@
-import { mockAuthService, mockLogger } from "../../../../../__mocks__";
+import { mockLogger, mockLoginService } from "../../../../../__mocks__";
 import {
   TooManyRequestsError,
   UnauthorizedError,
@@ -19,13 +19,13 @@ interface LoginHttpRequest extends HttpRequest<LoginInputDTO> {
 
 describe("LoginController", () => {
   let sut: LoginController;
-  let mockedAuthService = mockAuthService();
+  let mockedLoginService = mockLoginService();
   let mockedLogger = mockLogger();
 
   beforeEach(() => {
     jest.clearAllMocks();
     sut = new LoginController({
-      authService: mockedAuthService as any,
+      loginService: mockedLoginService as any,
       logger: mockedLogger,
     });
   });
@@ -57,7 +57,7 @@ describe("LoginController", () => {
     };
 
     it("should login successfully with valid credentials", async () => {
-      mockedAuthService.login.mockResolvedValueOnce(mockLoginOutput);
+      mockedLoginService.authenticate.mockResolvedValueOnce(mockLoginOutput);
 
       const result = await sut.handle(validRequest);
 
@@ -65,16 +65,16 @@ describe("LoginController", () => {
         statusCode: 200,
         body: { data: mockLoginOutput },
       });
-      expect(mockedAuthService.login).toHaveBeenCalledWith(
+      expect(mockedLoginService.authenticate).toHaveBeenCalledWith(
         validBody,
         "192.168.1.1",
         "Test User Agent",
       );
-      expect(mockedAuthService.login).toHaveBeenCalledTimes(1);
+      expect(mockedLoginService.authenticate).toHaveBeenCalledTimes(1);
     });
 
     it("should log info when receiving login request", async () => {
-      mockedAuthService.login.mockResolvedValueOnce(mockLoginOutput);
+      mockedLoginService.authenticate.mockResolvedValueOnce(mockLoginOutput);
 
       await sut.handle(validRequest);
 
@@ -89,7 +89,7 @@ describe("LoginController", () => {
     });
 
     it("should log info when login is successful", async () => {
-      mockedAuthService.login.mockResolvedValueOnce(mockLoginOutput);
+      mockedLoginService.authenticate.mockResolvedValueOnce(mockLoginOutput);
 
       await sut.handle(validRequest);
 
@@ -112,11 +112,11 @@ describe("LoginController", () => {
         },
       };
 
-      mockedAuthService.login.mockResolvedValueOnce(mockLoginOutput);
+      mockedLoginService.authenticate.mockResolvedValueOnce(mockLoginOutput);
 
       await sut.handle(requestWithSocket);
 
-      expect(mockedAuthService.login).toHaveBeenCalledWith(
+      expect(mockedLoginService.authenticate).toHaveBeenCalledWith(
         validBody,
         "10.0.0.1",
         "Test User Agent",
@@ -131,11 +131,11 @@ describe("LoginController", () => {
         },
       };
 
-      mockedAuthService.login.mockResolvedValueOnce(mockLoginOutput);
+      mockedLoginService.authenticate.mockResolvedValueOnce(mockLoginOutput);
 
       await sut.handle(requestWithoutIP);
 
-      expect(mockedAuthService.login).toHaveBeenCalledWith(
+      expect(mockedLoginService.authenticate).toHaveBeenCalledWith(
         validBody,
         "unknown",
         "Test User Agent",
@@ -148,11 +148,11 @@ describe("LoginController", () => {
         ip: "192.168.1.1",
       };
 
-      mockedAuthService.login.mockResolvedValueOnce(mockLoginOutput);
+      mockedLoginService.authenticate.mockResolvedValueOnce(mockLoginOutput);
 
       await sut.handle(requestWithoutUserAgent);
 
-      expect(mockedAuthService.login).toHaveBeenCalledWith(
+      expect(mockedLoginService.authenticate).toHaveBeenCalledWith(
         validBody,
         "192.168.1.1",
         "unknown",
@@ -173,11 +173,11 @@ describe("LoginController", () => {
         },
       };
 
-      mockedAuthService.login.mockResolvedValueOnce(mockLoginOutput);
+      mockedLoginService.authenticate.mockResolvedValueOnce(mockLoginOutput);
 
       await sut.handle(requestWithoutDevice);
 
-      expect(mockedAuthService.login).toHaveBeenCalledWith(
+      expect(mockedLoginService.authenticate).toHaveBeenCalledWith(
         bodyWithoutDevice,
         "192.168.1.1",
         "Test User Agent",
@@ -203,7 +203,7 @@ describe("LoginController", () => {
         body: { error: "Campos obrigatórios não foram preenchidos." },
         statusCode: 422,
       });
-      expect(mockedAuthService.login).not.toHaveBeenCalled();
+      expect(mockedLoginService.authenticate).not.toHaveBeenCalled();
     });
 
     it("should return empty request error when body is null", async () => {
@@ -218,7 +218,7 @@ describe("LoginController", () => {
         body: { error: "Campos obrigatórios não foram preenchidos." },
         statusCode: 422,
       });
-      expect(mockedAuthService.login).not.toHaveBeenCalled();
+      expect(mockedLoginService.authenticate).not.toHaveBeenCalled();
     });
 
     it("should return empty request error when body is undefined", async () => {
@@ -233,7 +233,7 @@ describe("LoginController", () => {
         body: { error: "Campos obrigatórios não foram preenchidos." },
         statusCode: 422,
       });
-      expect(mockedAuthService.login).not.toHaveBeenCalled();
+      expect(mockedLoginService.authenticate).not.toHaveBeenCalled();
     });
 
     it("should log error when body is missing", async () => {
@@ -250,7 +250,7 @@ describe("LoginController", () => {
 
     it("should handle unauthorized error from auth service", async () => {
       const serviceError = new UnauthorizedError("Credenciais inválidas");
-      mockedAuthService.login.mockRejectedValueOnce(serviceError);
+      mockedLoginService.authenticate.mockRejectedValueOnce(serviceError);
 
       const result = await sut.handle(validRequest);
 
@@ -258,7 +258,7 @@ describe("LoginController", () => {
         body: { error: serviceError.message },
         statusCode: serviceError.statusCode,
       });
-      expect(mockedAuthService.login).toHaveBeenCalledWith(
+      expect(mockedLoginService.authenticate).toHaveBeenCalledWith(
         validBody,
         "192.168.1.1",
         "Test User Agent",
@@ -269,7 +269,7 @@ describe("LoginController", () => {
       const serviceError = new TooManyRequestsError(
         "Muitas tentativas de login. Tente novamente em 5 minutos.",
       );
-      mockedAuthService.login.mockRejectedValueOnce(serviceError);
+      mockedLoginService.authenticate.mockRejectedValueOnce(serviceError);
 
       const result = await sut.handle(validRequest);
 
@@ -277,7 +277,7 @@ describe("LoginController", () => {
         body: { error: serviceError.message },
         statusCode: serviceError.statusCode,
       });
-      expect(mockedAuthService.login).toHaveBeenCalledWith(
+      expect(mockedLoginService.authenticate).toHaveBeenCalledWith(
         validBody,
         "192.168.1.1",
         "Test User Agent",
@@ -286,7 +286,7 @@ describe("LoginController", () => {
 
     it("should log error when service throws exception", async () => {
       const serviceError = new UnauthorizedError("Credenciais inválidas");
-      mockedAuthService.login.mockRejectedValueOnce(serviceError);
+      mockedLoginService.authenticate.mockRejectedValueOnce(serviceError);
 
       await sut.handle(validRequest);
 
@@ -301,7 +301,7 @@ describe("LoginController", () => {
 
     it("should handle unknown errors and return server error", async () => {
       const unknownError = new Error("Database connection failed");
-      mockedAuthService.login.mockRejectedValueOnce(unknownError);
+      mockedLoginService.authenticate.mockRejectedValueOnce(unknownError);
 
       const result = await sut.handle(validRequest);
 
@@ -309,7 +309,7 @@ describe("LoginController", () => {
         body: { error: "Erro interno no servidor." },
         statusCode: 500,
       });
-      expect(mockedAuthService.login).toHaveBeenCalledWith(
+      expect(mockedLoginService.authenticate).toHaveBeenCalledWith(
         validBody,
         "192.168.1.1",
         "Test User Agent",
@@ -330,7 +330,7 @@ describe("LoginController", () => {
           user: { ...mockLoginOutput.user, role },
         };
 
-        mockedAuthService.login.mockResolvedValueOnce(loginOutput);
+        mockedLoginService.authenticate.mockResolvedValueOnce(loginOutput);
 
         const result = await sut.handle(validRequest);
 
@@ -361,11 +361,11 @@ describe("LoginController", () => {
         },
       };
 
-      mockedAuthService.login.mockResolvedValueOnce(mockLoginOutput);
+      mockedLoginService.authenticate.mockResolvedValueOnce(mockLoginOutput);
 
       await sut.handle(requestWithComplexUserAgent);
 
-      expect(mockedAuthService.login).toHaveBeenCalledWith(
+      expect(mockedLoginService.authenticate).toHaveBeenCalledWith(
         validBody,
         "192.168.1.1",
         complexUserAgent,
@@ -386,12 +386,12 @@ describe("LoginController", () => {
           body: bodyWithDifferentRG,
         };
 
-        mockedAuthService.login.mockResolvedValueOnce(mockLoginOutput);
+        mockedLoginService.authenticate.mockResolvedValueOnce(mockLoginOutput);
 
         const result = await sut.handle(requestWithDifferentRG);
 
         expect(result.statusCode).toBe(200);
-        expect(mockedAuthService.login).toHaveBeenCalledWith(
+        expect(mockedLoginService.authenticate).toHaveBeenCalledWith(
           bodyWithDifferentRG,
           "192.168.1.1",
           "Test User Agent",
@@ -439,7 +439,7 @@ describe("LoginController", () => {
         headers: { "user-agent": "Agent 2" },
       };
 
-      mockedAuthService.login
+      mockedLoginService.authenticate
         .mockResolvedValueOnce(loginOutput1)
         .mockResolvedValueOnce(loginOutput2);
 
@@ -456,14 +456,14 @@ describe("LoginController", () => {
         statusCode: 200,
         body: { data: loginOutput2 },
       });
-      expect(mockedAuthService.login).toHaveBeenCalledTimes(2);
-      expect(mockedAuthService.login).toHaveBeenNthCalledWith(
+      expect(mockedLoginService.authenticate).toHaveBeenCalledTimes(2);
+      expect(mockedLoginService.authenticate).toHaveBeenNthCalledWith(
         1,
         body1,
         "192.168.1.1",
         "Agent 1",
       );
-      expect(mockedAuthService.login).toHaveBeenNthCalledWith(
+      expect(mockedLoginService.authenticate).toHaveBeenNthCalledWith(
         2,
         body2,
         "192.168.1.2",
@@ -486,17 +486,17 @@ describe("LoginController", () => {
         },
       };
 
-      mockedAuthService.login.mockResolvedValueOnce(mockLoginOutput);
+      mockedLoginService.authenticate.mockResolvedValueOnce(mockLoginOutput);
 
       await sut.handle(request);
 
-      expect(mockedAuthService.login).toHaveBeenCalledWith(
+      expect(mockedLoginService.authenticate).toHaveBeenCalledWith(
         complexBody,
         "192.168.1.1",
         "Complex User Agent",
       );
 
-      const calledWith = mockedAuthService.login.mock.calls[0];
+      const calledWith = mockedLoginService.authenticate.mock.calls[0];
       expect(calledWith[0]).toHaveProperty("rg");
       expect(calledWith[0]).toHaveProperty("password");
       expect(calledWith[0]).toHaveProperty("deviceInfo");
@@ -522,7 +522,7 @@ describe("LoginController", () => {
         },
       };
 
-      mockedAuthService.login.mockResolvedValueOnce(mockLoginOutput);
+      mockedLoginService.authenticate.mockResolvedValueOnce(mockLoginOutput);
 
       await sut.handle(request);
 
@@ -547,11 +547,11 @@ describe("LoginController", () => {
           },
         };
 
-        mockedAuthService.login.mockResolvedValueOnce(mockLoginOutput);
+        mockedLoginService.authenticate.mockResolvedValueOnce(mockLoginOutput);
 
         await sut.handle(requestWithIP);
 
-        expect(mockedAuthService.login).toHaveBeenCalledWith(
+        expect(mockedLoginService.authenticate).toHaveBeenCalledWith(
           validBody,
           ip,
           "Test User Agent",
@@ -568,7 +568,7 @@ describe("LoginController", () => {
     });
 
     it("should maintain consistent response structure", async () => {
-      mockedAuthService.login.mockResolvedValueOnce(mockLoginOutput);
+      mockedLoginService.authenticate.mockResolvedValueOnce(mockLoginOutput);
 
       const result = await sut.handle(validRequest);
 
@@ -611,11 +611,11 @@ describe("LoginController", () => {
           },
         };
 
-        mockedAuthService.login.mockResolvedValueOnce(mockLoginOutput);
+        mockedLoginService.authenticate.mockResolvedValueOnce(mockLoginOutput);
 
         await sut.handle(requestWithDeviceInfo);
 
-        expect(mockedAuthService.login).toHaveBeenCalledWith(
+        expect(mockedLoginService.authenticate).toHaveBeenCalledWith(
           bodyWithDeviceInfo,
           "192.168.1.1",
           "Test User Agent",
