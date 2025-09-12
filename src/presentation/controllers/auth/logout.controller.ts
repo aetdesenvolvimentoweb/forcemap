@@ -1,11 +1,11 @@
 import { LoggerProtocol } from "../../../application/protocols";
-import { AuthService } from "../../../application/services/auth/auth.service";
+import { LogoutService } from "../../../application/services/auth/logout.service";
 import { HttpRequest, HttpResponse } from "../../protocols";
 import { ok } from "../../utils";
 import { BaseController } from "../base.controller";
 
 interface LogoutControllerProps {
-  authService: AuthService;
+  logoutService: LogoutService;
   logger: LoggerProtocol;
 }
 
@@ -24,7 +24,7 @@ export class LogoutController extends BaseController {
   }
 
   public async handle(request: AuthenticatedRequest): Promise<HttpResponse> {
-    const { authService } = this.props;
+    const { logoutService } = this.props;
     const sessionId = request.user?.sessionId;
 
     this.logger.info("Recebida requisição para logout", {
@@ -35,7 +35,7 @@ export class LogoutController extends BaseController {
     const result = await this.executeWithErrorHandling(
       async () => {
         if (sessionId) {
-          await authService.logout(sessionId);
+          await logoutService.logout(sessionId);
         }
 
         this.logger.info("Logout realizado com sucesso", {

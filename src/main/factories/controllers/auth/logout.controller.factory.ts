@@ -1,14 +1,14 @@
 import { LogoutController } from "../../../../presentation/controllers/auth/logout.controller";
 import { ControllerProtocol } from "../../../../presentation/protocols";
 import { makeLogger } from "../../logger";
-import { makeAuthService } from "../../services/auth";
+import { makeLogoutService } from "../../services/auth";
 
 export const makeLogoutController = (): ControllerProtocol => {
   const logger = makeLogger();
-  const authService = makeAuthService();
+  const logoutService = makeLogoutService();
 
   return new LogoutController({
-    authService,
+    logoutService,
     logger,
   });
 };

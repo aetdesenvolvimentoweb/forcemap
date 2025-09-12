@@ -1,4 +1,4 @@
-import { mockAuthService, mockLogger } from "../../../../../__mocks__";
+import { mockLogger, mockLogoutService } from "../../../../../__mocks__";
 import { LogoutController } from "../../../../../src/presentation/controllers";
 import { HttpRequest } from "../../../../../src/presentation/protocols";
 
@@ -13,13 +13,13 @@ interface AuthenticatedRequest extends HttpRequest {
 
 describe("LogoutController", () => {
   let sut: LogoutController;
-  let mockedAuthService = mockAuthService();
+  let mockedLogoutService = mockLogoutService();
   let mockedLogger = mockLogger();
 
   beforeEach(() => {
     jest.clearAllMocks();
     sut = new LogoutController({
-      authService: mockedAuthService as any,
+      logoutService: mockedLogoutService as any,
       logger: mockedLogger,
     });
   });
@@ -35,7 +35,7 @@ describe("LogoutController", () => {
     };
 
     it("should logout successfully with valid authenticated request", async () => {
-      mockedAuthService.logout.mockResolvedValueOnce(undefined);
+      mockedLogoutService.logout.mockResolvedValueOnce(undefined);
 
       const result = await sut.handle(validRequest);
 
@@ -43,12 +43,12 @@ describe("LogoutController", () => {
         statusCode: 200,
         body: { data: { message: "Logout realizado com sucesso" } },
       });
-      expect(mockedAuthService.logout).toHaveBeenCalledWith("session-123");
-      expect(mockedAuthService.logout).toHaveBeenCalledTimes(1);
+      expect(mockedLogoutService.logout).toHaveBeenCalledWith("session-123");
+      expect(mockedLogoutService.logout).toHaveBeenCalledTimes(1);
     });
 
     it("should log info when receiving logout request", async () => {
-      mockedAuthService.logout.mockResolvedValueOnce(undefined);
+      mockedLogoutService.logout.mockResolvedValueOnce(undefined);
 
       await sut.handle(validRequest);
 
@@ -62,7 +62,7 @@ describe("LogoutController", () => {
     });
 
     it("should log info when logout is successful", async () => {
-      mockedAuthService.logout.mockResolvedValueOnce(undefined);
+      mockedLogoutService.logout.mockResolvedValueOnce(undefined);
 
       await sut.handle(validRequest);
 
@@ -84,7 +84,7 @@ describe("LogoutController", () => {
         statusCode: 200,
         body: { data: { message: "Logout realizado com sucesso" } },
       });
-      expect(mockedAuthService.logout).not.toHaveBeenCalled();
+      expect(mockedLogoutService.logout).not.toHaveBeenCalled();
     });
 
     it("should log info for unauthenticated request", async () => {
@@ -124,7 +124,7 @@ describe("LogoutController", () => {
         statusCode: 200,
         body: { data: { message: "Logout realizado com sucesso" } },
       });
-      expect(mockedAuthService.logout).not.toHaveBeenCalled();
+      expect(mockedLogoutService.logout).not.toHaveBeenCalled();
     });
 
     it("should handle request with undefined sessionId", async () => {
@@ -143,12 +143,12 @@ describe("LogoutController", () => {
         statusCode: 200,
         body: { data: { message: "Logout realizado com sucesso" } },
       });
-      expect(mockedAuthService.logout).not.toHaveBeenCalled();
+      expect(mockedLogoutService.logout).not.toHaveBeenCalled();
     });
 
     it("should handle auth service errors gracefully", async () => {
       const serviceError = new Error("Session not found");
-      mockedAuthService.logout.mockRejectedValueOnce(serviceError);
+      mockedLogoutService.logout.mockRejectedValueOnce(serviceError);
 
       const result = await sut.handle(validRequest);
 
@@ -156,12 +156,12 @@ describe("LogoutController", () => {
         body: { error: "Erro interno no servidor." },
         statusCode: 500,
       });
-      expect(mockedAuthService.logout).toHaveBeenCalledWith("session-123");
+      expect(mockedLogoutService.logout).toHaveBeenCalledWith("session-123");
     });
 
     it("should log error when service throws exception", async () => {
       const serviceError = new Error("Database connection failed");
-      mockedAuthService.logout.mockRejectedValueOnce(serviceError);
+      mockedLogoutService.logout.mockRejectedValueOnce(serviceError);
 
       await sut.handle(validRequest);
 
@@ -187,7 +187,7 @@ describe("LogoutController", () => {
           },
         };
 
-        mockedAuthService.logout.mockResolvedValueOnce(undefined);
+        mockedLogoutService.logout.mockResolvedValueOnce(undefined);
 
         const result = await sut.handle(requestWithRole);
 
@@ -195,7 +195,7 @@ describe("LogoutController", () => {
           statusCode: 200,
           body: { data: { message: "Logout realizado com sucesso" } },
         });
-        expect(mockedAuthService.logout).toHaveBeenCalledWith("session-123");
+        expect(mockedLogoutService.logout).toHaveBeenCalledWith("session-123");
       }
     });
 
@@ -217,7 +217,7 @@ describe("LogoutController", () => {
         },
       };
 
-      mockedAuthService.logout
+      mockedLogoutService.logout
         .mockResolvedValueOnce(undefined)
         .mockResolvedValueOnce(undefined);
 
@@ -234,9 +234,15 @@ describe("LogoutController", () => {
         statusCode: 200,
         body: { data: { message: "Logout realizado com sucesso" } },
       });
-      expect(mockedAuthService.logout).toHaveBeenCalledTimes(2);
-      expect(mockedAuthService.logout).toHaveBeenNthCalledWith(1, "session-1");
-      expect(mockedAuthService.logout).toHaveBeenNthCalledWith(2, "session-2");
+      expect(mockedLogoutService.logout).toHaveBeenCalledTimes(2);
+      expect(mockedLogoutService.logout).toHaveBeenNthCalledWith(
+        1,
+        "session-1",
+      );
+      expect(mockedLogoutService.logout).toHaveBeenNthCalledWith(
+        2,
+        "session-2",
+      );
     });
 
     it("should preserve request data structure integrity", async () => {
@@ -249,15 +255,15 @@ describe("LogoutController", () => {
         },
       };
 
-      mockedAuthService.logout.mockResolvedValueOnce(undefined);
+      mockedLogoutService.logout.mockResolvedValueOnce(undefined);
 
       await sut.handle(complexRequest);
 
-      expect(mockedAuthService.logout).toHaveBeenCalledWith(
+      expect(mockedLogoutService.logout).toHaveBeenCalledWith(
         "complex-session-456",
       );
 
-      const calledWith = mockedAuthService.logout.mock.calls[0][0];
+      const calledWith = mockedLogoutService.logout.mock.calls[0][0];
       expect(typeof calledWith).toBe("string");
       expect(calledWith).toBe("complex-session-456");
     });
@@ -274,7 +280,7 @@ describe("LogoutController", () => {
 
       const requestCopy = JSON.parse(JSON.stringify(originalRequest));
 
-      mockedAuthService.logout.mockResolvedValueOnce(undefined);
+      mockedLogoutService.logout.mockResolvedValueOnce(undefined);
 
       await sut.handle(originalRequest);
 
@@ -300,12 +306,12 @@ describe("LogoutController", () => {
           },
         };
 
-        mockedAuthService.logout.mockResolvedValueOnce(undefined);
+        mockedLogoutService.logout.mockResolvedValueOnce(undefined);
 
         const result = await sut.handle(requestWithSessionId);
 
         expect(result.statusCode).toBe(200);
-        expect(mockedAuthService.logout).toHaveBeenCalledWith(sessionId);
+        expect(mockedLogoutService.logout).toHaveBeenCalledWith(sessionId);
         expect(mockedLogger.info).toHaveBeenCalledWith(
           "Logout realizado com sucesso",
           {
@@ -317,7 +323,7 @@ describe("LogoutController", () => {
     });
 
     it("should maintain consistent response structure", async () => {
-      mockedAuthService.logout.mockResolvedValueOnce(undefined);
+      mockedLogoutService.logout.mockResolvedValueOnce(undefined);
 
       const result = await sut.handle(validRequest);
 
@@ -331,7 +337,7 @@ describe("LogoutController", () => {
     });
 
     it("should handle multiple consecutive logout requests", async () => {
-      mockedAuthService.logout.mockResolvedValue(undefined);
+      mockedLogoutService.logout.mockResolvedValue(undefined);
 
       const results: any[] = [];
       for (let i = 0; i < 3; i++) {
@@ -345,13 +351,13 @@ describe("LogoutController", () => {
           body: { data: { message: "Logout realizado com sucesso" } },
         });
       });
-      expect(mockedAuthService.logout).toHaveBeenCalledTimes(3);
+      expect(mockedLogoutService.logout).toHaveBeenCalledTimes(3);
     });
 
     it("should handle auth service timeout errors", async () => {
       const timeoutError = new Error("Request timeout");
       timeoutError.name = "TimeoutError";
-      mockedAuthService.logout.mockRejectedValueOnce(timeoutError);
+      mockedLogoutService.logout.mockRejectedValueOnce(timeoutError);
 
       const result = await sut.handle(validRequest);
 
@@ -371,7 +377,7 @@ describe("LogoutController", () => {
     it("should handle auth service connection errors", async () => {
       const connectionError = new Error("Database connection lost");
       connectionError.name = "ConnectionError";
-      mockedAuthService.logout.mockRejectedValueOnce(connectionError);
+      mockedLogoutService.logout.mockRejectedValueOnce(connectionError);
 
       const result = await sut.handle(validRequest);
 
@@ -379,7 +385,7 @@ describe("LogoutController", () => {
         body: { error: "Erro interno no servidor." },
         statusCode: 500,
       });
-      expect(mockedAuthService.logout).toHaveBeenCalledWith("session-123");
+      expect(mockedLogoutService.logout).toHaveBeenCalledWith("session-123");
     });
 
     it("should handle requests with all user properties", async () => {
@@ -392,7 +398,7 @@ describe("LogoutController", () => {
         },
       };
 
-      mockedAuthService.logout.mockResolvedValueOnce(undefined);
+      mockedLogoutService.logout.mockResolvedValueOnce(undefined);
 
       const result = await sut.handle(fullRequest);
 
@@ -422,7 +428,7 @@ describe("LogoutController", () => {
         statusCode: 200,
         body: { data: { message: "Logout realizado com sucesso" } },
       });
-      expect(mockedAuthService.logout).not.toHaveBeenCalled();
+      expect(mockedLogoutService.logout).not.toHaveBeenCalled();
       expect(mockedLogger.info).toHaveBeenCalledWith(
         "Logout realizado com sucesso",
         {

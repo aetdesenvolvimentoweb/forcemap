@@ -243,22 +243,6 @@ export class LoginService {
     }
   };
 
-  public readonly logout = async (sessionId: string): Promise<void> => {
-    try {
-      await this.dependencies.sessionService.deactivateSession(sessionId);
-    } catch {
-      // Silent fail for logout - even if session doesn't exist, logout is successful
-    }
-  };
-
-  public readonly logoutAllSessions = async (userId: string): Promise<void> => {
-    try {
-      await this.dependencies.sessionService.deactivateAllUserSessions(userId);
-    } catch {
-      // Silent fail for logout
-    }
-  };
-
   private readonly recordFailedAttempt = async (
     ipLimitKey: string,
     rgLimitKey: string,

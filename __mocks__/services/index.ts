@@ -1,6 +1,7 @@
 export * from "./auth.service.mock";
 export * from "./jwt.service.mock";
 export * from "./login.service.mock";
+export * from "./logout.service.mock";
 export * from "./military";
 export * from "./military-rank";
 export * from "./user";
