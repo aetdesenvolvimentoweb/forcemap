@@ -1,4 +1,5 @@
 import { FindByIdMilitaryRankService } from "../../../../application/services";
+import { GenericServiceFactory } from "../../common/generic-service.factory";
 import { makeMilitaryRankRepository } from "../../repositories";
 import { makeIdSanitizer } from "../../sanitizers";
 import {
@@ -8,17 +9,12 @@ import {
 
 export const makeFindByIdMilitaryRankService =
   (): FindByIdMilitaryRankService => {
-    const militaryRankRepository = makeMilitaryRankRepository();
-    const sanitizer = makeIdSanitizer();
-    const idValidator = makeIdValidator();
-    const idRegisteredValidator = makeMilitaryRankIdRegisteredValidator(
-      militaryRankRepository,
-    );
-
-    return new FindByIdMilitaryRankService({
-      militaryRankRepository,
-      sanitizer,
-      idValidator,
-      idRegisteredValidator,
+    return GenericServiceFactory.findByIdService({
+      ServiceClass: FindByIdMilitaryRankService,
+      repositoryMaker: makeMilitaryRankRepository,
+      idSanitizerMaker: makeIdSanitizer,
+      idValidatorMaker: makeIdValidator,
+      idRegisteredValidatorMaker: makeMilitaryRankIdRegisteredValidator,
+      repositoryKey: "militaryRankRepository",
     });
   };

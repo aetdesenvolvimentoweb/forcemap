@@ -1,4 +1,5 @@
 import { DeleteUserService } from "../../../../application/services";
+import { GenericServiceFactory } from "../../common/generic-service.factory";
 import {
   makeMilitaryRankRepository,
   makeMilitaryRepository,
@@ -14,14 +15,14 @@ export const makeDeleteUserService = (): DeleteUserService => {
   const militaryRankRepository = makeMilitaryRankRepository();
   const militaryRepository = makeMilitaryRepository(militaryRankRepository);
   const userRepository = makeUserRepository(militaryRepository);
-  const sanitizer = makeIdSanitizer();
-  const idValidator = makeIdValidator();
-  const idRegisteredValidator = makeUserIdRegisteredValidator(userRepository);
 
-  return new DeleteUserService({
-    userRepository,
-    sanitizer,
-    idValidator,
-    idRegisteredValidator,
+  return GenericServiceFactory.deleteService({
+    ServiceClass: DeleteUserService,
+    repositoryMaker: () => userRepository,
+    idSanitizerMaker: makeIdSanitizer,
+    idValidatorMaker: makeIdValidator,
+    idRegisteredValidatorMaker: () =>
+      makeUserIdRegisteredValidator(userRepository),
+    repositoryKey: "userRepository",
   });
 };

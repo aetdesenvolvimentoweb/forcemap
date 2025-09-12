@@ -12,22 +12,16 @@ import {
 
 export const makeUpdateMilitaryRankService = (): UpdateMilitaryRankService => {
   const militaryRankRepository = makeMilitaryRankRepository();
-  const idSanitizer = makeIdSanitizer();
-  const dataSanitizer = makeMilitaryRankInputDTOSanitizer();
-  const idValidator = makeIdValidator();
-  const idRegisteredValidator = makeMilitaryRankIdRegisteredValidator(
-    militaryRankRepository,
-  );
-  const dataValidator = makeMilitaryRankInputDTOValidator(
-    militaryRankRepository,
-  );
 
+  // Custom implementation for Update service due to different parameter names
   return new UpdateMilitaryRankService({
     militaryRankRepository,
-    idSanitizer,
-    dataSanitizer,
-    idValidator,
-    idRegisteredValidator,
-    dataValidator,
+    idSanitizer: makeIdSanitizer(),
+    dataSanitizer: makeMilitaryRankInputDTOSanitizer(),
+    idValidator: makeIdValidator(),
+    idRegisteredValidator: makeMilitaryRankIdRegisteredValidator(
+      militaryRankRepository,
+    ),
+    dataValidator: makeMilitaryRankInputDTOValidator(militaryRankRepository),
   });
 };

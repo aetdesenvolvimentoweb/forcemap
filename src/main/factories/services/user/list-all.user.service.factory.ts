@@ -1,4 +1,5 @@
 import { ListAllUserService } from "../../../../application/services";
+import { GenericServiceFactory } from "../../common/generic-service.factory";
 import {
   makeMilitaryRankRepository,
   makeMilitaryRepository,
@@ -10,7 +11,9 @@ export const makeListAllUserService = (): ListAllUserService => {
   const militaryRepository = makeMilitaryRepository(militaryRankRepository);
   const userRepository = makeUserRepository(militaryRepository);
 
-  return new ListAllUserService({
-    userRepository,
+  return GenericServiceFactory.listAllService({
+    ServiceClass: ListAllUserService,
+    repositoryMaker: () => userRepository,
+    repositoryKey: "userRepository",
   });
 };

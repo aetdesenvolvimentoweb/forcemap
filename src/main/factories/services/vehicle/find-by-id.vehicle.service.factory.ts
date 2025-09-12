@@ -1,4 +1,5 @@
 import { FindByIdVehicleService } from "../../../../application/services";
+import { GenericServiceFactory } from "../../common/generic-service.factory";
 import { makeVehicleRepository } from "../../repositories";
 import { makeIdSanitizer } from "../../sanitizers";
 import {
@@ -7,16 +8,12 @@ import {
 } from "../../validators";
 
 export const makeFindByIdVehicleService = (): FindByIdVehicleService => {
-  const vehicleRepository = makeVehicleRepository();
-  const sanitizer = makeIdSanitizer();
-  const idValidator = makeIdValidator();
-  const idRegisteredValidator =
-    makeVehicleIdRegisteredValidator(vehicleRepository);
-
-  return new FindByIdVehicleService({
-    vehicleRepository,
-    sanitizer,
-    idValidator,
-    idRegisteredValidator,
+  return GenericServiceFactory.findByIdService({
+    ServiceClass: FindByIdVehicleService,
+    repositoryMaker: makeVehicleRepository,
+    idSanitizerMaker: makeIdSanitizer,
+    idValidatorMaker: makeIdValidator,
+    idRegisteredValidatorMaker: makeVehicleIdRegisteredValidator,
+    repositoryKey: "vehicleRepository",
   });
 };

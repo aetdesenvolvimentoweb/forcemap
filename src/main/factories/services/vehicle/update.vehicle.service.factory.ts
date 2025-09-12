@@ -12,19 +12,14 @@ import {
 
 export const makeUpdateVehicleService = (): UpdateVehicleService => {
   const vehicleRepository = makeVehicleRepository();
-  const idSanitizer = makeIdSanitizer();
-  const dataSanitizer = makeVehicleInputDTOSanitizer();
-  const idValidator = makeIdValidator();
-  const idRegisteredValidator =
-    makeVehicleIdRegisteredValidator(vehicleRepository);
-  const dataValidator = makeVehicleInputDTOValidator(vehicleRepository);
 
+  // Custom implementation for Update service due to different parameter names
   return new UpdateVehicleService({
     vehicleRepository,
-    idSanitizer,
-    dataSanitizer,
-    idValidator,
-    idRegisteredValidator,
-    dataValidator,
+    idSanitizer: makeIdSanitizer(),
+    dataSanitizer: makeVehicleInputDTOSanitizer(),
+    idValidator: makeIdValidator(),
+    idRegisteredValidator: makeVehicleIdRegisteredValidator(vehicleRepository),
+    dataValidator: makeVehicleInputDTOValidator(vehicleRepository),
   });
 };

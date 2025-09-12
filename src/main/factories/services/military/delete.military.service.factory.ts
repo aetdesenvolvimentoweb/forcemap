@@ -1,4 +1,5 @@
 import { DeleteMilitaryService } from "../../../../application/services";
+import { GenericServiceFactory } from "../../common/generic-service.factory";
 import {
   makeMilitaryRankRepository,
   makeMilitaryRepository,
@@ -13,22 +14,20 @@ import {
 } from "../../validators";
 
 export const makeDeleteMilitaryService = (): DeleteMilitaryService => {
+  // Complex dependencies that need custom setup
   const militaryRankRepository = makeMilitaryRankRepository();
   const militaryRepository = makeMilitaryRepository(militaryRankRepository);
   const userRepository = makeUserRepository(militaryRepository);
-  const sanitizer = makeIdSanitizer();
-  const idValidator = makeIdValidator();
-  const idRegisteredValidator =
-    makeMilitaryIdRegisteredValidator(militaryRepository);
-  const inUseValidator = makeMilitaryInUseValidator(userRepository);
-  const deletionPermissionValidator = makeMilitaryDeletionPermissionValidator();
 
-  return new DeleteMilitaryService({
-    militaryRepository,
-    sanitizer,
-    idValidator,
-    idRegisteredValidator,
-    inUseValidator,
-    deletionPermissionValidator,
+  return GenericServiceFactory.deleteService({
+    ServiceClass: DeleteMilitaryService,
+    repositoryMaker: () => militaryRepository,
+    idSanitizerMaker: makeIdSanitizer,
+    idValidatorMaker: makeIdValidator,
+    idRegisteredValidatorMaker: () =>
+      makeMilitaryIdRegisteredValidator(militaryRepository),
+    inUseValidatorMaker: () => makeMilitaryInUseValidator(userRepository),
+    deletionPermissionValidatorMaker: makeMilitaryDeletionPermissionValidator,
+    repositoryKey: "militaryRepository",
   });
 };

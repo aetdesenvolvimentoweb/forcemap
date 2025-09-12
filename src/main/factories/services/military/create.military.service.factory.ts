@@ -1,4 +1,5 @@
 import { CreateMilitaryService } from "../../../../application/services";
+import { GenericServiceFactory } from "../../common/generic-service.factory";
 import {
   makeMilitaryRankRepository,
   makeMilitaryRepository,
@@ -9,12 +10,12 @@ import { makeMilitaryInputDTOValidator } from "../../validators";
 export const makeCreateMilitaryService = (): CreateMilitaryService => {
   const militaryRankRepository = makeMilitaryRankRepository();
   const militaryRepository = makeMilitaryRepository(militaryRankRepository);
-  const sanitizer = makeMilitaryInputDTOSanitizer();
-  const validator = makeMilitaryInputDTOValidator(militaryRepository);
 
-  return new CreateMilitaryService({
-    militaryRepository,
-    sanitizer,
-    validator,
+  return GenericServiceFactory.createService({
+    ServiceClass: CreateMilitaryService,
+    repositoryMaker: () => militaryRepository,
+    sanitizerMaker: makeMilitaryInputDTOSanitizer,
+    validatorMaker: () => makeMilitaryInputDTOValidator(militaryRepository),
+    repositoryKey: "militaryRepository",
   });
 };
