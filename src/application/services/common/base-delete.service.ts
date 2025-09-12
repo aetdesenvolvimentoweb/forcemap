@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 export interface BaseDeleteServiceDeps {
   repository: { delete(id: string): Promise<void> };
   idSanitizer: { sanitize(id: string): string };
@@ -42,6 +41,7 @@ export abstract class BaseDeleteService {
     await this.idRegisteredValidator.validate(id);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   protected async performAdditionalValidations(_id: string): Promise<void> {
     // Override point for additional validations (like inUseValidator)
   }

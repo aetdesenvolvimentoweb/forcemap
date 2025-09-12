@@ -3,6 +3,7 @@ import {
   IdSanitizerProtocol,
   MilitaryInputDTOSanitizerProtocol,
 } from "../protocols";
+import { sanitizeNumber, sanitizeString } from "../utils";
 
 interface MilitaryInputDTOSanitizerProps {
   idSanitizer: IdSanitizerProtocol;
@@ -13,27 +14,11 @@ export class MilitaryInputDTOSanitizer
 {
   constructor(private readonly props: MilitaryInputDTOSanitizerProps) {}
 
-  private readonly sanitizeName = (name: string): string => {
-    if (!name || typeof name !== "string") return name;
-
-    return name
-      .trim()
-      .replace(/\s+/g, " ")
-      .replace(/['";\\]/g, "")
-      .replace(/--/g, "")
-      .replace(/\/\*/g, "")
-      .replace(/\*\//g, "");
-  };
-
-  private readonly sanitizeRg = (rg: number): number => {
-    return typeof rg === "string" ? parseFloat(rg) : rg;
-  };
-
   public readonly sanitize = (data: MilitaryInputDTO): MilitaryInputDTO => {
     const sanitized = {
       militaryRankId: this.props.idSanitizer.sanitize(data.militaryRankId),
-      name: this.sanitizeName(data.name),
-      rg: this.sanitizeRg(data.rg),
+      name: sanitizeString(data.name),
+      rg: sanitizeNumber(data.rg),
     };
     return sanitized;
   };

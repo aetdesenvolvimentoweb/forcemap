@@ -170,7 +170,7 @@ describe("MilitaryRankInputDTOValidator", () => {
         await expect(sut.validate(dataWithInvalidChars)).rejects.toThrow(
           new InvalidParamError(
             "Abreviatura",
-            "deve conter apenas letras, números, espaços e/ou o caractere ordinal (º)",
+            "deve conter apenas letras, números, espaços e/ou os caracteres ordinais (ºª)",
           ),
         );
       });
@@ -184,7 +184,7 @@ describe("MilitaryRankInputDTOValidator", () => {
         await expect(sut.validate(dataWithSymbols)).rejects.toThrow(
           new InvalidParamError(
             "Abreviatura",
-            "deve conter apenas letras, números, espaços e/ou o caractere ordinal (º)",
+            "deve conter apenas letras, números, espaços e/ou os caracteres ordinais (ºª)",
           ),
         );
       });
@@ -388,7 +388,7 @@ describe("MilitaryRankInputDTOValidator", () => {
         await expect(sut.validate(invalidData)).rejects.toThrow(
           new InvalidParamError(
             "Abreviatura",
-            "deve conter apenas letras, números, espaços e/ou o caractere ordinal (º)",
+            "deve conter apenas letras, números, espaços e/ou os caracteres ordinais (ºª)",
           ),
         );
 

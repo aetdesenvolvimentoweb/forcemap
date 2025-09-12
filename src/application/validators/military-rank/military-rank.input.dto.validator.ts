@@ -30,9 +30,9 @@ export class MilitaryRankInputDTOValidator
 
     ValidationPatterns.validateStringFormat(
       abbreviation,
-      /^[a-zA-Z0-9º ]+$/,
+      /^[a-zA-Z0-9ºª ]+$/,
       "Abreviatura",
-      "deve conter apenas letras, números, espaços e/ou o caractere ordinal (º)",
+      "deve conter apenas letras, números, espaços e/ou os caracteres ordinais (ºª)",
     );
   };
 

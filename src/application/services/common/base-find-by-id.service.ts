@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 export interface BaseFindByIdServiceDeps<TOutput> {
   repository: { findById(id: string): Promise<TOutput | null> };
   idSanitizer: { sanitize(id: string): string };
@@ -24,15 +23,11 @@ export abstract class BaseFindByIdService<TOutput> {
   }
 
   public readonly findById = async (id: string): Promise<TOutput | null> => {
-    await this.beforeFind(id);
-
     const sanitizedId = this.sanitizeId(id);
     this.validateId(sanitizedId);
     await this.validateIdExists(sanitizedId);
 
     const result = await this.execute(sanitizedId);
-
-    await this.afterFind(sanitizedId, result);
 
     return result;
   };
@@ -51,17 +46,5 @@ export abstract class BaseFindByIdService<TOutput> {
 
   protected async execute(id: string): Promise<TOutput | null> {
     return await this.repository.findById(id);
-  }
-
-  // Hook methods - podem ser sobrescritos por subclasses
-  protected async beforeFind(_id: string): Promise<void> {
-    // Override point for additional logic
-  }
-
-  protected async afterFind(
-    _id: string,
-    _result: TOutput | null,
-  ): Promise<void> {
-    // Override point for additional logic
   }
 }
