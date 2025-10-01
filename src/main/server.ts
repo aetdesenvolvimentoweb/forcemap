@@ -1,8 +1,16 @@
 import express from "express";
 
+import {
+  securityHeadersDev,
+  securityHeadersProd,
+} from "../infra/adapters/middlewares";
 import routes from "./routes";
 
 const app = express();
+
+// Middleware de segurança - aplica headers de segurança
+const isDevelopment = process.env.NODE_ENV === "development";
+app.use(isDevelopment ? securityHeadersDev() : securityHeadersProd());
 
 app.use(express.json());
 app.use(routes);
