@@ -8,16 +8,23 @@ import type {
 } from "../../presentation/protocols";
 
 export const expressRouteAdapter = (controller: ControllerProtocol) => {
-  return async (req: Request, res: Response): Promise<HttpResponse> => {
-    const httpRequest: HttpRequest = {
-      body: req.body,
-      params: req.params,
-      query: req.query,
-      headers: req.headers,
-    };
+  return async (req: Request, res: Response): Promise<void> => {
+    try {
+      const httpRequest: HttpRequest = {
+        body: req.body,
+        params: req.params,
+        query: req.query,
+        headers: req.headers,
+      };
 
-    const httpResponse: HttpResponse = await controller.handle(httpRequest);
+      const httpResponse: HttpResponse = await controller.handle(httpRequest);
 
-    return res.status(httpResponse.statusCode).json(httpResponse.body);
+      res.status(httpResponse.statusCode).json(httpResponse.body);
+    } catch (error) {
+      console.error("Express route adapter error:", error);
+      res.status(500).json({
+        error: "Internal server error",
+      });
+    }
   };
 };

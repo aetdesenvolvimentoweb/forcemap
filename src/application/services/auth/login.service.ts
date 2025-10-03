@@ -1,3 +1,5 @@
+import { Request } from "express";
+
 import { LoginInputDTO, LoginOutputDTO } from "../../../domain/dtos/auth";
 import { User } from "../../../domain/entities";
 import {
@@ -5,6 +7,7 @@ import {
   SessionRepository,
   UserRepository,
 } from "../../../domain/repositories";
+import { authSecurityLogger } from "../../../infra/adapters/middlewares";
 import { TooManyRequestsError, UnauthorizedError } from "../../errors";
 import {
   PasswordHasherProtocol,
@@ -30,6 +33,7 @@ export class LoginService {
     data: LoginInputDTO,
     ipAddress: string,
     userAgent: string,
+    request?: Request, // Para logging contextual
   ): Promise<LoginOutputDTO> => {
     const { userCredentialsInputDTOSanitizer } = this.dependencies;
 
@@ -62,6 +66,14 @@ export class LoginService {
       // Reset rate limits on successful login
       await this.resetRateLimit(ipLimitKey, rgLimitKey);
 
+      // Log successful login
+      authSecurityLogger.logLogin(true, user.id, request, {
+        rg: sanitizedCredentials.rg,
+        militaryId: user.militaryId,
+        userAgent,
+        deviceInfo: data.deviceInfo,
+      });
+
       // Build and return response
       return this.buildLoginResponse(user, accessToken, refreshToken);
     } catch (error) {
@@ -93,6 +105,11 @@ export class LoginService {
     );
 
     if (!ipLimit.allowed) {
+      authSecurityLogger.logLoginBlocked(
+        ipAddress,
+        undefined,
+        "Rate limit por IP excedido",
+      );
       throw new TooManyRequestsError(
         `Muitas tentativas de login. Tente novamente em ${Math.ceil(
           (ipLimit.resetTime.getTime() - Date.now()) / 60000,
@@ -104,6 +121,11 @@ export class LoginService {
     const rgLimit = await rateLimiter.checkLimit(rgLimitKey, 5, 15 * 60 * 1000);
 
     if (!rgLimit.allowed) {
+      authSecurityLogger.logLoginBlocked(
+        `RG:${rg}`,
+        undefined,
+        "Rate limit por usuário excedido",
+      );
       throw new TooManyRequestsError(
         `Muitas tentativas para este usuário. Tente novamente em ${Math.ceil(
           (rgLimit.resetTime.getTime() - Date.now()) / 60000,
@@ -125,6 +147,15 @@ export class LoginService {
     const military = await militaryRepository.findByRg(sanitizedCredentials.rg);
     if (!military) {
       await this.recordFailedAttempt(ipLimitKey, rgLimitKey, rateLimiter);
+      authSecurityLogger.logLogin(
+        false,
+        `RG:${sanitizedCredentials.rg}`,
+        undefined,
+        {
+          reason: "RG não encontrado",
+          rg: sanitizedCredentials.rg,
+        },
+      );
       throw new UnauthorizedError("Credenciais inválidas");
     }
 
@@ -132,6 +163,16 @@ export class LoginService {
 
     if (!user) {
       await this.recordFailedAttempt(ipLimitKey, rgLimitKey, rateLimiter);
+      authSecurityLogger.logLogin(
+        false,
+        `RG:${sanitizedCredentials.rg}`,
+        undefined,
+        {
+          reason: "Usuário não encontrado para o militar",
+          rg: sanitizedCredentials.rg,
+          militaryId: military.id,
+        },
+      );
       throw new UnauthorizedError("Credenciais inválidas");
     }
 
@@ -142,6 +183,11 @@ export class LoginService {
 
     if (!passwordMatch) {
       await this.recordFailedAttempt(ipLimitKey, rgLimitKey, rateLimiter);
+      authSecurityLogger.logLogin(false, user.id, undefined, {
+        reason: "Senha incorreta",
+        rg: sanitizedCredentials.rg,
+        userId: user.id,
+      });
       throw new UnauthorizedError("Credenciais inválidas");
     }
 

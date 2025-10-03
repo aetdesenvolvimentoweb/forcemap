@@ -1,3 +1,5 @@
+import { Request } from "express";
+
 import {
   LoginOutputDTO,
   RefreshTokenInputDTO,
@@ -6,6 +8,7 @@ import {
   SessionRepository,
   UserRepository,
 } from "../../../domain/repositories";
+import { authSecurityLogger } from "../../../infra/adapters/middlewares";
 import { EntityNotFoundError, UnauthorizedError } from "../../errors";
 import { TokenHandlerProtocol } from "../../protocols";
 
@@ -21,6 +24,7 @@ export class RefreshTokenService {
   public readonly refreshToken = async (
     data: RefreshTokenInputDTO,
     ipAddress: string,
+    request?: Request,
   ): Promise<LoginOutputDTO> => {
     const { sessionRepository, userRepository, tokenHandler } =
       this.dependencies;
@@ -40,6 +44,14 @@ export class RefreshTokenService {
 
       // Verify session belongs to the same device/IP (optional security check)
       if (session.ipAddress !== ipAddress) {
+        // Log security incident
+        authSecurityLogger.logLogin(false, session.userId, request, {
+          reason: "IP address mismatch",
+          originalIp: session.ipAddress,
+          requestIp: ipAddress,
+          sessionId: session.id,
+        });
+
         // Deactivate session for security
         await sessionRepository.deactivateSession(session.id);
         throw new UnauthorizedError("Sessão comprometida detectada");
@@ -63,6 +75,9 @@ export class RefreshTokenService {
 
       // Update session with new token and last access
       await sessionRepository.updateToken(session.id, newAccessToken);
+
+      // Log successful token refresh
+      authSecurityLogger.logTokenRefresh(user.id, request);
 
       return {
         accessToken: newAccessToken,

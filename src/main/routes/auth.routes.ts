@@ -1,10 +1,8 @@
 import { Router } from "express";
 
-import {
-  ensureSeedMiddleware,
-  expressRouteAdapter,
-  requireAuth,
-} from "../../infra/adapters";
+import { expressRouteAdapter } from "../../infra/adapters";
+import { requireAuth } from "../../infra/adapters/middlewares/express-auth.middleware";
+import { ensureSeedMiddleware } from "../../infra/adapters/middlewares/express-seed.middleware";
 import {
   makeLoginController,
   makeLogoutController,

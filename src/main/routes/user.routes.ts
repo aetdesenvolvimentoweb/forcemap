@@ -1,9 +1,7 @@
 import { Router } from "express";
 
-import {
-  expressRouteAdapter,
-  requireAuthWithRoles,
-} from "../../infra/adapters";
+import { expressRouteAdapter } from "../../infra/adapters";
+import { requireAuthWithRoles } from "../../infra/adapters/middlewares/express-auth.middleware";
 import {
   makeCreateUserController,
   makeDeleteUserController,

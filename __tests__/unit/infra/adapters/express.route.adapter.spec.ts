@@ -365,9 +365,13 @@ describe("expressRouteAdapter", () => {
 
       const adapter = expressRouteAdapter(mockController);
 
-      await expect(
-        adapter(mockRequest as Request, mockResponse as Response),
-      ).rejects.toThrow("Controller error");
+      await adapter(mockRequest as Request, mockResponse as Response);
+
+      // Should catch the error and return 500
+      expect(mockStatusFn).toHaveBeenCalledWith(500);
+      expect(mockJsonFn).toHaveBeenCalledWith({
+        error: "Internal server error",
+      });
     });
 
     it("should handle async controller execution", async () => {
@@ -447,24 +451,18 @@ describe("expressRouteAdapter", () => {
       expect(mockStatusFn).toHaveBeenNthCalledWith(3, 204);
     });
 
-    it("should return Express response from adapter call", async () => {
+    it("should call Express response methods correctly", async () => {
       mockController.handle.mockResolvedValueOnce({
         statusCode: 200,
         body: { data: "test" },
       });
 
-      // Mock the chained return
-      mockStatusFn.mockReturnValue(mockResponse);
-      mockJsonFn.mockReturnValue(mockResponse);
-
       const adapter = expressRouteAdapter(mockController);
-      const result = await adapter(
-        mockRequest as Request,
-        mockResponse as Response,
-      );
+      await adapter(mockRequest as Request, mockResponse as Response);
 
-      // The adapter should return the result of res.status().json()
-      expect(result).toBe(mockResponse);
+      // Should call status and json methods properly
+      expect(mockStatusFn).toHaveBeenCalledWith(200);
+      expect(mockJsonFn).toHaveBeenCalledWith({ data: "test" });
     });
   });
 });

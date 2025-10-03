@@ -1,5 +1,8 @@
+import { Request } from "express";
+
 import { LogoutService } from "../../../../../src/application/services/auth/logout.service";
 import { SessionRepository } from "../../../../../src/domain/repositories";
+import { authSecurityLogger } from "../../../../../src/infra/adapters/middlewares";
 
 describe("LogoutService", () => {
   let sut: LogoutService;
@@ -349,6 +352,134 @@ describe("LogoutService", () => {
 
         // Client should not see internal repository errors
         await expect(sut.logout(mockSessionId)).resolves.not.toThrow();
+      });
+    });
+
+    describe("security logging", () => {
+      const mockUserId = "user-123";
+      const mockRequest = {
+        ip: "192.168.1.1",
+        get: jest.fn().mockReturnValue("test-user-agent"),
+        path: "/api/auth/logout",
+        method: "POST",
+      } as unknown as Request;
+
+      beforeEach(() => {
+        jest.spyOn(authSecurityLogger, "logLogout").mockImplementation();
+      });
+
+      afterEach(() => {
+        jest.restoreAllMocks();
+      });
+
+      it("should log logout when userId is provided", async () => {
+        mockSessionRepository.deactivateSession.mockResolvedValue();
+
+        await sut.logout(mockSessionId, mockUserId, mockRequest);
+
+        expect(mockSessionRepository.deactivateSession).toHaveBeenCalledWith(
+          mockSessionId,
+        );
+        expect(authSecurityLogger.logLogout).toHaveBeenCalledWith(
+          mockUserId,
+          mockRequest,
+        );
+        expect(authSecurityLogger.logLogout).toHaveBeenCalledTimes(1);
+      });
+
+      it("should log logout when userId is provided without request", async () => {
+        mockSessionRepository.deactivateSession.mockResolvedValue();
+
+        await sut.logout(mockSessionId, mockUserId);
+
+        expect(mockSessionRepository.deactivateSession).toHaveBeenCalledWith(
+          mockSessionId,
+        );
+        expect(authSecurityLogger.logLogout).toHaveBeenCalledWith(
+          mockUserId,
+          undefined,
+        );
+        expect(authSecurityLogger.logLogout).toHaveBeenCalledTimes(1);
+      });
+
+      it("should not log logout when userId is not provided", async () => {
+        mockSessionRepository.deactivateSession.mockResolvedValue();
+
+        await sut.logout(mockSessionId);
+
+        expect(mockSessionRepository.deactivateSession).toHaveBeenCalledWith(
+          mockSessionId,
+        );
+        expect(authSecurityLogger.logLogout).not.toHaveBeenCalled();
+      });
+
+      it("should not log logout when userId is empty string", async () => {
+        mockSessionRepository.deactivateSession.mockResolvedValue();
+
+        await sut.logout(mockSessionId, "");
+
+        expect(mockSessionRepository.deactivateSession).toHaveBeenCalledWith(
+          mockSessionId,
+        );
+        expect(authSecurityLogger.logLogout).not.toHaveBeenCalled();
+      });
+
+      it("should not log logout when userId is null", async () => {
+        mockSessionRepository.deactivateSession.mockResolvedValue();
+
+        await sut.logout(mockSessionId, null as any);
+
+        expect(mockSessionRepository.deactivateSession).toHaveBeenCalledWith(
+          mockSessionId,
+        );
+        expect(authSecurityLogger.logLogout).not.toHaveBeenCalled();
+      });
+
+      it("should not log logout when userId is undefined", async () => {
+        mockSessionRepository.deactivateSession.mockResolvedValue();
+
+        await sut.logout(mockSessionId, undefined);
+
+        expect(mockSessionRepository.deactivateSession).toHaveBeenCalledWith(
+          mockSessionId,
+        );
+        expect(authSecurityLogger.logLogout).not.toHaveBeenCalled();
+      });
+
+      it("should NOT log logout when repository operation fails", async () => {
+        mockSessionRepository.deactivateSession.mockRejectedValue(
+          new Error("Repository error"),
+        );
+
+        await sut.logout(mockSessionId, mockUserId, mockRequest);
+
+        // Repository was called but failed
+        expect(mockSessionRepository.deactivateSession).toHaveBeenCalledWith(
+          mockSessionId,
+        );
+
+        // Logging should NOT happen since the logout operation failed
+        expect(authSecurityLogger.logLogout).not.toHaveBeenCalled();
+      });
+
+      it("should handle logging errors gracefully", async () => {
+        mockSessionRepository.deactivateSession.mockResolvedValue();
+        jest.spyOn(authSecurityLogger, "logLogout").mockImplementation(() => {
+          throw new Error("Logging error");
+        });
+
+        // Should not throw even if logging fails
+        await expect(
+          sut.logout(mockSessionId, mockUserId, mockRequest),
+        ).resolves.not.toThrow();
+
+        expect(mockSessionRepository.deactivateSession).toHaveBeenCalledWith(
+          mockSessionId,
+        );
+        expect(authSecurityLogger.logLogout).toHaveBeenCalledWith(
+          mockUserId,
+          mockRequest,
+        );
       });
     });
   });
