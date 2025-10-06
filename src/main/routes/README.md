@@ -17,6 +17,7 @@ A versão atual da API é gerenciada centralmente no arquivo `api-version.ts`.
 ### 1. Configuração Centralizada
 
 O arquivo `api-version.ts` define:
+
 - Versão atual da API (`API_VERSION`)
 - Prefixo base (`API_BASE_PATH`)
 - Prefixo versionado completo (`API_VERSIONED_PATH`)
@@ -40,11 +41,13 @@ routes.use(API_VERSIONED_PATH, userRoutes);
 ### 3. Endpoints Disponíveis
 
 #### Autenticação (`/api/v1`)
+
 - `POST /api/v1/login` - Login de usuário
 - `POST /api/v1/logout` - Logout (protegido)
 - `POST /api/v1/refresh-token` - Renovação de token
 
 #### Usuários (`/api/v1/users`)
+
 - `GET /api/v1/users` - Listar usuários
 - `GET /api/v1/users/:id` - Buscar usuário por ID
 - `POST /api/v1/users` - Criar usuário
@@ -53,6 +56,7 @@ routes.use(API_VERSIONED_PATH, userRoutes);
 - `PATCH /api/v1/users/:id/role` - Atualizar role
 
 #### Militares (`/api/v1/militaries`)
+
 - `GET /api/v1/militaries` - Listar militares
 - `GET /api/v1/militaries/:id` - Buscar militar por ID
 - `POST /api/v1/militaries` - Criar militar
@@ -60,6 +64,7 @@ routes.use(API_VERSIONED_PATH, userRoutes);
 - `DELETE /api/v1/militaries/:id` - Deletar militar
 
 #### Postos/Graduações (`/api/v1/military-ranks`)
+
 - `GET /api/v1/military-ranks` - Listar postos
 - `GET /api/v1/military-ranks/:id` - Buscar posto por ID
 - `POST /api/v1/military-ranks` - Criar posto
@@ -67,6 +72,7 @@ routes.use(API_VERSIONED_PATH, userRoutes);
 - `DELETE /api/v1/military-ranks/:id` - Deletar posto
 
 #### Veículos (`/api/v1/vehicles`)
+
 - `GET /api/v1/vehicles` - Listar veículos
 - `GET /api/v1/vehicles/:id` - Buscar veículo por ID
 - `POST /api/v1/vehicles` - Criar veículo
@@ -80,6 +86,7 @@ Quando for necessário criar uma nova versão da API mantendo a v1 ativa:
 ### Opção 1: Manter v1 e v2 Simultaneamente
 
 1. **Duplicar estrutura de rotas**:
+
    ```
    src/main/routes/
    ├── v1/
@@ -93,6 +100,7 @@ Quando for necessário criar uma nova versão da API mantendo a v1 ativa:
    ```
 
 2. **Atualizar `index.ts`**:
+
    ```typescript
    import v1Routes from "./v1";
    import v2Routes from "./v2";
@@ -104,6 +112,7 @@ Quando for necessário criar uma nova versão da API mantendo a v1 ativa:
 ### Opção 2: Migração Completa para v2
 
 1. **Atualizar `api-version.ts`**:
+
    ```typescript
    export const API_VERSION = "v2";
    ```
@@ -126,5 +135,6 @@ O servidor exibe a versão atual no log de inicialização:
 ```
 
 Porta e host são configuráveis via variáveis de ambiente:
+
 - `PORT` - Porta do servidor (padrão: 3333)
 - `SERVER_HOST` - Host para logging (padrão: http://localhost)

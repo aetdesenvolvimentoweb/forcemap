@@ -1,2 +1,12 @@
+echo "🔍 Running security audit..."
+npm audit --audit-level=high
+
+if [ $? -ne 0 ]; then
+  echo "❌ Security vulnerabilities found! Fix them before pushing."
+  exit 1
+fi
+
+echo "✅ No high/critical vulnerabilities found"
+```
 echo "Executando testes automatizados e verificando cobertura mínima de 80%..."
 pnpm test:coverage
