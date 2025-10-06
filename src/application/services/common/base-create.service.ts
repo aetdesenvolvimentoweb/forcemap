@@ -4,6 +4,14 @@ export interface BaseCreateServiceDeps<TData> {
   validator: { validate(data: TData): void | Promise<void> };
 }
 
+/**
+ * Serviço base para operações de criação (Create).
+ *
+ * Implementa o padrão Template Method aplicando sanitização,
+ * validação e execução em sequência.
+ *
+ * @template TData - Tipo do DTO de entrada
+ */
 export abstract class BaseCreateService<TData> {
   protected readonly repository: { create(data: TData): Promise<void> };
   protected readonly sanitizer: { sanitize(data: TData): TData };

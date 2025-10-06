@@ -26,14 +26,31 @@ interface LoginServiceDependencies {
   rateLimiter: RateLimiterProtocol;
 }
 
+/**
+ * Serviço de autenticação com proteção contra ataques de força bruta.
+ *
+ * Implementa rate limiting por IP e por usuário, logging de segurança
+ * e gerenciamento de sessões com JWT.
+ */
 export class LoginService {
   constructor(private readonly dependencies: LoginServiceDependencies) {}
 
+  /**
+   * Autentica um usuário e retorna tokens de acesso.
+   *
+   * @param data - Credenciais do usuário (RG e senha)
+   * @param ipAddress - IP da requisição (para rate limiting)
+   * @param userAgent - User agent do cliente
+   * @param request - Request Express (opcional, para logging contextual)
+   * @returns Tokens de acesso e informações do usuário
+   * @throws {TooManyRequestsError} Quando rate limit é excedido
+   * @throws {UnauthorizedError} Quando credenciais são inválidas
+   */
   public readonly authenticate = async (
     data: LoginInputDTO,
     ipAddress: string,
     userAgent: string,
-    request?: Request, // Para logging contextual
+    request?: Request,
   ): Promise<LoginOutputDTO> => {
     const { userCredentialsInputDTOSanitizer } = this.dependencies;
 
@@ -97,11 +114,20 @@ export class LoginService {
   ): Promise<{ ipLimitKey: string; rgLimitKey: string }> => {
     const { rateLimiter } = this.dependencies;
 
+    // Configurações de rate limit via ENV
+    const ipMaxAttempts =
+      Number(process.env.RATE_LIMIT_LOGIN_IP_MAX_ATTEMPTS) || 10;
+    const userMaxAttempts =
+      Number(process.env.RATE_LIMIT_LOGIN_USER_MAX_ATTEMPTS) || 5;
+    const windowMinutes =
+      Number(process.env.RATE_LIMIT_LOGIN_WINDOW_MINUTES) || 15;
+    const windowMs = windowMinutes * 60 * 1000;
+
     const ipLimitKey = `login:ip:${ipAddress}`;
     const ipLimit = await rateLimiter.checkLimit(
       ipLimitKey,
-      10,
-      15 * 60 * 1000,
+      ipMaxAttempts,
+      windowMs,
     );
 
     if (!ipLimit.allowed) {
@@ -118,7 +144,11 @@ export class LoginService {
     }
 
     const rgLimitKey = `login:rg:${rg}`;
-    const rgLimit = await rateLimiter.checkLimit(rgLimitKey, 5, 15 * 60 * 1000);
+    const rgLimit = await rateLimiter.checkLimit(
+      rgLimitKey,
+      userMaxAttempts,
+      windowMs,
+    );
 
     if (!rgLimit.allowed) {
       authSecurityLogger.logLoginBlocked(

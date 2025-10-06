@@ -31,8 +31,8 @@ app.use(routes);
 // Seed will be initialized lazily via middleware when needed
 
 if (process.env.NODE_ENV !== "development") {
-  const port = 3333;
-  const host = "http://localhost";
+  const port = Number(process.env.PORT) || 3333;
+  const host = process.env.SERVER_HOST || "http://localhost";
   app.listen(port, () => {
     console.log(`✅ Server is running at ${host}:${port}/api/v1`);
   });

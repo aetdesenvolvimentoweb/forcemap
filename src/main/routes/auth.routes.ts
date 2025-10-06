@@ -11,20 +11,25 @@ import {
 
 const authRoutes = Router();
 
-// Rota pública de login - precisa do seed para funcionar
+/**
+ * Rotas de autenticação
+ * Prefixo: /api/v1
+ */
+
+// POST /api/v1/login - Autenticação de usuário
 authRoutes.post(
   "/login",
   ensureSeedMiddleware,
   expressRouteAdapter(makeLoginController()),
 );
 
-// Rota pública para renovar token
+// POST /api/v1/refresh-token - Renovação de token de acesso
 authRoutes.post(
   "/refresh-token",
   expressRouteAdapter(makeRefreshTokenController()),
 );
 
-// Rota protegida de logout (requer autenticação)
+// POST /api/v1/logout - Encerramento de sessão (protegido)
 authRoutes.post(
   "/logout",
   requireAuth,

@@ -2,6 +2,12 @@ import { LoggerProtocol } from "../../application/protocols";
 import { ControllerProtocol, HttpRequest, HttpResponse } from "../protocols";
 import { handleError } from "../utils";
 
+/**
+ * Controlador base com funcionalidades compartilhadas.
+ *
+ * Fornece métodos utilitários para validação de entrada e tratamento
+ * padronizado de erros.
+ */
 export abstract class BaseController implements ControllerProtocol {
   protected readonly logger: LoggerProtocol;
 
