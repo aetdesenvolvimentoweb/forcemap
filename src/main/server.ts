@@ -4,6 +4,7 @@ dotenv.config();
 
 import express from "express";
 
+import { globalLogger } from "../infra/adapters/global.logger";
 import {
   corsAuto,
   securityHeadersDev,
@@ -34,7 +35,11 @@ if (process.env.NODE_ENV !== "development") {
   const port = Number(process.env.PORT) || 3333;
   const host = process.env.SERVER_HOST || "http://localhost";
   app.listen(port, () => {
-    console.log(`✅ Server is running at ${host}:${port}/api/v1`);
+    globalLogger.info(`Server is running at ${host}:${port}/api/v1`, {
+      port,
+      host,
+      environment: process.env.NODE_ENV,
+    });
   });
 }
 

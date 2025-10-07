@@ -1,5 +1,10 @@
+// Mock globalLogger before imports
 import { DatabaseSeed } from "../../../../src/main/seed/database.seed";
 import { SeedManager } from "../../../../src/main/seed/seed.manager";
+import {
+  mockGlobalLogger,
+  resetGlobalLoggerMocks,
+} from "../../../mocks/global.logger.mock";
 
 // Mock the factory
 jest.mock("../../../../src/main/factories/seed/database.seed.factory", () => ({
@@ -10,20 +15,9 @@ import { makeDatabaseSeed } from "../../../../src/main/factories/seed/database.s
 
 describe("SeedManager", () => {
   let mockDatabaseSeed: jest.Mocked<DatabaseSeed>;
-  const originalConsoleLog = console.log;
-  const originalConsoleError = console.error;
-
-  beforeAll(() => {
-    console.log = jest.fn();
-    console.error = jest.fn();
-  });
-
-  afterAll(() => {
-    console.log = originalConsoleLog;
-    console.error = originalConsoleError;
-  });
 
   beforeEach(() => {
+    resetGlobalLoggerMocks();
     jest.clearAllMocks();
 
     // Reset singleton instance
@@ -63,11 +57,13 @@ describe("SeedManager", () => {
       const manager = SeedManager.getInstance();
       await manager.ensureSeeded();
 
-      expect(console.log).toHaveBeenCalledWith("🌱 Starting database seed...");
+      expect(mockGlobalLogger.info).toHaveBeenCalledWith(
+        "Starting database seed",
+      );
       expect(makeDatabaseSeed).toHaveBeenCalledTimes(1);
       expect(mockDatabaseSeed.run).toHaveBeenCalledTimes(1);
-      expect(console.log).toHaveBeenCalledWith(
-        "🌱 Database seed completed successfully",
+      expect(mockGlobalLogger.info).toHaveBeenCalledWith(
+        "Database seed completed successfully",
       );
     });
 
@@ -84,7 +80,7 @@ describe("SeedManager", () => {
       // Second call
       await manager.ensureSeeded();
 
-      expect(console.log).not.toHaveBeenCalled();
+      expect(mockGlobalLogger.info).not.toHaveBeenCalled();
       expect(makeDatabaseSeed).not.toHaveBeenCalled();
       expect(mockDatabaseSeed.run).not.toHaveBeenCalled();
     });
@@ -108,9 +104,11 @@ describe("SeedManager", () => {
       // Should only call the seed once despite multiple concurrent calls
       expect(makeDatabaseSeed).toHaveBeenCalledTimes(1);
       expect(mockDatabaseSeed.run).toHaveBeenCalledTimes(1);
-      expect(console.log).toHaveBeenCalledWith("🌱 Starting database seed...");
-      expect(console.log).toHaveBeenCalledWith(
-        "🌱 Database seed completed successfully",
+      expect(mockGlobalLogger.info).toHaveBeenCalledWith(
+        "Starting database seed",
+      );
+      expect(mockGlobalLogger.info).toHaveBeenCalledWith(
+        "Database seed completed successfully",
       );
     });
 
@@ -125,10 +123,14 @@ describe("SeedManager", () => {
         "Database connection failed",
       );
 
-      expect(console.log).toHaveBeenCalledWith("🌱 Starting database seed...");
-      expect(console.error).toHaveBeenCalledWith(
-        "❌ Database seed failed:",
-        error,
+      expect(mockGlobalLogger.info).toHaveBeenCalledWith(
+        "Starting database seed",
+      );
+      expect(mockGlobalLogger.error).toHaveBeenCalledWith(
+        "Database seed failed",
+        expect.objectContaining({
+          error: expect.any(String),
+        }),
       );
       expect(makeDatabaseSeed).toHaveBeenCalledTimes(1);
       expect(mockDatabaseSeed.run).toHaveBeenCalledTimes(1);
@@ -140,9 +142,11 @@ describe("SeedManager", () => {
       // Second attempt should succeed
       await manager.ensureSeeded();
 
-      expect(console.log).toHaveBeenCalledWith("🌱 Starting database seed...");
-      expect(console.log).toHaveBeenCalledWith(
-        "🌱 Database seed completed successfully",
+      expect(mockGlobalLogger.info).toHaveBeenCalledWith(
+        "Starting database seed",
+      );
+      expect(mockGlobalLogger.info).toHaveBeenCalledWith(
+        "Database seed completed successfully",
       );
       expect(makeDatabaseSeed).toHaveBeenCalledTimes(1);
       expect(mockDatabaseSeed.run).toHaveBeenCalledTimes(1);
@@ -164,16 +168,18 @@ describe("SeedManager", () => {
       const promise3 = manager.ensureSeeded();
 
       // Verify that "Starting database seed..." is logged only once
-      expect(console.log).toHaveBeenCalledTimes(1);
-      expect(console.log).toHaveBeenCalledWith("🌱 Starting database seed...");
+      expect(mockGlobalLogger.info).toHaveBeenCalledTimes(1);
+      expect(mockGlobalLogger.info).toHaveBeenCalledWith(
+        "Starting database seed",
+      );
 
       // Resolve the seed promise
       resolvePromise!();
       await Promise.all([promise1, promise2, promise3]);
 
       // Verify final success message
-      expect(console.log).toHaveBeenCalledWith(
-        "🌱 Database seed completed successfully",
+      expect(mockGlobalLogger.info).toHaveBeenCalledWith(
+        "Database seed completed successfully",
       );
     });
 
@@ -195,9 +201,11 @@ describe("SeedManager", () => {
       // Should only attempt once
       expect(makeDatabaseSeed).toHaveBeenCalledTimes(1);
       expect(mockDatabaseSeed.run).toHaveBeenCalledTimes(1);
-      expect(console.error).toHaveBeenCalledWith(
-        "❌ Database seed failed:",
-        error,
+      expect(mockGlobalLogger.error).toHaveBeenCalledWith(
+        "Database seed failed",
+        expect.objectContaining({
+          error: expect.any(String),
+        }),
       );
     });
   });
@@ -286,9 +294,11 @@ describe("SeedManager", () => {
       const manager = SeedManager.getInstance();
 
       await expect(manager.ensureSeeded()).rejects.toThrow("Custom seed error");
-      expect(console.error).toHaveBeenCalledWith(
-        "❌ Database seed failed:",
-        customError,
+      expect(mockGlobalLogger.error).toHaveBeenCalledWith(
+        "Database seed failed",
+        expect.objectContaining({
+          error: "Custom seed error",
+        }),
       );
     });
 
@@ -313,8 +323,8 @@ describe("SeedManager", () => {
       // Second attempt should succeed
       await manager.ensureSeeded();
 
-      expect(console.log).toHaveBeenCalledWith(
-        "🌱 Database seed completed successfully",
+      expect(mockGlobalLogger.info).toHaveBeenCalledWith(
+        "Database seed completed successfully",
       );
       expect(manager.getStatus().isSeeded).toBe(true);
     });
@@ -343,8 +353,8 @@ describe("SeedManager", () => {
       jest.clearAllMocks();
       await manager.ensureSeeded();
       expect(manager.getStatus().isSeeded).toBe(true);
-      expect(console.log).toHaveBeenCalledWith(
-        "🌱 Database seed completed successfully",
+      expect(mockGlobalLogger.info).toHaveBeenCalledWith(
+        "Database seed completed successfully",
       );
     });
   });
@@ -396,14 +406,14 @@ describe("SeedManager", () => {
       const manager = SeedManager.getInstance();
       await manager.ensureSeeded();
 
-      expect(console.log).toHaveBeenCalledTimes(2);
-      expect(console.log).toHaveBeenNthCalledWith(
+      expect(mockGlobalLogger.info).toHaveBeenCalledTimes(2);
+      expect(mockGlobalLogger.info).toHaveBeenNthCalledWith(
         1,
-        "🌱 Starting database seed...",
+        "Starting database seed",
       );
-      expect(console.log).toHaveBeenNthCalledWith(
+      expect(mockGlobalLogger.info).toHaveBeenNthCalledWith(
         2,
-        "🌱 Database seed completed successfully",
+        "Database seed completed successfully",
       );
     });
 
@@ -419,10 +429,14 @@ describe("SeedManager", () => {
         // Expected
       }
 
-      expect(console.log).toHaveBeenCalledWith("🌱 Starting database seed...");
-      expect(console.error).toHaveBeenCalledWith(
-        "❌ Database seed failed:",
-        error,
+      expect(mockGlobalLogger.info).toHaveBeenCalledWith(
+        "Starting database seed",
+      );
+      expect(mockGlobalLogger.error).toHaveBeenCalledWith(
+        "Database seed failed",
+        expect.objectContaining({
+          error: expect.any(String),
+        }),
       );
     });
 
@@ -438,8 +452,8 @@ describe("SeedManager", () => {
         // Expected
       }
 
-      expect(console.log).not.toHaveBeenCalledWith(
-        "🌱 Database seed completed successfully",
+      expect(mockGlobalLogger.info).not.toHaveBeenCalledWith(
+        "Database seed completed successfully",
       );
     });
   });

@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 
 import { SeedManager } from "../../../main/seed/seed.manager";
+import { globalLogger } from "../global.logger";
 
 export const ensureSeedMiddleware = (
   req: Request,
@@ -22,7 +23,10 @@ export const ensureSeedMiddleware = (
 
       next();
     } catch (error) {
-      console.error("❌ Seed middleware error:", error);
+      globalLogger.error("Seed middleware error", {
+        error: error instanceof Error ? error.message : "Unknown error",
+        stack: error instanceof Error ? error.stack : undefined,
+      });
       res.status(503).json({
         error:
           "Service temporarily unavailable. Database initialization failed.",

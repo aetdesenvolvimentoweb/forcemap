@@ -1,12 +1,15 @@
-echo "🔍 Running security audit..."
-npm audit --audit-level=high
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "🔍 Executando auditoria de segurança."
+pnpm audit --audit-level=high
 
 if [ $? -ne 0 ]; then
-  echo "❌ Security vulnerabilities found! Fix them before pushing."
+  echo "❌ Vulnerabilidades de segurança encontradas! Corrija-as antes de fazer push."
   exit 1
 fi
 
-echo "✅ No high/critical vulnerabilities found"
-```
+echo "✅ Nenhuma vulnerabilidade alta/crítica encontrada. Prosseguindo com o push."
+
 echo "Executando testes automatizados e verificando cobertura mínima de 80%..."
 pnpm test:coverage

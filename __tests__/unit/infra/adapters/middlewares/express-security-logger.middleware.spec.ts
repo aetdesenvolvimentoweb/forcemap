@@ -1,3 +1,4 @@
+// Mock globalLogger before imports
 import { NextFunction, Request, Response } from "express";
 
 import {
@@ -7,6 +8,10 @@ import {
   securityLogger,
   securityLogging,
 } from "../../../../../src/infra/adapters/middlewares/express-security-logger.middleware";
+import {
+  mockGlobalLogger,
+  resetGlobalLoggerMocks,
+} from "../../../../mocks/global.logger.mock";
 
 describe("Express Security Logger Middleware", () => {
   let mockRequest: Partial<Request>;
@@ -15,6 +20,7 @@ describe("Express Security Logger Middleware", () => {
   let originalSend: any;
 
   beforeEach(() => {
+    resetGlobalLoggerMocks();
     mockRequest = {
       ip: "192.168.1.100",
       connection: { remoteAddress: "192.168.1.100" } as any,
@@ -40,20 +46,10 @@ describe("Express Security Logger Middleware", () => {
     };
 
     mockNext = jest.fn();
-
-    // Mock console methods
-    jest.spyOn(console, "info").mockImplementation(() => {});
-    jest.spyOn(console, "warn").mockImplementation(() => {});
-    jest.spyOn(console, "error").mockImplementation(() => {});
-    jest.spyOn(console, "log").mockImplementation(() => {});
-  });
-
-  afterEach(() => {
-    jest.restoreAllMocks();
   });
 
   describe("securityLogger", () => {
-    it("deve logar evento de segurança com severidade LOW usando console.info", () => {
+    it("deve logar evento de segurança com severidade LOW usando mockGlobalLogger.info", () => {
       const event = {
         timestamp: "2024-01-01T00:00:00.000Z",
         eventType: SecurityEventType.LOGIN_SUCCESS,
@@ -65,15 +61,15 @@ describe("Express Security Logger Middleware", () => {
 
       securityLogger.logSecurityEvent(event);
 
-      expect(console.info).toHaveBeenCalledWith(
-        expect.stringContaining("🔒 [SECURITY]"),
-      );
-      expect(console.info).toHaveBeenCalledWith(
-        expect.stringContaining("LOGIN_SUCCESS"),
+      expect(mockGlobalLogger.info).toHaveBeenCalledWith(
+        expect.stringContaining("[SECURITY]"),
+        expect.objectContaining({
+          eventType: SecurityEventType.LOGIN_SUCCESS,
+        }),
       );
     });
 
-    it("deve logar evento de segurança com severidade MEDIUM usando console.warn", () => {
+    it("deve logar evento de segurança com severidade MEDIUM usando mockGlobalLogger.warn", () => {
       const event = {
         timestamp: "2024-01-01T00:00:00.000Z",
         eventType: SecurityEventType.LOGIN_FAILED,
@@ -85,15 +81,15 @@ describe("Express Security Logger Middleware", () => {
 
       securityLogger.logSecurityEvent(event);
 
-      expect(console.warn).toHaveBeenCalledWith(
-        expect.stringContaining("🔒 [SECURITY]"),
-      );
-      expect(console.warn).toHaveBeenCalledWith(
-        expect.stringContaining("LOGIN_FAILED"),
+      expect(mockGlobalLogger.warn).toHaveBeenCalledWith(
+        expect.stringContaining("[SECURITY]"),
+        expect.objectContaining({
+          eventType: SecurityEventType.LOGIN_FAILED,
+        }),
       );
     });
 
-    it("deve logar evento de segurança com severidade HIGH usando console.error", () => {
+    it("deve logar evento de segurança com severidade HIGH usando mockGlobalLogger.error", () => {
       const event = {
         timestamp: "2024-01-01T00:00:00.000Z",
         eventType: SecurityEventType.SUSPICIOUS_ACTIVITY,
@@ -104,11 +100,11 @@ describe("Express Security Logger Middleware", () => {
 
       securityLogger.logSecurityEvent(event);
 
-      expect(console.error).toHaveBeenCalledWith(
-        expect.stringContaining("🔒 [SECURITY]"),
-      );
-      expect(console.error).toHaveBeenCalledWith(
-        expect.stringContaining("SUSPICIOUS_ACTIVITY"),
+      expect(mockGlobalLogger.error).toHaveBeenCalledWith(
+        expect.stringContaining("[SECURITY]"),
+        expect.objectContaining({
+          eventType: SecurityEventType.SUSPICIOUS_ACTIVITY,
+        }),
       );
     });
 
@@ -117,8 +113,9 @@ describe("Express Security Logger Middleware", () => {
         userAgent: "Mozilla/5.0",
       });
 
-      expect(console.info).toHaveBeenCalledWith(
+      expect(mockGlobalLogger.info).toHaveBeenCalledWith(
         expect.stringContaining("Login bem-sucedido para usuário user123"),
+        expect.any(Object),
       );
     });
 
@@ -127,20 +124,22 @@ describe("Express Security Logger Middleware", () => {
         reason: "senha incorreta",
       });
 
-      expect(console.warn).toHaveBeenCalledWith(
+      expect(mockGlobalLogger.warn).toHaveBeenCalledWith(
         expect.stringContaining(
           "Tentativa de login falhada para usuário user123",
         ),
+        expect.any(Object),
       );
     });
 
     it("deve logar rate limit atingido", () => {
       securityLogger.logRateLimitHit("192.168.1.100", "/api/login", 5);
 
-      expect(console.warn).toHaveBeenCalledWith(
+      expect(mockGlobalLogger.warn).toHaveBeenCalledWith(
         expect.stringContaining(
           "Rate limit atingido para IP 192.168.1.100 no endpoint /api/login",
         ),
+        expect.any(Object),
       );
     });
 
@@ -151,20 +150,22 @@ describe("Express Security Logger Middleware", () => {
         { attempts: 5 },
       );
 
-      expect(console.error).toHaveBeenCalledWith(
+      expect(mockGlobalLogger.error).toHaveBeenCalledWith(
         expect.stringContaining(
           "Atividade suspeita detectada: Múltiplas tentativas de SQL injection",
         ),
+        expect.any(Object),
       );
     });
 
     it("deve logar violação CORS", () => {
       securityLogger.logCorsViolation("https://malicious.com", "192.168.1.100");
 
-      expect(console.warn).toHaveBeenCalledWith(
+      expect(mockGlobalLogger.warn).toHaveBeenCalledWith(
         expect.stringContaining(
           "Violação CORS detectada da origem: https://malicious.com",
         ),
+        expect.any(Object),
       );
     });
 
@@ -175,10 +176,11 @@ describe("Express Security Logger Middleware", () => {
         "192.168.1.100",
       );
 
-      expect(console.warn).toHaveBeenCalledWith(
+      expect(mockGlobalLogger.warn).toHaveBeenCalledWith(
         expect.stringContaining(
           "Acesso negado para usuário user123 ao recurso /admin/users",
         ),
+        expect.any(Object),
       );
     });
   });
@@ -196,8 +198,11 @@ describe("Express Security Logger Middleware", () => {
       const interceptedSend = mockResponse.send as jest.Mock;
       interceptedSend("Unauthorized");
 
-      expect(console.warn).toHaveBeenCalledWith(
-        expect.stringContaining("TOKEN_INVALID"),
+      expect(mockGlobalLogger.warn).toHaveBeenCalledWith(
+        expect.stringContaining("[SECURITY]"),
+        expect.objectContaining({
+          eventType: SecurityEventType.TOKEN_INVALID,
+        }),
       );
       expect(mockNext).toHaveBeenCalledTimes(1);
     });
@@ -212,8 +217,11 @@ describe("Express Security Logger Middleware", () => {
       const interceptedSend = mockResponse.send as jest.Mock;
       interceptedSend("Forbidden");
 
-      expect(console.warn).toHaveBeenCalledWith(
-        expect.stringContaining("ACCESS_DENIED"),
+      expect(mockGlobalLogger.warn).toHaveBeenCalledWith(
+        expect.stringContaining("[SECURITY]"),
+        expect.objectContaining({
+          eventType: SecurityEventType.ACCESS_DENIED,
+        }),
       );
     });
 
@@ -227,8 +235,11 @@ describe("Express Security Logger Middleware", () => {
       const interceptedSend = mockResponse.send as jest.Mock;
       interceptedSend("Too Many Requests");
 
-      expect(console.warn).toHaveBeenCalledWith(
-        expect.stringContaining("RATE_LIMIT_HIT"),
+      expect(mockGlobalLogger.warn).toHaveBeenCalledWith(
+        expect.stringContaining("[SECURITY]"),
+        expect.objectContaining({
+          eventType: SecurityEventType.RATE_LIMIT_HIT,
+        }),
       );
     });
 
@@ -242,8 +253,11 @@ describe("Express Security Logger Middleware", () => {
       const interceptedSend = mockResponse.send as jest.Mock;
       interceptedSend("Internal Server Error");
 
-      expect(console.error).toHaveBeenCalledWith(
-        expect.stringContaining("SERVER_ERROR"),
+      expect(mockGlobalLogger.error).toHaveBeenCalledWith(
+        expect.stringContaining("[SECURITY]"),
+        expect.objectContaining({
+          eventType: SecurityEventType.SERVER_ERROR,
+        }),
       );
     });
 
@@ -254,11 +268,15 @@ describe("Express Security Logger Middleware", () => {
 
       middleware(mockRequest as Request, mockResponse as Response, mockNext);
 
-      expect(console.error).toHaveBeenCalledWith(
-        expect.stringContaining("SUSPICIOUS_ACTIVITY"),
+      expect(mockGlobalLogger.error).toHaveBeenCalledWith(
+        expect.stringContaining("[SECURITY]"),
+        expect.objectContaining({
+          eventType: SecurityEventType.SUSPICIOUS_ACTIVITY,
+        }),
       );
-      expect(console.error).toHaveBeenCalledWith(
+      expect(mockGlobalLogger.error).toHaveBeenCalledWith(
         expect.stringContaining("Padrão suspeito detectado"),
+        expect.any(Object),
       );
     });
 
@@ -269,8 +287,11 @@ describe("Express Security Logger Middleware", () => {
 
       middleware(mockRequest as Request, mockResponse as Response, mockNext);
 
-      expect(console.error).toHaveBeenCalledWith(
-        expect.stringContaining("SUSPICIOUS_ACTIVITY"),
+      expect(mockGlobalLogger.error).toHaveBeenCalledWith(
+        expect.stringContaining("[SECURITY]"),
+        expect.objectContaining({
+          eventType: SecurityEventType.SUSPICIOUS_ACTIVITY,
+        }),
       );
     });
 
@@ -283,8 +304,11 @@ describe("Express Security Logger Middleware", () => {
 
       middleware(mockRequest as Request, mockResponse as Response, mockNext);
 
-      expect(console.error).toHaveBeenCalledWith(
-        expect.stringContaining("SUSPICIOUS_ACTIVITY"),
+      expect(mockGlobalLogger.error).toHaveBeenCalledWith(
+        expect.stringContaining("[SECURITY]"),
+        expect.objectContaining({
+          eventType: SecurityEventType.SUSPICIOUS_ACTIVITY,
+        }),
       );
     });
 
@@ -295,8 +319,11 @@ describe("Express Security Logger Middleware", () => {
 
       middleware(mockRequest as Request, mockResponse as Response, mockNext);
 
-      expect(console.error).toHaveBeenCalledWith(
-        expect.stringContaining("SUSPICIOUS_ACTIVITY"),
+      expect(mockGlobalLogger.error).toHaveBeenCalledWith(
+        expect.stringContaining("[SECURITY]"),
+        expect.objectContaining({
+          eventType: SecurityEventType.SUSPICIOUS_ACTIVITY,
+        }),
       );
     });
 
@@ -310,7 +337,7 @@ describe("Express Security Logger Middleware", () => {
       middleware(mockRequest as Request, mockResponse as Response, mockNext);
 
       // Deve logar apenas um evento suspeito (primeiro padrão encontrado)
-      expect(console.error).toHaveBeenCalledTimes(1);
+      expect(mockGlobalLogger.error).toHaveBeenCalledTimes(1);
     });
 
     it("deve funcionar sem body na requisição", () => {
@@ -338,8 +365,11 @@ describe("Express Security Logger Middleware", () => {
       const interceptedSend = mockResponse.send as jest.Mock;
       interceptedSend("Unauthorized");
 
-      expect(console.warn).toHaveBeenCalledWith(
-        expect.stringContaining("10.0.0.1"),
+      expect(mockGlobalLogger.warn).toHaveBeenCalledWith(
+        expect.stringContaining("[SECURITY]"),
+        expect.objectContaining({
+          ipAddress: "10.0.0.1",
+        }),
       );
     });
   });
@@ -350,8 +380,9 @@ describe("Express Security Logger Middleware", () => {
         method: "password",
       });
 
-      expect(console.info).toHaveBeenCalledWith(
+      expect(mockGlobalLogger.info).toHaveBeenCalledWith(
         expect.stringContaining("Login bem-sucedido para usuário user123"),
+        expect.any(Object),
       );
     });
 
@@ -360,26 +391,29 @@ describe("Express Security Logger Middleware", () => {
         reason: "senha incorreta",
       });
 
-      expect(console.warn).toHaveBeenCalledWith(
+      expect(mockGlobalLogger.warn).toHaveBeenCalledWith(
         expect.stringContaining(
           "Tentativa de login falhada para usuário user123",
         ),
+        expect.any(Object),
       );
     });
 
     it("deve logar logout", () => {
       authSecurityLogger.logLogout("user123", mockRequest as Request);
 
-      expect(console.info).toHaveBeenCalledWith(
+      expect(mockGlobalLogger.info).toHaveBeenCalledWith(
         expect.stringContaining("Logout realizado para usuário user123"),
+        expect.any(Object),
       );
     });
 
     it("deve logar refresh de token", () => {
       authSecurityLogger.logTokenRefresh("user123", mockRequest as Request);
 
-      expect(console.info).toHaveBeenCalledWith(
+      expect(mockGlobalLogger.info).toHaveBeenCalledWith(
         expect.stringContaining("Token refreshed para usuário user123"),
+        expect.any(Object),
       );
     });
 
@@ -390,8 +424,9 @@ describe("Express Security Logger Middleware", () => {
         "múltiplas tentativas",
       );
 
-      expect(console.error).toHaveBeenCalledWith(
+      expect(mockGlobalLogger.error).toHaveBeenCalledWith(
         expect.stringContaining("Login bloqueado para user123"),
+        expect.any(Object),
       );
     });
 
@@ -406,16 +441,14 @@ describe("Express Security Logger Middleware", () => {
         authSecurityLogger.logLoginBlocked("user123", undefined, "teste");
       }).not.toThrow();
 
-      // logLogin(true) + logLogout + logTokenRefresh = 3 console.info calls
-      expect(console.info).toHaveBeenCalledTimes(3);
-      expect(console.error).toHaveBeenCalledTimes(1);
+      // logLogin(true) + logLogout + logTokenRefresh = 3 mockGlobalLogger.info calls
+      expect(mockGlobalLogger.info).toHaveBeenCalledTimes(3);
+      expect(mockGlobalLogger.error).toHaveBeenCalledTimes(1);
     });
   });
 
   describe("Método getLogMethod", () => {
-    it("deve usar console.log para severidade inválida/desconhecida", () => {
-      const consoleLogSpy = jest.spyOn(console, "log").mockImplementation();
-
+    it("deve usar mockGlobalLogger.info para severidade inválida/desconhecida", () => {
       // Cria um evento com severidade inválida para testar o caso default
       const invalidEvent = {
         timestamp: new Date().toISOString(),
@@ -426,11 +459,10 @@ describe("Express Security Logger Middleware", () => {
 
       securityLogger.logSecurityEvent(invalidEvent);
 
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        expect.stringContaining("🔒 [SECURITY]"),
+      expect(mockGlobalLogger.info).toHaveBeenCalledWith(
+        expect.stringContaining("[SECURITY]"),
+        expect.any(Object),
       );
-
-      consoleLogSpy.mockRestore();
     });
   });
 
@@ -442,11 +474,13 @@ describe("Express Security Logger Middleware", () => {
       authSecurityLogger.logLogin(true, undefined, mockRequest as Request);
       authSecurityLogger.logLogin(false, undefined, mockRequest as Request);
 
-      expect(console.info).toHaveBeenCalledWith(
+      expect(mockGlobalLogger.info).toHaveBeenCalledWith(
         expect.stringContaining("usuário desconhecido"),
+        expect.any(Object),
       );
-      expect(console.warn).toHaveBeenCalledWith(
+      expect(mockGlobalLogger.warn).toHaveBeenCalledWith(
         expect.stringContaining("usuário desconhecido"),
+        expect.any(Object),
       );
     });
 
@@ -456,8 +490,9 @@ describe("Express Security Logger Middleware", () => {
       // Testa branch reason || "tentativas excessivas" com reason undefined
       authSecurityLogger.logLoginBlocked("user123", mockRequest as Request);
 
-      expect(console.error).toHaveBeenCalledWith(
+      expect(mockGlobalLogger.error).toHaveBeenCalledWith(
         expect.stringContaining("tentativas excessivas"),
+        expect.any(Object),
       );
     });
 
@@ -578,8 +613,9 @@ describe("Express Security Logger Middleware", () => {
         mockNext,
       );
 
-      expect(console.error).toHaveBeenCalledWith(
+      expect(mockGlobalLogger.error).toHaveBeenCalledWith(
         expect.stringContaining("Atividade suspeita detectada"),
+        expect.any(Object),
       );
     });
 
@@ -603,8 +639,9 @@ describe("Express Security Logger Middleware", () => {
         mockNext,
       );
 
-      expect(console.error).toHaveBeenCalledWith(
+      expect(mockGlobalLogger.error).toHaveBeenCalledWith(
         expect.stringContaining("Atividade suspeita detectada"),
+        expect.any(Object),
       );
     });
 
@@ -628,8 +665,9 @@ describe("Express Security Logger Middleware", () => {
         mockNext,
       );
 
-      expect(console.error).toHaveBeenCalledWith(
+      expect(mockGlobalLogger.error).toHaveBeenCalledWith(
         expect.stringContaining("Atividade suspeita detectada"),
+        expect.any(Object),
       );
     });
 
@@ -653,8 +691,13 @@ describe("Express Security Logger Middleware", () => {
         mockNext,
       );
 
-      expect(console.error).toHaveBeenCalledWith(
-        expect.stringContaining("hasBody"),
+      expect(mockGlobalLogger.error).toHaveBeenCalledWith(
+        expect.stringContaining("Atividade suspeita detectada"),
+        expect.objectContaining({
+          additionalData: expect.objectContaining({
+            hasBody: true,
+          }),
+        }),
       );
     });
 
@@ -678,8 +721,9 @@ describe("Express Security Logger Middleware", () => {
         mockNext,
       );
 
-      expect(console.error).toHaveBeenCalledWith(
+      expect(mockGlobalLogger.error).toHaveBeenCalledWith(
         expect.stringContaining("Atividade suspeita detectada"),
+        expect.any(Object),
       );
     });
 
@@ -727,8 +771,9 @@ describe("Express Security Logger Middleware", () => {
         );
 
         // Verifica se o padrão foi detectado
-        expect(console.error).toHaveBeenCalledWith(
+        expect(mockGlobalLogger.error).toHaveBeenCalledWith(
           expect.stringContaining("Atividade suspeita detectada"),
+          expect.any(Object),
         );
       });
     });
@@ -753,8 +798,13 @@ describe("Express Security Logger Middleware", () => {
         mockNext,
       );
 
-      expect(console.error).toHaveBeenCalledWith(
-        expect.stringContaining("hasBody"),
+      expect(mockGlobalLogger.error).toHaveBeenCalledWith(
+        expect.stringContaining("Atividade suspeita detectada"),
+        expect.objectContaining({
+          additionalData: expect.objectContaining({
+            hasBody: false,
+          }),
+        }),
       );
     });
   });
@@ -773,10 +823,9 @@ describe("Express Security Logger Middleware", () => {
 
       // Verifica que nenhum log contém a senha
       const allCalls = [
-        ...(console.info as jest.Mock).mock.calls,
-        ...(console.warn as jest.Mock).mock.calls,
-        ...(console.error as jest.Mock).mock.calls,
-        ...(console.log as jest.Mock).mock.calls,
+        ...mockGlobalLogger.info.mock.calls,
+        ...mockGlobalLogger.warn.mock.calls,
+        ...mockGlobalLogger.error.mock.calls,
       ];
 
       allCalls.forEach((call) => {

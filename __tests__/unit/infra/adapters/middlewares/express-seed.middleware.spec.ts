@@ -1,7 +1,12 @@
+// Mock globalLogger before imports
 import { NextFunction, Request, Response } from "express";
 
 import { ensureSeedMiddleware } from "../../../../../src/infra/adapters";
 import { SeedManager } from "../../../../../src/main/seed";
+import {
+  mockGlobalLogger,
+  resetGlobalLoggerMocks,
+} from "../../../../mocks/global.logger.mock";
 
 jest.mock("../../../../../src/main/seed/seed.manager");
 
@@ -12,6 +17,7 @@ describe("ensureSeedMiddleware", () => {
   let mockSeedManager: jest.Mocked<SeedManager>;
 
   beforeEach(() => {
+    resetGlobalLoggerMocks();
     jest.clearAllMocks();
 
     mockRequest = {};
@@ -91,7 +97,6 @@ describe("ensureSeedMiddleware", () => {
 
   it("should return 503 error when seeding fails", async () => {
     const seedError = new Error("Database connection failed");
-    const consoleSpy = jest.spyOn(console, "error").mockImplementation();
 
     mockSeedManager.getStatus.mockReturnValue({
       isSeeded: false,
@@ -113,17 +118,16 @@ describe("ensureSeedMiddleware", () => {
     expect(mockResponse.json).toHaveBeenCalledWith({
       error: "Service temporarily unavailable. Database initialization failed.",
     });
-    expect(consoleSpy).toHaveBeenCalledWith(
-      "❌ Seed middleware error:",
-      seedError,
+    expect(mockGlobalLogger.error).toHaveBeenCalledWith(
+      "Seed middleware error",
+      expect.objectContaining({
+        error: expect.any(String),
+      }),
     );
-
-    consoleSpy.mockRestore();
   });
 
   it("should return 503 error when SeedManager.getInstance throws", async () => {
     const managerError = new Error("SeedManager initialization failed");
-    const consoleSpy = jest.spyOn(console, "error").mockImplementation();
 
     (SeedManager.getInstance as jest.Mock).mockImplementation(() => {
       throw managerError;
@@ -140,17 +144,16 @@ describe("ensureSeedMiddleware", () => {
     expect(mockResponse.json).toHaveBeenCalledWith({
       error: "Service temporarily unavailable. Database initialization failed.",
     });
-    expect(consoleSpy).toHaveBeenCalledWith(
-      "❌ Seed middleware error:",
-      managerError,
+    expect(mockGlobalLogger.error).toHaveBeenCalledWith(
+      "Seed middleware error",
+      expect.objectContaining({
+        error: expect.any(String),
+      }),
     );
-
-    consoleSpy.mockRestore();
   });
 
   it("should return 503 error when getStatus throws", async () => {
     const statusError = new Error("Status check failed");
-    const consoleSpy = jest.spyOn(console, "error").mockImplementation();
 
     mockSeedManager.getStatus.mockImplementation(() => {
       throw statusError;
@@ -170,12 +173,12 @@ describe("ensureSeedMiddleware", () => {
     expect(mockResponse.json).toHaveBeenCalledWith({
       error: "Service temporarily unavailable. Database initialization failed.",
     });
-    expect(consoleSpy).toHaveBeenCalledWith(
-      "❌ Seed middleware error:",
-      statusError,
+    expect(mockGlobalLogger.error).toHaveBeenCalledWith(
+      "Seed middleware error",
+      expect.objectContaining({
+        error: expect.any(String),
+      }),
     );
-
-    consoleSpy.mockRestore();
   });
 
   it("should handle different error types during seeding", async () => {
@@ -188,10 +191,10 @@ describe("ensureSeedMiddleware", () => {
       null,
       undefined,
     ];
-    const consoleSpy = jest.spyOn(console, "error").mockImplementation();
 
     for (const error of errorTypes) {
       jest.clearAllMocks();
+      resetGlobalLoggerMocks();
 
       mockSeedManager.getStatus.mockReturnValue({
         isSeeded: false,
@@ -211,13 +214,13 @@ describe("ensureSeedMiddleware", () => {
         error:
           "Service temporarily unavailable. Database initialization failed.",
       });
-      expect(consoleSpy).toHaveBeenCalledWith(
-        "❌ Seed middleware error:",
-        error,
+      expect(mockGlobalLogger.error).toHaveBeenCalledWith(
+        "Seed middleware error",
+        expect.objectContaining({
+          error: expect.any(String),
+        }),
       );
     }
-
-    consoleSpy.mockRestore();
   });
 
   it("should not affect request and response objects when successful", async () => {

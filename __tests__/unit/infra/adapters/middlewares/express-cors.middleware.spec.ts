@@ -1,3 +1,4 @@
+// Mock globalLogger before imports
 import { NextFunction, Request, Response } from "express";
 
 import {
@@ -7,6 +8,10 @@ import {
   corsDev,
   corsProd,
 } from "../../../../../src/infra/adapters/middlewares/express-cors.middleware";
+import {
+  mockGlobalLogger,
+  resetGlobalLoggerMocks,
+} from "../../../../mocks/global.logger.mock";
 
 describe("Express CORS Middleware", () => {
   let mockRequest: Partial<Request>;
@@ -19,6 +24,7 @@ describe("Express CORS Middleware", () => {
   let responseBody: any;
 
   beforeEach(() => {
+    resetGlobalLoggerMocks();
     headersSetter = {};
     responseStatus = 200;
     responseBody = null;
@@ -49,13 +55,6 @@ describe("Express CORS Middleware", () => {
     };
 
     mockNext = jest.fn();
-
-    // Mock console.warn to avoid noise in tests
-    jest.spyOn(console, "warn").mockImplementation(() => {});
-  });
-
-  afterEach(() => {
-    jest.restoreAllMocks();
   });
 
   describe("cors", () => {
@@ -126,8 +125,12 @@ describe("Express CORS Middleware", () => {
       middleware(mockRequest as Request, mockResponse as Response, mockNext);
 
       expect(headersSetter["Access-Control-Allow-Origin"]).toBeUndefined();
-      expect(console.warn).toHaveBeenCalledWith(
-        "🚫 CORS: Origem bloqueada - https://malicious.com tentou acessar /api/test",
+      expect(mockGlobalLogger.warn).toHaveBeenCalledWith(
+        "CORS: Origem bloqueada",
+        expect.objectContaining({
+          origin: "https://malicious.com",
+          path: "/api/test",
+        }),
       );
       expect(mockResponse.status).toHaveBeenCalledWith(403);
       expect(mockResponse.json).toHaveBeenCalledWith({
@@ -534,10 +537,11 @@ describe("Express CORS Middleware", () => {
       middleware(mockRequest as Request, mockResponse as Response, mockNext);
 
       expect(headersSetter["Access-Control-Allow-Origin"]).toBeUndefined();
-      expect(console.warn).toHaveBeenCalledWith(
-        expect.stringContaining(
-          "🚫 CORS: Origem bloqueada - https://malicious.com",
-        ),
+      expect(mockGlobalLogger.warn).toHaveBeenCalledWith(
+        "CORS: Origem bloqueada",
+        expect.objectContaining({
+          origin: "https://malicious.com",
+        }),
       );
     });
 
@@ -802,8 +806,6 @@ describe("Express CORS Middleware", () => {
     });
 
     it("deve cobrir logging de bloqueio CORS (linhas 211-217)", () => {
-      const consoleSpy = jest.spyOn(console, "warn").mockImplementation();
-
       const config: CorsConfig = {
         origin: "https://allowed.com", // Origem específica permitida
       };
@@ -814,9 +816,13 @@ describe("Express CORS Middleware", () => {
       mockRequest.originalUrl = "/api/test";
       middleware(mockRequest as Request, mockResponse as Response, mockNext);
 
-      // Verifica se o console.warn foi chamado com o log correto
-      expect(consoleSpy).toHaveBeenCalledWith(
-        "🚫 CORS: Origem bloqueada - https://blocked.com tentou acessar /api/test",
+      // Verifica se o mockGlobalLogger.warn foi chamado com o log correto
+      expect(mockGlobalLogger.warn).toHaveBeenCalledWith(
+        "CORS: Origem bloqueada",
+        expect.objectContaining({
+          origin: "https://blocked.com",
+          path: "/api/test",
+        }),
       );
 
       // Verifica se a resposta de erro foi enviada
@@ -826,13 +832,9 @@ describe("Express CORS Middleware", () => {
         origin: "https://blocked.com",
         message: "Esta API não permite requisições de sua origem",
       });
-
-      consoleSpy.mockRestore();
     });
 
     it("deve cobrir logging quando não há origin (linha 211)", () => {
-      const consoleSpy = jest.spyOn(console, "warn").mockImplementation();
-
       const config: CorsConfig = {
         origin: false, // Bloqueia todas as origens
       };
@@ -843,12 +845,14 @@ describe("Express CORS Middleware", () => {
       mockRequest.originalUrl = "/api/test";
       middleware(mockRequest as Request, mockResponse as Response, mockNext);
 
-      // Verifica se o console.warn foi chamado com "undefined"
-      expect(consoleSpy).toHaveBeenCalledWith(
-        "🚫 CORS: Origem bloqueada - undefined tentou acessar /api/test",
+      // Verifica se o mockGlobalLogger.warn foi chamado com "undefined"
+      expect(mockGlobalLogger.warn).toHaveBeenCalledWith(
+        "CORS: Origem bloqueada",
+        expect.objectContaining({
+          origin: "undefined",
+          path: "/api/test",
+        }),
       );
-
-      consoleSpy.mockRestore();
     });
 
     it("deve cobrir branch quando exposedHeaders está vazio (linha 247)", () => {

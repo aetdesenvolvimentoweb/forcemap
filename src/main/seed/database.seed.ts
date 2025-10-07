@@ -10,6 +10,7 @@ import {
   MilitaryRepository,
   UserRepository,
 } from "../../domain/repositories";
+import { globalLogger } from "../../infra/adapters/global.logger";
 
 export class DatabaseSeed {
   private static hasSeeded = false;
@@ -66,7 +67,7 @@ export class DatabaseSeed {
     ]);
 
     DatabaseSeed.hasSeeded = true;
-    console.log("🌱 Database seeded successfully");
+    globalLogger.info("Database seeded successfully");
   }
 
   private async seedMilitaryRanks(

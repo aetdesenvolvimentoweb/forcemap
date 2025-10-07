@@ -1,5 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 
+import { globalLogger } from "../global.logger";
+
 /**
  * Configurações para CORS (Cross-Origin Resource Sharing)
  */
@@ -207,9 +209,12 @@ export const cors = (config: CorsConfig = {}) => {
     isOriginAllowed(origin, finalConfig.origin, (err, allowed) => {
       if (err || !allowed) {
         // Log do bloqueio para monitoramento
-        console.warn(
-          `🚫 CORS: Origem bloqueada - ${origin || "undefined"} tentou acessar ${req.path}`,
-        );
+        globalLogger.warn("CORS: Origem bloqueada", {
+          origin: origin || "undefined",
+          path: req.path,
+          method: req.method,
+          ip: req.ip,
+        });
 
         // Bloqueia todas as requisições de origens não permitidas
         res.status(403).json({

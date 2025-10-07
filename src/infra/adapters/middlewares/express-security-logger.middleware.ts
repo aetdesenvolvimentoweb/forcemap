@@ -78,24 +78,34 @@ export interface SecurityLogger {
   logAccessDenied(userId: string, resource: string, ipAddress?: string): void;
 }
 
+import { globalLogger } from "../global.logger";
+
 /**
- * Implementação do logger de segurança usando console estruturado
+ * Implementação do logger de segurança usando Pino
  */
-class ConsoleSecurityLogger implements SecurityLogger {
-  private formatSecurityLog(event: SecurityEvent): string {
-    return JSON.stringify(
-      {
-        type: "SECURITY_EVENT",
-        ...event,
-      },
-      null,
-      2,
-    );
+class PinoSecurityLogger implements SecurityLogger {
+  private getLogLevel(
+    severity: SecurityEventSeverity,
+  ): "info" | "warn" | "error" {
+    switch (severity) {
+      case SecurityEventSeverity.LOW:
+        return "info";
+      case SecurityEventSeverity.MEDIUM:
+        return "warn";
+      case SecurityEventSeverity.HIGH:
+      case SecurityEventSeverity.CRITICAL:
+        return "error";
+      default:
+        return "info";
+    }
   }
 
   logSecurityEvent(event: SecurityEvent): void {
-    const logMethod = this.getLogMethod(event.severity);
-    logMethod(`🔒 [SECURITY] ${this.formatSecurityLog(event)}`);
+    const level = this.getLogLevel(event.severity);
+    globalLogger[level](`[SECURITY] ${event.message}`, {
+      type: "SECURITY_EVENT",
+      ...event,
+    });
   }
 
   logLoginAttempt(
@@ -104,37 +114,39 @@ class ConsoleSecurityLogger implements SecurityLogger {
     ipAddress?: string,
     additionalData?: Record<string, unknown>,
   ): void {
-    const event: SecurityEvent = {
-      timestamp: new Date().toISOString(),
+    const level = success ? "info" : "warn";
+    const message = success
+      ? `Login bem-sucedido para usuário ${userId || "desconhecido"}`
+      : `Tentativa de login falhada para usuário ${userId || "desconhecido"}`;
+
+    globalLogger[level](`[SECURITY] ${message}`, {
+      type: "SECURITY_EVENT",
       eventType: success
         ? SecurityEventType.LOGIN_SUCCESS
         : SecurityEventType.LOGIN_FAILED,
       severity: success
         ? SecurityEventSeverity.LOW
         : SecurityEventSeverity.MEDIUM,
-      message: success
-        ? `Login bem-sucedido para usuário ${userId || "desconhecido"}`
-        : `Tentativa de login falhada para usuário ${userId || "desconhecido"}`,
+      timestamp: new Date().toISOString(),
       userId,
       ipAddress,
       additionalData,
-    };
-
-    this.logSecurityEvent(event);
+    });
   }
 
   logRateLimitHit(ipAddress: string, endpoint: string, limit: number): void {
-    const event: SecurityEvent = {
-      timestamp: new Date().toISOString(),
-      eventType: SecurityEventType.RATE_LIMIT_HIT,
-      severity: SecurityEventSeverity.MEDIUM,
-      message: `Rate limit atingido para IP ${ipAddress} no endpoint ${endpoint} (limite: ${limit})`,
-      ipAddress,
-      endpoint,
-      additionalData: { limit },
-    };
-
-    this.logSecurityEvent(event);
+    globalLogger.warn(
+      `[SECURITY] Rate limit atingido para IP ${ipAddress} no endpoint ${endpoint} (limite: ${limit})`,
+      {
+        type: "SECURITY_EVENT",
+        eventType: SecurityEventType.RATE_LIMIT_HIT,
+        severity: SecurityEventSeverity.MEDIUM,
+        timestamp: new Date().toISOString(),
+        ipAddress,
+        endpoint,
+        additionalData: { limit },
+      },
+    );
   }
 
   logSuspiciousActivity(
@@ -142,66 +154,53 @@ class ConsoleSecurityLogger implements SecurityLogger {
     ipAddress?: string,
     additionalData?: Record<string, unknown>,
   ): void {
-    const event: SecurityEvent = {
-      timestamp: new Date().toISOString(),
-      eventType: SecurityEventType.SUSPICIOUS_ACTIVITY,
-      severity: SecurityEventSeverity.HIGH,
-      message: `Atividade suspeita detectada: ${description}`,
-      ipAddress,
-      additionalData,
-    };
-
-    this.logSecurityEvent(event);
+    globalLogger.error(
+      `[SECURITY] Atividade suspeita detectada: ${description}`,
+      {
+        type: "SECURITY_EVENT",
+        eventType: SecurityEventType.SUSPICIOUS_ACTIVITY,
+        severity: SecurityEventSeverity.HIGH,
+        timestamp: new Date().toISOString(),
+        ipAddress,
+        additionalData,
+      },
+    );
   }
 
   logCorsViolation(origin: string, ipAddress?: string): void {
-    const event: SecurityEvent = {
-      timestamp: new Date().toISOString(),
-      eventType: SecurityEventType.CORS_VIOLATION,
-      severity: SecurityEventSeverity.MEDIUM,
-      message: `Violação CORS detectada da origem: ${origin}`,
-      ipAddress,
-      additionalData: { origin },
-    };
-
-    this.logSecurityEvent(event);
+    globalLogger.warn(
+      `[SECURITY] Violação CORS detectada da origem: ${origin}`,
+      {
+        type: "SECURITY_EVENT",
+        eventType: SecurityEventType.CORS_VIOLATION,
+        severity: SecurityEventSeverity.MEDIUM,
+        timestamp: new Date().toISOString(),
+        ipAddress,
+        additionalData: { origin },
+      },
+    );
   }
 
   logAccessDenied(userId: string, resource: string, ipAddress?: string): void {
-    const event: SecurityEvent = {
-      timestamp: new Date().toISOString(),
-      eventType: SecurityEventType.ACCESS_DENIED,
-      severity: SecurityEventSeverity.MEDIUM,
-      message: `Acesso negado para usuário ${userId} ao recurso ${resource}`,
-      userId,
-      ipAddress,
-      additionalData: { resource },
-    };
-
-    this.logSecurityEvent(event);
-  }
-
-  private getLogMethod(
-    severity: SecurityEventSeverity,
-  ): (message: string) => void {
-    switch (severity) {
-      case SecurityEventSeverity.LOW:
-        return console.info;
-      case SecurityEventSeverity.MEDIUM:
-        return console.warn;
-      case SecurityEventSeverity.HIGH:
-      case SecurityEventSeverity.CRITICAL:
-        return console.error;
-      default:
-        return console.log;
-    }
+    globalLogger.warn(
+      `[SECURITY] Acesso negado para usuário ${userId} ao recurso ${resource}`,
+      {
+        type: "SECURITY_EVENT",
+        eventType: SecurityEventType.ACCESS_DENIED,
+        severity: SecurityEventSeverity.MEDIUM,
+        timestamp: new Date().toISOString(),
+        userId,
+        ipAddress,
+        additionalData: { resource },
+      },
+    );
   }
 }
 
 /**
  * Instância global do logger de segurança
  */
-export const securityLogger: SecurityLogger = new ConsoleSecurityLogger();
+export const securityLogger: SecurityLogger = new PinoSecurityLogger();
 
 /**
  * Extrai informações da requisição para logging de segurança
@@ -230,21 +229,21 @@ export const securityLogging = () => {
 
       // Log eventos baseados no status code
       if (statusCode === 401) {
-        securityLogger.logSecurityEvent({
-          timestamp: new Date().toISOString(),
+        globalLogger.warn("[SECURITY] Token inválido ou expirado", {
+          type: "SECURITY_EVENT",
           eventType: SecurityEventType.TOKEN_INVALID,
           severity: SecurityEventSeverity.MEDIUM,
-          message: "Token inválido ou expirado",
+          timestamp: new Date().toISOString(),
           ...requestInfo,
           statusCode,
           additionalData: { responseTime },
         });
       } else if (statusCode === 403) {
-        securityLogger.logSecurityEvent({
-          timestamp: new Date().toISOString(),
+        globalLogger.warn("[SECURITY] Acesso negado ao recurso", {
+          type: "SECURITY_EVENT",
           eventType: SecurityEventType.ACCESS_DENIED,
           severity: SecurityEventSeverity.MEDIUM,
-          message: "Acesso negado ao recurso",
+          timestamp: new Date().toISOString(),
           ...requestInfo,
           statusCode,
           additionalData: { responseTime },
@@ -256,11 +255,11 @@ export const securityLogging = () => {
           0, // Limite específico seria obtido do rate limiter
         );
       } else if (statusCode >= 500) {
-        securityLogger.logSecurityEvent({
-          timestamp: new Date().toISOString(),
+        globalLogger.error("[SECURITY] Erro interno do servidor", {
+          type: "SECURITY_EVENT",
           eventType: SecurityEventType.SERVER_ERROR,
           severity: SecurityEventSeverity.HIGH,
-          message: `Erro interno do servidor`,
+          timestamp: new Date().toISOString(),
           ...requestInfo,
           statusCode,
           additionalData: { responseTime },

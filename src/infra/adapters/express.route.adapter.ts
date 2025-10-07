@@ -6,6 +6,7 @@ import type {
   HttpRequest,
   HttpResponse,
 } from "../../presentation/protocols";
+import { globalLogger } from "./global.logger";
 
 export const expressRouteAdapter = (controller: ControllerProtocol) => {
   return async (req: Request, res: Response): Promise<void> => {
@@ -21,7 +22,12 @@ export const expressRouteAdapter = (controller: ControllerProtocol) => {
 
       res.status(httpResponse.statusCode).json(httpResponse.body);
     } catch (error) {
-      console.error("Express route adapter error:", error);
+      globalLogger.error("Express route adapter error", {
+        error: error instanceof Error ? error.message : "Unknown error",
+        stack: error instanceof Error ? error.stack : undefined,
+        path: req.url,
+        method: req.method,
+      });
       res.status(500).json({
         error: "Internal server error",
       });

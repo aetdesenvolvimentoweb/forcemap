@@ -1,3 +1,4 @@
+// Mock globalLogger before imports
 import {
   mockMilitaryRankRepository,
   mockMilitaryRepository,
@@ -6,6 +7,10 @@ import {
 } from "../../../../__mocks__";
 import { UserRole } from "../../../../src/domain/entities";
 import { DatabaseSeed } from "../../../../src/main/seed";
+import {
+  mockGlobalLogger,
+  resetGlobalLoggerMocks,
+} from "../../../mocks/global.logger.mock";
 
 describe("DatabaseSeed", () => {
   let sut: DatabaseSeed;
@@ -14,19 +19,9 @@ describe("DatabaseSeed", () => {
   let mockedUserRepository = mockUserRepository();
   let mockedPasswordHasher = mockPasswordHasher();
 
-  // Mock console.log to avoid noise in tests
-  const originalConsoleLog = console.log;
-
-  beforeAll(() => {
-    console.log = jest.fn();
-  });
-
-  afterAll(() => {
-    console.log = originalConsoleLog;
-  });
-
   beforeEach(() => {
     jest.clearAllMocks();
+    resetGlobalLoggerMocks();
     // Reset the static hasSeeded flag using reflection
     (DatabaseSeed as any).hasSeeded = false;
 
@@ -104,8 +99,8 @@ describe("DatabaseSeed", () => {
       });
 
       // Verify success message
-      expect(console.log).toHaveBeenCalledWith(
-        "🌱 Database seeded successfully",
+      expect(mockGlobalLogger.info).toHaveBeenCalledWith(
+        "Database seeded successfully",
       );
     });
 
@@ -130,7 +125,7 @@ describe("DatabaseSeed", () => {
       expect(mockedMilitaryRepository.create).not.toHaveBeenCalled();
       expect(mockedUserRepository.create).not.toHaveBeenCalled();
       expect(mockedPasswordHasher.hash).not.toHaveBeenCalled();
-      expect(console.log).not.toHaveBeenCalled();
+      expect(mockGlobalLogger.info).not.toHaveBeenCalled();
     });
 
     it("should create all military ranks in correct order", async () => {
@@ -233,8 +228,8 @@ describe("DatabaseSeed", () => {
       await expect(sut.run()).rejects.toThrow("Database connection failed");
 
       expect(mockedMilitaryRankRepository.create).toHaveBeenCalled();
-      expect(console.log).not.toHaveBeenCalledWith(
-        "🌱 Database seeded successfully",
+      expect(mockGlobalLogger.info).not.toHaveBeenCalledWith(
+        "Database seeded successfully",
       );
     });
 

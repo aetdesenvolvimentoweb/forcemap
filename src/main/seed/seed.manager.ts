@@ -1,3 +1,4 @@
+import { globalLogger } from "../../infra/adapters/global.logger";
 import { makeDatabaseSeed } from "../factories/seed/database.seed.factory";
 
 export class SeedManager {
@@ -20,7 +21,7 @@ export class SeedManager {
     }
 
     if (!this.seedPromise) {
-      console.log("🌱 Starting database seed...");
+      globalLogger.info("Starting database seed");
       this.seedPromise = this.runSeed();
     }
 
@@ -32,9 +33,12 @@ export class SeedManager {
       const databaseSeed = makeDatabaseSeed();
       await databaseSeed.run();
       this.isSeeded = true;
-      console.log("🌱 Database seed completed successfully");
+      globalLogger.info("Database seed completed successfully");
     } catch (error) {
-      console.error("❌ Database seed failed:", error);
+      globalLogger.error("Database seed failed", {
+        error: error instanceof Error ? error.message : "Unknown error",
+        stack: error instanceof Error ? error.stack : undefined,
+      });
       // Reset promise so it can be retried
       this.seedPromise = null;
       throw error;
