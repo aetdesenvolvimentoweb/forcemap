@@ -2,6 +2,17 @@ import { Request } from "express";
 
 import { LogoutService } from "../../../../../src/application/services/auth/logout.service";
 import { SessionRepository } from "../../../../../src/domain/repositories";
+
+// Mock authSecurityLogger module
+jest.mock("../../../../../src/infra/adapters/middlewares", () => ({
+  authSecurityLogger: {
+    logLogin: jest.fn(),
+    logLoginBlocked: jest.fn(),
+    logLogout: jest.fn(),
+    logTokenRefresh: jest.fn(),
+  },
+}));
+
 import { authSecurityLogger } from "../../../../../src/infra/adapters/middlewares";
 
 describe("LogoutService", () => {
@@ -365,6 +376,8 @@ describe("LogoutService", () => {
       } as unknown as Request;
 
       beforeEach(() => {
+        // Clear previous mock calls
+        (authSecurityLogger.logLogout as jest.Mock).mockClear();
         jest.spyOn(authSecurityLogger, "logLogout").mockImplementation();
       });
 

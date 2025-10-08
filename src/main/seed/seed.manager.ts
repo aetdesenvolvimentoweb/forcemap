@@ -1,4 +1,4 @@
-import { globalLogger } from "../../infra/adapters/global.logger";
+import { LoggerProtocol } from "../../application/protocols";
 import { makeDatabaseSeed } from "../factories/seed/database.seed.factory";
 
 export class SeedManager {
@@ -6,11 +6,11 @@ export class SeedManager {
   private seedPromise: Promise<void> | null = null;
   private isSeeded = false;
 
-  private constructor() {}
+  private constructor(private readonly logger: LoggerProtocol) {}
 
-  public static getInstance(): SeedManager {
+  public static getInstance(logger: LoggerProtocol): SeedManager {
     if (!SeedManager.instance) {
-      SeedManager.instance = new SeedManager();
+      SeedManager.instance = new SeedManager(logger);
     }
     return SeedManager.instance;
   }
@@ -21,7 +21,7 @@ export class SeedManager {
     }
 
     if (!this.seedPromise) {
-      globalLogger.info("Starting database seed");
+      this.logger.info("Starting database seed");
       this.seedPromise = this.runSeed();
     }
 
@@ -33,9 +33,9 @@ export class SeedManager {
       const databaseSeed = makeDatabaseSeed();
       await databaseSeed.run();
       this.isSeeded = true;
-      globalLogger.info("Database seed completed successfully");
+      this.logger.info("Database seed completed successfully");
     } catch (error) {
-      globalLogger.error("Database seed failed", {
+      this.logger.error("Database seed failed", {
         error: error instanceof Error ? error.message : "Unknown error",
         stack: error instanceof Error ? error.stack : undefined,
       });

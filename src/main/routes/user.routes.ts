@@ -1,7 +1,6 @@
 import { Router } from "express";
 
 import { expressRouteAdapter } from "../../infra/adapters";
-import { requireAuthWithRoles } from "../../infra/adapters/middlewares/express-auth.middleware";
 import {
   makeCreateUserController,
   makeDeleteUserController,
@@ -10,8 +9,10 @@ import {
   makeUpdateUserPasswordController,
   makeUpdateUserRoleController,
 } from "../factories/controllers";
+import { makeExpressAuthMiddleware } from "../factories/middlewares";
 
 const userRoutes = Router();
+const { requireAuthWithRoles } = makeExpressAuthMiddleware();
 
 // Todas as rotas de usuário requerem autenticação mínima
 // Rotas que requerem permissão ADMIN

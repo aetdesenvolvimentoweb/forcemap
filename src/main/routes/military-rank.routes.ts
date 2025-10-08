@@ -1,7 +1,6 @@
 import { Router } from "express";
 
 import { expressRouteAdapter } from "../../infra/adapters";
-import { requireAuthWithRoles } from "../../infra/adapters/middlewares/express-auth.middleware";
 import {
   makeCreateMilitaryRankController,
   makeDeleteMilitaryRankController,
@@ -9,8 +8,10 @@ import {
   makeListAllMilitaryRankController,
   makeUpdateMilitaryRankController,
 } from "../factories/controllers";
+import { makeExpressAuthMiddleware } from "../factories/middlewares";
 
 const militaryRankRoutes = Router();
+const { requireAuthWithRoles } = makeExpressAuthMiddleware();
 
 // Operações críticas - apenas ADMIN
 militaryRankRoutes.post(

@@ -36,6 +36,7 @@ describe("DatabaseSeed", () => {
       mockedMilitaryRepository,
       mockedUserRepository,
       mockedPasswordHasher,
+      mockGlobalLogger,
     );
   });
 
@@ -284,6 +285,7 @@ describe("DatabaseSeed", () => {
         mockedMilitaryRepository,
         mockedUserRepository,
         mockedPasswordHasher,
+        mockGlobalLogger,
       );
 
       jest.clearAllMocks();

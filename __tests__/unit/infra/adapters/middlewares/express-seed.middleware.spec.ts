@@ -1,20 +1,21 @@
 // Mock globalLogger before imports
 import { NextFunction, Request, Response } from "express";
 
-import { ensureSeedMiddleware } from "../../../../../src/infra/adapters";
-import { SeedManager } from "../../../../../src/main/seed";
+import {
+  createExpressSeedMiddleware,
+  SeedManagerProtocol,
+} from "../../../../../src/infra/adapters/middlewares/express-seed.middleware";
 import {
   mockGlobalLogger,
   resetGlobalLoggerMocks,
 } from "../../../../mocks/global.logger.mock";
 
-jest.mock("../../../../../src/main/seed/seed.manager");
-
 describe("ensureSeedMiddleware", () => {
   let mockRequest: Partial<Request>;
   let mockResponse: Partial<Response>;
   let mockNext: NextFunction;
-  let mockSeedManager: jest.Mocked<SeedManager>;
+  let mockSeedManager: jest.Mocked<SeedManagerProtocol>;
+  let ensureSeedMiddleware: any;
 
   beforeEach(() => {
     resetGlobalLoggerMocks();
@@ -28,12 +29,15 @@ describe("ensureSeedMiddleware", () => {
     mockNext = jest.fn();
 
     mockSeedManager = {
-      getInstance: jest.fn(),
       getStatus: jest.fn(),
       ensureSeeded: jest.fn(),
-    } as any;
+    };
 
-    (SeedManager.getInstance as jest.Mock).mockReturnValue(mockSeedManager);
+    // Criar middleware a partir do adapter puro
+    ensureSeedMiddleware = createExpressSeedMiddleware(
+      mockSeedManager,
+      mockGlobalLogger,
+    );
   });
 
   it("should call next when database is already seeded", async () => {
@@ -42,13 +46,15 @@ describe("ensureSeedMiddleware", () => {
       isSeeding: false,
     });
 
-    await ensureSeedMiddleware(
+    ensureSeedMiddleware(
       mockRequest as Request,
       mockResponse as Response,
       mockNext,
     );
 
-    expect(SeedManager.getInstance).toHaveBeenCalledTimes(1);
+    // Wait for async execution
+    await new Promise((resolve) => setImmediate(resolve));
+
     expect(mockSeedManager.getStatus).toHaveBeenCalledTimes(1);
     expect(mockSeedManager.ensureSeeded).not.toHaveBeenCalled();
     expect(mockNext).toHaveBeenCalledTimes(1);
@@ -62,13 +68,15 @@ describe("ensureSeedMiddleware", () => {
     });
     mockSeedManager.ensureSeeded.mockResolvedValue();
 
-    await ensureSeedMiddleware(
+    ensureSeedMiddleware(
       mockRequest as Request,
       mockResponse as Response,
       mockNext,
     );
 
-    expect(SeedManager.getInstance).toHaveBeenCalledTimes(1);
+    // Wait for async execution
+    await new Promise((resolve) => setImmediate(resolve));
+
     expect(mockSeedManager.getStatus).toHaveBeenCalledTimes(1);
     expect(mockSeedManager.ensureSeeded).toHaveBeenCalledTimes(1);
     expect(mockNext).toHaveBeenCalledTimes(1);
@@ -88,7 +96,6 @@ describe("ensureSeedMiddleware", () => {
       mockNext,
     );
 
-    expect(SeedManager.getInstance).toHaveBeenCalledTimes(1);
     expect(mockSeedManager.getStatus).toHaveBeenCalledTimes(1);
     expect(mockSeedManager.ensureSeeded).toHaveBeenCalledTimes(1);
     expect(mockNext).toHaveBeenCalledTimes(1);
@@ -110,35 +117,8 @@ describe("ensureSeedMiddleware", () => {
       mockNext,
     );
 
-    expect(SeedManager.getInstance).toHaveBeenCalledTimes(1);
     expect(mockSeedManager.getStatus).toHaveBeenCalledTimes(1);
     expect(mockSeedManager.ensureSeeded).toHaveBeenCalledTimes(1);
-    expect(mockNext).not.toHaveBeenCalled();
-    expect(mockResponse.status).toHaveBeenCalledWith(503);
-    expect(mockResponse.json).toHaveBeenCalledWith({
-      error: "Service temporarily unavailable. Database initialization failed.",
-    });
-    expect(mockGlobalLogger.error).toHaveBeenCalledWith(
-      "Seed middleware error",
-      expect.objectContaining({
-        error: expect.any(String),
-      }),
-    );
-  });
-
-  it("should return 503 error when SeedManager.getInstance throws", async () => {
-    const managerError = new Error("SeedManager initialization failed");
-
-    (SeedManager.getInstance as jest.Mock).mockImplementation(() => {
-      throw managerError;
-    });
-
-    await ensureSeedMiddleware(
-      mockRequest as Request,
-      mockResponse as Response,
-      mockNext,
-    );
-
     expect(mockNext).not.toHaveBeenCalled();
     expect(mockResponse.status).toHaveBeenCalledWith(503);
     expect(mockResponse.json).toHaveBeenCalledWith({
@@ -165,7 +145,6 @@ describe("ensureSeedMiddleware", () => {
       mockNext,
     );
 
-    expect(SeedManager.getInstance).toHaveBeenCalledTimes(1);
     expect(mockSeedManager.getStatus).toHaveBeenCalledTimes(1);
     expect(mockSeedManager.ensureSeeded).not.toHaveBeenCalled();
     expect(mockNext).not.toHaveBeenCalled();

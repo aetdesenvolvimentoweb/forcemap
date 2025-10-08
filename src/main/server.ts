@@ -4,18 +4,29 @@ dotenv.config();
 
 import express from "express";
 
-import { globalLogger } from "../infra/adapters/global.logger";
+import { initGlobalLogger } from "../infra/adapters/global.logger";
 import {
-  corsAuto,
   securityHeadersDev,
   securityHeadersProd,
-  securityLogging,
 } from "../infra/adapters/middlewares";
+import { makeGlobalLogger } from "./factories/logger";
+import {
+  makeExpressCorsMiddleware,
+  makeExpressSecurityLoggingMiddleware,
+} from "./factories/middlewares";
 import routes from "./routes";
+
+// Inicializar logger global
+const logger = makeGlobalLogger();
+initGlobalLogger(logger);
 
 const app = express();
 
 const isDevelopment = process.env.NODE_ENV === "development";
+
+// Middlewares compostos via factories (Main)
+const { corsAuto } = makeExpressCorsMiddleware();
+const securityLoggingMiddleware = makeExpressSecurityLoggingMiddleware();
 
 // Middleware de CORS - deve vir antes de outros middlewares
 app.use(corsAuto());
@@ -24,7 +35,7 @@ app.use(corsAuto());
 app.use(isDevelopment ? securityHeadersDev() : securityHeadersProd());
 
 // Middleware de logging de segurança - monitora eventos
-app.use(securityLogging());
+app.use(securityLoggingMiddleware);
 
 app.use(express.json());
 app.use(routes);
@@ -35,7 +46,7 @@ if (process.env.NODE_ENV !== "development") {
   const port = Number(process.env.PORT) || 3333;
   const host = process.env.SERVER_HOST || "http://localhost";
   app.listen(port, () => {
-    globalLogger.info(`Server is running at ${host}:${port}/api/v1`, {
+    logger.info(`Server is running at ${host}:${port}/api/v1`, {
       port,
       host,
       environment: process.env.NODE_ENV,

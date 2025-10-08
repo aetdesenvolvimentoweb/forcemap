@@ -1,15 +1,21 @@
 import { Router } from "express";
 
 import { expressRouteAdapter } from "../../infra/adapters";
-import { requireAuth } from "../../infra/adapters/middlewares/express-auth.middleware";
-import { ensureSeedMiddleware } from "../../infra/adapters/middlewares/express-seed.middleware";
 import {
   makeLoginController,
   makeLogoutController,
   makeRefreshTokenController,
 } from "../factories/controllers/auth";
+import {
+  makeExpressAuthMiddleware,
+  makeExpressSeedMiddleware,
+} from "../factories/middlewares";
 
 const authRoutes = Router();
+
+// Middlewares compostos via factories (Main)
+const { requireAuth } = makeExpressAuthMiddleware();
+const ensureSeedMiddleware = makeExpressSeedMiddleware();
 
 /**
  * Rotas de autenticação

@@ -1,34 +1,30 @@
 import { NextFunction, Response } from "express";
 
 import { AuthenticatedRequest } from "../../../../../src/infra/adapters";
+import { createExpressAuthMiddleware } from "../../../../../src/infra/adapters/middlewares/express-auth.middleware";
 
-// Mock do factory
+// Mock do AuthMiddleware
 const mockAuthMiddleware = {
   authenticate: jest.fn(),
   authorize: jest.fn(),
 };
 
-jest.mock(
-  "../../../../../src/main/factories/middlewares/auth.middleware.factory",
-  () => ({
-    makeAuthMiddleware: () => mockAuthMiddleware,
-  }),
-);
-
-// Importar depois do mock
-import {
-  requireAuth,
-  requireAuthWithRoles,
-  requireRoles,
-} from "../../../../../src/infra/adapters";
-
 describe("Express Auth Middleware", () => {
   let mockRequest: Partial<AuthenticatedRequest>;
   let mockResponse: Partial<Response>;
   let mockNext: NextFunction;
+  let requireAuth: any;
+  let requireRoles: any;
+  let requireAuthWithRoles: any;
 
   beforeEach(() => {
     jest.clearAllMocks();
+
+    // Criar middlewares a partir do adapter puro
+    const middlewares = createExpressAuthMiddleware(mockAuthMiddleware as any);
+    requireAuth = middlewares.requireAuth;
+    requireRoles = middlewares.requireRoles;
+    requireAuthWithRoles = middlewares.requireAuthWithRoles;
 
     mockRequest = {
       body: { test: "data" },

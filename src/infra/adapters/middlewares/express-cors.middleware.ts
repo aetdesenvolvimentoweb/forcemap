@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 
-import { globalLogger } from "../global.logger";
+import { LoggerProtocol } from "../../../application/protocols";
 
 /**
  * Configurações para CORS (Cross-Origin Resource Sharing)
@@ -198,7 +198,7 @@ const isOriginAllowed = (
  * Middleware CORS customizado para Express
  * Implementa controle de acesso entre origens de forma segura
  */
-export const cors = (config: CorsConfig = {}) => {
+export const cors = (config: CorsConfig = {}, logger: LoggerProtocol) => {
   const finalConfig = { ...defaultCorsConfig, ...config };
 
   return (req: Request, res: Response, next: NextFunction): void => {
@@ -209,7 +209,7 @@ export const cors = (config: CorsConfig = {}) => {
     isOriginAllowed(origin, finalConfig.origin, (err, allowed) => {
       if (err || !allowed) {
         // Log do bloqueio para monitoramento
-        globalLogger.warn("CORS: Origem bloqueada", {
+        logger.warn("CORS: Origem bloqueada", {
           origin: origin || "undefined",
           path: req.path,
           method: req.method,
@@ -283,22 +283,22 @@ export const cors = (config: CorsConfig = {}) => {
  * Middleware CORS para desenvolvimento
  * Configuração permissiva para facilitar desenvolvimento local
  */
-export const corsDev = () => {
-  return cors(getDevelopmentCorsConfig());
+export const corsDev = (logger: LoggerProtocol) => {
+  return cors(getDevelopmentCorsConfig(), logger);
 };
 
 /**
  * Middleware CORS para produção
  * Configuração restritiva e segura para ambiente de produção
  */
-export const corsProd = () => {
-  return cors(getProductionCorsConfig());
+export const corsProd = (logger: LoggerProtocol) => {
+  return cors(getProductionCorsConfig(), logger);
 };
 
 /**
  * Middleware CORS que adapta automaticamente ao ambiente
  */
-export const corsAuto = () => {
+export const corsAuto = (logger: LoggerProtocol) => {
   const isDevelopment = process.env.NODE_ENV === "development";
-  return isDevelopment ? corsDev() : corsProd();
+  return isDevelopment ? corsDev(logger) : corsProd(logger);
 };

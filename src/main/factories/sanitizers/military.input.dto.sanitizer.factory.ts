@@ -1,12 +1,10 @@
 import { MilitaryInputDTOSanitizerProtocol } from "../../../application/protocols";
-import {
-  IdSanitizer,
-  MilitaryInputDTOSanitizer,
-} from "../../../application/sanitizers";
+import { MilitaryInputDTOSanitizer } from "../../../application/sanitizers";
+import { makeIdSanitizer } from "./id.sanitizer.factory";
 
 export const makeMilitaryInputDTOSanitizer =
   (): MilitaryInputDTOSanitizerProtocol => {
-    const idSanitizer = new IdSanitizer();
+    const idSanitizer = makeIdSanitizer();
     return new MilitaryInputDTOSanitizer({
       idSanitizer,
     });

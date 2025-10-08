@@ -59,7 +59,7 @@ describe("Express CORS Middleware", () => {
 
   describe("cors", () => {
     it("deve aplicar configuração padrão (origin: false)", () => {
-      const middleware = cors();
+      const middleware = cors({}, mockGlobalLogger);
 
       mockRequest.headers = { origin: "https://malicious.com" };
       middleware(mockRequest as Request, mockResponse as Response, mockNext);
@@ -83,7 +83,7 @@ describe("Express CORS Middleware", () => {
         origin: true, // Permite todas as origens
       };
 
-      const middleware = cors(config);
+      const middleware = cors(config, mockGlobalLogger);
 
       mockRequest.headers = {}; // Sem origin header
       middleware(mockRequest as Request, mockResponse as Response, mockNext);
@@ -103,7 +103,7 @@ describe("Express CORS Middleware", () => {
         origin: "https://allowed.com",
       };
 
-      const middleware = cors(config);
+      const middleware = cors(config, mockGlobalLogger);
 
       mockRequest.headers = { origin: "https://allowed.com" };
       middleware(mockRequest as Request, mockResponse as Response, mockNext);
@@ -119,7 +119,7 @@ describe("Express CORS Middleware", () => {
         origin: "https://allowed.com",
       };
 
-      const middleware = cors(config);
+      const middleware = cors(config, mockGlobalLogger);
 
       mockRequest.headers = { origin: "https://malicious.com" };
       middleware(mockRequest as Request, mockResponse as Response, mockNext);
@@ -146,7 +146,7 @@ describe("Express CORS Middleware", () => {
         origin: ["https://app1.com", "https://app2.com"],
       };
 
-      const middleware = cors(config);
+      const middleware = cors(config, mockGlobalLogger);
 
       mockRequest.headers = { origin: "https://app2.com" };
       middleware(mockRequest as Request, mockResponse as Response, mockNext);
@@ -162,7 +162,7 @@ describe("Express CORS Middleware", () => {
         origin: ["https://app1.com", "https://app2.com"],
       };
 
-      const middleware = cors(config);
+      const middleware = cors(config, mockGlobalLogger);
 
       mockRequest.headers = { origin: "https://malicious.com" };
       middleware(mockRequest as Request, mockResponse as Response, mockNext);
@@ -182,7 +182,7 @@ describe("Express CORS Middleware", () => {
         origin: true,
       };
 
-      const middleware = cors(config);
+      const middleware = cors(config, mockGlobalLogger);
 
       mockRequest.headers = { origin: "https://any-domain.com" };
       middleware(mockRequest as Request, mockResponse as Response, mockNext);
@@ -207,7 +207,7 @@ describe("Express CORS Middleware", () => {
         origin: customOriginFunction,
       };
 
-      const middleware = cors(config);
+      const middleware = cors(config, mockGlobalLogger);
 
       mockRequest.headers = { origin: "https://trusted-domain.com" };
       middleware(mockRequest as Request, mockResponse as Response, mockNext);
@@ -228,7 +228,7 @@ describe("Express CORS Middleware", () => {
         credentials: true,
       };
 
-      const middleware = cors(config);
+      const middleware = cors(config, mockGlobalLogger);
 
       middleware(mockRequest as Request, mockResponse as Response, mockNext);
 
@@ -242,7 +242,7 @@ describe("Express CORS Middleware", () => {
         maxAge: 3600,
       };
 
-      const middleware = cors(config);
+      const middleware = cors(config, mockGlobalLogger);
 
       middleware(mockRequest as Request, mockResponse as Response, mockNext);
 
@@ -256,7 +256,7 @@ describe("Express CORS Middleware", () => {
         exposedHeaders: ["X-Total-Count", "X-Custom-Header"],
       };
 
-      const middleware = cors(config);
+      const middleware = cors(config, mockGlobalLogger);
 
       middleware(mockRequest as Request, mockResponse as Response, mockNext);
 
@@ -278,7 +278,7 @@ describe("Express CORS Middleware", () => {
           optionsSuccessStatus: 204,
         };
 
-        const middleware = cors(config);
+        const middleware = cors(config, mockGlobalLogger);
 
         middleware(mockRequest as Request, mockResponse as Response, mockNext);
 
@@ -293,7 +293,7 @@ describe("Express CORS Middleware", () => {
           preflightContinue: true,
         };
 
-        const middleware = cors(config);
+        const middleware = cors(config, mockGlobalLogger);
 
         middleware(mockRequest as Request, mockResponse as Response, mockNext);
 
@@ -307,7 +307,7 @@ describe("Express CORS Middleware", () => {
           origin: "https://allowed.com",
         };
 
-        const middleware = cors(config);
+        const middleware = cors(config, mockGlobalLogger);
 
         mockRequest.headers = { origin: "https://malicious.com" };
         middleware(mockRequest as Request, mockResponse as Response, mockNext);
@@ -327,7 +327,7 @@ describe("Express CORS Middleware", () => {
           origin: true,
         };
 
-        const middleware = cors(config);
+        const middleware = cors(config, mockGlobalLogger);
 
         // Sem header origin
         mockRequest.headers = {};
@@ -344,7 +344,7 @@ describe("Express CORS Middleware", () => {
           },
         };
 
-        const middleware = cors(config);
+        const middleware = cors(config, mockGlobalLogger);
 
         mockRequest.headers = { origin: "https://test.com" };
         middleware(mockRequest as Request, mockResponse as Response, mockNext);
@@ -367,7 +367,7 @@ describe("Express CORS Middleware", () => {
       const originalEnv = process.env.CORS_ALLOW_CREDENTIALS_DEV;
       process.env.CORS_ALLOW_CREDENTIALS_DEV = "true";
 
-      const middleware = corsDev();
+      const middleware = corsDev(mockGlobalLogger);
 
       mockRequest.headers = { origin: "http://localhost:3000" };
       middleware(mockRequest as Request, mockResponse as Response, mockNext);
@@ -390,7 +390,7 @@ describe("Express CORS Middleware", () => {
     });
 
     it("deve bloquear origens não listadas em desenvolvimento", () => {
-      const middleware = corsDev();
+      const middleware = corsDev(mockGlobalLogger);
 
       mockRequest.headers = { origin: "https://malicious.com" };
       middleware(mockRequest as Request, mockResponse as Response, mockNext);
@@ -408,7 +408,7 @@ describe("Express CORS Middleware", () => {
 
   describe("corsProd", () => {
     it("deve aplicar configuração de produção (restritiva)", () => {
-      const middleware = corsProd();
+      const middleware = corsProd(mockGlobalLogger);
 
       // Em produção, usa função que por padrão bloqueia origens não configuradas
       mockRequest.headers = { origin: "https://any-domain.com" };
@@ -430,7 +430,7 @@ describe("Express CORS Middleware", () => {
       const originalEnv = process.env.CORS_ALLOW_NO_ORIGIN_PROD;
       process.env.CORS_ALLOW_NO_ORIGIN_PROD = "true";
 
-      const middleware = corsProd();
+      const middleware = corsProd(mockGlobalLogger);
 
       // Sem header origin (comum em apps mobile)
       mockRequest.headers = {};
@@ -452,7 +452,7 @@ describe("Express CORS Middleware", () => {
       const originalEnv = process.env.NODE_ENV;
       process.env.NODE_ENV = "development";
 
-      const middleware = corsAuto();
+      const middleware = corsAuto(mockGlobalLogger);
 
       mockRequest.headers = { origin: "http://localhost:3000" };
       middleware(mockRequest as Request, mockResponse as Response, mockNext);
@@ -468,7 +468,7 @@ describe("Express CORS Middleware", () => {
       const originalEnv = process.env.NODE_ENV;
       process.env.NODE_ENV = "production";
 
-      const middleware = corsAuto();
+      const middleware = corsAuto(mockGlobalLogger);
 
       mockRequest.headers = { origin: "https://random-domain.com" };
       middleware(mockRequest as Request, mockResponse as Response, mockNext);
@@ -496,7 +496,7 @@ describe("Express CORS Middleware", () => {
         "http://localhost:4000,http://localhost:5000";
       process.env.CORS_ALLOW_CREDENTIALS_DEV = "false";
 
-      const middleware = corsDev();
+      const middleware = corsDev(mockGlobalLogger);
 
       // Testa domínio permitido
       mockRequest.headers = { origin: "http://localhost:4000" };
@@ -514,7 +514,7 @@ describe("Express CORS Middleware", () => {
         "https://meuapp.com,https://admin.meuapp.com";
       process.env.CORS_ALLOW_CREDENTIALS_PROD = "true";
 
-      const middleware = corsProd();
+      const middleware = corsProd(mockGlobalLogger);
 
       // Testa domínio permitido
       mockRequest.headers = { origin: "https://meuapp.com" };
@@ -530,7 +530,7 @@ describe("Express CORS Middleware", () => {
       process.env.NODE_ENV = "production";
       process.env.CORS_ALLOWED_ORIGINS_PROD = "https://meuapp.com";
 
-      const middleware = corsProd();
+      const middleware = corsProd(mockGlobalLogger);
 
       // Testa domínio não permitido
       mockRequest.headers = { origin: "https://malicious.com" };
@@ -550,7 +550,7 @@ describe("Express CORS Middleware", () => {
       process.env.CORS_ALLOWED_ORIGINS_PROD = "https://meuapp.com";
       process.env.CORS_ALLOW_NO_ORIGIN_PROD = "true";
 
-      const middleware = corsProd();
+      const middleware = corsProd(mockGlobalLogger);
 
       // Testa requisição sem origin (mobile app)
       mockRequest.headers = {};
@@ -565,7 +565,7 @@ describe("Express CORS Middleware", () => {
       process.env.CORS_ALLOWED_HEADERS_PROD = "Content-Type,X-Custom-Header";
       process.env.CORS_EXPOSED_HEADERS_PROD = "X-Total-Count";
 
-      const middleware = corsProd();
+      const middleware = corsProd(mockGlobalLogger);
 
       mockRequest.headers = { origin: "https://meuapp.com" };
       middleware(mockRequest as Request, mockResponse as Response, mockNext);
@@ -583,7 +583,7 @@ describe("Express CORS Middleware", () => {
       delete process.env.CORS_ALLOWED_ORIGINS_DEV;
       delete process.env.CORS_ALLOW_CREDENTIALS_DEV;
 
-      const middleware = corsDev();
+      const middleware = corsDev(mockGlobalLogger);
 
       // Deve usar fallback padrão
       mockRequest.headers = { origin: "http://localhost:3000" };
@@ -607,7 +607,7 @@ describe("Express CORS Middleware", () => {
 
     it("deve cobrir linha 95 - requisição sem origin em desenvolvimento", () => {
       process.env.NODE_ENV = "development";
-      const middleware = corsDev();
+      const middleware = corsDev(mockGlobalLogger);
 
       // Requisição sem header origin (Postman, Insomnia, etc.)
       mockRequest.headers = {}; // Sem origin
@@ -623,7 +623,7 @@ describe("Express CORS Middleware", () => {
       process.env.CORS_ALLOWED_ORIGINS_PROD = "https://example.com";
       process.env.CORS_ALLOWED_METHODS_PROD = " GET , POST , PUT "; // Com espaços para testar trim()
 
-      const middleware = corsProd();
+      const middleware = corsProd(mockGlobalLogger);
 
       mockRequest.headers = { origin: "https://example.com" };
       middleware(mockRequest as Request, mockResponse as Response, mockNext);
@@ -641,7 +641,7 @@ describe("Express CORS Middleware", () => {
         origin: null as any, // Tipo inválido que não é boolean, string, array ou function
       };
 
-      const middleware = cors(invalidConfig);
+      const middleware = cors(invalidConfig, mockGlobalLogger);
 
       mockRequest.headers = { origin: "https://example.com" };
       middleware(mockRequest as Request, mockResponse as Response, mockNext);
@@ -660,7 +660,7 @@ describe("Express CORS Middleware", () => {
       process.env.CORS_ALLOWED_ORIGINS_PROD = "https://example.com";
       process.env.CORS_ALLOWED_HEADERS_PROD = " Content-Type , Authorization "; // Com espaços
 
-      const middleware = corsProd();
+      const middleware = corsProd(mockGlobalLogger);
 
       mockRequest.headers = { origin: "https://example.com" };
       middleware(mockRequest as Request, mockResponse as Response, mockNext);
@@ -677,7 +677,7 @@ describe("Express CORS Middleware", () => {
       process.env.CORS_ALLOWED_ORIGINS_PROD = "https://example.com";
       process.env.CORS_EXPOSED_HEADERS_PROD = " X-Total-Count , X-Rate-Limit "; // Com espaços
 
-      const middleware = corsProd();
+      const middleware = corsProd(mockGlobalLogger);
 
       mockRequest.headers = { origin: "https://example.com" };
       middleware(mockRequest as Request, mockResponse as Response, mockNext);
@@ -693,7 +693,7 @@ describe("Express CORS Middleware", () => {
       process.env.NODE_ENV = "production";
       process.env.CORS_ALLOWED_ORIGINS_PROD = "https://allowed.com";
 
-      const middleware = corsProd();
+      const middleware = corsProd(mockGlobalLogger);
 
       mockRequest.headers = { origin: "https://notallowed.com" };
       middleware(mockRequest as Request, mockResponse as Response, mockNext);
@@ -712,7 +712,7 @@ describe("Express CORS Middleware", () => {
         origin: ["https://app1.com", "https://app2.com"], // Array de origins
       };
 
-      const middleware = cors(config);
+      const middleware = cors(config, mockGlobalLogger);
 
       // Testa origin permitida no array
       mockRequest.headers = { origin: "https://app1.com" };
@@ -730,7 +730,7 @@ describe("Express CORS Middleware", () => {
         methods: "GET,POST", // String ao invés de array
       };
 
-      const middleware = cors(config);
+      const middleware = cors(config, mockGlobalLogger);
 
       mockRequest.headers = { origin: "https://example.com" };
       middleware(mockRequest as Request, mockResponse as Response, mockNext);
@@ -745,7 +745,7 @@ describe("Express CORS Middleware", () => {
         allowedHeaders: "Content-Type,Authorization", // String ao invés de array
       };
 
-      const middleware = cors(config);
+      const middleware = cors(config, mockGlobalLogger);
 
       mockRequest.headers = { origin: "https://example.com" };
       middleware(mockRequest as Request, mockResponse as Response, mockNext);
@@ -762,7 +762,7 @@ describe("Express CORS Middleware", () => {
         exposedHeaders: "X-Total-Count,X-Rate-Limit", // String ao invés de array
       };
 
-      const middleware = cors(config);
+      const middleware = cors(config, mockGlobalLogger);
 
       mockRequest.headers = { origin: "https://example.com" };
       middleware(mockRequest as Request, mockResponse as Response, mockNext);
@@ -779,7 +779,7 @@ describe("Express CORS Middleware", () => {
         maxAge: 0, // Valor específico que deve ser setado
       };
 
-      const middleware = cors(config);
+      const middleware = cors(config, mockGlobalLogger);
 
       mockRequest.headers = { origin: "https://example.com" };
       middleware(mockRequest as Request, mockResponse as Response, mockNext);
@@ -794,7 +794,7 @@ describe("Express CORS Middleware", () => {
         preflightContinue: true, // Continua ao invés de terminar
       };
 
-      const middleware = cors(config);
+      const middleware = cors(config, mockGlobalLogger);
 
       mockRequest.method = "OPTIONS";
       mockRequest.headers = { origin: "https://example.com" };
@@ -810,7 +810,7 @@ describe("Express CORS Middleware", () => {
         origin: "https://allowed.com", // Origem específica permitida
       };
 
-      const middleware = cors(config);
+      const middleware = cors(config, mockGlobalLogger);
 
       mockRequest.headers = { origin: "https://blocked.com" };
       mockRequest.originalUrl = "/api/test";
@@ -839,7 +839,7 @@ describe("Express CORS Middleware", () => {
         origin: false, // Bloqueia todas as origens
       };
 
-      const middleware = cors(config);
+      const middleware = cors(config, mockGlobalLogger);
 
       mockRequest.headers = {}; // Sem origin header
       mockRequest.originalUrl = "/api/test";
@@ -861,7 +861,7 @@ describe("Express CORS Middleware", () => {
         exposedHeaders: [], // Array vazio - não deve setar header
       };
 
-      const middleware = cors(config);
+      const middleware = cors(config, mockGlobalLogger);
 
       mockRequest.headers = { origin: "https://example.com" };
       middleware(mockRequest as Request, mockResponse as Response, mockNext);
@@ -877,7 +877,7 @@ describe("Express CORS Middleware", () => {
         maxAge: undefined, // Sem maxAge - não deve setar o header
       };
 
-      const middleware = cors(config);
+      const middleware = cors(config, mockGlobalLogger);
 
       mockRequest.headers = { origin: "https://example.com" };
       middleware(mockRequest as Request, mockResponse as Response, mockNext);
@@ -892,7 +892,7 @@ describe("Express CORS Middleware", () => {
       process.env.CORS_ALLOWED_ORIGINS_PROD = "https://allowed.com";
       process.env.CORS_ALLOW_NO_ORIGIN_PROD = "false";
 
-      const middleware = corsProd();
+      const middleware = corsProd(mockGlobalLogger);
 
       // Simula requisição sem origin em produção restritiva
       mockRequest.headers = {}; // Sem origin

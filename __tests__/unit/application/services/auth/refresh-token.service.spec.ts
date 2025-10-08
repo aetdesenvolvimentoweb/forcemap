@@ -15,6 +15,16 @@ import {
   UserRepository,
 } from "../../../../../src/domain/repositories";
 
+// Mock authSecurityLogger module
+jest.mock("../../../../../src/infra/adapters/middlewares", () => ({
+  authSecurityLogger: {
+    logLogin: jest.fn(),
+    logLoginBlocked: jest.fn(),
+    logLogout: jest.fn(),
+    logTokenRefresh: jest.fn(),
+  },
+}));
+
 describe("RefreshTokenService", () => {
   let sut: RefreshTokenService;
   let mockUserRepository: jest.Mocked<UserRepository>;

@@ -1,7 +1,6 @@
 import { Router } from "express";
 
 import { expressRouteAdapter } from "../../infra/adapters";
-import { requireAuthWithRoles } from "../../infra/adapters/middlewares/express-auth.middleware";
 import {
   makeCreateVehicleController,
   makeDeleteVehicleController,
@@ -9,8 +8,10 @@ import {
   makeListAllVehicleController,
   makeUpdateVehicleController,
 } from "../factories/controllers";
+import { makeExpressAuthMiddleware } from "../factories/middlewares";
 
 const vehicleRoutes = Router();
+const { requireAuthWithRoles } = makeExpressAuthMiddleware();
 
 vehicleRoutes.post(
   "/vehicle",

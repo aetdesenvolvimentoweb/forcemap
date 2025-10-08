@@ -1,22 +1,21 @@
-import { PinoLoggerAdapter } from "./pino.logger.adapter";
+import type { LoggerProtocol } from "../../application/protocols";
 
 /**
  * Logger global da aplicação.
  *
- * Usar em locais onde injeção de dependência não é prática
- * (inicialização do servidor, middlewares de erro, seed, etc.)
+ * DEPRECATED: Prefira usar injeção de dependência sempre que possível.
+ * Este export é mantido apenas para compatibilidade com código legado.
+ *
+ * Para novos códigos, use makeGlobalLogger() da camada main.
  */
-export const globalLogger = new PinoLoggerAdapter({
-  level: process.env.LOG_LEVEL || "info",
-  transport:
-    process.env.NODE_ENV === "development" && process.env.LOG_PRETTY === "true"
-      ? {
-          target: "pino-pretty",
-          options: {
-            colorize: true,
-            translateTime: "SYS:standard",
-            ignore: "pid,hostname",
-          },
-        }
-      : undefined,
-});
+export let globalLogger: LoggerProtocol;
+
+/**
+ * Inicializa o logger global.
+ * Deve ser chamado uma única vez no início da aplicação.
+ *
+ * @param logger - Instância do logger a ser usada globalmente
+ */
+export const initGlobalLogger = (logger: LoggerProtocol): void => {
+  globalLogger = logger;
+};

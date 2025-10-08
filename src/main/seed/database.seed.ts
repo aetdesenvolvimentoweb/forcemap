@@ -1,4 +1,7 @@
-import { PasswordHasherProtocol } from "../../application/protocols";
+import {
+  LoggerProtocol,
+  PasswordHasherProtocol,
+} from "../../application/protocols";
 import {
   MilitaryInputDTO,
   MilitaryRankInputDTO,
@@ -10,7 +13,6 @@ import {
   MilitaryRepository,
   UserRepository,
 } from "../../domain/repositories";
-import { globalLogger } from "../../infra/adapters/global.logger";
 
 export class DatabaseSeed {
   private static hasSeeded = false;
@@ -20,6 +22,7 @@ export class DatabaseSeed {
     private readonly militaryRepository: MilitaryRepository,
     private readonly userRepository: UserRepository,
     private readonly passwordHasher: PasswordHasherProtocol,
+    private readonly logger: LoggerProtocol,
   ) {}
 
   public async run(): Promise<void> {
@@ -67,7 +70,7 @@ export class DatabaseSeed {
     ]);
 
     DatabaseSeed.hasSeeded = true;
-    globalLogger.info("Database seeded successfully");
+    this.logger.info("Database seeded successfully");
   }
 
   private async seedMilitaryRanks(

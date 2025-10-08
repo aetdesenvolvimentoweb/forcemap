@@ -33,16 +33,16 @@ describe("SeedManager", () => {
 
   describe("getInstance", () => {
     it("should return the same instance on multiple calls (Singleton pattern)", () => {
-      const instance1 = SeedManager.getInstance();
-      const instance2 = SeedManager.getInstance();
+      const instance1 = SeedManager.getInstance(mockGlobalLogger);
+      const instance2 = SeedManager.getInstance(mockGlobalLogger);
 
       expect(instance1).toBe(instance2);
     });
 
     it("should create a new instance only once", () => {
-      const instance1 = SeedManager.getInstance();
-      const instance2 = SeedManager.getInstance();
-      const instance3 = SeedManager.getInstance();
+      const instance1 = SeedManager.getInstance(mockGlobalLogger);
+      const instance2 = SeedManager.getInstance(mockGlobalLogger);
+      const instance3 = SeedManager.getInstance(mockGlobalLogger);
 
       expect(instance1).toBe(instance2);
       expect(instance2).toBe(instance3);
@@ -54,7 +54,7 @@ describe("SeedManager", () => {
     it("should run seed successfully on first call", async () => {
       mockDatabaseSeed.run.mockResolvedValue(undefined);
 
-      const manager = SeedManager.getInstance();
+      const manager = SeedManager.getInstance(mockGlobalLogger);
       await manager.ensureSeeded();
 
       expect(mockGlobalLogger.info).toHaveBeenCalledWith(
@@ -70,7 +70,7 @@ describe("SeedManager", () => {
     it("should not run seed again if already seeded", async () => {
       mockDatabaseSeed.run.mockResolvedValue(undefined);
 
-      const manager = SeedManager.getInstance();
+      const manager = SeedManager.getInstance(mockGlobalLogger);
 
       // First call
       await manager.ensureSeeded();
@@ -90,7 +90,7 @@ describe("SeedManager", () => {
         () => new Promise((resolve) => setTimeout(resolve, 100)),
       );
 
-      const manager = SeedManager.getInstance();
+      const manager = SeedManager.getInstance(mockGlobalLogger);
 
       // Start multiple concurrent calls
       const promises = [
@@ -116,7 +116,7 @@ describe("SeedManager", () => {
       const error = new Error("Database connection failed");
       mockDatabaseSeed.run.mockRejectedValue(error);
 
-      const manager = SeedManager.getInstance();
+      const manager = SeedManager.getInstance(mockGlobalLogger);
 
       // First attempt should fail
       await expect(manager.ensureSeeded()).rejects.toThrow(
@@ -160,7 +160,7 @@ describe("SeedManager", () => {
 
       mockDatabaseSeed.run.mockReturnValue(seedPromise);
 
-      const manager = SeedManager.getInstance();
+      const manager = SeedManager.getInstance(mockGlobalLogger);
 
       // Start multiple concurrent calls
       const promise1 = manager.ensureSeeded();
@@ -187,7 +187,7 @@ describe("SeedManager", () => {
       const error = new Error("Seed failed");
       mockDatabaseSeed.run.mockRejectedValue(error);
 
-      const manager = SeedManager.getInstance();
+      const manager = SeedManager.getInstance(mockGlobalLogger);
 
       // All concurrent calls should fail with the same error
       const promises = [
@@ -212,7 +212,7 @@ describe("SeedManager", () => {
 
   describe("getStatus", () => {
     it("should return correct status when not seeded", () => {
-      const manager = SeedManager.getInstance();
+      const manager = SeedManager.getInstance(mockGlobalLogger);
       const status = manager.getStatus();
 
       expect(status).toEqual({
@@ -229,7 +229,7 @@ describe("SeedManager", () => {
 
       mockDatabaseSeed.run.mockReturnValue(seedPromise);
 
-      const manager = SeedManager.getInstance();
+      const manager = SeedManager.getInstance(mockGlobalLogger);
 
       // Start seeding but don't await
       const seedingPromise = manager.ensureSeeded();
@@ -256,7 +256,7 @@ describe("SeedManager", () => {
     it("should return correct status when seeded", async () => {
       mockDatabaseSeed.run.mockResolvedValue(undefined);
 
-      const manager = SeedManager.getInstance();
+      const manager = SeedManager.getInstance(mockGlobalLogger);
       await manager.ensureSeeded();
 
       const status = manager.getStatus();
@@ -270,7 +270,7 @@ describe("SeedManager", () => {
       const error = new Error("Seed failed");
       mockDatabaseSeed.run.mockRejectedValue(error);
 
-      const manager = SeedManager.getInstance();
+      const manager = SeedManager.getInstance(mockGlobalLogger);
 
       try {
         await manager.ensureSeeded();
@@ -291,7 +291,7 @@ describe("SeedManager", () => {
       const customError = new Error("Custom seed error");
       mockDatabaseSeed.run.mockRejectedValue(customError);
 
-      const manager = SeedManager.getInstance();
+      const manager = SeedManager.getInstance(mockGlobalLogger);
 
       await expect(manager.ensureSeeded()).rejects.toThrow("Custom seed error");
       expect(mockGlobalLogger.error).toHaveBeenCalledWith(
@@ -306,7 +306,7 @@ describe("SeedManager", () => {
       const error = new Error("First attempt failed");
       mockDatabaseSeed.run.mockRejectedValueOnce(error);
 
-      const manager = SeedManager.getInstance();
+      const manager = SeedManager.getInstance(mockGlobalLogger);
 
       // First attempt fails
       await expect(manager.ensureSeeded()).rejects.toThrow(
@@ -338,7 +338,7 @@ describe("SeedManager", () => {
         .mockRejectedValueOnce(error2)
         .mockResolvedValue(undefined);
 
-      const manager = SeedManager.getInstance();
+      const manager = SeedManager.getInstance(mockGlobalLogger);
 
       // First attempt
       await expect(manager.ensureSeeded()).rejects.toThrow("First failure");
@@ -363,10 +363,10 @@ describe("SeedManager", () => {
     it("should maintain state across getInstance calls", async () => {
       mockDatabaseSeed.run.mockResolvedValue(undefined);
 
-      const manager1 = SeedManager.getInstance();
+      const manager1 = SeedManager.getInstance(mockGlobalLogger);
       await manager1.ensureSeeded();
 
-      const manager2 = SeedManager.getInstance();
+      const manager2 = SeedManager.getInstance(mockGlobalLogger);
       const status = manager2.getStatus();
 
       expect(status.isSeeded).toBe(true);
@@ -381,10 +381,10 @@ describe("SeedManager", () => {
 
       mockDatabaseSeed.run.mockReturnValue(seedPromise);
 
-      const manager1 = SeedManager.getInstance();
+      const manager1 = SeedManager.getInstance(mockGlobalLogger);
       const seedingPromise = manager1.ensureSeeded();
 
-      const manager2 = SeedManager.getInstance();
+      const manager2 = SeedManager.getInstance(mockGlobalLogger);
       const status = manager2.getStatus();
 
       expect(status.isSeeding).toBe(true);
@@ -403,7 +403,7 @@ describe("SeedManager", () => {
     it("should log appropriate messages during successful seed", async () => {
       mockDatabaseSeed.run.mockResolvedValue(undefined);
 
-      const manager = SeedManager.getInstance();
+      const manager = SeedManager.getInstance(mockGlobalLogger);
       await manager.ensureSeeded();
 
       expect(mockGlobalLogger.info).toHaveBeenCalledTimes(2);
@@ -421,7 +421,7 @@ describe("SeedManager", () => {
       const error = new Error("Test error");
       mockDatabaseSeed.run.mockRejectedValue(error);
 
-      const manager = SeedManager.getInstance();
+      const manager = SeedManager.getInstance(mockGlobalLogger);
 
       try {
         await manager.ensureSeeded();
@@ -444,7 +444,7 @@ describe("SeedManager", () => {
       const error = new Error("Test error");
       mockDatabaseSeed.run.mockRejectedValue(error);
 
-      const manager = SeedManager.getInstance();
+      const manager = SeedManager.getInstance(mockGlobalLogger);
 
       try {
         await manager.ensureSeeded();

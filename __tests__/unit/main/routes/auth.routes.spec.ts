@@ -28,6 +28,15 @@ jest.mock("../../../../src/main/factories/controllers/auth", () => ({
   makeRefreshTokenController: mockMakeRefreshTokenController,
 }));
 
+jest.mock("../../../../src/main/factories/middlewares", () => ({
+  makeExpressAuthMiddleware: jest.fn(() => ({
+    requireAuth: jest.fn(),
+    requireAuthWithRoles: jest.fn(() => jest.fn()),
+    requireRoles: jest.fn(() => jest.fn()),
+  })),
+  makeExpressSeedMiddleware: jest.fn(() => jest.fn()),
+}));
+
 jest.mock("express", () => ({
   Router: mockRouter,
 }));

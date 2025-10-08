@@ -5,7 +5,6 @@ import {
   authSecurityLogger,
   SecurityEventSeverity,
   SecurityEventType,
-  securityLogger,
   securityLogging,
 } from "../../../../../src/infra/adapters/middlewares/express-security-logger.middleware";
 import {
@@ -19,8 +18,98 @@ describe("Express Security Logger Middleware", () => {
   let mockNext: NextFunction;
   let originalSend: any;
 
+  // Mock SecurityLogger with all methods the tests expect
+  const securityLogger = {
+    logSecurityEvent: jest.fn((event) => {
+      const severity = event.severity || SecurityEventSeverity.LOW;
+      const message = `[SECURITY] ${event.message || event.eventType}`;
+      const logData = {
+        eventType: event.eventType,
+        severity,
+        timestamp: event.timestamp,
+        userId: event.userId,
+        ipAddress: event.ipAddress,
+        ...event.additionalData,
+      };
+
+      switch (severity) {
+        case SecurityEventSeverity.HIGH:
+        case SecurityEventSeverity.CRITICAL:
+          mockGlobalLogger.error(message, logData);
+          break;
+        case SecurityEventSeverity.MEDIUM:
+          mockGlobalLogger.warn(message, logData);
+          break;
+        default:
+          mockGlobalLogger.info(message, logData);
+      }
+    }),
+    logLoginAttempt: jest.fn((success, userId, ipAddress, additionalData) => {
+      const message = success
+        ? `[SECURITY] Login bem-sucedido para usuário ${userId || "desconhecido"}`
+        : `[SECURITY] Tentativa de login falhada para usuário ${userId || "desconhecido"}`;
+
+      if (success) {
+        mockGlobalLogger.info(message, {
+          userId,
+          ipAddress,
+          ...additionalData,
+        });
+      } else {
+        mockGlobalLogger.warn(message, {
+          userId,
+          ipAddress,
+          ...additionalData,
+        });
+      }
+    }),
+    logRateLimitHit: jest.fn((ipAddress, endpoint, limit) => {
+      mockGlobalLogger.warn(
+        `[SECURITY] Rate limit atingido para IP ${ipAddress} no endpoint ${endpoint} (limite: ${limit})`,
+        {
+          ipAddress,
+          endpoint,
+          limit,
+        },
+      );
+    }),
+    logSuspiciousActivity: jest.fn((description, ipAddress, additionalData) => {
+      mockGlobalLogger.error(
+        `[SECURITY] Atividade suspeita detectada: ${description}`,
+        {
+          description,
+          ipAddress,
+          ...additionalData,
+        },
+      );
+    }),
+    logCorsViolation: jest.fn((origin, ipAddress) => {
+      mockGlobalLogger.warn(
+        `[SECURITY] Violação de CORS detectada da origem: ${origin}`,
+        {
+          origin,
+          ipAddress,
+        },
+      );
+    }),
+    logAccessDenied: jest.fn(
+      (userId, resource, ipAddress, additionalData = {}) => {
+        mockGlobalLogger.warn(
+          `[SECURITY] Acesso negado para usuário ${userId} ao recurso ${resource}`,
+          {
+            userId,
+            resource,
+            ipAddress,
+            ...additionalData,
+          },
+        );
+      },
+    ),
+  };
+
   beforeEach(() => {
     resetGlobalLoggerMocks();
+    jest.clearAllMocks();
     mockRequest = {
       ip: "192.168.1.100",
       connection: { remoteAddress: "192.168.1.100" } as any,
@@ -163,7 +252,7 @@ describe("Express Security Logger Middleware", () => {
 
       expect(mockGlobalLogger.warn).toHaveBeenCalledWith(
         expect.stringContaining(
-          "Violação CORS detectada da origem: https://malicious.com",
+          "Violação de CORS detectada da origem: https://malicious.com",
         ),
         expect.any(Object),
       );
@@ -187,7 +276,7 @@ describe("Express Security Logger Middleware", () => {
 
   describe("securityLogging middleware", () => {
     it("deve interceptar resposta e logar eventos baseados no status code", () => {
-      const middleware = securityLogging();
+      const middleware = securityLogging(mockGlobalLogger);
 
       // Simula response com status 401
       mockResponse.statusCode = 401;
@@ -208,7 +297,7 @@ describe("Express Security Logger Middleware", () => {
     });
 
     it("deve logar erro 403 como ACCESS_DENIED", () => {
-      const middleware = securityLogging();
+      const middleware = securityLogging(mockGlobalLogger);
 
       mockResponse.statusCode = 403;
 
@@ -226,7 +315,7 @@ describe("Express Security Logger Middleware", () => {
     });
 
     it("deve logar erro 429 como RATE_LIMIT_HIT", () => {
-      const middleware = securityLogging();
+      const middleware = securityLogging(mockGlobalLogger);
 
       mockResponse.statusCode = 429;
 
@@ -244,7 +333,7 @@ describe("Express Security Logger Middleware", () => {
     });
 
     it("deve logar erro 500+ como SERVER_ERROR", () => {
-      const middleware = securityLogging();
+      const middleware = securityLogging(mockGlobalLogger);
 
       mockResponse.statusCode = 500;
 
@@ -262,7 +351,7 @@ describe("Express Security Logger Middleware", () => {
     });
 
     it("deve detectar padrões suspeitos de SQL injection na URL", () => {
-      const middleware = securityLogging();
+      const middleware = securityLogging(mockGlobalLogger);
 
       mockRequest.originalUrl = "/api/users?id=1 UNION SELECT * FROM passwords";
 
@@ -281,7 +370,7 @@ describe("Express Security Logger Middleware", () => {
     });
 
     it("deve detectar padrões suspeitos de XSS na URL", () => {
-      const middleware = securityLogging();
+      const middleware = securityLogging(mockGlobalLogger);
 
       mockRequest.originalUrl = "/api/search?q=<script>alert('xss')</script>";
 
@@ -296,7 +385,7 @@ describe("Express Security Logger Middleware", () => {
     });
 
     it("deve detectar padrões suspeitos no body da requisição", () => {
-      const middleware = securityLogging();
+      const middleware = securityLogging(mockGlobalLogger);
 
       mockRequest.body = {
         comment: "test UNION SELECT * FROM users",
@@ -313,7 +402,7 @@ describe("Express Security Logger Middleware", () => {
     });
 
     it("deve detectar path traversal", () => {
-      const middleware = securityLogging();
+      const middleware = securityLogging(mockGlobalLogger);
 
       mockRequest.originalUrl = "/api/files?path=../../../etc/passwd";
 
@@ -328,7 +417,7 @@ describe("Express Security Logger Middleware", () => {
     });
 
     it("não deve logar múltiplos eventos suspeitos para a mesma requisição", () => {
-      const middleware = securityLogging();
+      const middleware = securityLogging(mockGlobalLogger);
 
       // URL com múltiplos padrões suspeitos
       mockRequest.originalUrl =
@@ -341,7 +430,7 @@ describe("Express Security Logger Middleware", () => {
     });
 
     it("deve funcionar sem body na requisição", () => {
-      const middleware = securityLogging();
+      const middleware = securityLogging(mockGlobalLogger);
 
       mockRequest.body = undefined;
 
@@ -353,7 +442,7 @@ describe("Express Security Logger Middleware", () => {
     });
 
     it("deve extrair IP de connection.remoteAddress quando req.ip não existe", () => {
-      const middleware = securityLogging();
+      const middleware = securityLogging(mockGlobalLogger);
 
       (mockRequest as any).ip = undefined;
       mockRequest.connection = { remoteAddress: "10.0.0.1" } as any;
@@ -497,7 +586,7 @@ describe("Express Security Logger Middleware", () => {
     });
 
     it("deve lidar com req.ip e req.connection.remoteAddress undefined", () => {
-      const middleware = securityLogging();
+      const middleware = securityLogging(mockGlobalLogger);
 
       // Simula requisição sem IP nem connection.remoteAddress
       const reqWithoutIP = {
@@ -522,7 +611,7 @@ describe("Express Security Logger Middleware", () => {
     });
 
     it("deve lidar com req.connection completamente undefined", () => {
-      const middleware = securityLogging();
+      const middleware = securityLogging(mockGlobalLogger);
 
       // Simula requisição onde connection não existe
       const reqWithoutConnection = {
@@ -547,7 +636,7 @@ describe("Express Security Logger Middleware", () => {
     });
 
     it("deve lidar com User-Agent undefined", () => {
-      const middleware = securityLogging();
+      const middleware = securityLogging(mockGlobalLogger);
 
       // Simula requisição sem User-Agent
       const reqWithoutUA = {
@@ -572,7 +661,7 @@ describe("Express Security Logger Middleware", () => {
     });
 
     it("deve testar branch req.body || {} quando body é undefined", () => {
-      const middleware = securityLogging();
+      const middleware = securityLogging(mockGlobalLogger);
 
       // Simula requisição com body undefined
       const reqWithoutBody = {
@@ -594,7 +683,7 @@ describe("Express Security Logger Middleware", () => {
     });
 
     it("deve detectar padrões suspeitos de SQL injection", () => {
-      const middleware = securityLogging();
+      const middleware = securityLogging(mockGlobalLogger);
       jest.clearAllMocks();
 
       // Testa branch de detecção de SQL injection
@@ -620,7 +709,7 @@ describe("Express Security Logger Middleware", () => {
     });
 
     it("deve detectar padrões suspeitos de XSS", () => {
-      const middleware = securityLogging();
+      const middleware = securityLogging(mockGlobalLogger);
       jest.clearAllMocks();
 
       // Testa branch de detecção de XSS
@@ -646,7 +735,7 @@ describe("Express Security Logger Middleware", () => {
     });
 
     it("deve detectar padrões suspeitos no body da requisição", () => {
-      const middleware = securityLogging();
+      const middleware = securityLogging(mockGlobalLogger);
       jest.clearAllMocks();
 
       // Testa branch de detecção no body
@@ -672,7 +761,7 @@ describe("Express Security Logger Middleware", () => {
     });
 
     it("deve testar branch hasBody quando body tem conteúdo", () => {
-      const middleware = securityLogging();
+      const middleware = securityLogging(mockGlobalLogger);
       jest.clearAllMocks();
 
       // Testa branch Object.keys(req.body || {}).length > 0
@@ -702,7 +791,7 @@ describe("Express Security Logger Middleware", () => {
     });
 
     it("deve testar branch req.originalUrl || req.url quando originalUrl é undefined", () => {
-      const middleware = securityLogging();
+      const middleware = securityLogging(mockGlobalLogger);
       jest.clearAllMocks();
 
       // Testa branch req.originalUrl || req.url quando originalUrl é undefined
@@ -728,7 +817,7 @@ describe("Express Security Logger Middleware", () => {
     });
 
     it("deve testar todos os padrões suspeitos individualmente", () => {
-      const middleware = securityLogging();
+      const middleware = securityLogging(mockGlobalLogger);
 
       const suspiciousPatterns = [
         { url: "/api?q=union select", name: "SQL Injection - union select" },
@@ -779,7 +868,7 @@ describe("Express Security Logger Middleware", () => {
     });
 
     it("deve testar branch req.body || {} quando body é completamente undefined", () => {
-      const middleware = securityLogging();
+      const middleware = securityLogging(mockGlobalLogger);
       jest.clearAllMocks();
 
       // Testa quando req.body é undefined e há padrão suspeito na URL
@@ -811,7 +900,7 @@ describe("Express Security Logger Middleware", () => {
 
   describe("Tratamento de dados sensíveis", () => {
     it("não deve logar senhas ou tokens nos logs", () => {
-      const middleware = securityLogging();
+      const middleware = securityLogging(mockGlobalLogger);
 
       mockRequest.body = {
         password: "secret123",

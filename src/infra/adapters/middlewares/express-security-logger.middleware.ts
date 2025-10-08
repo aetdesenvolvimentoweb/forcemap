@@ -78,12 +78,14 @@ export interface SecurityLogger {
   logAccessDenied(userId: string, resource: string, ipAddress?: string): void;
 }
 
+import { LoggerProtocol } from "../../../application/protocols";
 import { globalLogger } from "../global.logger";
 
 /**
  * Implementação do logger de segurança usando Pino
  */
 class PinoSecurityLogger implements SecurityLogger {
+  constructor(private readonly logger: LoggerProtocol) {}
   private getLogLevel(
     severity: SecurityEventSeverity,
   ): "info" | "warn" | "error" {
@@ -102,7 +104,7 @@ class PinoSecurityLogger implements SecurityLogger {
 
   logSecurityEvent(event: SecurityEvent): void {
     const level = this.getLogLevel(event.severity);
-    globalLogger[level](`[SECURITY] ${event.message}`, {
+    this.logger[level](`[SECURITY] ${event.message}`, {
       type: "SECURITY_EVENT",
       ...event,
     });
@@ -119,7 +121,7 @@ class PinoSecurityLogger implements SecurityLogger {
       ? `Login bem-sucedido para usuário ${userId || "desconhecido"}`
       : `Tentativa de login falhada para usuário ${userId || "desconhecido"}`;
 
-    globalLogger[level](`[SECURITY] ${message}`, {
+    this.logger[level](`[SECURITY] ${message}`, {
       type: "SECURITY_EVENT",
       eventType: success
         ? SecurityEventType.LOGIN_SUCCESS
@@ -135,7 +137,7 @@ class PinoSecurityLogger implements SecurityLogger {
   }
 
   logRateLimitHit(ipAddress: string, endpoint: string, limit: number): void {
-    globalLogger.warn(
+    this.logger.warn(
       `[SECURITY] Rate limit atingido para IP ${ipAddress} no endpoint ${endpoint} (limite: ${limit})`,
       {
         type: "SECURITY_EVENT",
@@ -154,7 +156,7 @@ class PinoSecurityLogger implements SecurityLogger {
     ipAddress?: string,
     additionalData?: Record<string, unknown>,
   ): void {
-    globalLogger.error(
+    this.logger.error(
       `[SECURITY] Atividade suspeita detectada: ${description}`,
       {
         type: "SECURITY_EVENT",
@@ -168,8 +170,8 @@ class PinoSecurityLogger implements SecurityLogger {
   }
 
   logCorsViolation(origin: string, ipAddress?: string): void {
-    globalLogger.warn(
-      `[SECURITY] Violação CORS detectada da origem: ${origin}`,
+    this.logger.warn(
+      `[SECURITY] Violação de CORS detectada da origem: ${origin}`,
       {
         type: "SECURITY_EVENT",
         eventType: SecurityEventType.CORS_VIOLATION,
@@ -182,7 +184,7 @@ class PinoSecurityLogger implements SecurityLogger {
   }
 
   logAccessDenied(userId: string, resource: string, ipAddress?: string): void {
-    globalLogger.warn(
+    this.logger.warn(
       `[SECURITY] Acesso negado para usuário ${userId} ao recurso ${resource}`,
       {
         type: "SECURITY_EVENT",
@@ -198,11 +200,6 @@ class PinoSecurityLogger implements SecurityLogger {
 }
 
 /**
- * Instância global do logger de segurança
- */
-export const securityLogger: SecurityLogger = new PinoSecurityLogger();
-
-/**
  * Extrai informações da requisição para logging de segurança
  */
 const extractRequestInfo = (req: Request) => ({
@@ -216,7 +213,9 @@ const extractRequestInfo = (req: Request) => ({
  * Middleware para logging automático de eventos de segurança
  * Intercepta requisições e respostas para detectar eventos relevantes
  */
-export const securityLogging = () => {
+export const securityLogging = (logger: LoggerProtocol) => {
+  const securityLogger: SecurityLogger = new PinoSecurityLogger(logger);
+
   return (req: Request, res: Response, next: NextFunction): void => {
     const startTime = Date.now();
     const requestInfo = extractRequestInfo(req);
@@ -229,7 +228,7 @@ export const securityLogging = () => {
 
       // Log eventos baseados no status code
       if (statusCode === 401) {
-        globalLogger.warn("[SECURITY] Token inválido ou expirado", {
+        logger.warn("[SECURITY] Token inválido ou expirado", {
           type: "SECURITY_EVENT",
           eventType: SecurityEventType.TOKEN_INVALID,
           severity: SecurityEventSeverity.MEDIUM,
@@ -239,7 +238,7 @@ export const securityLogging = () => {
           additionalData: { responseTime },
         });
       } else if (statusCode === 403) {
-        globalLogger.warn("[SECURITY] Acesso negado ao recurso", {
+        logger.warn("[SECURITY] Acesso negado ao recurso", {
           type: "SECURITY_EVENT",
           eventType: SecurityEventType.ACCESS_DENIED,
           severity: SecurityEventSeverity.MEDIUM,
@@ -255,7 +254,7 @@ export const securityLogging = () => {
           0, // Limite específico seria obtido do rate limiter
         );
       } else if (statusCode >= 500) {
-        globalLogger.error("[SECURITY] Erro interno do servidor", {
+        logger.error("[SECURITY] Erro interno do servidor", {
           type: "SECURITY_EVENT",
           eventType: SecurityEventType.SERVER_ERROR,
           severity: SecurityEventSeverity.HIGH,
@@ -305,63 +304,78 @@ export const securityLogging = () => {
 
 /**
  * Extensões para logs específicos de autenticação
+ * @deprecated Use SecurityLogger diretamente via injeção de dependência
  */
-export const authSecurityLogger = {
-  /**
-   * Log de tentativa de login
-   */
-  logLogin: (
-    success: boolean,
-    userId?: string,
-    req?: Request,
-    additionalData?: Record<string, unknown>,
-  ) => {
-    const ipAddress = req ? extractRequestInfo(req).ipAddress : undefined;
-    securityLogger.logLoginAttempt(success, userId, ipAddress, additionalData);
-  },
+export const createAuthSecurityLogger = (logger: LoggerProtocol) => {
+  const securityLogger: SecurityLogger = new PinoSecurityLogger(logger);
 
-  /**
-   * Log de logout
-   */
-  logLogout: (userId: string, req?: Request) => {
-    const requestInfo = req ? extractRequestInfo(req) : {};
-    securityLogger.logSecurityEvent({
-      timestamp: new Date().toISOString(),
-      eventType: SecurityEventType.LOGOUT,
-      severity: SecurityEventSeverity.LOW,
-      message: `Logout realizado para usuário ${userId}`,
-      userId,
-      ...requestInfo,
-    });
-  },
+  return {
+    /**
+     * Log de tentativa de login
+     */
+    logLogin: (
+      success: boolean,
+      userId?: string,
+      req?: Request,
+      additionalData?: Record<string, unknown>,
+    ) => {
+      const ipAddress = req ? extractRequestInfo(req).ipAddress : undefined;
+      securityLogger.logLoginAttempt(
+        success,
+        userId,
+        ipAddress,
+        additionalData,
+      );
+    },
 
-  /**
-   * Log de refresh de token
-   */
-  logTokenRefresh: (userId: string, req?: Request) => {
-    const requestInfo = req ? extractRequestInfo(req) : {};
-    securityLogger.logSecurityEvent({
-      timestamp: new Date().toISOString(),
-      eventType: SecurityEventType.TOKEN_REFRESH,
-      severity: SecurityEventSeverity.LOW,
-      message: `Token refreshed para usuário ${userId}`,
-      userId,
-      ...requestInfo,
-    });
-  },
+    /**
+     * Log de logout
+     */
+    logLogout: (userId: string, req?: Request) => {
+      const requestInfo = req ? extractRequestInfo(req) : {};
+      securityLogger.logSecurityEvent({
+        timestamp: new Date().toISOString(),
+        eventType: SecurityEventType.LOGOUT,
+        severity: SecurityEventSeverity.LOW,
+        message: `Logout realizado para usuário ${userId}`,
+        userId,
+        ...requestInfo,
+      });
+    },
 
-  /**
-   * Log de bloqueio por tentativas excessivas
-   */
-  logLoginBlocked: (identifier: string, req?: Request, reason?: string) => {
-    const requestInfo = req ? extractRequestInfo(req) : {};
-    securityLogger.logSecurityEvent({
-      timestamp: new Date().toISOString(),
-      eventType: SecurityEventType.LOGIN_BLOCKED,
-      severity: SecurityEventSeverity.HIGH,
-      message: `Login bloqueado para ${identifier}: ${reason || "tentativas excessivas"}`,
-      ...requestInfo,
-      additionalData: { identifier, reason },
-    });
-  },
+    /**
+     * Log de refresh de token
+     */
+    logTokenRefresh: (userId: string, req?: Request) => {
+      const requestInfo = req ? extractRequestInfo(req) : {};
+      securityLogger.logSecurityEvent({
+        timestamp: new Date().toISOString(),
+        eventType: SecurityEventType.TOKEN_REFRESH,
+        severity: SecurityEventSeverity.LOW,
+        message: `Token refreshed para usuário ${userId}`,
+        userId,
+        ...requestInfo,
+      });
+    },
+
+    /**
+     * Log de bloqueio por tentativas excessivas
+     */
+    logLoginBlocked: (identifier: string, req?: Request, reason?: string) => {
+      const requestInfo = req ? extractRequestInfo(req) : {};
+      securityLogger.logSecurityEvent({
+        timestamp: new Date().toISOString(),
+        eventType: SecurityEventType.LOGIN_BLOCKED,
+        severity: SecurityEventSeverity.HIGH,
+        message: `Login bloqueado para ${identifier}: ${reason || "tentativas excessivas"}`,
+        ...requestInfo,
+        additionalData: { identifier, reason },
+      });
+    },
+  };
 };
+
+/**
+ * @deprecated Usar createAuthSecurityLogger(logger) com injeção de dependência
+ */
+export const authSecurityLogger = createAuthSecurityLogger(globalLogger);
