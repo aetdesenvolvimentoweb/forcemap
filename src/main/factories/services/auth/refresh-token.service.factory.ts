@@ -1,4 +1,5 @@
 import { RefreshTokenService } from "../../../../application/services/auth/refresh-token.service";
+import { makeSecurityLogger } from "../../logger";
 import {
   makeMilitaryRankRepository,
   makeMilitaryRepository,
@@ -13,10 +14,12 @@ export const makeRefreshTokenService = (): RefreshTokenService => {
   const userRepository = makeUserRepository(militaryRepository);
   const sessionRepository = makeSessionRepository();
   const tokenHandler = makeTokenHandler();
+  const securityLogger = makeSecurityLogger();
 
   return new RefreshTokenService({
     userRepository,
     sessionRepository,
     tokenHandler,
+    securityLogger,
   });
 };

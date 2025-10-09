@@ -107,10 +107,20 @@ describe("RefreshTokenService", () => {
       extractTokenFromHeader: jest.fn(),
     };
 
+    const mockSecurityLogger = {
+      logLogin: jest.fn(),
+      logLoginBlocked: jest.fn(),
+      logLogout: jest.fn(),
+      logTokenRefresh: jest.fn(),
+      logAccessDenied: jest.fn(),
+      logSuspiciousActivity: jest.fn(),
+    };
+
     sut = new RefreshTokenService({
       userRepository: mockUserRepository,
       sessionRepository: mockSessionRepository,
       tokenHandler: mockTokenHandler,
+      securityLogger: mockSecurityLogger,
     });
   });
 

@@ -1,3 +1,4 @@
+import { MAX_RG_VALUE, MIN_RG_VALUE } from "../../../domain/constants";
 import { UserCredentialsInputDTO } from "../../../domain/dtos";
 import { InvalidParamError } from "../../errors";
 import { UserCredentialsInputDTOValidatorProtocol } from "../../protocols";
@@ -15,12 +16,15 @@ export class UserCredentialsInputDTOValidator
   };
 
   private readonly validateRgFormat = (rg: number): void => {
-    if (typeof rg !== "number" || isNaN(rg) || rg <= 0) {
+    if (typeof rg !== "number" || isNaN(rg) || rg < MIN_RG_VALUE) {
       throw new InvalidParamError("RG", "deve ser um número positivo");
     }
 
-    if (rg > 10000) {
-      throw new InvalidParamError("RG", "deve estar entre 1 e 10000");
+    if (rg > MAX_RG_VALUE) {
+      throw new InvalidParamError(
+        "RG",
+        `deve estar entre ${MIN_RG_VALUE} e ${MAX_RG_VALUE}`,
+      );
     }
   };
 

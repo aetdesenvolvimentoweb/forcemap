@@ -3,7 +3,7 @@ import {
   IdSanitizerProtocol,
   MilitaryInputDTOSanitizerProtocol,
 } from "../protocols";
-import { sanitizeNumber, sanitizeString } from "../utils";
+import { sanitizeName, sanitizeNumber } from "../utils";
 
 interface MilitaryInputDTOSanitizerProps {
   idSanitizer: IdSanitizerProtocol;
@@ -17,7 +17,7 @@ export class MilitaryInputDTOSanitizer
   public readonly sanitize = (data: MilitaryInputDTO): MilitaryInputDTO => {
     const sanitized = {
       militaryRankId: this.props.idSanitizer.sanitize(data.militaryRankId),
-      name: sanitizeString(data.name),
+      name: sanitizeName(data.name), // Preserva apóstrofos em nomes como "O'Brien"
       rg: sanitizeNumber(data.rg),
     };
     return sanitized;

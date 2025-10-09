@@ -9,6 +9,7 @@ import {
 import { InvalidParamError, UnauthorizedError } from "../../application/errors";
 import { TokenHandlerProtocol } from "../../application/protocols";
 import { Payload, RefreshTokenPayload } from "../../domain/entities";
+import { ConfigurationError } from "../errors";
 
 export class JsonWebTokenHandlerAdapter implements TokenHandlerProtocol {
   private readonly accessTokenSecret: string;
@@ -17,10 +18,34 @@ export class JsonWebTokenHandlerAdapter implements TokenHandlerProtocol {
   private readonly refreshTokenExpiry: string;
 
   constructor() {
-    this.accessTokenSecret =
-      process.env.JWT_ACCESS_SECRET || "your-access-secret";
-    this.refreshTokenSecret =
-      process.env.JWT_REFRESH_SECRET || "your-refresh-secret";
+    const accessSecret = process.env.JWT_ACCESS_SECRET;
+    const refreshSecret = process.env.JWT_REFRESH_SECRET;
+    const nodeEnv = process.env.NODE_ENV;
+
+    // Validação obrigatória de secrets
+    if (!accessSecret || !refreshSecret) {
+      throw new ConfigurationError(
+        "JWT_ACCESS_SECRET e JWT_REFRESH_SECRET devem ser configurados via variáveis de ambiente",
+      );
+    }
+
+    // Validação de tamanho mínimo em produção
+    if (nodeEnv === "production") {
+      if (accessSecret.length < 32) {
+        throw new ConfigurationError(
+          "JWT_ACCESS_SECRET deve ter no mínimo 32 caracteres em produção",
+        );
+      }
+
+      if (refreshSecret.length < 32) {
+        throw new ConfigurationError(
+          "JWT_REFRESH_SECRET deve ter no mínimo 32 caracteres em produção",
+        );
+      }
+    }
+
+    this.accessTokenSecret = accessSecret;
+    this.refreshTokenSecret = refreshSecret;
     this.accessTokenExpiry = process.env.JWT_ACCESS_EXPIRY || "15m";
     this.refreshTokenExpiry = process.env.JWT_REFRESH_EXPIRY || "7d";
   }

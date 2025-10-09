@@ -85,7 +85,7 @@ describe("MilitaryInputDTOSanitizer", () => {
 
       const result = sut.sanitize(inputData);
 
-      expect(result.name).toBe("AnaMariaSilvaDROP TABLE users");
+      expect(result.name).toBe("Ana'MariaSilvaDROP TABLE users");
     });
 
     it("should sanitize name by removing SQL injection patterns", () => {
@@ -276,7 +276,7 @@ describe("MilitaryInputDTOSanitizer", () => {
 
       expect(result).toEqual({
         militaryRankId: sanitizedId,
-        name: "JoséMaria Silva DROPcomment",
+        name: "José'Maria Silva DROPcomment",
         rg: 987654321.5,
       });
     });

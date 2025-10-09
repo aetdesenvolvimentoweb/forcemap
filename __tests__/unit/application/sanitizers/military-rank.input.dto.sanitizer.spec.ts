@@ -46,7 +46,7 @@ describe("MilitaryRankInputDTOSanitizer", () => {
         expect(result.abbreviation).toBe("CEL MAJ CAP");
       });
 
-      it("should remove single quotes from abbreviation", () => {
+      it("should preserve single quotes in abbreviation", () => {
         const data: MilitaryRankInputDTO = {
           abbreviation: "CE'L",
           order: 10,
@@ -54,7 +54,7 @@ describe("MilitaryRankInputDTOSanitizer", () => {
 
         const result = sut.sanitize(data);
 
-        expect(result.abbreviation).toBe("CEL");
+        expect(result.abbreviation).toBe("CE'L");
       });
 
       it("should remove double quotes from abbreviation", () => {
@@ -120,7 +120,7 @@ describe("MilitaryRankInputDTOSanitizer", () => {
 
         const result = sut.sanitize(data);
 
-        expect(result.abbreviation).toBe("CELmalicious");
+        expect(result.abbreviation).toBe("'CEL'malicious'");
       });
 
       it("should return abbreviation as-is when not a string", () => {
@@ -226,7 +226,7 @@ describe("MilitaryRankInputDTOSanitizer", () => {
         const result = sut.sanitize(data);
 
         expect(result).toEqual({
-          abbreviation: "CELcomment",
+          abbreviation: "'CEL'comment",
           order: 15,
         });
       });
@@ -239,7 +239,7 @@ describe("MilitaryRankInputDTOSanitizer", () => {
 
         const result = sut.sanitize(data);
 
-        expect(result.abbreviation).toBe("DROP TABLE users");
+        expect(result.abbreviation).toBe("'DROP TABLE users");
         expect(result.order).toBe(1);
       });
     });

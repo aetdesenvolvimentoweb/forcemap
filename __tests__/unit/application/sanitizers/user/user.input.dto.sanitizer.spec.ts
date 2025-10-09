@@ -104,7 +104,7 @@ describe("UserInputDTOSanitizer", () => {
 
       const result = sut.sanitize(inputData);
 
-      expect(result.role).toBe("adminDROP TABLE users");
+      expect(result.role).toBe("admin'DROP TABLE users");
     });
 
     it("should sanitize role by removing SQL injection patterns", () => {
@@ -174,7 +174,7 @@ describe("UserInputDTOSanitizer", () => {
 
       const result = sut.sanitize(inputData);
 
-      expect(result.password).toBe("MyPass@123DROP");
+      expect(result.password).toBe("MyPass'@123DROP");
     });
 
     it("should sanitize password by removing SQL injection patterns", () => {
@@ -331,8 +331,8 @@ describe("UserInputDTOSanitizer", () => {
 
       expect(result).toEqual({
         militaryId: sanitizedId,
-        role: "adminrole test DROPcomment",
-        password: "MyPass@123Strong DROPpwd",
+        role: "admin'role test DROPcomment",
+        password: "MyPass'@123Strong DROPpwd",
       });
     });
 

@@ -4,12 +4,12 @@ import {
 } from "../../../../../src/application/errors";
 import {
   PasswordHasherProtocol,
-  RateLimiterProtocol,
-  RateLimiterResult,
-  TokenHandlerProtocol,
+  SecurityLoggerProtocol,
   UserCredentialsInputDTOSanitizerProtocol,
 } from "../../../../../src/application/protocols";
 import { LoginService } from "../../../../../src/application/services/auth/login.service";
+import { RateLimitingService } from "../../../../../src/application/services/auth/rate-limiting.service";
+import { SessionManagementService } from "../../../../../src/application/services/auth/session-management.service";
 import {
   LoginInputDTO,
   LoginOutputDTO,
@@ -17,7 +17,6 @@ import {
 import { User, UserRole } from "../../../../../src/domain/entities";
 import {
   MilitaryRepository,
-  SessionRepository,
   UserRepository,
 } from "../../../../../src/domain/repositories";
 
@@ -35,11 +34,11 @@ describe("LoginService", () => {
   let sut: LoginService;
   let mockUserRepository: jest.Mocked<UserRepository>;
   let mockMilitaryRepository: jest.Mocked<MilitaryRepository>;
-  let mockSessionRepository: jest.Mocked<SessionRepository>;
-  let mockTokenHandler: jest.Mocked<TokenHandlerProtocol>;
   let mockUserCredentialsInputDTOSanitizer: jest.Mocked<UserCredentialsInputDTOSanitizerProtocol>;
   let mockPasswordHasher: jest.Mocked<PasswordHasherProtocol>;
-  let mockRateLimiter: jest.Mocked<RateLimiterProtocol>;
+  let mockRateLimitingService: jest.Mocked<RateLimitingService>;
+  let mockSessionManagementService: jest.Mocked<SessionManagementService>;
+  let mockSecurityLogger: jest.Mocked<SecurityLoggerProtocol>;
 
   const mockMilitary = {
     id: "mil-123",
@@ -89,20 +88,6 @@ describe("LoginService", () => {
   const mockAccessToken = "new-access-token";
   const mockRefreshToken = "new-refresh-token";
 
-  const mockAllowedRateLimit: RateLimiterResult = {
-    allowed: true,
-    remainingAttempts: 9,
-    resetTime: new Date(Date.now() + 15 * 60 * 1000),
-    totalAttempts: 1,
-  };
-
-  const mockBlockedRateLimit: RateLimiterResult = {
-    allowed: false,
-    remainingAttempts: 0,
-    resetTime: new Date(Date.now() + 15 * 60 * 1000),
-    totalAttempts: 10,
-  };
-
   beforeEach(() => {
     mockUserRepository = {
       findById: jest.fn(),
@@ -125,28 +110,6 @@ describe("LoginService", () => {
       delete: jest.fn(),
     };
 
-    mockSessionRepository = {
-      create: jest.fn(),
-      findByToken: jest.fn(),
-      findByRefreshToken: jest.fn(),
-      findBySessionId: jest.fn(),
-      findActiveByUserId: jest.fn(),
-      updateLastAccess: jest.fn(),
-      updateToken: jest.fn(),
-      updateRefreshToken: jest.fn(),
-      deactivateSession: jest.fn(),
-      deactivateAllUserSessions: jest.fn(),
-      deleteExpiredSessions: jest.fn(),
-    };
-
-    mockTokenHandler = {
-      generateAccessToken: jest.fn(),
-      generateRefreshToken: jest.fn(),
-      verifyAccessToken: jest.fn(),
-      verifyRefreshToken: jest.fn(),
-      extractTokenFromHeader: jest.fn(),
-    };
-
     mockUserCredentialsInputDTOSanitizer = {
       sanitize: jest.fn(),
     };
@@ -156,21 +119,33 @@ describe("LoginService", () => {
       compare: jest.fn(),
     };
 
-    mockRateLimiter = {
-      checkLimit: jest.fn(),
-      recordAttempt: jest.fn(),
-      reset: jest.fn(),
-      isBlocked: jest.fn(),
+    mockSecurityLogger = {
+      logLogin: jest.fn(),
+      logLoginBlocked: jest.fn(),
+      logLogout: jest.fn(),
+      logTokenRefresh: jest.fn(),
+      logAccessDenied: jest.fn(),
+      logSuspiciousActivity: jest.fn(),
     };
+
+    mockRateLimitingService = {
+      validateLoginAttempt: jest.fn(),
+      recordFailedAttempt: jest.fn(),
+      resetLimits: jest.fn(),
+    } as any;
+
+    mockSessionManagementService = {
+      createSession: jest.fn(),
+    } as any;
 
     sut = new LoginService({
       userRepository: mockUserRepository,
       militaryRepository: mockMilitaryRepository,
-      sessionRepository: mockSessionRepository,
-      tokenHandler: mockTokenHandler,
       userCredentialsInputDTOSanitizer: mockUserCredentialsInputDTOSanitizer,
       passwordHasher: mockPasswordHasher,
-      rateLimiter: mockRateLimiter,
+      rateLimitingService: mockRateLimitingService,
+      sessionManagementService: mockSessionManagementService,
+      securityLogger: mockSecurityLogger,
     });
   });
 
@@ -186,19 +161,22 @@ describe("LoginService", () => {
       mockUserCredentialsInputDTOSanitizer.sanitize.mockReturnValue(
         mockSanitizedCredentials,
       );
-      mockRateLimiter.checkLimit.mockResolvedValue(mockAllowedRateLimit);
+      mockRateLimitingService.validateLoginAttempt.mockResolvedValue({
+        ipLimitKey: "login:ip:192.168.1.1",
+        rgLimitKey: "login:rg:123456789",
+      });
       mockMilitaryRepository.findByRg.mockResolvedValue(mockMilitary);
       mockUserRepository.findByMilitaryIdWithPassword.mockResolvedValue(
         mockUser,
       );
       mockPasswordHasher.compare.mockResolvedValue(true);
-      mockSessionRepository.deactivateAllUserSessions.mockResolvedValue();
-      mockSessionRepository.create.mockResolvedValue(mockSession);
-      mockTokenHandler.generateAccessToken.mockReturnValue(mockAccessToken);
-      mockTokenHandler.generateRefreshToken.mockReturnValue(mockRefreshToken);
-      mockSessionRepository.updateToken.mockResolvedValue();
-      mockSessionRepository.updateRefreshToken.mockResolvedValue();
-      mockRateLimiter.reset.mockResolvedValue();
+      mockSessionManagementService.createSession.mockResolvedValue({
+        accessToken: mockAccessToken,
+        refreshToken: mockRefreshToken,
+        sessionId: mockSession.id,
+        expiresIn: 15 * 60,
+      });
+      mockRateLimitingService.resetLimits.mockResolvedValue();
     };
 
     it("should authenticate user successfully", async () => {
@@ -230,7 +208,10 @@ describe("LoginService", () => {
       expect(
         mockUserCredentialsInputDTOSanitizer.sanitize,
       ).toHaveBeenCalledWith(mockLoginInput);
-      expect(mockRateLimiter.checkLimit).toHaveBeenCalledTimes(2); // IP and RG limits
+      expect(mockRateLimitingService.validateLoginAttempt).toHaveBeenCalledWith(
+        mockIpAddress,
+        mockSanitizedCredentials.rg,
+      );
       expect(mockMilitaryRepository.findByRg).toHaveBeenCalledWith(
         mockSanitizedCredentials.rg,
       );
@@ -241,10 +222,13 @@ describe("LoginService", () => {
         mockSanitizedCredentials.password,
         mockUser.password,
       );
-      expect(
-        mockSessionRepository.deactivateAllUserSessions,
-      ).toHaveBeenCalledWith(mockUser.id);
-      expect(mockRateLimiter.reset).toHaveBeenCalledTimes(2); // Reset both IP and RG limits
+      expect(mockSessionManagementService.createSession).toHaveBeenCalledWith(
+        mockUser,
+        mockIpAddress,
+        mockUserAgent,
+        mockLoginInput.deviceInfo,
+      );
+      expect(mockRateLimitingService.resetLimits).toHaveBeenCalled();
     });
 
     describe("rate limiting", () => {
@@ -254,66 +238,20 @@ describe("LoginService", () => {
         );
       });
 
-      it("should throw TooManyRequestsError when IP limit is exceeded", async () => {
-        const ipBlockedLimit = {
-          ...mockBlockedRateLimit,
-          resetTime: new Date(Date.now() + 5 * 60 * 1000),
-        };
-        mockRateLimiter.checkLimit
-          .mockResolvedValueOnce(ipBlockedLimit) // IP limit blocked
-          .mockResolvedValueOnce(mockAllowedRateLimit); // RG limit allowed
-
-        await expect(
-          sut.authenticate(mockLoginInput, mockIpAddress, mockUserAgent),
-        ).rejects.toThrow(
+      it("should throw TooManyRequestsError when rate limit is exceeded", async () => {
+        mockRateLimitingService.validateLoginAttempt.mockRejectedValue(
           new TooManyRequestsError(
             "Muitas tentativas de login. Tente novamente em 5 minutos.",
           ),
         );
 
-        expect(mockRateLimiter.checkLimit).toHaveBeenCalledWith(
-          `login:ip:${mockIpAddress}`,
-          10,
-          15 * 60 * 1000,
-        );
-      });
-
-      it("should throw TooManyRequestsError when RG limit is exceeded", async () => {
-        const rgBlockedLimit = {
-          ...mockBlockedRateLimit,
-          resetTime: new Date(Date.now() + 3 * 60 * 1000),
-        };
-        mockRateLimiter.checkLimit
-          .mockResolvedValueOnce(mockAllowedRateLimit) // IP limit allowed
-          .mockResolvedValueOnce(rgBlockedLimit); // RG limit blocked
-
         await expect(
           sut.authenticate(mockLoginInput, mockIpAddress, mockUserAgent),
-        ).rejects.toThrow(
-          new TooManyRequestsError(
-            "Muitas tentativas para este usuário. Tente novamente em 3 minutos.",
-          ),
-        );
+        ).rejects.toThrow(TooManyRequestsError);
 
-        expect(mockRateLimiter.checkLimit).toHaveBeenCalledWith(
-          `login:rg:${mockSanitizedCredentials.rg}`,
-          5,
-          15 * 60 * 1000,
-        );
-      });
-
-      it("should calculate remaining minutes correctly", async () => {
-        const resetTime = new Date(Date.now() + 7.8 * 60 * 1000); // 7.8 minutes
-        const ipBlockedLimit = { ...mockBlockedRateLimit, resetTime };
-        mockRateLimiter.checkLimit.mockResolvedValueOnce(ipBlockedLimit);
-
-        await expect(
-          sut.authenticate(mockLoginInput, mockIpAddress, mockUserAgent),
-        ).rejects.toThrow(
-          new TooManyRequestsError(
-            "Muitas tentativas de login. Tente novamente em 8 minutos.",
-          ),
-        );
+        expect(
+          mockRateLimitingService.validateLoginAttempt,
+        ).toHaveBeenCalledWith(mockIpAddress, mockSanitizedCredentials.rg);
       });
     });
 
@@ -322,7 +260,10 @@ describe("LoginService", () => {
         mockUserCredentialsInputDTOSanitizer.sanitize.mockReturnValue(
           mockSanitizedCredentials,
         );
-        mockRateLimiter.checkLimit.mockResolvedValue(mockAllowedRateLimit);
+        mockRateLimitingService.validateLoginAttempt.mockResolvedValue({
+          ipLimitKey: "login:ip:192.168.1.1",
+          rgLimitKey: "login:rg:123456789",
+        });
       });
 
       it("should throw UnauthorizedError when military is not found", async () => {
@@ -332,15 +273,7 @@ describe("LoginService", () => {
           sut.authenticate(mockLoginInput, mockIpAddress, mockUserAgent),
         ).rejects.toThrow(new UnauthorizedError("Credenciais inválidas"));
 
-        expect(mockRateLimiter.recordAttempt).toHaveBeenCalledTimes(2);
-        expect(mockRateLimiter.recordAttempt).toHaveBeenCalledWith(
-          `login:ip:${mockIpAddress}`,
-          15 * 60 * 1000,
-        );
-        expect(mockRateLimiter.recordAttempt).toHaveBeenCalledWith(
-          `login:rg:${mockSanitizedCredentials.rg}`,
-          15 * 60 * 1000,
-        );
+        expect(mockRateLimitingService.recordFailedAttempt).toHaveBeenCalled();
       });
 
       it("should throw UnauthorizedError when user is not found", async () => {
@@ -351,7 +284,7 @@ describe("LoginService", () => {
           sut.authenticate(mockLoginInput, mockIpAddress, mockUserAgent),
         ).rejects.toThrow(new UnauthorizedError("Credenciais inválidas"));
 
-        expect(mockRateLimiter.recordAttempt).toHaveBeenCalledTimes(2);
+        expect(mockRateLimitingService.recordFailedAttempt).toHaveBeenCalled();
       });
 
       it("should throw UnauthorizedError when password does not match", async () => {
@@ -365,136 +298,24 @@ describe("LoginService", () => {
           sut.authenticate(mockLoginInput, mockIpAddress, mockUserAgent),
         ).rejects.toThrow(new UnauthorizedError("Credenciais inválidas"));
 
-        expect(mockRateLimiter.recordAttempt).toHaveBeenCalledTimes(2);
+        expect(mockRateLimitingService.recordFailedAttempt).toHaveBeenCalled();
       });
     });
 
     describe("session creation", () => {
       beforeEach(() => {
-        mockUserCredentialsInputDTOSanitizer.sanitize.mockReturnValue(
-          mockSanitizedCredentials,
-        );
-        mockRateLimiter.checkLimit.mockResolvedValue(mockAllowedRateLimit);
-        mockMilitaryRepository.findByRg.mockResolvedValue(mockMilitary);
-        mockUserRepository.findByMilitaryIdWithPassword.mockResolvedValue(
+        setupSuccessfulMocks();
+      });
+
+      it("should delegate session creation to SessionManagementService", async () => {
+        await sut.authenticate(mockLoginInput, mockIpAddress, mockUserAgent);
+
+        expect(mockSessionManagementService.createSession).toHaveBeenCalledWith(
           mockUser,
-        );
-        mockPasswordHasher.compare.mockResolvedValue(true);
-      });
-
-      it("should deactivate all existing user sessions", async () => {
-        setupSuccessfulMocks();
-
-        await sut.authenticate(mockLoginInput, mockIpAddress, mockUserAgent);
-
-        expect(
-          mockSessionRepository.deactivateAllUserSessions,
-        ).toHaveBeenCalledWith(mockUser.id);
-      });
-
-      it("should create session with correct data", async () => {
-        setupSuccessfulMocks();
-
-        await sut.authenticate(mockLoginInput, mockIpAddress, mockUserAgent);
-
-        expect(mockSessionRepository.create).toHaveBeenCalledWith({
-          userId: mockUser.id,
-          token: "temp",
-          refreshToken: "temp",
-          deviceInfo: mockLoginInput.deviceInfo,
-          ipAddress: mockIpAddress,
-          userAgent: mockUserAgent,
-          isActive: true,
-          expiresAt: expect.any(Date),
-        });
-      });
-
-      it("should use user agent as device info when not provided", async () => {
-        setupSuccessfulMocks();
-        const loginInputWithoutDevice = {
-          ...mockLoginInput,
-          deviceInfo: undefined,
-        };
-
-        await sut.authenticate(
-          loginInputWithoutDevice,
           mockIpAddress,
           mockUserAgent,
+          mockLoginInput.deviceInfo,
         );
-
-        expect(mockSessionRepository.create).toHaveBeenCalledWith(
-          expect.objectContaining({
-            deviceInfo: mockUserAgent.substring(0, 100),
-          }),
-        );
-      });
-
-      it("should truncate very long user agent", async () => {
-        setupSuccessfulMocks();
-        const longUserAgent = "a".repeat(150);
-        const loginInputWithoutDevice = {
-          ...mockLoginInput,
-          deviceInfo: undefined,
-        };
-
-        await sut.authenticate(
-          loginInputWithoutDevice,
-          mockIpAddress,
-          longUserAgent,
-        );
-
-        expect(mockSessionRepository.create).toHaveBeenCalledWith(
-          expect.objectContaining({
-            deviceInfo: longUserAgent.substring(0, 100),
-          }),
-        );
-      });
-
-      it("should generate tokens with correct payload", async () => {
-        setupSuccessfulMocks();
-
-        await sut.authenticate(mockLoginInput, mockIpAddress, mockUserAgent);
-
-        expect(mockTokenHandler.generateAccessToken).toHaveBeenCalledWith({
-          userId: mockUser.id,
-          sessionId: mockSession.id,
-          role: mockUser.role,
-          militaryId: mockUser.militaryId,
-        });
-
-        expect(mockTokenHandler.generateRefreshToken).toHaveBeenCalledWith({
-          userId: mockUser.id,
-          sessionId: mockSession.id,
-        });
-      });
-
-      it("should update session with generated tokens", async () => {
-        setupSuccessfulMocks();
-
-        await sut.authenticate(mockLoginInput, mockIpAddress, mockUserAgent);
-
-        expect(mockSessionRepository.updateToken).toHaveBeenCalledWith(
-          mockSession.id,
-          mockAccessToken,
-        );
-        expect(mockSessionRepository.updateRefreshToken).toHaveBeenCalledWith(
-          mockSession.id,
-          mockRefreshToken,
-        );
-      });
-
-      it("should set session expiration to 7 days", async () => {
-        setupSuccessfulMocks();
-
-        await sut.authenticate(mockLoginInput, mockIpAddress, mockUserAgent);
-
-        const createCall = mockSessionRepository.create.mock.calls[0][0];
-        const expiresAt = createCall.expiresAt;
-        const now = new Date();
-        const expectedExpiry = new Date(now);
-        expectedExpiry.setDate(expectedExpiry.getDate() + 7);
-
-        expect(expiresAt.getDate()).toBe(expectedExpiry.getDate());
       });
     });
 
@@ -504,13 +325,10 @@ describe("LoginService", () => {
 
         await sut.authenticate(mockLoginInput, mockIpAddress, mockUserAgent);
 
-        expect(mockRateLimiter.reset).toHaveBeenCalledWith(
-          `login:ip:${mockIpAddress}`,
-        );
-        expect(mockRateLimiter.reset).toHaveBeenCalledWith(
-          `login:rg:${mockSanitizedCredentials.rg}`,
-        );
-        expect(mockRateLimiter.reset).toHaveBeenCalledTimes(2);
+        expect(mockRateLimitingService.resetLimits).toHaveBeenCalledWith({
+          ipLimitKey: "login:ip:192.168.1.1",
+          rgLimitKey: "login:rg:123456789",
+        });
       });
     });
 
@@ -519,12 +337,17 @@ describe("LoginService", () => {
         mockUserCredentialsInputDTOSanitizer.sanitize.mockReturnValue(
           mockSanitizedCredentials,
         );
-        mockRateLimiter.checkLimit.mockResolvedValue(mockAllowedRateLimit);
+        mockRateLimitingService.validateLoginAttempt.mockResolvedValue({
+          ipLimitKey: "login:ip:192.168.1.1",
+          rgLimitKey: "login:rg:123456789",
+        });
       });
 
       it("should re-throw TooManyRequestsError without modification", async () => {
         const rateLimitError = new TooManyRequestsError("Rate limit exceeded");
-        mockRateLimiter.checkLimit.mockRejectedValueOnce(rateLimitError);
+        mockRateLimitingService.validateLoginAttempt.mockRejectedValueOnce(
+          rateLimitError,
+        );
 
         await expect(
           sut.authenticate(mockLoginInput, mockIpAddress, mockUserAgent),
@@ -552,17 +375,20 @@ describe("LoginService", () => {
           new UnauthorizedError("Erro no processo de autenticação"),
         );
 
-        expect(mockRateLimiter.recordAttempt).toHaveBeenCalledTimes(2);
+        expect(mockRateLimitingService.recordFailedAttempt).toHaveBeenCalled();
       });
 
       it("should handle session creation failures", async () => {
+        mockRateLimitingService.validateLoginAttempt.mockResolvedValue({
+          ipLimitKey: "login:ip:192.168.1.1",
+          rgLimitKey: "login:rg:123456789",
+        });
         mockMilitaryRepository.findByRg.mockResolvedValue(mockMilitary);
         mockUserRepository.findByMilitaryIdWithPassword.mockResolvedValue(
           mockUser,
         );
         mockPasswordHasher.compare.mockResolvedValue(true);
-        mockSessionRepository.deactivateAllUserSessions.mockResolvedValue();
-        mockSessionRepository.create.mockRejectedValue(
+        mockSessionManagementService.createSession.mockRejectedValue(
           new Error("Session creation failed"),
         );
 
@@ -572,85 +398,16 @@ describe("LoginService", () => {
           new UnauthorizedError("Erro no processo de autenticação"),
         );
 
-        expect(mockRateLimiter.recordAttempt).toHaveBeenCalledTimes(2);
-      });
-
-      it("should handle token generation failures", async () => {
-        mockMilitaryRepository.findByRg.mockResolvedValue(mockMilitary);
-        mockUserRepository.findByMilitaryIdWithPassword.mockResolvedValue(
-          mockUser,
-        );
-        mockPasswordHasher.compare.mockResolvedValue(true);
-        mockSessionRepository.deactivateAllUserSessions.mockResolvedValue();
-        mockSessionRepository.create.mockResolvedValue(mockSession);
-        mockTokenHandler.generateAccessToken.mockImplementation(() => {
-          throw new Error("Token generation failed");
-        });
-
-        await expect(
-          sut.authenticate(mockLoginInput, mockIpAddress, mockUserAgent),
-        ).rejects.toThrow(
-          new UnauthorizedError("Erro no processo de autenticação"),
-        );
+        expect(mockRateLimitingService.recordFailedAttempt).toHaveBeenCalled();
       });
     });
 
     describe("edge cases", () => {
-      it("should handle empty device info by using user agent", async () => {
-        setupSuccessfulMocks();
-        const loginWithEmptyDevice = { ...mockLoginInput, deviceInfo: "" };
-
-        await sut.authenticate(
-          loginWithEmptyDevice,
-          mockIpAddress,
-          mockUserAgent,
-        );
-
-        expect(mockSessionRepository.create).toHaveBeenCalledWith(
-          expect.objectContaining({
-            deviceInfo: mockUserAgent.substring(0, 100),
-          }),
-        );
-      });
-
-      it("should handle very long device info", async () => {
-        setupSuccessfulMocks();
-        const longDeviceInfo = "a".repeat(500);
-        const loginWithLongDevice = {
-          ...mockLoginInput,
-          deviceInfo: longDeviceInfo,
-        };
-
-        await sut.authenticate(
-          loginWithLongDevice,
-          mockIpAddress,
-          mockUserAgent,
-        );
-
-        expect(mockSessionRepository.create).toHaveBeenCalledWith(
-          expect.objectContaining({
-            deviceInfo: longDeviceInfo,
-          }),
-        );
-      });
-
       it("should handle different user roles", async () => {
         const adminUser = { ...mockUser, role: UserRole.ADMIN };
         const chefeUser = { ...mockUser, role: UserRole.CHEFE };
 
-        mockUserCredentialsInputDTOSanitizer.sanitize.mockReturnValue(
-          mockSanitizedCredentials,
-        );
-        mockRateLimiter.checkLimit.mockResolvedValue(mockAllowedRateLimit);
-        mockMilitaryRepository.findByRg.mockResolvedValue(mockMilitary);
-        mockPasswordHasher.compare.mockResolvedValue(true);
-        mockSessionRepository.deactivateAllUserSessions.mockResolvedValue();
-        mockSessionRepository.create.mockResolvedValue(mockSession);
-        mockTokenHandler.generateAccessToken.mockReturnValue(mockAccessToken);
-        mockTokenHandler.generateRefreshToken.mockReturnValue(mockRefreshToken);
-        mockSessionRepository.updateToken.mockResolvedValue();
-        mockSessionRepository.updateRefreshToken.mockResolvedValue();
-        mockRateLimiter.reset.mockResolvedValue();
+        setupSuccessfulMocks();
 
         mockUserRepository.findByMilitaryIdWithPassword.mockResolvedValueOnce(
           adminUser,
@@ -662,6 +419,7 @@ describe("LoginService", () => {
         );
         expect(adminResult.user.role).toBe(UserRole.ADMIN);
 
+        setupSuccessfulMocks();
         mockUserRepository.findByMilitaryIdWithPassword.mockResolvedValueOnce(
           chefeUser,
         );
@@ -679,23 +437,10 @@ describe("LoginService", () => {
         const unsanitizedInput = { ...mockLoginInput, rg: 123456789 };
         const sanitizedOutput = { rg: 123456789, password: "cleaned-password" };
 
-        // Setup mocks with sanitized data
+        setupSuccessfulMocks();
         mockUserCredentialsInputDTOSanitizer.sanitize.mockReturnValue(
           sanitizedOutput,
         );
-        mockRateLimiter.checkLimit.mockResolvedValue(mockAllowedRateLimit);
-        mockMilitaryRepository.findByRg.mockResolvedValue(mockMilitary);
-        mockUserRepository.findByMilitaryIdWithPassword.mockResolvedValue(
-          mockUser,
-        );
-        mockPasswordHasher.compare.mockResolvedValue(true);
-        mockSessionRepository.deactivateAllUserSessions.mockResolvedValue();
-        mockSessionRepository.create.mockResolvedValue(mockSession);
-        mockTokenHandler.generateAccessToken.mockReturnValue(mockAccessToken);
-        mockTokenHandler.generateRefreshToken.mockReturnValue(mockRefreshToken);
-        mockSessionRepository.updateToken.mockResolvedValue();
-        mockSessionRepository.updateRefreshToken.mockResolvedValue();
-        mockRateLimiter.reset.mockResolvedValue();
 
         await sut.authenticate(unsanitizedInput, mockIpAddress, mockUserAgent);
 

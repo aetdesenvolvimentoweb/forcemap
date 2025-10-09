@@ -49,7 +49,7 @@ describe("VehicleInputDTOSanitizer", () => {
         expect(result.name).toBe("Vehicle Name Test");
       });
 
-      it("should remove single quotes from name", () => {
+      it("should preserve single quotes in name", () => {
         const data: VehicleInputDTO = {
           name: "Vehicle'Name",
           situation: VehicleSituation.ATIVA,
@@ -57,7 +57,7 @@ describe("VehicleInputDTOSanitizer", () => {
 
         const result = sut.sanitize(data);
 
-        expect(result.name).toBe("VehicleName");
+        expect(result.name).toBe("Vehicle'Name");
       });
 
       it("should remove double quotes from name", () => {
@@ -123,7 +123,7 @@ describe("VehicleInputDTOSanitizer", () => {
 
         const result = sut.sanitize(data);
 
-        expect(result.name).toBe("VehiclemaliciousName");
+        expect(result.name).toBe("'Vehicle'malicious'Name'");
       });
 
       it("should return name as-is when not a string", () => {
@@ -169,7 +169,7 @@ describe("VehicleInputDTOSanitizer", () => {
 
         const result = sut.sanitize(data);
 
-        expect(result.situation).toBe("ativacomment");
+        expect(result.situation).toBe("'ativa'comment");
       });
 
       it("should handle situation with SQL injection attempts", () => {
@@ -180,7 +180,7 @@ describe("VehicleInputDTOSanitizer", () => {
 
         const result = sut.sanitize(data);
 
-        expect(result.situation).toBe("ativa DROP TABLE vehicles");
+        expect(result.situation).toBe("ativa' DROP TABLE vehicles");
       });
     });
 
@@ -218,7 +218,7 @@ describe("VehicleInputDTOSanitizer", () => {
 
         const result = sut.sanitize(data);
 
-        expect(result.complement).toBe("Complementinjectiontext");
+        expect(result.complement).toBe("Complement'injectiontext");
       });
 
       it("should return empty string when complement is undefined", () => {
@@ -268,9 +268,9 @@ describe("VehicleInputDTOSanitizer", () => {
         const result = sut.sanitize(data);
 
         expect(result).toEqual({
-          name: "Vehiclecomment",
-          situation: "ativatest",
-          complement: "Complementtext",
+          name: "'Vehicle'comment",
+          situation: "ativatest'",
+          complement: "Complement'text",
         });
       });
 
@@ -283,8 +283,8 @@ describe("VehicleInputDTOSanitizer", () => {
 
         const result = sut.sanitize(data);
 
-        expect(result.name).toBe("DROP TABLE vehicles");
-        expect(result.situation).toBe("ativa DELETE FROM vehicles");
+        expect(result.name).toBe("'DROP TABLE vehicles");
+        expect(result.situation).toBe("ativa' DELETE FROM vehicles");
         expect(result.complement).toBe(" malicious comment  complement");
       });
 
@@ -297,7 +297,7 @@ describe("VehicleInputDTOSanitizer", () => {
         const result = sut.sanitize(data);
 
         expect(result).toEqual({
-          name: "VehicleName",
+          name: "Vehicle'Name",
           situation: VehicleSituation.BAIXADA,
           complement: "",
         });

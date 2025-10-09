@@ -1,4 +1,5 @@
 import { EntityNotFoundError } from "../../../application/errors";
+import { SYSTEM_USER_RG } from "../../../domain/constants";
 import {
   UpdateUserInputDTO,
   UserInputDTO,
@@ -86,11 +87,15 @@ export class UserRepositoryInMemory implements UserRepository {
     return user;
   };
 
+  /**
+   * Lista todos os usuários, exceto o usuário de sistema
+   * O usuário com RG {@link SYSTEM_USER_RG} é filtrado por questões de segurança
+   */
   public listAll = async (): Promise<UserOutputDTO[]> => {
     const usersMapped = await Promise.all(
       this.items.map((user) => this.mapperUser(user)),
     );
-    return usersMapped.filter((user) => user.military.rg !== 9999);
+    return usersMapped.filter((user) => user.military.rg !== SYSTEM_USER_RG);
   };
 
   public updateUserPassword = async (

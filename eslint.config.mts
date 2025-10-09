@@ -9,10 +9,14 @@ import tsParser from "@typescript-eslint/parser";
 import tseslint from "typescript-eslint";
 
 export default defineConfig([
+  // Global ignores
+  {
+    ignores: ["dist/**", "node_modules/**", "coverage/**", "build/**"],
+  },
   // Config for source files with TypeScript project
   {
     files: ["src/**/*.{js,mjs,cjs,ts,mts,cts}"],
-    ignores: ["dist/**", "node_modules/**", "coverage/**", "eslint.config.mts"],
+    ignores: ["eslint.config.mts"],
     languageOptions: {
       parser: tsParser,
       parserOptions: {
@@ -55,7 +59,6 @@ export default defineConfig([
       "__tests__/**/*.{js,mjs,cjs,ts,mts,cts}",
       "__mocks__/**/*.{js,mjs,cjs,ts,mts,cts}",
     ],
-    ignores: ["dist/**", "node_modules/**", "coverage/**"],
     languageOptions: {
       parser: tsParser,
       parserOptions: {

@@ -59,18 +59,13 @@ describe("JsonWebTokenJWTAdapter", () => {
       expect(adapter["refreshTokenExpiry"]).toBe("14d");
     });
 
-    it("should use default values when environment variables are not provided", () => {
+    it("should throw ConfigurationError when JWT secrets are not provided", () => {
       delete process.env.JWT_ACCESS_SECRET;
       delete process.env.JWT_REFRESH_SECRET;
-      delete process.env.JWT_ACCESS_EXPIRY;
-      delete process.env.JWT_REFRESH_EXPIRY;
 
-      const adapter = new JsonWebTokenHandlerAdapter();
-
-      expect(adapter["accessTokenSecret"]).toBe("your-access-secret");
-      expect(adapter["refreshTokenSecret"]).toBe("your-refresh-secret");
-      expect(adapter["accessTokenExpiry"]).toBe("15m");
-      expect(adapter["refreshTokenExpiry"]).toBe("7d");
+      expect(() => new JsonWebTokenHandlerAdapter()).toThrow(
+        "Erro de configuração: JWT_ACCESS_SECRET e JWT_REFRESH_SECRET devem ser configurados via variáveis de ambiente",
+      );
     });
   });
 
@@ -613,18 +608,13 @@ describe("JsonWebTokenJWTAdapter", () => {
   });
 
   describe("environment variable edge cases", () => {
-    it("should handle empty environment variables", () => {
+    it("should throw ConfigurationError when JWT secrets are empty", () => {
       process.env.JWT_ACCESS_SECRET = "";
       process.env.JWT_REFRESH_SECRET = "";
-      process.env.JWT_ACCESS_EXPIRY = "";
-      process.env.JWT_REFRESH_EXPIRY = "";
 
-      const adapter = new JsonWebTokenHandlerAdapter();
-
-      expect(adapter["accessTokenSecret"]).toBe("your-access-secret");
-      expect(adapter["refreshTokenSecret"]).toBe("your-refresh-secret");
-      expect(adapter["accessTokenExpiry"]).toBe("15m");
-      expect(adapter["refreshTokenExpiry"]).toBe("7d");
+      expect(() => new JsonWebTokenHandlerAdapter()).toThrow(
+        "Erro de configuração: JWT_ACCESS_SECRET e JWT_REFRESH_SECRET devem ser configurados via variáveis de ambiente",
+      );
     });
   });
 });

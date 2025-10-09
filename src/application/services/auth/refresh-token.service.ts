@@ -1,5 +1,4 @@
-import { Request } from "express";
-
+import { ACCESS_TOKEN_EXPIRY_SECONDS } from "../../../domain/constants";
 import {
   LoginOutputDTO,
   RefreshTokenInputDTO,
@@ -8,14 +7,14 @@ import {
   SessionRepository,
   UserRepository,
 } from "../../../domain/repositories";
-import { authSecurityLogger } from "../../../infra/adapters/middlewares";
 import { EntityNotFoundError, UnauthorizedError } from "../../errors";
-import { TokenHandlerProtocol } from "../../protocols";
+import { SecurityLoggerProtocol, TokenHandlerProtocol } from "../../protocols";
 
 interface RefreshTokenServiceDependencies {
   userRepository: UserRepository;
   sessionRepository: SessionRepository;
   tokenHandler: TokenHandlerProtocol;
+  securityLogger: SecurityLoggerProtocol;
 }
 
 export class RefreshTokenService {
@@ -24,9 +23,8 @@ export class RefreshTokenService {
   public readonly refreshToken = async (
     data: RefreshTokenInputDTO,
     ipAddress: string,
-    request?: Request,
   ): Promise<LoginOutputDTO> => {
-    const { sessionRepository, userRepository, tokenHandler } =
+    const { sessionRepository, userRepository, tokenHandler, securityLogger } =
       this.dependencies;
 
     try {
@@ -45,7 +43,7 @@ export class RefreshTokenService {
       // Verify session belongs to the same device/IP (optional security check)
       if (session.ipAddress !== ipAddress) {
         // Log security incident
-        authSecurityLogger.logLogin(false, session.userId, request, {
+        securityLogger.logLogin(false, session.userId, session.id, {
           reason: "IP address mismatch",
           originalIp: session.ipAddress,
           requestIp: ipAddress,
@@ -77,7 +75,7 @@ export class RefreshTokenService {
       await sessionRepository.updateToken(session.id, newAccessToken);
 
       // Log successful token refresh
-      authSecurityLogger.logTokenRefresh(user.id, request);
+      securityLogger.logTokenRefresh(user.id);
 
       return {
         accessToken: newAccessToken,
@@ -87,7 +85,7 @@ export class RefreshTokenService {
           militaryId: user.military.id,
           role: user.role,
         },
-        expiresIn: 15 * 60, // 15 minutes in seconds
+        expiresIn: ACCESS_TOKEN_EXPIRY_SECONDS,
       };
     } catch (error) {
       if (

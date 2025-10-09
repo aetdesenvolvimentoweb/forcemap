@@ -1,29 +1,26 @@
-import { Request } from "express";
-
 import { LoginInputDTO, LoginOutputDTO } from "../../../domain/dtos/auth";
 import { User } from "../../../domain/entities";
 import {
   MilitaryRepository,
-  SessionRepository,
   UserRepository,
 } from "../../../domain/repositories";
-import { authSecurityLogger } from "../../../infra/adapters/middlewares";
 import { TooManyRequestsError, UnauthorizedError } from "../../errors";
 import {
   PasswordHasherProtocol,
-  RateLimiterProtocol,
-  TokenHandlerProtocol,
+  SecurityLoggerProtocol,
   UserCredentialsInputDTOSanitizerProtocol,
 } from "../../protocols";
+import { RateLimitingService } from "./rate-limiting.service";
+import { SessionManagementService } from "./session-management.service";
 
 interface LoginServiceDependencies {
   userRepository: UserRepository;
   militaryRepository: MilitaryRepository;
-  sessionRepository: SessionRepository;
-  tokenHandler: TokenHandlerProtocol;
   userCredentialsInputDTOSanitizer: UserCredentialsInputDTOSanitizerProtocol;
   passwordHasher: PasswordHasherProtocol;
-  rateLimiter: RateLimiterProtocol;
+  rateLimitingService: RateLimitingService;
+  sessionManagementService: SessionManagementService;
+  securityLogger: SecurityLoggerProtocol;
 }
 
 /**
@@ -50,16 +47,16 @@ export class LoginService {
     data: LoginInputDTO,
     ipAddress: string,
     userAgent: string,
-    request?: Request,
   ): Promise<LoginOutputDTO> => {
-    const { userCredentialsInputDTOSanitizer } = this.dependencies;
+    const { userCredentialsInputDTOSanitizer, rateLimitingService } =
+      this.dependencies;
 
     // Sanitize credentials
     const sanitizedCredentials =
       userCredentialsInputDTOSanitizer.sanitize(data);
 
     // Validate rate limits
-    const { ipLimitKey, rgLimitKey } = await this.validateRateLimit(
+    const rateLimitKeys = await rateLimitingService.validateLoginAttempt(
       ipAddress,
       sanitizedCredentials.rg,
     );
@@ -68,23 +65,23 @@ export class LoginService {
       // Validate credentials and get user data
       const { user } = await this.validateCredentials(
         sanitizedCredentials,
-        ipLimitKey,
-        rgLimitKey,
+        rateLimitKeys,
       );
 
       // Create user session and generate tokens
-      const { accessToken, refreshToken } = await this.createUserSession(
-        user,
-        ipAddress,
-        userAgent,
-        data.deviceInfo,
-      );
+      const { accessToken, refreshToken, sessionId, expiresIn } =
+        await this.dependencies.sessionManagementService.createSession(
+          user,
+          ipAddress,
+          userAgent,
+          data.deviceInfo,
+        );
 
       // Reset rate limits on successful login
-      await this.resetRateLimit(ipLimitKey, rgLimitKey);
+      await rateLimitingService.resetLimits(rateLimitKeys);
 
       // Log successful login
-      authSecurityLogger.logLogin(true, user.id, request, {
+      this.dependencies.securityLogger.logLogin(true, user.id, sessionId, {
         rg: sanitizedCredentials.rg,
         militaryId: user.militaryId,
         userAgent,
@@ -92,7 +89,12 @@ export class LoginService {
       });
 
       // Build and return response
-      return this.buildLoginResponse(user, accessToken, refreshToken);
+      return this.buildLoginResponse(
+        user,
+        accessToken,
+        refreshToken,
+        expiresIn,
+      );
     } catch (error) {
       if (
         error instanceof UnauthorizedError ||
@@ -102,82 +104,26 @@ export class LoginService {
       }
 
       // Record failed attempt for any other error
-      const { rateLimiter } = this.dependencies;
-      await this.recordFailedAttempt(ipLimitKey, rgLimitKey, rateLimiter);
+      await rateLimitingService.recordFailedAttempt(rateLimitKeys);
       throw new UnauthorizedError("Erro no processo de autenticação");
     }
   };
 
-  private readonly validateRateLimit = async (
-    ipAddress: string,
-    rg: number,
-  ): Promise<{ ipLimitKey: string; rgLimitKey: string }> => {
-    const { rateLimiter } = this.dependencies;
-
-    // Configurações de rate limit via ENV
-    const ipMaxAttempts =
-      Number(process.env.RATE_LIMIT_LOGIN_IP_MAX_ATTEMPTS) || 10;
-    const userMaxAttempts =
-      Number(process.env.RATE_LIMIT_LOGIN_USER_MAX_ATTEMPTS) || 5;
-    const windowMinutes =
-      Number(process.env.RATE_LIMIT_LOGIN_WINDOW_MINUTES) || 15;
-    const windowMs = windowMinutes * 60 * 1000;
-
-    const ipLimitKey = `login:ip:${ipAddress}`;
-    const ipLimit = await rateLimiter.checkLimit(
-      ipLimitKey,
-      ipMaxAttempts,
-      windowMs,
-    );
-
-    if (!ipLimit.allowed) {
-      authSecurityLogger.logLoginBlocked(
-        ipAddress,
-        undefined,
-        "Rate limit por IP excedido",
-      );
-      throw new TooManyRequestsError(
-        `Muitas tentativas de login. Tente novamente em ${Math.ceil(
-          (ipLimit.resetTime.getTime() - Date.now()) / 60000,
-        )} minutos.`,
-      );
-    }
-
-    const rgLimitKey = `login:rg:${rg}`;
-    const rgLimit = await rateLimiter.checkLimit(
-      rgLimitKey,
-      userMaxAttempts,
-      windowMs,
-    );
-
-    if (!rgLimit.allowed) {
-      authSecurityLogger.logLoginBlocked(
-        `RG:${rg}`,
-        undefined,
-        "Rate limit por usuário excedido",
-      );
-      throw new TooManyRequestsError(
-        `Muitas tentativas para este usuário. Tente novamente em ${Math.ceil(
-          (rgLimit.resetTime.getTime() - Date.now()) / 60000,
-        )} minutos.`,
-      );
-    }
-
-    return { ipLimitKey, rgLimitKey };
-  };
-
   private readonly validateCredentials = async (
     sanitizedCredentials: { rg: number; password: string },
-    ipLimitKey: string,
-    rgLimitKey: string,
+    rateLimitKeys: { ipLimitKey: string; rgLimitKey: string },
   ): Promise<{ user: User }> => {
-    const { userRepository, militaryRepository, passwordHasher, rateLimiter } =
-      this.dependencies;
+    const {
+      userRepository,
+      militaryRepository,
+      passwordHasher,
+      rateLimitingService,
+    } = this.dependencies;
 
     const military = await militaryRepository.findByRg(sanitizedCredentials.rg);
     if (!military) {
-      await this.recordFailedAttempt(ipLimitKey, rgLimitKey, rateLimiter);
-      authSecurityLogger.logLogin(
+      await rateLimitingService.recordFailedAttempt(rateLimitKeys);
+      this.dependencies.securityLogger.logLogin(
         false,
         `RG:${sanitizedCredentials.rg}`,
         undefined,
@@ -192,8 +138,8 @@ export class LoginService {
     const user = await userRepository.findByMilitaryIdWithPassword(military.id);
 
     if (!user) {
-      await this.recordFailedAttempt(ipLimitKey, rgLimitKey, rateLimiter);
-      authSecurityLogger.logLogin(
+      await rateLimitingService.recordFailedAttempt(rateLimitKeys);
+      this.dependencies.securityLogger.logLogin(
         false,
         `RG:${sanitizedCredentials.rg}`,
         undefined,
@@ -212,8 +158,8 @@ export class LoginService {
     );
 
     if (!passwordMatch) {
-      await this.recordFailedAttempt(ipLimitKey, rgLimitKey, rateLimiter);
-      authSecurityLogger.logLogin(false, user.id, undefined, {
+      await rateLimitingService.recordFailedAttempt(rateLimitKeys);
+      this.dependencies.securityLogger.logLogin(false, user.id, undefined, {
         reason: "Senha incorreta",
         rg: sanitizedCredentials.rg,
         userId: user.id,
@@ -224,54 +170,11 @@ export class LoginService {
     return { user };
   };
 
-  private readonly createUserSession = async (
-    user: User,
-    ipAddress: string,
-    userAgent: string,
-    deviceInfo?: string,
-  ): Promise<{ accessToken: string; refreshToken: string }> => {
-    const { sessionRepository, tokenHandler } = this.dependencies;
-
-    await sessionRepository.deactivateAllUserSessions(user.id);
-
-    const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + 7);
-
-    const finalDeviceInfo = deviceInfo || `${userAgent.substring(0, 100)}`;
-
-    const session = await sessionRepository.create({
-      userId: user.id,
-      token: "temp",
-      refreshToken: "temp",
-      deviceInfo: finalDeviceInfo,
-      ipAddress,
-      userAgent,
-      isActive: true,
-      expiresAt,
-    });
-
-    const accessToken = tokenHandler.generateAccessToken({
-      userId: user.id,
-      sessionId: session.id,
-      role: user.role,
-      militaryId: user.militaryId,
-    });
-
-    const refreshToken = tokenHandler.generateRefreshToken({
-      userId: user.id,
-      sessionId: session.id,
-    });
-
-    await sessionRepository.updateToken(session.id, accessToken);
-    await sessionRepository.updateRefreshToken(session.id, refreshToken);
-
-    return { accessToken, refreshToken };
-  };
-
   private readonly buildLoginResponse = (
     user: User,
     accessToken: string,
     refreshToken: string,
+    expiresIn: number,
   ): LoginOutputDTO => {
     return {
       accessToken,
@@ -281,25 +184,7 @@ export class LoginService {
         militaryId: user.militaryId,
         role: user.role,
       },
-      expiresIn: 15 * 60,
+      expiresIn,
     };
-  };
-
-  private readonly resetRateLimit = async (
-    ipLimitKey: string,
-    rgLimitKey: string,
-  ): Promise<void> => {
-    const { rateLimiter } = this.dependencies;
-    await rateLimiter.reset(ipLimitKey);
-    await rateLimiter.reset(rgLimitKey);
-  };
-
-  private readonly recordFailedAttempt = async (
-    ipLimitKey: string,
-    rgLimitKey: string,
-    rateLimiter: RateLimiterProtocol,
-  ): Promise<void> => {
-    await rateLimiter.recordAttempt(ipLimitKey, 15 * 60 * 1000);
-    await rateLimiter.recordAttempt(rgLimitKey, 15 * 60 * 1000);
   };
 }
