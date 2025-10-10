@@ -113,61 +113,68 @@ export class LoginService {
     sanitizedCredentials: { rg: number; password: string },
     rateLimitKeys: { ipLimitKey: string; rgLimitKey: string },
   ): Promise<{ user: User }> => {
-    const {
-      userRepository,
-      militaryRepository,
-      passwordHasher,
-      rateLimitingService,
-    } = this.dependencies;
+    const { userRepository, militaryRepository, passwordHasher } =
+      this.dependencies;
 
     const military = await militaryRepository.findByRg(sanitizedCredentials.rg);
     if (!military) {
-      await rateLimitingService.recordFailedAttempt(rateLimitKeys);
-      this.dependencies.securityLogger.logLogin(
-        false,
-        `RG:${sanitizedCredentials.rg}`,
-        undefined,
-        {
-          reason: "RG não encontrado",
-          rg: sanitizedCredentials.rg,
-        },
-      );
-      throw new UnauthorizedError("Credenciais inválidas");
+      return this.handleAuthenticationFailure(rateLimitKeys, {
+        identifier: `RG:${sanitizedCredentials.rg}`,
+        reason: "RG não encontrado",
+        metadata: { rg: sanitizedCredentials.rg },
+      });
     }
 
     const user = await userRepository.findByMilitaryIdWithPassword(military.id);
-
     if (!user) {
-      await rateLimitingService.recordFailedAttempt(rateLimitKeys);
-      this.dependencies.securityLogger.logLogin(
-        false,
-        `RG:${sanitizedCredentials.rg}`,
-        undefined,
-        {
-          reason: "Usuário não encontrado para o militar",
+      return this.handleAuthenticationFailure(rateLimitKeys, {
+        identifier: `RG:${sanitizedCredentials.rg}`,
+        reason: "Usuário não encontrado para o militar",
+        metadata: {
           rg: sanitizedCredentials.rg,
           militaryId: military.id,
         },
-      );
-      throw new UnauthorizedError("Credenciais inválidas");
+      });
     }
 
     const passwordMatch = await passwordHasher.compare(
       sanitizedCredentials.password,
       user.password,
     );
-
     if (!passwordMatch) {
-      await rateLimitingService.recordFailedAttempt(rateLimitKeys);
-      this.dependencies.securityLogger.logLogin(false, user.id, undefined, {
+      return this.handleAuthenticationFailure(rateLimitKeys, {
+        identifier: user.id,
         reason: "Senha incorreta",
-        rg: sanitizedCredentials.rg,
-        userId: user.id,
+        metadata: {
+          rg: sanitizedCredentials.rg,
+          userId: user.id,
+        },
       });
-      throw new UnauthorizedError("Credenciais inválidas");
     }
 
     return { user };
+  };
+
+  /**
+   * Trata falhas de autenticação de forma centralizada.
+   * Registra tentativa falhada, loga o evento e lança exceção.
+   */
+  private readonly handleAuthenticationFailure = async (
+    rateLimitKeys: { ipLimitKey: string; rgLimitKey: string },
+    failureData: {
+      identifier: string;
+      reason: string;
+      metadata: Record<string, unknown>;
+    },
+  ): Promise<never> => {
+    const { rateLimitingService, securityLogger } = this.dependencies;
+
+    await rateLimitingService.recordFailedAttempt(rateLimitKeys);
+    securityLogger.logLogin(false, failureData.identifier, undefined, {
+      reason: failureData.reason,
+      ...failureData.metadata,
+    });
+    throw new UnauthorizedError("Credenciais inválidas");
   };
 
   private readonly buildLoginResponse = (
