@@ -3,6 +3,7 @@ import { makePasswordHasher } from "../../hasher";
 import {
   makeMilitaryRankRepository,
   makeMilitaryRepository,
+  makeSessionRepository,
   makeUserRepository,
 } from "../../repositories";
 import {
@@ -25,6 +26,7 @@ export const makeUserDomainServices = (): UserDomainServices => {
   const militaryRankRepository = makeMilitaryRankRepository();
   const militaryRepository = makeMilitaryRepository(militaryRankRepository);
   const repository = makeUserRepository(militaryRepository);
+  const sessionRepository = makeSessionRepository();
   const passwordHasher = makePasswordHasher();
 
   // Validators
@@ -50,6 +52,7 @@ export const makeUserDomainServices = (): UserDomainServices => {
 
   return {
     repository,
+    sessionRepository,
     passwordHasher,
 
     // Validators

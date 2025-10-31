@@ -1,4 +1,7 @@
-import { UserRepository } from "../../../domain/repositories";
+import {
+  SessionRepository,
+  UserRepository,
+} from "../../../domain/repositories";
 import {
   IdSanitizerProtocol,
   IdValidatorProtocol,
@@ -16,6 +19,7 @@ import {
 
 export interface UserDomainServices {
   repository: UserRepository;
+  sessionRepository: SessionRepository;
   passwordHasher: PasswordHasherProtocol;
 
   // Validators

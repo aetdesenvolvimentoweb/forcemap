@@ -12,6 +12,7 @@ export class UpdateUserPasswordService implements UpdateUserPasswordUseCase {
   ): Promise<void> => {
     const {
       repository,
+      sessionRepository,
       passwordHasher,
       idSanitizer,
       updateUserPasswordSanitizer,
@@ -39,5 +40,8 @@ export class UpdateUserPasswordService implements UpdateUserPasswordUseCase {
     };
 
     await repository.updateUserPassword(sanitizedUserId, passwordHashedData);
+
+    // Invalida todas as sessões do usuário após alterar a senha (segurança)
+    await sessionRepository.deactivateAllUserSessions(sanitizedUserId);
   };
 }
