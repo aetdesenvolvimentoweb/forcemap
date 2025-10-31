@@ -27,3 +27,7 @@ export const ok = <T>(data: T): HttpResponse => {
 export const noContent = (): HttpResponse => {
   return { statusCode: 204 };
 };
+
+export const forbidden = (message: string): HttpResponse => {
+  return { body: { error: message }, statusCode: 403 };
+};

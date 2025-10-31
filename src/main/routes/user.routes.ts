@@ -13,7 +13,7 @@ import { makeGlobalLogger } from "../factories/logger";
 import { makeExpressAuthMiddleware } from "../factories/middlewares";
 
 const userRoutes = Router();
-const { requireAuthWithRoles } = makeExpressAuthMiddleware();
+const { requireAuth, requireAuthWithRoles } = makeExpressAuthMiddleware();
 const logger = makeGlobalLogger();
 
 // Todas as rotas de usuário requerem autenticação mínima
@@ -48,9 +48,10 @@ userRoutes.get(
   expressRouteAdapter(makeFindByIdUserController(), logger),
 );
 
+// Apenas o próprio usuário pode alterar sua senha (LGPD)
 userRoutes.patch(
   "/user/update-password/:id",
-  requireAuthWithRoles(["Admin", "Chefe"]),
+  requireAuth,
   expressRouteAdapter(makeUpdateUserPasswordController(), logger),
 );
 

@@ -12,11 +12,13 @@ import { HttpRequest } from "../../../../../src/presentation/protocols";
 
 describe("UpdateUserPasswordController", () => {
   let sut: UpdateUserPasswordController;
-  let mockedService = mockUpdateUserPasswordService();
-  let mockedLogger = mockLogger();
+  let mockedService: ReturnType<typeof mockUpdateUserPasswordService>;
+  let mockedLogger: ReturnType<typeof mockLogger>;
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockedService = mockUpdateUserPasswordService();
+    mockedLogger = mockLogger();
     sut = new UpdateUserPasswordController({
       updateUserPasswordService: mockedService,
       logger: mockedLogger,
@@ -32,6 +34,12 @@ describe("UpdateUserPasswordController", () => {
     const validRequest: HttpRequest<UpdateUserInputDTO> = {
       params: { id: "user-123" },
       body: validBody,
+      user: {
+        userId: "user-123",
+        sessionId: "session-123",
+        role: "ACA",
+        militaryId: "military-123",
+      },
     };
 
     it("should update user password successfully with valid data", async () => {
@@ -72,6 +80,7 @@ describe("UpdateUserPasswordController", () => {
         "Senha do usuário atualizada com sucesso",
         {
           id: "user-123",
+          updatedBy: "user-123",
         },
       );
     });
@@ -252,10 +261,22 @@ describe("UpdateUserPasswordController", () => {
       const request1: HttpRequest<UpdateUserInputDTO> = {
         params: { id: "user-1" },
         body: body1,
+        user: {
+          userId: "user-1",
+          sessionId: "session-1",
+          role: "ACA",
+          militaryId: "military-1",
+        },
       };
       const request2: HttpRequest<UpdateUserInputDTO> = {
         params: { id: "user-2" },
         body: body2,
+        user: {
+          userId: "user-2",
+          sessionId: "session-2",
+          role: "ACA",
+          militaryId: "military-2",
+        },
       };
 
       mockedService.updateUserPassword.mockResolvedValue();
@@ -289,6 +310,12 @@ describe("UpdateUserPasswordController", () => {
       const request: HttpRequest<UpdateUserInputDTO> = {
         params: { id: "user-complex" },
         body: complexBody,
+        user: {
+          userId: "user-complex",
+          sessionId: "session-complex",
+          role: "ACA",
+          militaryId: "military-complex",
+        },
       };
 
       mockedService.updateUserPassword.mockResolvedValueOnce();
@@ -333,6 +360,12 @@ describe("UpdateUserPasswordController", () => {
       const requestWithSpecialId: HttpRequest<UpdateUserInputDTO> = {
         params: { id: "user-123-àáâã" },
         body: validBody,
+        user: {
+          userId: "user-123-àáâã",
+          sessionId: "session-123",
+          role: "ACA",
+          militaryId: "military-123",
+        },
       };
 
       mockedService.updateUserPassword.mockResolvedValueOnce();
@@ -370,6 +403,12 @@ describe("UpdateUserPasswordController", () => {
       const requestWithComplexPasswords: HttpRequest<UpdateUserInputDTO> = {
         params: { id: "user-456" },
         body: complexPasswordBody,
+        user: {
+          userId: "user-456",
+          sessionId: "session-456",
+          role: "ACA",
+          militaryId: "military-456",
+        },
       };
 
       mockedService.updateUserPassword.mockResolvedValueOnce();
@@ -398,6 +437,12 @@ describe("UpdateUserPasswordController", () => {
       const result = await sut.handle({
         params: { id: "user-123" },
         body: weakPasswordBody,
+        user: {
+          userId: "user-123",
+          sessionId: "session-123",
+          role: "ACA",
+          militaryId: "military-123",
+        },
       });
 
       expect(result).toEqual({
@@ -421,6 +466,12 @@ describe("UpdateUserPasswordController", () => {
       const result = await sut.handle({
         params: { id: "user-123" },
         body: samePasswordBody,
+        user: {
+          userId: "user-123",
+          sessionId: "session-123",
+          role: "ACA",
+          militaryId: "military-123",
+        },
       });
 
       expect(result).toEqual({
@@ -440,6 +491,12 @@ describe("UpdateUserPasswordController", () => {
       await sut.handle({
         params: { id: "user-sensitive" },
         body: sensitiveBody,
+        user: {
+          userId: "user-sensitive",
+          sessionId: "session-sensitive",
+          role: "ACA",
+          militaryId: "military-sensitive",
+        },
       });
 
       // Verify that password information is logged (as per the controller implementation)
@@ -455,6 +512,7 @@ describe("UpdateUserPasswordController", () => {
         "Senha do usuário atualizada com sucesso",
         {
           id: "user-sensitive",
+          updatedBy: "user-sensitive",
         },
       );
     });
@@ -463,6 +521,12 @@ describe("UpdateUserPasswordController", () => {
       const numericIdRequest: HttpRequest<UpdateUserInputDTO> = {
         params: { id: "12345" },
         body: validBody,
+        user: {
+          userId: "12345",
+          sessionId: "session-123",
+          role: "ACA",
+          militaryId: "military-123",
+        },
       };
 
       mockedService.updateUserPassword.mockResolvedValueOnce();
@@ -473,6 +537,227 @@ describe("UpdateUserPasswordController", () => {
       expect(mockedService.updateUserPassword).toHaveBeenCalledWith(
         "12345",
         validBody,
+      );
+    });
+  });
+
+  describe("authorization", () => {
+    const validBody: UpdateUserInputDTO = {
+      currentPassword: "currentPassword123",
+      newPassword: "newPassword456",
+    };
+
+    it("should return forbidden when user is not authenticated", async () => {
+      const requestWithoutAuth: HttpRequest<UpdateUserInputDTO> = {
+        params: { id: "user-123" },
+        body: validBody,
+      };
+
+      const result = await sut.handle(requestWithoutAuth);
+
+      expect(result).toEqual({
+        statusCode: 403,
+        body: { error: "Usuário não autenticado" },
+      });
+      expect(mockedService.updateUserPassword).not.toHaveBeenCalled();
+      expect(mockedLogger.warn).toHaveBeenCalledWith(
+        "Tentativa de atualizar senha sem autenticação",
+        { id: "user-123" },
+      );
+    });
+
+    it("should allow user to update their own password", async () => {
+      const requestWithOwnUser: HttpRequest<UpdateUserInputDTO> = {
+        params: { id: "user-123" },
+        body: validBody,
+        user: {
+          userId: "user-123",
+          sessionId: "session-123",
+          role: "ACA",
+          militaryId: "military-123",
+        },
+      };
+
+      mockedService.updateUserPassword.mockResolvedValueOnce();
+
+      const result = await sut.handle(requestWithOwnUser);
+
+      expect(result).toEqual({ statusCode: 204 });
+      expect(mockedService.updateUserPassword).toHaveBeenCalledWith(
+        "user-123",
+        validBody,
+      );
+    });
+
+    it("should prevent user from updating another user's password", async () => {
+      const requestWithDifferentUser: HttpRequest<UpdateUserInputDTO> = {
+        params: { id: "user-456" },
+        body: validBody,
+        user: {
+          userId: "user-123",
+          sessionId: "session-123",
+          role: "ACA",
+          militaryId: "military-123",
+        },
+      };
+
+      const result = await sut.handle(requestWithDifferentUser);
+
+      expect(result).toEqual({
+        statusCode: 403,
+        body: {
+          error: "Você só pode alterar sua própria senha",
+        },
+      });
+      expect(mockedService.updateUserPassword).not.toHaveBeenCalled();
+      expect(mockedLogger.warn).toHaveBeenCalledWith(
+        "Usuário tentou alterar senha de outro usuário",
+        {
+          requestingUserId: "user-123",
+          targetUserId: "user-456",
+          role: "ACA",
+        },
+      );
+    });
+
+    it("should prevent Admin from updating another user's password (LGPD)", async () => {
+      const adminRequest: HttpRequest<UpdateUserInputDTO> = {
+        params: { id: "user-456" },
+        body: validBody,
+        user: {
+          userId: "admin-123",
+          sessionId: "session-admin",
+          role: "Admin",
+          militaryId: "military-admin",
+        },
+      };
+
+      const result = await sut.handle(adminRequest);
+
+      expect(result).toEqual({
+        statusCode: 403,
+        body: {
+          error: "Você só pode alterar sua própria senha",
+        },
+      });
+      expect(mockedService.updateUserPassword).not.toHaveBeenCalled();
+      expect(mockedLogger.warn).toHaveBeenCalledWith(
+        "Usuário tentou alterar senha de outro usuário",
+        {
+          requestingUserId: "admin-123",
+          targetUserId: "user-456",
+          role: "Admin",
+        },
+      );
+    });
+
+    it("should prevent Chefe from updating another user's password (LGPD)", async () => {
+      const chefeRequest: HttpRequest<UpdateUserInputDTO> = {
+        params: { id: "user-789" },
+        body: validBody,
+        user: {
+          userId: "chefe-123",
+          sessionId: "session-chefe",
+          role: "Chefe",
+          militaryId: "military-chefe",
+        },
+      };
+
+      const result = await sut.handle(chefeRequest);
+
+      expect(result).toEqual({
+        statusCode: 403,
+        body: {
+          error: "Você só pode alterar sua própria senha",
+        },
+      });
+      expect(mockedService.updateUserPassword).not.toHaveBeenCalled();
+      expect(mockedLogger.warn).toHaveBeenCalledWith(
+        "Usuário tentou alterar senha de outro usuário",
+        {
+          requestingUserId: "chefe-123",
+          targetUserId: "user-789",
+          role: "Chefe",
+        },
+      );
+    });
+
+    it("should prevent Sargento from updating another user's password", async () => {
+      const sargentoRequest: HttpRequest<UpdateUserInputDTO> = {
+        params: { id: "user-999" },
+        body: validBody,
+        user: {
+          userId: "sargento-123",
+          sessionId: "session-sargento",
+          role: "Sargento",
+          militaryId: "military-sargento",
+        },
+      };
+
+      const result = await sut.handle(sargentoRequest);
+
+      expect(result).toEqual({
+        statusCode: 403,
+        body: {
+          error: "Você só pode alterar sua própria senha",
+        },
+      });
+      expect(mockedService.updateUserPassword).not.toHaveBeenCalled();
+      expect(mockedLogger.warn).toHaveBeenCalledWith(
+        "Usuário tentou alterar senha de outro usuário",
+        {
+          requestingUserId: "sargento-123",
+          targetUserId: "user-999",
+          role: "Sargento",
+        },
+      );
+    });
+
+    it("should allow Sargento to update their own password", async () => {
+      const sargentoOwnRequest: HttpRequest<UpdateUserInputDTO> = {
+        params: { id: "sargento-123" },
+        body: validBody,
+        user: {
+          userId: "sargento-123",
+          sessionId: "session-sargento",
+          role: "Sargento",
+          militaryId: "military-sargento",
+        },
+      };
+
+      mockedService.updateUserPassword.mockResolvedValueOnce();
+
+      const result = await sut.handle(sargentoOwnRequest);
+
+      expect(result).toEqual({ statusCode: 204 });
+      expect(mockedService.updateUserPassword).toHaveBeenCalledWith(
+        "sargento-123",
+        validBody,
+      );
+    });
+
+    it("should log who updated their own password", async () => {
+      const userRequest: HttpRequest<UpdateUserInputDTO> = {
+        params: { id: "user-self-update" },
+        body: validBody,
+        user: {
+          userId: "user-self-update",
+          sessionId: "session-user",
+          role: "ACA",
+          militaryId: "military-user",
+        },
+      };
+
+      mockedService.updateUserPassword.mockResolvedValueOnce();
+
+      await sut.handle(userRequest);
+
+      expect(mockedLogger.info).toHaveBeenCalledWith(
+        "Senha do usuário atualizada com sucesso",
+        {
+          id: "user-self-update",
+          updatedBy: "user-self-update",
+        },
       );
     });
   });
