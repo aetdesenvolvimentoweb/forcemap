@@ -12,16 +12,24 @@ import { HttpRequest } from "../../../../../src/presentation/protocols";
 
 describe("UpdateUserRoleController", () => {
   let sut: UpdateUserRoleController;
-  let mockedService = mockUpdateUserRoleService();
-  let mockedLogger = mockLogger();
+  let mockedService: ReturnType<typeof mockUpdateUserRoleService>;
+  let mockedLogger: ReturnType<typeof mockLogger>;
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    mockedService = mockUpdateUserRoleService();
+    mockedLogger = mockLogger();
     sut = new UpdateUserRoleController({
       updateUserRoleService: mockedService,
       logger: mockedLogger,
     });
   });
+
+  const defaultAdminUser = {
+    userId: "admin-user",
+    sessionId: "session-123",
+    role: "Admin" as const,
+    militaryId: "military-admin",
+  };
 
   describe("handle", () => {
     const validBody = {
@@ -31,6 +39,12 @@ describe("UpdateUserRoleController", () => {
     const validRequest: HttpRequest<{ role: UserRole }> = {
       params: { id: "user-123" },
       body: validBody,
+      user: {
+        userId: "admin-user",
+        sessionId: "session-123",
+        role: "Admin",
+        militaryId: "military-admin",
+      },
     };
 
     it("should update user role successfully with valid data", async () => {
@@ -74,6 +88,7 @@ describe("UpdateUserRoleController", () => {
         {
           id: "user-123",
           role: UserRole.ADMIN,
+          updatedBy: "admin-user",
         },
       );
     });
@@ -239,6 +254,7 @@ describe("UpdateUserRoleController", () => {
       const adminRequest: HttpRequest<{ role: UserRole }> = {
         params: { id: "user-456" },
         body: { role: UserRole.ADMIN },
+        user: defaultAdminUser,
       };
 
       mockedService.updateUserRole.mockResolvedValueOnce();
@@ -256,6 +272,7 @@ describe("UpdateUserRoleController", () => {
       const chefeRequest: HttpRequest<{ role: UserRole }> = {
         params: { id: "user-789" },
         body: { role: UserRole.CHEFE },
+        user: defaultAdminUser,
       };
 
       mockedService.updateUserRole.mockResolvedValueOnce();
@@ -273,6 +290,7 @@ describe("UpdateUserRoleController", () => {
       const bombeiroRequest: HttpRequest<{ role: UserRole }> = {
         params: { id: "user-101" },
         body: { role: UserRole.BOMBEIRO },
+        user: defaultAdminUser,
       };
 
       mockedService.updateUserRole.mockResolvedValueOnce();
@@ -290,10 +308,12 @@ describe("UpdateUserRoleController", () => {
       const request1: HttpRequest<{ role: UserRole }> = {
         params: { id: "user-1" },
         body: { role: UserRole.ADMIN },
+        user: defaultAdminUser,
       };
       const request2: HttpRequest<{ role: UserRole }> = {
         params: { id: "user-2" },
         body: { role: UserRole.CHEFE },
+        user: defaultAdminUser,
       };
 
       mockedService.updateUserRole.mockResolvedValue();
@@ -322,6 +342,7 @@ describe("UpdateUserRoleController", () => {
       const complexRequest: HttpRequest<{ role: UserRole }> = {
         params: { id: "user-complex" },
         body: { role: UserRole.BOMBEIRO },
+        user: defaultAdminUser,
       };
 
       mockedService.updateUserRole.mockResolvedValueOnce();
@@ -360,6 +381,7 @@ describe("UpdateUserRoleController", () => {
       const specialIdRequest: HttpRequest<{ role: UserRole }> = {
         params: { id: "user-123-àáâã" },
         body: { role: UserRole.ADMIN },
+        user: defaultAdminUser,
       };
 
       mockedService.updateUserRole.mockResolvedValueOnce();
@@ -392,6 +414,7 @@ describe("UpdateUserRoleController", () => {
       const promotionRequest: HttpRequest<{ role: UserRole }> = {
         params: { id: "user-promotion" },
         body: { role: UserRole.ADMIN },
+        user: defaultAdminUser,
       };
 
       mockedService.updateUserRole.mockResolvedValueOnce();
@@ -409,6 +432,7 @@ describe("UpdateUserRoleController", () => {
         {
           id: "user-promotion",
           role: UserRole.ADMIN,
+          updatedBy: "admin-user",
         },
       );
     });
@@ -417,6 +441,7 @@ describe("UpdateUserRoleController", () => {
       const demotionRequest: HttpRequest<{ role: UserRole }> = {
         params: { id: "user-demotion" },
         body: { role: UserRole.BOMBEIRO },
+        user: defaultAdminUser,
       };
 
       mockedService.updateUserRole.mockResolvedValueOnce();
@@ -434,6 +459,7 @@ describe("UpdateUserRoleController", () => {
         {
           id: "user-demotion",
           role: UserRole.BOMBEIRO,
+          updatedBy: "admin-user",
         },
       );
     });
@@ -463,6 +489,7 @@ describe("UpdateUserRoleController", () => {
       const result = await sut.handle({
         params: { id: "user-self" },
         body: { role: UserRole.ADMIN },
+        user: defaultAdminUser,
       });
 
       expect(result).toEqual({
@@ -476,14 +503,17 @@ describe("UpdateUserRoleController", () => {
         {
           params: { id: "user-admin" },
           body: { role: UserRole.ADMIN },
+          user: defaultAdminUser,
         },
         {
           params: { id: "user-chefe" },
           body: { role: UserRole.CHEFE },
+          user: defaultAdminUser,
         },
         {
           params: { id: "user-bombeiro" },
           body: { role: UserRole.BOMBEIRO },
+          user: defaultAdminUser,
         },
       ];
 
@@ -515,6 +545,12 @@ describe("UpdateUserRoleController", () => {
       const numericIdRequest: HttpRequest<{ role: UserRole }> = {
         params: { id: "12345" },
         body: { role: UserRole.CHEFE },
+        user: {
+          userId: "admin-user",
+          sessionId: "session-123",
+          role: "Admin",
+          militaryId: "military-admin",
+        },
       };
 
       mockedService.updateUserRole.mockResolvedValueOnce();
@@ -525,6 +561,202 @@ describe("UpdateUserRoleController", () => {
       expect(mockedService.updateUserRole).toHaveBeenCalledWith(
         "12345",
         UserRole.CHEFE,
+      );
+    });
+  });
+
+  describe("authorization", () => {
+    it("should return forbidden when user is not authenticated", async () => {
+      const requestWithoutAuth: HttpRequest<{ role: UserRole }> = {
+        params: { id: "user-123" },
+        body: { role: UserRole.ADMIN },
+      };
+
+      const result = await sut.handle(requestWithoutAuth);
+
+      expect(result).toEqual({
+        statusCode: 403,
+        body: { error: "Usuário não autenticado" },
+      });
+      expect(mockedService.updateUserRole).not.toHaveBeenCalled();
+      expect(mockedLogger.warn).toHaveBeenCalledWith(
+        "Tentativa de atualizar função sem autenticação",
+        { id: "user-123" },
+      );
+    });
+
+    it("should allow Admin to promote user to Admin", async () => {
+      const adminRequest: HttpRequest<{ role: UserRole }> = {
+        params: { id: "user-456" },
+        body: { role: UserRole.ADMIN },
+        user: {
+          userId: "admin-123",
+          sessionId: "session-admin",
+          role: "Admin",
+          militaryId: "military-admin",
+        },
+      };
+
+      mockedService.updateUserRole.mockResolvedValueOnce();
+
+      const result = await sut.handle(adminRequest);
+
+      expect(result).toEqual({ statusCode: 204 });
+      expect(mockedService.updateUserRole).toHaveBeenCalledWith(
+        "user-456",
+        UserRole.ADMIN,
+      );
+      expect(mockedLogger.info).toHaveBeenCalledWith(
+        "Função do usuário atualizada com sucesso",
+        {
+          id: "user-456",
+          role: UserRole.ADMIN,
+          updatedBy: "admin-123",
+        },
+      );
+    });
+
+    it("should prevent Chefe from promoting user to Admin", async () => {
+      const chefeRequest: HttpRequest<{ role: UserRole }> = {
+        params: { id: "user-789" },
+        body: { role: UserRole.ADMIN },
+        user: {
+          userId: "chefe-123",
+          sessionId: "session-chefe",
+          role: "Chefe",
+          militaryId: "military-chefe",
+        },
+      };
+
+      const result = await sut.handle(chefeRequest);
+
+      expect(result).toEqual({
+        statusCode: 403,
+        body: {
+          error:
+            "Chefes não podem promover usuários para Admin. Apenas Admin pode criar outros Admins.",
+        },
+      });
+      expect(mockedService.updateUserRole).not.toHaveBeenCalled();
+      expect(mockedLogger.warn).toHaveBeenCalledWith(
+        "Chefe tentou promover usuário para Admin (escalação de privilégios bloqueada)",
+        {
+          requestingUserId: "chefe-123",
+          requestingUserRole: "Chefe",
+          targetUserId: "user-789",
+          targetRole: UserRole.ADMIN,
+        },
+      );
+    });
+
+    it("should allow Chefe to promote user to Chefe", async () => {
+      const chefeRequest: HttpRequest<{ role: UserRole }> = {
+        params: { id: "user-999" },
+        body: { role: UserRole.CHEFE },
+        user: {
+          userId: "chefe-123",
+          sessionId: "session-chefe",
+          role: "Chefe",
+          militaryId: "military-chefe",
+        },
+      };
+
+      mockedService.updateUserRole.mockResolvedValueOnce();
+
+      const result = await sut.handle(chefeRequest);
+
+      expect(result).toEqual({ statusCode: 204 });
+      expect(mockedService.updateUserRole).toHaveBeenCalledWith(
+        "user-999",
+        UserRole.CHEFE,
+      );
+    });
+
+    it("should allow Chefe to change user to any non-Admin role", async () => {
+      const roles = [UserRole.CHEFE, UserRole.BOMBEIRO, UserRole.ACA];
+
+      for (const role of roles) {
+        jest.clearAllMocks();
+
+        const chefeRequest: HttpRequest<{ role: UserRole }> = {
+          params: { id: `user-${role}` },
+          body: { role },
+          user: {
+            userId: "chefe-123",
+            sessionId: "session-chefe",
+            role: "Chefe",
+            militaryId: "military-chefe",
+          },
+        };
+
+        mockedService.updateUserRole.mockResolvedValueOnce();
+
+        const result = await sut.handle(chefeRequest);
+
+        expect(result).toEqual({ statusCode: 204 });
+        expect(mockedService.updateUserRole).toHaveBeenCalledWith(
+          `user-${role}`,
+          role,
+        );
+      }
+    });
+
+    it("should allow Admin to change user to any role", async () => {
+      const roles = [
+        UserRole.ADMIN,
+        UserRole.CHEFE,
+        UserRole.BOMBEIRO,
+        UserRole.ACA,
+      ];
+
+      for (const role of roles) {
+        jest.clearAllMocks();
+
+        const adminRequest: HttpRequest<{ role: UserRole }> = {
+          params: { id: `user-${role}` },
+          body: { role },
+          user: {
+            userId: "admin-123",
+            sessionId: "session-admin",
+            role: "Admin",
+            militaryId: "military-admin",
+          },
+        };
+
+        mockedService.updateUserRole.mockResolvedValueOnce();
+
+        const result = await sut.handle(adminRequest);
+
+        expect(result).toEqual({ statusCode: 204 });
+        expect(mockedService.updateUserRole).toHaveBeenCalledWith(
+          `user-${role}`,
+          role,
+        );
+      }
+    });
+
+    it("should log escalation attempt when Chefe tries to create Admin", async () => {
+      const chefeRequest: HttpRequest<{ role: UserRole }> = {
+        params: { id: "target-user" },
+        body: { role: UserRole.ADMIN },
+        user: {
+          userId: "chefe-attempt",
+          sessionId: "session-chefe",
+          role: "Chefe",
+          militaryId: "military-chefe",
+        },
+      };
+
+      await sut.handle(chefeRequest);
+
+      expect(mockedLogger.warn).toHaveBeenCalledWith(
+        "Chefe tentou promover usuário para Admin (escalação de privilégios bloqueada)",
+        {
+          requestingUserId: "chefe-attempt",
+          requestingUserRole: "Chefe",
+          targetUserId: "target-user",
+          targetRole: UserRole.ADMIN,
+        },
       );
     });
   });
