@@ -1,4 +1,18 @@
-// Mock globalLogger before imports
+// Mock logger for tests
+const mockGlobalLogger = {
+  info: jest.fn(),
+  warn: jest.fn(),
+  error: jest.fn(),
+  debug: jest.fn(),
+};
+
+const resetGlobalLoggerMocks = () => {
+  mockGlobalLogger.info.mockClear();
+  mockGlobalLogger.warn.mockClear();
+  mockGlobalLogger.error.mockClear();
+  mockGlobalLogger.debug.mockClear();
+};
+
 import {
   mockMilitaryRankRepository,
   mockMilitaryRepository,
@@ -7,10 +21,6 @@ import {
 } from "../../../../__mocks__";
 import { UserRole } from "../../../../src/domain/entities";
 import { DatabaseSeed } from "../../../../src/main/seed";
-import {
-  mockGlobalLogger,
-  resetGlobalLoggerMocks,
-} from "../../../mocks/global.logger.mock";
 
 describe("DatabaseSeed", () => {
   let sut: DatabaseSeed;

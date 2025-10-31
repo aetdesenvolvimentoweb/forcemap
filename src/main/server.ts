@@ -4,7 +4,6 @@ dotenv.config();
 
 import express from "express";
 
-import { initGlobalLogger } from "../infra/adapters/global.logger";
 import {
   securityHeadersDev,
   securityHeadersProd,
@@ -16,9 +15,8 @@ import {
 } from "./factories/middlewares";
 import routes from "./routes";
 
-// Inicializar logger global
+// Criar instância do logger para uso no servidor
 const logger = makeGlobalLogger();
-initGlobalLogger(logger);
 
 const app = express();
 

@@ -1,4 +1,18 @@
-// Mock globalLogger before imports
+// Mock logger for tests
+const mockGlobalLogger = {
+  info: jest.fn(),
+  warn: jest.fn(),
+  error: jest.fn(),
+  debug: jest.fn(),
+};
+
+const resetGlobalLoggerMocks = () => {
+  mockGlobalLogger.info.mockClear();
+  mockGlobalLogger.warn.mockClear();
+  mockGlobalLogger.error.mockClear();
+  mockGlobalLogger.debug.mockClear();
+};
+
 import { NextFunction, Request, Response } from "express";
 
 import {
@@ -8,10 +22,6 @@ import {
   corsDev,
   corsProd,
 } from "../../../../../src/infra/adapters/middlewares/express-cors.middleware";
-import {
-  mockGlobalLogger,
-  resetGlobalLoggerMocks,
-} from "../../../../mocks/global.logger.mock";
 
 describe("Express CORS Middleware", () => {
   let mockRequest: Partial<Request>;

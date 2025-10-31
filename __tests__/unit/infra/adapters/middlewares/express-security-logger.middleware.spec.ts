@@ -1,22 +1,33 @@
-// Mock globalLogger before imports
+// Mock logger for tests
+const mockGlobalLogger = {
+  info: jest.fn(),
+  warn: jest.fn(),
+  error: jest.fn(),
+  debug: jest.fn(),
+};
+
+const resetGlobalLoggerMocks = () => {
+  mockGlobalLogger.info.mockClear();
+  mockGlobalLogger.warn.mockClear();
+  mockGlobalLogger.error.mockClear();
+  mockGlobalLogger.debug.mockClear();
+};
+
 import { NextFunction, Request, Response } from "express";
 
 import {
-  authSecurityLogger,
+  createAuthSecurityLogger,
   SecurityEventSeverity,
   SecurityEventType,
   securityLogging,
 } from "../../../../../src/infra/adapters/middlewares/express-security-logger.middleware";
-import {
-  mockGlobalLogger,
-  resetGlobalLoggerMocks,
-} from "../../../../mocks/global.logger.mock";
 
 describe("Express Security Logger Middleware", () => {
   let mockRequest: Partial<Request>;
   let mockResponse: Partial<Response>;
   let mockNext: NextFunction;
   let originalSend: any;
+  let authSecurityLogger: ReturnType<typeof createAuthSecurityLogger>;
 
   // Mock SecurityLogger with all methods the tests expect
   const securityLogger = {
@@ -110,6 +121,7 @@ describe("Express Security Logger Middleware", () => {
   beforeEach(() => {
     resetGlobalLoggerMocks();
     jest.clearAllMocks();
+    authSecurityLogger = createAuthSecurityLogger(mockGlobalLogger);
     mockRequest = {
       ip: "192.168.1.100",
       connection: { remoteAddress: "192.168.1.100" } as any,
@@ -551,6 +563,67 @@ describe("Express Security Logger Middleware", () => {
       expect(mockGlobalLogger.info).toHaveBeenCalledWith(
         expect.stringContaining("[SECURITY]"),
         expect.any(Object),
+      );
+    });
+  });
+
+  describe("PinoSecurityLogger - Testes diretos", () => {
+    it("deve logar evento de segurança com severidade CRITICAL usando error", () => {
+      const criticalEvent = {
+        timestamp: new Date().toISOString(),
+        eventType: SecurityEventType.SUSPICIOUS_ACTIVITY,
+        severity: SecurityEventSeverity.CRITICAL,
+        message: "Ataque crítico detectado",
+        ipAddress: "192.168.1.100",
+      };
+
+      securityLogger.logSecurityEvent(criticalEvent);
+
+      expect(mockGlobalLogger.error).toHaveBeenCalledWith(
+        expect.stringContaining("[SECURITY]"),
+        expect.objectContaining({
+          eventType: SecurityEventType.SUSPICIOUS_ACTIVITY,
+          severity: SecurityEventSeverity.CRITICAL,
+        }),
+      );
+    });
+
+    it("deve testar logCorsViolation através do securityLogger mock", () => {
+      jest.clearAllMocks();
+
+      // Testa o método logCorsViolation diretamente
+      securityLogger.logCorsViolation("https://malicious.com", "192.168.1.100");
+
+      expect(mockGlobalLogger.warn).toHaveBeenCalledWith(
+        expect.stringContaining(
+          "Violação de CORS detectada da origem: https://malicious.com",
+        ),
+        expect.objectContaining({
+          origin: "https://malicious.com",
+          ipAddress: "192.168.1.100",
+        }),
+      );
+    });
+
+    it("deve logar evento com severidade MEDIUM retornando warn", () => {
+      jest.clearAllMocks();
+
+      const mediumEvent = {
+        timestamp: new Date().toISOString(),
+        eventType: SecurityEventType.RATE_LIMIT_HIT,
+        severity: SecurityEventSeverity.MEDIUM,
+        message: "Rate limit atingido",
+        ipAddress: "192.168.1.100",
+      };
+
+      securityLogger.logSecurityEvent(mediumEvent);
+
+      expect(mockGlobalLogger.warn).toHaveBeenCalledWith(
+        expect.stringContaining("[SECURITY]"),
+        expect.objectContaining({
+          eventType: SecurityEventType.RATE_LIMIT_HIT,
+          severity: SecurityEventSeverity.MEDIUM,
+        }),
       );
     });
   });

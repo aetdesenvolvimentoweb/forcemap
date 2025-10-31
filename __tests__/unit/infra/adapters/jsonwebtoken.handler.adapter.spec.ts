@@ -36,12 +36,16 @@ describe("JsonWebTokenJWTAdapter", () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
+    process.env.NODE_ENV = "test";
     process.env.JWT_ACCESS_SECRET = "test-access-secret";
     process.env.JWT_REFRESH_SECRET = "test-refresh-secret";
     process.env.JWT_ACCESS_EXPIRY = "15m";
     process.env.JWT_REFRESH_EXPIRY = "7d";
 
-    sut = new JsonWebTokenHandlerAdapter();
+    // Apenas cria o adapter se não estiver em um teste específico de configuração
+    if (process.env.NODE_ENV === "test") {
+      sut = new JsonWebTokenHandlerAdapter();
+    }
   });
 
   describe("constructor", () => {
@@ -608,6 +612,13 @@ describe("JsonWebTokenJWTAdapter", () => {
   });
 
   describe("environment variable edge cases", () => {
+    beforeEach(() => {
+      // Reset para valores padrão antes de cada teste
+      process.env.NODE_ENV = "test";
+      process.env.JWT_ACCESS_SECRET = "test-access-secret";
+      process.env.JWT_REFRESH_SECRET = "test-refresh-secret";
+    });
+
     it("should throw ConfigurationError when JWT secrets are empty", () => {
       process.env.JWT_ACCESS_SECRET = "";
       process.env.JWT_REFRESH_SECRET = "";
@@ -615,6 +626,54 @@ describe("JsonWebTokenJWTAdapter", () => {
       expect(() => new JsonWebTokenHandlerAdapter()).toThrow(
         "Erro de configuração: JWT_ACCESS_SECRET e JWT_REFRESH_SECRET devem ser configurados via variáveis de ambiente",
       );
+    });
+
+    it("should throw ConfigurationError when JWT_ACCESS_SECRET is too short in production", () => {
+      process.env.NODE_ENV = "production";
+      process.env.JWT_ACCESS_SECRET = "short"; // menos de 32 caracteres
+      process.env.JWT_REFRESH_SECRET =
+        "this-is-a-long-enough-refresh-secret-for-production";
+
+      expect(() => new JsonWebTokenHandlerAdapter()).toThrow(
+        "Erro de configuração: JWT_ACCESS_SECRET deve ter no mínimo 32 caracteres em produção",
+      );
+    });
+
+    it("should throw ConfigurationError when JWT_REFRESH_SECRET is too short in production", () => {
+      process.env.NODE_ENV = "production";
+      process.env.JWT_ACCESS_SECRET =
+        "this-is-a-long-enough-access-secret-for-production";
+      process.env.JWT_REFRESH_SECRET = "short"; // menos de 32 caracteres
+
+      expect(() => new JsonWebTokenHandlerAdapter()).toThrow(
+        "Erro de configuração: JWT_REFRESH_SECRET deve ter no mínimo 32 caracteres em produção",
+      );
+    });
+
+    it("should throw ConfigurationError when both secrets are too short in production", () => {
+      process.env.NODE_ENV = "production";
+      process.env.JWT_ACCESS_SECRET = "short-access";
+      process.env.JWT_REFRESH_SECRET = "short-refresh";
+
+      expect(() => new JsonWebTokenHandlerAdapter()).toThrow(
+        "Erro de configuração: JWT_ACCESS_SECRET deve ter no mínimo 32 caracteres em produção",
+      );
+    });
+
+    it("should allow short secrets in development", () => {
+      process.env.NODE_ENV = "development";
+      process.env.JWT_ACCESS_SECRET = "short";
+      process.env.JWT_REFRESH_SECRET = "short";
+
+      expect(() => new JsonWebTokenHandlerAdapter()).not.toThrow();
+    });
+
+    it("should allow exactly 32 characters in production", () => {
+      process.env.NODE_ENV = "production";
+      process.env.JWT_ACCESS_SECRET = "12345678901234567890123456789012"; // exatamente 32
+      process.env.JWT_REFRESH_SECRET = "12345678901234567890123456789012"; // exatamente 32
+
+      expect(() => new JsonWebTokenHandlerAdapter()).not.toThrow();
     });
   });
 });

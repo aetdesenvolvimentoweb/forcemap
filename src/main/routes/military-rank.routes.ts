@@ -8,36 +8,38 @@ import {
   makeListAllMilitaryRankController,
   makeUpdateMilitaryRankController,
 } from "../factories/controllers";
+import { makeGlobalLogger } from "../factories/logger";
 import { makeExpressAuthMiddleware } from "../factories/middlewares";
 
 const militaryRankRoutes = Router();
 const { requireAuthWithRoles } = makeExpressAuthMiddleware();
+const logger = makeGlobalLogger();
 
 // Operações críticas - apenas ADMIN
 militaryRankRoutes.post(
   "/military-rank",
   requireAuthWithRoles(["Admin"]),
-  expressRouteAdapter(makeCreateMilitaryRankController()),
+  expressRouteAdapter(makeCreateMilitaryRankController(), logger),
 );
 militaryRankRoutes.get(
   "/military-rank",
   requireAuthWithRoles(["Admin"]),
-  expressRouteAdapter(makeListAllMilitaryRankController()),
+  expressRouteAdapter(makeListAllMilitaryRankController(), logger),
 );
 militaryRankRoutes.get(
   "/military-rank/:id",
   requireAuthWithRoles(["Admin"]),
-  expressRouteAdapter(makeFindByIdMilitaryRankController()),
+  expressRouteAdapter(makeFindByIdMilitaryRankController(), logger),
 );
 militaryRankRoutes.delete(
   "/military-rank/:id",
   requireAuthWithRoles(["Admin"]),
-  expressRouteAdapter(makeDeleteMilitaryRankController()),
+  expressRouteAdapter(makeDeleteMilitaryRankController(), logger),
 );
 militaryRankRoutes.put(
   "/military-rank/:id",
   requireAuthWithRoles(["Admin"]),
-  expressRouteAdapter(makeUpdateMilitaryRankController()),
+  expressRouteAdapter(makeUpdateMilitaryRankController(), logger),
 );
 
 export default militaryRankRoutes;

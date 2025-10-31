@@ -8,35 +8,37 @@ import {
   makeListAllVehicleController,
   makeUpdateVehicleController,
 } from "../factories/controllers";
+import { makeGlobalLogger } from "../factories/logger";
 import { makeExpressAuthMiddleware } from "../factories/middlewares";
 
 const vehicleRoutes = Router();
 const { requireAuthWithRoles } = makeExpressAuthMiddleware();
+const logger = makeGlobalLogger();
 
 vehicleRoutes.post(
   "/vehicle",
   requireAuthWithRoles(["Admin", "Chefe", "ACA"]),
-  expressRouteAdapter(makeCreateVehicleController()),
+  expressRouteAdapter(makeCreateVehicleController(), logger),
 );
 vehicleRoutes.get(
   "/vehicle",
   requireAuthWithRoles(["Admin", "Chefe", "ACA"]),
-  expressRouteAdapter(makeListAllVehicleController()),
+  expressRouteAdapter(makeListAllVehicleController(), logger),
 );
 vehicleRoutes.get(
   "/vehicle/:id",
   requireAuthWithRoles(["Admin", "Chefe", "ACA"]),
-  expressRouteAdapter(makeFindByIdVehicleController()),
+  expressRouteAdapter(makeFindByIdVehicleController(), logger),
 );
 vehicleRoutes.delete(
   "/vehicle/:id",
   requireAuthWithRoles(["Admin", "Chefe"]),
-  expressRouteAdapter(makeDeleteVehicleController()),
+  expressRouteAdapter(makeDeleteVehicleController(), logger),
 );
 vehicleRoutes.put(
   "/vehicle/:id",
   requireAuthWithRoles(["Admin", "Chefe", "ACA"]),
-  expressRouteAdapter(makeUpdateVehicleController()),
+  expressRouteAdapter(makeUpdateVehicleController(), logger),
 );
 
 export default vehicleRoutes;

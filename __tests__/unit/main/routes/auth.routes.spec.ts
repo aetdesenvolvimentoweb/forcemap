@@ -72,7 +72,10 @@ describe("authRoutes", () => {
       require("../../../../src/main/routes/auth.routes");
 
       expect(mockMakeLoginController).toHaveBeenCalledTimes(1);
-      expect(mockExpressRouteAdapter).toHaveBeenCalledWith(mockLoginController);
+      expect(mockExpressRouteAdapter).toHaveBeenCalledWith(
+        mockLoginController,
+        expect.any(Object),
+      );
       expect(mockRouterMethods.post).toHaveBeenCalledWith(
         "/login",
         expect.any(Function), // ensureSeedMiddleware
@@ -88,6 +91,7 @@ describe("authRoutes", () => {
       expect(mockMakeRefreshTokenController).toHaveBeenCalledTimes(1);
       expect(mockExpressRouteAdapter).toHaveBeenCalledWith(
         mockRefreshTokenController,
+        expect.any(Object),
       );
       expect(mockRouterMethods.post).toHaveBeenCalledWith(
         "/refresh-token",
@@ -103,6 +107,7 @@ describe("authRoutes", () => {
       expect(mockMakeLogoutController).toHaveBeenCalledTimes(1);
       expect(mockExpressRouteAdapter).toHaveBeenCalledWith(
         mockLogoutController,
+        expect.any(Object),
       );
       expect(mockRouterMethods.post).toHaveBeenCalledWith(
         "/logout",
@@ -152,12 +157,17 @@ describe("authRoutes", () => {
       require("../../../../src/main/routes/auth.routes");
 
       expect(mockExpressRouteAdapter).toHaveBeenCalledTimes(3);
-      expect(mockExpressRouteAdapter).toHaveBeenCalledWith(mockLoginController);
+      expect(mockExpressRouteAdapter).toHaveBeenCalledWith(
+        mockLoginController,
+        expect.any(Object),
+      );
       expect(mockExpressRouteAdapter).toHaveBeenCalledWith(
         mockRefreshTokenController,
+        expect.any(Object),
       );
       expect(mockExpressRouteAdapter).toHaveBeenCalledWith(
         mockLogoutController,
+        expect.any(Object),
       );
     });
 

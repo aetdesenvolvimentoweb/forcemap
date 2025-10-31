@@ -16,6 +16,7 @@ const config: Config = {
     "!**/*.protocol.ts",
     "!**/*.factory.ts",
     "!src/main/server.ts",
+    "!src/**/dev.ts",
   ],
   coverageDirectory: "coverage",
   coverageThreshold: {

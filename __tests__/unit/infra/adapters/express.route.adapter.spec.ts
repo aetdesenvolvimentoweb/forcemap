@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 
+import { LoggerProtocol } from "../../../../src/application/protocols";
 import { expressRouteAdapter } from "../../../../src/infra/adapters/express.route.adapter";
 import {
   ControllerProtocol,
@@ -12,10 +13,18 @@ describe("expressRouteAdapter", () => {
   let mockResponse: Partial<Response>;
   let mockJsonFn: jest.Mock;
   let mockStatusFn: jest.Mock;
+  let mockLogger: jest.Mocked<LoggerProtocol>;
 
   beforeEach(() => {
     mockController = {
       handle: jest.fn(),
+    };
+
+    mockLogger = {
+      info: jest.fn(),
+      warn: jest.fn(),
+      error: jest.fn(),
+      debug: jest.fn(),
     };
 
     mockJsonFn = jest.fn();
@@ -36,7 +45,7 @@ describe("expressRouteAdapter", () => {
 
   describe("adapter function", () => {
     it("should create adapter function for controller", () => {
-      const adapter = expressRouteAdapter(mockController);
+      const adapter = expressRouteAdapter(mockController, mockLogger);
 
       expect(typeof adapter).toBe("function");
     });
@@ -55,7 +64,7 @@ describe("expressRouteAdapter", () => {
         body: { data: "success" },
       });
 
-      const adapter = expressRouteAdapter(mockController);
+      const adapter = expressRouteAdapter(mockController, mockLogger);
       await adapter(mockRequest as Request, mockResponse as Response);
 
       expect(mockController.handle).toHaveBeenCalledWith({
@@ -79,7 +88,7 @@ describe("expressRouteAdapter", () => {
         body: { data: "created" },
       });
 
-      const adapter = expressRouteAdapter(mockController);
+      const adapter = expressRouteAdapter(mockController, mockLogger);
       await adapter(mockRequest as Request, mockResponse as Response);
 
       expect(mockController.handle).toHaveBeenCalledWith({
@@ -103,7 +112,7 @@ describe("expressRouteAdapter", () => {
         body: { data: "found" },
       });
 
-      const adapter = expressRouteAdapter(mockController);
+      const adapter = expressRouteAdapter(mockController, mockLogger);
       await adapter(mockRequest as Request, mockResponse as Response);
 
       expect(mockController.handle).toHaveBeenCalledWith({
@@ -127,7 +136,7 @@ describe("expressRouteAdapter", () => {
         body: { data: [] },
       });
 
-      const adapter = expressRouteAdapter(mockController);
+      const adapter = expressRouteAdapter(mockController, mockLogger);
       await adapter(mockRequest as Request, mockResponse as Response);
 
       expect(mockController.handle).toHaveBeenCalledWith({
@@ -155,7 +164,7 @@ describe("expressRouteAdapter", () => {
         body: { data: "authorized" },
       });
 
-      const adapter = expressRouteAdapter(mockController);
+      const adapter = expressRouteAdapter(mockController, mockLogger);
       await adapter(mockRequest as Request, mockResponse as Response);
 
       expect(mockController.handle).toHaveBeenCalledWith({
@@ -178,7 +187,7 @@ describe("expressRouteAdapter", () => {
 
       mockController.handle.mockResolvedValueOnce(controllerResponse);
 
-      const adapter = expressRouteAdapter(mockController);
+      const adapter = expressRouteAdapter(mockController, mockLogger);
       await adapter(mockRequest as Request, mockResponse as Response);
 
       expect(mockStatusFn).toHaveBeenCalledWith(201);
@@ -195,7 +204,7 @@ describe("expressRouteAdapter", () => {
 
       mockController.handle.mockResolvedValueOnce(controllerResponse);
 
-      const adapter = expressRouteAdapter(mockController);
+      const adapter = expressRouteAdapter(mockController, mockLogger);
       await adapter(mockRequest as Request, mockResponse as Response);
 
       expect(mockStatusFn).toHaveBeenCalledWith(200);
@@ -209,7 +218,7 @@ describe("expressRouteAdapter", () => {
 
       mockController.handle.mockResolvedValueOnce(controllerResponse);
 
-      const adapter = expressRouteAdapter(mockController);
+      const adapter = expressRouteAdapter(mockController, mockLogger);
       await adapter(mockRequest as Request, mockResponse as Response);
 
       expect(mockStatusFn).toHaveBeenCalledWith(204);
@@ -224,7 +233,7 @@ describe("expressRouteAdapter", () => {
 
       mockController.handle.mockResolvedValueOnce(controllerResponse);
 
-      const adapter = expressRouteAdapter(mockController);
+      const adapter = expressRouteAdapter(mockController, mockLogger);
       await adapter(mockRequest as Request, mockResponse as Response);
 
       expect(mockStatusFn).toHaveBeenCalledWith(400);
@@ -241,7 +250,7 @@ describe("expressRouteAdapter", () => {
 
       mockController.handle.mockResolvedValueOnce(controllerResponse);
 
-      const adapter = expressRouteAdapter(mockController);
+      const adapter = expressRouteAdapter(mockController, mockLogger);
       await adapter(mockRequest as Request, mockResponse as Response);
 
       expect(mockStatusFn).toHaveBeenCalledWith(404);
@@ -256,7 +265,7 @@ describe("expressRouteAdapter", () => {
 
       mockController.handle.mockResolvedValueOnce(controllerResponse);
 
-      const adapter = expressRouteAdapter(mockController);
+      const adapter = expressRouteAdapter(mockController, mockLogger);
       await adapter(mockRequest as Request, mockResponse as Response);
 
       expect(mockStatusFn).toHaveBeenCalledWith(422);
@@ -273,7 +282,7 @@ describe("expressRouteAdapter", () => {
 
       mockController.handle.mockResolvedValueOnce(controllerResponse);
 
-      const adapter = expressRouteAdapter(mockController);
+      const adapter = expressRouteAdapter(mockController, mockLogger);
       await adapter(mockRequest as Request, mockResponse as Response);
 
       expect(mockStatusFn).toHaveBeenCalledWith(500);
@@ -295,7 +304,7 @@ describe("expressRouteAdapter", () => {
         body: { data: "empty request handled" },
       });
 
-      const adapter = expressRouteAdapter(mockController);
+      const adapter = expressRouteAdapter(mockController, mockLogger);
       await adapter(mockRequest as Request, mockResponse as Response);
 
       expect(mockController.handle).toHaveBeenCalledWith({
@@ -328,7 +337,7 @@ describe("expressRouteAdapter", () => {
         body: { data: { processed: true } },
       });
 
-      const adapter = expressRouteAdapter(mockController);
+      const adapter = expressRouteAdapter(mockController, mockLogger);
       await adapter(mockRequest as Request, mockResponse as Response);
 
       expect(mockController.handle).toHaveBeenCalledWith(complexRequest);
@@ -347,7 +356,7 @@ describe("expressRouteAdapter", () => {
         body: { data: "handled nulls" },
       });
 
-      const adapter = expressRouteAdapter(mockController);
+      const adapter = expressRouteAdapter(mockController, mockLogger);
       await adapter(mockRequest as Request, mockResponse as Response);
 
       expect(mockController.handle).toHaveBeenCalledWith({
@@ -363,7 +372,7 @@ describe("expressRouteAdapter", () => {
         new Error("Controller error"),
       );
 
-      const adapter = expressRouteAdapter(mockController);
+      const adapter = expressRouteAdapter(mockController, mockLogger);
 
       await adapter(mockRequest as Request, mockResponse as Response);
 
@@ -382,7 +391,7 @@ describe("expressRouteAdapter", () => {
 
       mockController.handle.mockReturnValueOnce(controllerPromise);
 
-      const adapter = expressRouteAdapter(mockController);
+      const adapter = expressRouteAdapter(mockController, mockLogger);
       const adapterPromise = adapter(
         mockRequest as Request,
         mockResponse as Response,
@@ -419,7 +428,7 @@ describe("expressRouteAdapter", () => {
         body: { data: { success: true } },
       });
 
-      const adapter = expressRouteAdapter(mockController);
+      const adapter = expressRouteAdapter(mockController, mockLogger);
       await adapter(mockRequest as Request, mockResponse as Response);
 
       // Original objects should not be modified
@@ -428,7 +437,7 @@ describe("expressRouteAdapter", () => {
     });
 
     it("should handle multiple sequential requests", async () => {
-      const adapter = expressRouteAdapter(mockController);
+      const adapter = expressRouteAdapter(mockController, mockLogger);
 
       mockController.handle
         .mockResolvedValueOnce({
@@ -457,12 +466,75 @@ describe("expressRouteAdapter", () => {
         body: { data: "test" },
       });
 
-      const adapter = expressRouteAdapter(mockController);
+      const adapter = expressRouteAdapter(mockController, mockLogger);
       await adapter(mockRequest as Request, mockResponse as Response);
 
       // Should call status and json methods properly
       expect(mockStatusFn).toHaveBeenCalledWith(200);
       expect(mockJsonFn).toHaveBeenCalledWith({ data: "test" });
+    });
+
+    it("should handle non-Error exceptions with unknown error", async () => {
+      // Mock que lança uma string ao invés de um Error
+      mockController.handle.mockRejectedValueOnce("Some string error");
+
+      mockRequest = {
+        url: "/test",
+        method: "GET",
+        body: undefined,
+        params: {},
+        query: {},
+        headers: {},
+      };
+
+      const adapter = expressRouteAdapter(mockController, mockLogger);
+      await adapter(mockRequest as Request, mockResponse as Response);
+
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        "Express route adapter error",
+        {
+          error: "Unknown error",
+          stack: undefined,
+          path: "/test",
+          method: "GET",
+        },
+      );
+      expect(mockStatusFn).toHaveBeenCalledWith(500);
+      expect(mockJsonFn).toHaveBeenCalledWith({
+        error: "Internal server error",
+      });
+    });
+
+    it("should handle non-Error object exceptions", async () => {
+      // Mock que lança um objeto simples ao invés de um Error
+      const nonErrorObject = { code: 500, message: "Internal error" };
+      mockController.handle.mockRejectedValueOnce(nonErrorObject);
+
+      mockRequest = {
+        url: "/api/users",
+        method: "POST",
+        body: undefined,
+        params: {},
+        query: {},
+        headers: {},
+      };
+
+      const adapter = expressRouteAdapter(mockController, mockLogger);
+      await adapter(mockRequest as Request, mockResponse as Response);
+
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        "Express route adapter error",
+        {
+          error: "Unknown error",
+          stack: undefined,
+          path: "/api/users",
+          method: "POST",
+        },
+      );
+      expect(mockStatusFn).toHaveBeenCalledWith(500);
+      expect(mockJsonFn).toHaveBeenCalledWith({
+        error: "Internal server error",
+      });
     });
   });
 });

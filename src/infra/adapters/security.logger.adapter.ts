@@ -1,14 +1,25 @@
-import { SecurityLoggerProtocol } from "../../application/protocols";
-import { authSecurityLogger } from "./middlewares";
+import {
+  LoggerProtocol,
+  SecurityLoggerProtocol,
+} from "../../application/protocols";
+import { createAuthSecurityLogger } from "./middlewares";
 
 /**
- * Adapter que implementa SecurityLoggerProtocol usando o authSecurityLogger existente.
+ * Adapter que implementa SecurityLoggerProtocol usando o authSecurityLogger.
  * Permite que a camada de aplicação não dependa diretamente da infraestrutura.
  *
  * Nota: sessionId é ignorado pois authSecurityLogger usa Request do Express.
  * Em uma implementação futura, poderíamos criar um Request mock ou melhorar o logger.
  */
 export class SecurityLoggerAdapter implements SecurityLoggerProtocol {
+  private readonly authSecurityLogger: ReturnType<
+    typeof createAuthSecurityLogger
+  >;
+
+  constructor(logger: LoggerProtocol) {
+    this.authSecurityLogger = createAuthSecurityLogger(logger);
+  }
+
   public logLogin(
     success: boolean,
     userId: string,
@@ -17,7 +28,7 @@ export class SecurityLoggerAdapter implements SecurityLoggerProtocol {
   ): void {
     // authSecurityLogger.logLogin espera (success, userId?, req?, metadata?)
     // Passamos undefined para req pois não temos Request no contexto do service
-    authSecurityLogger.logLogin(success, userId, undefined, {
+    this.authSecurityLogger.logLogin(success, userId, undefined, {
       ...metadata,
       sessionId, // Incluímos sessionId no metadata
     });
@@ -28,15 +39,15 @@ export class SecurityLoggerAdapter implements SecurityLoggerProtocol {
     sessionId: string | undefined,
     reason: string,
   ): void {
-    authSecurityLogger.logLoginBlocked(identifier, undefined, reason);
+    this.authSecurityLogger.logLoginBlocked(identifier, undefined, reason);
   }
 
   public logLogout(userId: string): void {
-    authSecurityLogger.logLogout(userId, undefined);
+    this.authSecurityLogger.logLogout(userId, undefined);
   }
 
   public logTokenRefresh(userId: string): void {
-    authSecurityLogger.logTokenRefresh(userId, undefined);
+    this.authSecurityLogger.logTokenRefresh(userId, undefined);
   }
 
   public logAccessDenied(
@@ -47,7 +58,7 @@ export class SecurityLoggerAdapter implements SecurityLoggerProtocol {
   ): void {
     // authSecurityLogger não tem logAccessDenied específico
     // Usamos logLogin com success=false para registrar
-    authSecurityLogger.logLogin(false, userId, undefined, {
+    this.authSecurityLogger.logLogin(false, userId, undefined, {
       type: "ACCESS_DENIED",
       resource,
       reason,
@@ -62,7 +73,7 @@ export class SecurityLoggerAdapter implements SecurityLoggerProtocol {
   ): void {
     // authSecurityLogger não tem logSuspiciousActivity específico
     // Usamos logLogin com success=false para registrar
-    authSecurityLogger.logLogin(false, identifier, undefined, {
+    this.authSecurityLogger.logLogin(false, identifier, undefined, {
       type: "SUSPICIOUS_ACTIVITY",
       activityType,
       ...details,

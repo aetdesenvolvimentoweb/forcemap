@@ -79,7 +79,6 @@ export interface SecurityLogger {
 }
 
 import { LoggerProtocol } from "../../../application/protocols";
-import { globalLogger } from "../global.logger";
 
 /**
  * Implementação do logger de segurança usando Pino
@@ -375,7 +374,4 @@ export const createAuthSecurityLogger = (logger: LoggerProtocol) => {
   };
 };
 
-/**
- * @deprecated Usar createAuthSecurityLogger(logger) com injeção de dependência
- */
-export const authSecurityLogger = createAuthSecurityLogger(globalLogger);
+// authSecurityLogger removed - use createAuthSecurityLogger(logger) with dependency injection

@@ -1,10 +1,20 @@
-// Mock globalLogger before imports
+// Mock logger for tests
+const mockGlobalLogger = {
+  info: jest.fn(),
+  warn: jest.fn(),
+  error: jest.fn(),
+  debug: jest.fn(),
+};
+
+const resetGlobalLoggerMocks = () => {
+  mockGlobalLogger.info.mockClear();
+  mockGlobalLogger.warn.mockClear();
+  mockGlobalLogger.error.mockClear();
+  mockGlobalLogger.debug.mockClear();
+};
+
 import { DatabaseSeed } from "../../../../src/main/seed/database.seed";
 import { SeedManager } from "../../../../src/main/seed/seed.manager";
-import {
-  mockGlobalLogger,
-  resetGlobalLoggerMocks,
-} from "../../../mocks/global.logger.mock";
 
 // Mock the factory
 jest.mock("../../../../src/main/factories/seed/database.seed.factory", () => ({
@@ -454,6 +464,41 @@ describe("SeedManager", () => {
 
       expect(mockGlobalLogger.info).not.toHaveBeenCalledWith(
         "Database seed completed successfully",
+      );
+    });
+
+    it("should handle non-Error exceptions during seeding", async () => {
+      // Mock que lança uma string ao invés de um Error
+      mockDatabaseSeed.run.mockRejectedValue("Some string error");
+
+      const manager = SeedManager.getInstance(mockGlobalLogger);
+
+      await expect(manager.ensureSeeded()).rejects.toBe("Some string error");
+
+      expect(mockGlobalLogger.error).toHaveBeenCalledWith(
+        "Database seed failed",
+        {
+          error: "Unknown error",
+          stack: undefined,
+        },
+      );
+    });
+
+    it("should handle non-Error object exceptions during seeding", async () => {
+      // Mock que lança um objeto simples ao invés de um Error
+      const nonErrorObject = { code: 500, message: "Internal error" };
+      mockDatabaseSeed.run.mockRejectedValue(nonErrorObject);
+
+      const manager = SeedManager.getInstance(mockGlobalLogger);
+
+      await expect(manager.ensureSeeded()).rejects.toBe(nonErrorObject);
+
+      expect(mockGlobalLogger.error).toHaveBeenCalledWith(
+        "Database seed failed",
+        {
+          error: "Unknown error",
+          stack: undefined,
+        },
       );
     });
   });

@@ -94,6 +94,7 @@ describe("userRoutes", () => {
       expect(mockMakeCreateUserController).toHaveBeenCalledTimes(1);
       expect(mockExpressRouteAdapter).toHaveBeenCalledWith(
         mockCreateController,
+        expect.any(Object),
       );
       expect(mockRouterMethods.post).toHaveBeenCalledWith(
         "/user",
@@ -111,6 +112,7 @@ describe("userRoutes", () => {
       expect(mockMakeListAllUserController).toHaveBeenCalledTimes(1);
       expect(mockExpressRouteAdapter).toHaveBeenCalledWith(
         mockListAllController,
+        expect.any(Object),
       );
       expect(mockRouterMethods.get).toHaveBeenCalledWith(
         "/user",
@@ -126,6 +128,7 @@ describe("userRoutes", () => {
       expect(mockMakeFindByIdUserController).toHaveBeenCalledTimes(1);
       expect(mockExpressRouteAdapter).toHaveBeenCalledWith(
         mockFindByIdController,
+        expect.any(Object),
       );
       expect(mockRouterMethods.get).toHaveBeenCalledWith(
         "/user/:id",
@@ -142,6 +145,7 @@ describe("userRoutes", () => {
       expect(mockMakeDeleteUserController).toHaveBeenCalledTimes(1);
       expect(mockExpressRouteAdapter).toHaveBeenCalledWith(
         mockDeleteController,
+        expect.any(Object),
       );
       expect(mockRouterMethods.delete).toHaveBeenCalledWith(
         "/user/:id",
@@ -158,6 +162,7 @@ describe("userRoutes", () => {
       expect(mockMakeUpdateUserRoleController).toHaveBeenCalledTimes(1);
       expect(mockExpressRouteAdapter).toHaveBeenCalledWith(
         mockUpdateRoleController,
+        expect.any(Object),
       );
       expect(mockRouterMethods.patch).toHaveBeenCalledWith(
         "/user/update-role/:id",
@@ -174,6 +179,7 @@ describe("userRoutes", () => {
       expect(mockMakeUpdateUserPasswordController).toHaveBeenCalledTimes(1);
       expect(mockExpressRouteAdapter).toHaveBeenCalledWith(
         mockUpdatePasswordController,
+        expect.any(Object),
       );
       expect(mockRouterMethods.patch).toHaveBeenCalledWith(
         "/user/update-password/:id",
@@ -239,21 +245,27 @@ describe("userRoutes", () => {
       expect(mockExpressRouteAdapter).toHaveBeenCalledTimes(6);
       expect(mockExpressRouteAdapter).toHaveBeenCalledWith(
         mockCreateController,
+        expect.any(Object),
       );
       expect(mockExpressRouteAdapter).toHaveBeenCalledWith(
         mockListAllController,
+        expect.any(Object),
       );
       expect(mockExpressRouteAdapter).toHaveBeenCalledWith(
         mockFindByIdController,
+        expect.any(Object),
       );
       expect(mockExpressRouteAdapter).toHaveBeenCalledWith(
         mockDeleteController,
+        expect.any(Object),
       );
       expect(mockExpressRouteAdapter).toHaveBeenCalledWith(
         mockUpdateRoleController,
+        expect.any(Object),
       );
       expect(mockExpressRouteAdapter).toHaveBeenCalledWith(
         mockUpdatePasswordController,
+        expect.any(Object),
       );
     });
 

@@ -109,6 +109,7 @@ describe("militaryRankRoutes", () => {
       expect(mockMakeCreateMilitaryRankController).toHaveBeenCalledTimes(1);
       expect(mockExpressRouteAdapter).toHaveBeenCalledWith(
         mockCreateController,
+        expect.any(Object),
       );
       expect(mockRouterMethods.post).toHaveBeenCalledWith(
         "/military-rank",
@@ -125,6 +126,7 @@ describe("militaryRankRoutes", () => {
       expect(mockMakeListAllMilitaryRankController).toHaveBeenCalledTimes(1);
       expect(mockExpressRouteAdapter).toHaveBeenCalledWith(
         mockListAllController,
+        expect.any(Object),
       );
       expect(mockRouterMethods.get).toHaveBeenCalledWith(
         "/military-rank",
@@ -140,6 +142,7 @@ describe("militaryRankRoutes", () => {
       expect(mockMakeFindByIdMilitaryRankController).toHaveBeenCalledTimes(1);
       expect(mockExpressRouteAdapter).toHaveBeenCalledWith(
         mockFindByIdController,
+        expect.any(Object),
       );
       expect(mockRouterMethods.get).toHaveBeenCalledWith(
         "/military-rank/:id",
@@ -155,6 +158,7 @@ describe("militaryRankRoutes", () => {
       expect(mockMakeDeleteMilitaryRankController).toHaveBeenCalledTimes(1);
       expect(mockExpressRouteAdapter).toHaveBeenCalledWith(
         mockDeleteController,
+        expect.any(Object),
       );
       expect(mockRouterMethods.delete).toHaveBeenCalledWith(
         "/military-rank/:id",
@@ -170,6 +174,7 @@ describe("militaryRankRoutes", () => {
       expect(mockMakeUpdateMilitaryRankController).toHaveBeenCalledTimes(1);
       expect(mockExpressRouteAdapter).toHaveBeenCalledWith(
         mockUpdateController,
+        expect.any(Object),
       );
       expect(mockRouterMethods.put).toHaveBeenCalledWith(
         "/military-rank/:id",
@@ -230,18 +235,23 @@ describe("militaryRankRoutes", () => {
       expect(mockExpressRouteAdapter).toHaveBeenCalledTimes(5);
       expect(mockExpressRouteAdapter).toHaveBeenCalledWith(
         mockCreateController,
+        expect.any(Object),
       );
       expect(mockExpressRouteAdapter).toHaveBeenCalledWith(
         mockListAllController,
+        expect.any(Object),
       );
       expect(mockExpressRouteAdapter).toHaveBeenCalledWith(
         mockFindByIdController,
+        expect.any(Object),
       );
       expect(mockExpressRouteAdapter).toHaveBeenCalledWith(
         mockDeleteController,
+        expect.any(Object),
       );
       expect(mockExpressRouteAdapter).toHaveBeenCalledWith(
         mockUpdateController,
+        expect.any(Object),
       );
     });
 

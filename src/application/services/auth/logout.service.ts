@@ -1,10 +1,9 @@
-import { Request } from "express";
-
 import { SessionRepository } from "../../../domain/repositories";
-import { authSecurityLogger } from "../../../infra/adapters/middlewares";
+import { SecurityLoggerProtocol } from "../../protocols";
 
 interface LogoutServiceDependencies {
   sessionRepository: SessionRepository;
+  securityLogger: SecurityLoggerProtocol;
 }
 
 export class LogoutService {
@@ -13,14 +12,13 @@ export class LogoutService {
   public readonly logout = async (
     sessionId: string,
     userId?: string,
-    request?: Request,
   ): Promise<void> => {
     try {
       await this.dependencies.sessionRepository.deactivateSession(sessionId);
 
       // Log successful logout
       if (userId) {
-        authSecurityLogger.logLogout(userId, request);
+        this.dependencies.securityLogger.logLogout(userId);
       }
     } catch {
       // Silent fail for logout - even if session doesn't exist, logout is successful

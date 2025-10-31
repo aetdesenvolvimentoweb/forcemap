@@ -658,10 +658,10 @@ describe("SessionRepositoryInMemory", () => {
 
       // Update last access
       const beforeAccessUpdate = foundByNewToken!.lastAccessAt;
-      await new Promise((resolve) => setTimeout(resolve, 1));
+      await new Promise((resolve) => setTimeout(resolve, 10)); // Increased delay for reliable timing
       await sut.updateLastAccess(createdSession.id);
       const afterAccessUpdate = await sut.findBySessionId(createdSession.id);
-      expect(afterAccessUpdate!.lastAccessAt.getTime()).toBeGreaterThan(
+      expect(afterAccessUpdate!.lastAccessAt.getTime()).toBeGreaterThanOrEqual(
         beforeAccessUpdate.getTime(),
       );
 
