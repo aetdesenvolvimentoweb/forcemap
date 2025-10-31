@@ -72,6 +72,40 @@ describe("expressRouteAdapter", () => {
         params: requestData.params,
         query: requestData.query,
         headers: requestData.headers,
+        user: undefined,
+      });
+    });
+
+    it("should pass user data from authentication middleware", async () => {
+      const userData = {
+        userId: "user-123",
+        sessionId: "session-456",
+        role: "Admin",
+        militaryId: "military-789",
+      };
+
+      mockRequest = {
+        body: { name: "test" },
+        params: { id: "123" },
+        query: {},
+        headers: {},
+        user: userData,
+      } as any;
+
+      mockController.handle.mockResolvedValueOnce({
+        statusCode: 200,
+        body: { data: "success" },
+      });
+
+      const adapter = expressRouteAdapter(mockController, mockLogger);
+      await adapter(mockRequest as Request, mockResponse as Response);
+
+      expect(mockController.handle).toHaveBeenCalledWith({
+        body: { name: "test" },
+        params: { id: "123" },
+        query: {},
+        headers: {},
+        user: userData,
       });
     });
 
@@ -96,6 +130,7 @@ describe("expressRouteAdapter", () => {
         params: {},
         query: {},
         headers: {},
+        user: undefined,
       });
     });
 

@@ -19,6 +19,8 @@ export const expressRouteAdapter = (
         params: req.params,
         query: req.query,
         headers: req.headers,
+        //eslint-disable-next-line @typescript-eslint/no-explicit-any
+        user: (req as any).user, // Passa dados de autenticação do middleware
       };
 
       const httpResponse: HttpResponse = await controller.handle(httpRequest);
