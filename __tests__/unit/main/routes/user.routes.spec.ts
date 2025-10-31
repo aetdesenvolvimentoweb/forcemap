@@ -116,6 +116,7 @@ describe("userRoutes", () => {
       );
       expect(mockRouterMethods.get).toHaveBeenCalledWith(
         "/user",
+        expect.any(Function),
         mockListAllAdapter,
       );
       expect(mockRouterMethods.get).toHaveBeenCalledTimes(2);
@@ -213,6 +214,7 @@ describe("userRoutes", () => {
       expect(mockRouterMethods.get).toHaveBeenCalledWith(
         "/user",
         expect.any(Function),
+        expect.any(Function),
       );
       expect(mockRouterMethods.get).toHaveBeenCalledWith(
         "/user/:id",
@@ -280,6 +282,7 @@ describe("userRoutes", () => {
       );
       expect(mockRouterMethods.get).toHaveBeenCalledWith(
         "/user",
+        expect.any(Function),
         mockListAllAdapter,
       );
       expect(mockRouterMethods.get).toHaveBeenCalledWith(

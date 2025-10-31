@@ -39,6 +39,7 @@ userRoutes.patch(
 // Rotas que requerem permissão ADMIN ou CHEFE
 userRoutes.get(
   "/user",
+  requireAuthWithRoles(["Admin", "Chefe"]),
   expressRouteAdapter(makeListAllUserController(), logger),
 );
 
